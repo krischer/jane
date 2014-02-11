@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} | {% trans 'Administration' %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">{% trans 'Administration' %}</h1>
+{% endblock %}
+
+{% block nav-global %}
+    {% if user.is_staff %}
+    <a href="/admin/" class="ml">Administration</a>
+    <a href="/" class="ml">Start Page</a>
+    {% endif %}
+{% endblock %}
+
+
+{% block extrahead %}
+{{ block.super }}
+<style type="text/css">
+.ml {
+    font-size: 11px;
+    margin: 0 10px 10px;
+    display: block;
+    float: left;
+}
+tr:hover {
+    background-color: #ddd;
+}
+</style>
+{% endblock %}

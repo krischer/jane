@@ -1,0 +1,9 @@
+django
+celery
+django-celery
+watchdog
+
+# Django REST framework
+djangorestframework
+markdown       # Markdown support for the browsable API.
+django-filter  # Filtering support
