@@ -14,8 +14,9 @@ try:
 except ImportError:
     pass
 
+debug = True
 
-if platform.system() == 'Windows':
+if debug is True:
     # debug
     DEPLOYED = False
     DEBUG = True
