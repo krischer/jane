@@ -3,8 +3,11 @@ celery
 django-celery
 watchdog
 psycopg2
+obspy
+pymongo
 
 # Django REST framework
 djangorestframework
 markdown       # Markdown support for the browsable API.
 django-filter  # Filtering support
+django-plugins
