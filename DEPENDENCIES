@@ -2,6 +2,7 @@ django
 celery
 django-celery
 watchdog
+psycopg2
 
 # Django REST framework
 djangorestframework
