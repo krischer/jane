@@ -32,7 +32,7 @@ class ResourceType(models.Model):
     converters = ManyPluginField(plugins.ConverterPluginPoint, null=True,
         blank=True, related_name='converters')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -44,7 +44,7 @@ class Resource(models.Model):
     name = models.SlugField(max_length=20, null=True, blank=True,
         db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s" % (self.pk)
 
     class Meta:
@@ -61,7 +61,7 @@ class Document(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s" % (self.pk)
 
     class Meta:

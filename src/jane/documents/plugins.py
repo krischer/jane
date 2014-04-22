@@ -17,6 +17,13 @@ class IndexerPluginPoint(PluginPoint):
         raise NotImplementedError
 
 
+class ConverterPluginPoint(PluginPoint):
+    """
+    """
+    def convert(self):
+        raise NotImplementedError
+
+
 class OutputConverterPluginPoint(PluginPoint):
     """
     """

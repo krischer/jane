@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-
 import os
-import platform
 import sys
-
 import djcelery
 
+
+DEBUG = True
 
 # ensure PIL is working in virtualenv
 try:
@@ -14,18 +13,14 @@ try:
 except ImportError:
     pass
 
-debug = True
 
-if debug is True:
-    # debug
+if DEBUG is True:
     DEPLOYED = False
-    DEBUG = True
     TEMPLATE_DEBUG = True
     SQL_DEBUG = False
     DEBUG_TOOLBAR = False
 else:
     DEPLOYED = True
-    DEBUG = False
     TEMPLATE_DEBUG = False
     DEBUG_TOOLBAR = False
 
@@ -45,6 +40,7 @@ USE_L10N = False
 USE_TZ = False
 DATETIME_FORMAT = "c"
 DATE_FORMAT = "Y-m-d"
+
 
 if DEPLOYED:
     MEDIA_ROOT = '/home/django/www/media'
@@ -243,10 +239,7 @@ CELERY_IMPORTS = ["jane.filearchive.tasks"]
 ###############################################################################
 # Import local settings
 ###############################################################################
-try:
-    from local_settings import *  # @UnusedWildImport
-except ImportError:
-    pass
+from .local_settings import *  # @UnusedWildImport
 
 
 # speed up tests

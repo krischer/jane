@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint
+from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint, \
+    ConverterPluginPoint
 
 
 class StationValidatorPlugin(ValidatorPluginPoint):
@@ -17,19 +18,18 @@ class StationIndexerPlugin(IndexerPluginPoint):
 
     def index(self, document):
         # prcoesssing
-        
+
         # preview generiert
         image_string = document.plot()
         stream = read(document)
-        
-        
+
+
         return {
-          num_traces = 3,
-          traces = {
-                    
-          }  
-            "__derived_data": [{"name": "preview", "mimetype": "png", "": image_string}]
-                
+          "num_traces": 3,
+          "traces": {},
+          "__derived_data": [{"name": "preview", "mimetype": "png",
+                              "": image_string}]
+
         }
 
 

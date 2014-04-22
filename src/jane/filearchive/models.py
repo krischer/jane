@@ -14,7 +14,7 @@ class Path(models.Model):
     ctime = models.DateTimeField()
     mtime = models.DateTimeField()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -43,7 +43,7 @@ class File(models.Model):
     ctime = models.DateTimeField()
     mtime = models.DateTimeField()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -78,7 +78,7 @@ class Waveform(models.Model):
     preview_trace = models.BinaryField(null=True)
     preview_image = models.BinaryField(null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s.%s.%s.%s | %s - %s | %s Hz, %d samples" % (self.network,
             self.station, self.location, self.channel, self.starttime,
             self.endtime, self.sampling_rate, self.npts)
@@ -106,7 +106,7 @@ class WaveformMapping(models.Model):
     path_regex = models.CharField(max_length=255, blank=True)
     file_regex = models.CharField(max_length=255, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s.%s.%s.%s | %s - %s ==> %s.%s.%s.%s" % (self.network,
             self.station, self.location, self.channel, self.starttime,
             self.endtime, self.new_network, self.new_station,
