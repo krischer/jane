@@ -2,29 +2,15 @@
 
 from django.db import models
 from djangoplugins.fields import PluginField, ManyPluginField
-from pymongo import MongoClient
+from jsonfield.fields import JSONField
 
 from jane.documents import plugins
 
 
-mongo_db = MongoClient().jane
-
-
 class ResourceType(models.Model):
-    XML_CONTENT = 0
-    JSON_CONTENT = 1
-    TEXT_CONTENT = 2
-    BINARY_CONTENT = 3
-
-    CONTENT_TYPE_CHOICES = [
-        (XML_CONTENT, 'xml'),
-        (JSON_CONTENT, 'json'),
-        (TEXT_CONTENT, 'text'),
-        (BINARY_CONTENT, 'binary'),
-    ]
-
     name = models.SlugField(max_length=20, primary_key=True)
-    content_type = models.IntegerField(choices=CONTENT_TYPE_CHOICES)
+    content_type = models.CharField(max_length=255)
+    # plugins
     indexer = PluginField(plugins.IndexerPluginPoint, null=True,
         blank=True, related_name='indexer')
     validators = ManyPluginField(plugins.ValidatorPluginPoint, null=True,
@@ -41,11 +27,11 @@ class ResourceType(models.Model):
 
 class Resource(models.Model):
     resource_type = models.ForeignKey(ResourceType, related_name='resources')
-    name = models.SlugField(max_length=20, null=True, blank=True,
+    name = models.SlugField(max_length=255, null=True, blank=True,
         db_index=True)
 
     def __str__(self):
-        return u"%s" % (self.pk)
+        return str(self.pk)
 
     class Meta:
         ordering = ['pk']
@@ -53,34 +39,31 @@ class Resource(models.Model):
 
 class Document(models.Model):
     resource = models.ForeignKey(Resource, related_name='documents')
-    revision = models.IntegerField(default=0)
-    filename = models.CharField(max_length=255)
+    revision = models.IntegerField(default=0, db_index=True)
+    filename = models.CharField(max_length=255, blank=True, null=True)
     data = models.BinaryField()
     filesize = models.IntegerField()
-    sha1 = models.CharField(max_length=40)
+    sha1 = models.CharField(max_length=40, db_index=True, unique=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_at = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
-        return u"%s" % (self.pk)
+        return str(self.pk)
 
     class Meta:
         ordering = ['pk']
         unique_together = ['resource', 'revision']
 
-    @property
-    def collection(self):
-        name = self.resource.resource_type.name
-        return mongo_db[name]
-
     def save(self, *args, **kwargs):
         super(Document, self).save(*args, **kwargs)
-        # store index into mongo db
-        self.collection.insert({
-            '_id': self.pk,
-            'filename': self.filename,
-            'filesize': self.filesize,
-            'sha1': self.sha1})
 
-    def format_data(self):
-        return self.collection.find_one({"_id": self.pk})
+
+class IndexedValue(models.Model):
+    document = models.ForeignKey(Document, related_name='indexed_values')
+    json = JSONField()
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+
+    def __str__(self):
+        return str(self.json)
+
+    class Meta:
+        ordering = ['pk']

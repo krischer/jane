@@ -14,7 +14,19 @@ class IndexerPluginPoint(PluginPoint):
     """
     """
     def index(self):
+        """
+        """
         raise NotImplementedError
+
+    @property
+    def meta(self):
+        """
+        """
+        raise NotImplementedError
+
+    @property
+    def keys(self):
+        return self.meta.keys()
 
 
 class ConverterPluginPoint(PluginPoint):

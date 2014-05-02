@@ -21,8 +21,13 @@ admin.site.register(models.Resource, ResourceAdmin)
 class DocumentAdmin(admin.ModelAdmin):
     list_display = ['pk', 'resource', 'revision', 'filename', 'filesize',
         'created_at']
-    list_filter = ['resource__resource_type__name', 'created_at',
-        'modified_at']
-    readonly_fields = ['format_data']
+    list_filter = ['resource__resource_type__name', 'created_at']
 
 admin.site.register(models.Document, DocumentAdmin)
+
+
+class IndexedValueAdmin(admin.ModelAdmin):
+    list_display = ['pk', 'json', 'created_at']
+    list_filter = ['created_at']
+
+admin.site.register(models.IndexedValue, IndexedValueAdmin)

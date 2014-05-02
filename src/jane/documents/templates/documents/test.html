@@ -1,0 +1,17 @@
+<html>
+<body>
+
+hallo
+
+<table border="1">
+{% for item in values %}
+<tr>
+  <td>{{ item.pk }}</td>
+  <td>{{ item.revision }}</td>
+  <td>{{ item.json }}</td>
+  <td>{{ item.created_at }}</td>
+</tr>
+{% endfor %}
+</table>
+</body>
+</html>

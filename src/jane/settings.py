@@ -18,7 +18,7 @@ if DEBUG is True:
     DEPLOYED = False
     TEMPLATE_DEBUG = True
     SQL_DEBUG = False
-    DEBUG_TOOLBAR = False
+    DEBUG_TOOLBAR = True
 else:
     DEPLOYED = True
     TEMPLATE_DEBUG = False
@@ -76,6 +76,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -175,6 +176,7 @@ INSTALLED_APPS += [
     'jane.filearchive',
     'jane.documents',
     'jane.stations',
+    'jane.quakeml',
 ]
 
 
@@ -234,6 +236,12 @@ CELERY_TASK_SERIALIZER = "json"
 # This must import every module where you register tasks so celeryd
 # is able to find and run them.
 CELERY_IMPORTS = ["jane.filearchive.tasks"]
+
+
+###############################################################################
+# django-debug-toolbar
+###############################################################################
+INSTALLED_APPS += ['debug_toolbar']
 
 
 ###############################################################################

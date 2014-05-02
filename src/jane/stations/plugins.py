@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint, \
-    ConverterPluginPoint
+from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint
 
 
 class StationValidatorPlugin(ValidatorPluginPoint):
@@ -16,34 +15,15 @@ class StationIndexerPlugin(IndexerPluginPoint):
     name = 'station'
     title = 'StationXML Indexer'
 
-    def index(self, document):
-        # prcoesssing
-
-        # preview generiert
-        image_string = document.plot()
-        stream = read(document)
-
-
-        return {
-          "num_traces": 3,
-          "traces": {},
-          "__derived_data": [{"name": "preview", "mimetype": "png",
-                              "": image_string}]
-
+    @property
+    def meta(self):
+        """
+        types: string, date, datetime, bool, int, float
+        """
+        return {'num_traces': {'type': 'string',
+                               'minimum_allowed': True,
+                               'wildcard_allowed': True}
         }
 
-
-
-class GeoJSONStationConverterPlugin(ConverterPluginPoint):
-    format = 'geojson'
-
-    def convert(self, document):
-        return json2geojson(document)
-
-
-
-class GeoJSONStationConverterPlugin(ConverterPluginPoint):
-    format = 'geojson'
-
-    def convert(self, document):
-        return json2geojson(document)
+    def index(self, document):
+        return []
