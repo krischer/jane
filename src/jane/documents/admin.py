@@ -20,7 +20,7 @@ admin.site.register(models.Resource, ResourceAdmin)
 
 class DocumentAdmin(admin.ModelAdmin):
     list_display = ['pk', 'resource', 'revision', 'filename', 'filesize',
-        'created_at']
+        'sha1', 'created_at']
     list_filter = ['resource__resource_type__name', 'created_at']
 
 admin.site.register(models.Document, DocumentAdmin)

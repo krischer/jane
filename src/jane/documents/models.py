@@ -67,3 +67,17 @@ class IndexedValue(models.Model):
 
     class Meta:
         ordering = ['pk']
+
+
+class IndexedValueAttachment(models.Model):
+    indexed_value = models.ForeignKey(IndexedValue, related_name='attachments')
+    category = models.SlugField(max_length=20, db_index=True)
+    content_type = models.CharField(max_length=255)
+    data = models.BinaryField()
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+
+    def __str__(self):
+        return str(self.data)
+
+    class Meta:
+        ordering = ['pk']

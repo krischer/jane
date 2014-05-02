@@ -10,8 +10,10 @@ def test(request, resource_type):
     """
     resource_type = get_object_or_404(models.ResourceType, name=resource_type)
     values = models.IndexedValue.objects.\
-        filter(revision__resource__resource_type=resource_type).\
-        extra(where=["json->>'muh' = 'kuh'"])
+        filter(document__resource__resource_type=resource_type).\
+        extra(where=["json->'longitude' <= '100'",
+                     "json->'latitude' <= '50'",
+                     "json->'magnitude' > '1'"])
 
     return render_to_response('documents/test.html',
         {'values': values},
