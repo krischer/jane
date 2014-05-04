@@ -8,7 +8,7 @@ from jane.filearchive import views
 
 
 router = DefaultRouter()
-router.register(r'waveform', views.WaveformView)
+router.register(r'waveforms', views.WaveformView)
 
 urlpatterns = patterns('',
     url(r'^rest/', include(router.urls)),
