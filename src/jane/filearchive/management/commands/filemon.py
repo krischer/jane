@@ -43,8 +43,10 @@ class EventHandler(LoggingEventHandler):
             'event_type': event.event_type,
             'src_path': event.src_path
         }
+
         if event.event_type == 'moved':
-            data['dest_path'] = event.dest_path
+            data['dest_path'] = os.path.abspath(event.dest_path)
+
         if not self.debug:
             tasks.filemon_event.delay(data)  # @UndefinedVariable
         else:

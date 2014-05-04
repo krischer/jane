@@ -177,6 +177,7 @@ INSTALLED_APPS += [
     'jane.documents',
     'jane.stations',
     'jane.quakeml',
+    'jane.core'
 ]
 
 
