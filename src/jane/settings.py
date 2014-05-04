@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-import djcelery
+# import djcelery
 
 
 DEBUG = True
@@ -213,7 +213,7 @@ REST_FRAMEWORK = {
 ###############################################################################
 # Celery (Task Queue)
 ###############################################################################
-djcelery.setup_loader()
+# djcelery.setup_loader()
 
 INSTALLED_APPS += ["djcelery"]
 if DEPLOYED:
@@ -226,8 +226,11 @@ if DEPLOYED:
     BROKER_VHOST = "jane"
 else:
     # use django db on local installation
-    BROKER_URL = 'django://'
-    INSTALLED_APPS += ['djcelery.transport']
+    BROKER_TRANSPORT = "amqp"
+    # BROKER_URL = 'django://'
+    # INSTALLED_APPS += ['kombu.transport.django']
+
+CELERY_RESULT_BACKEND = "djcelery.backends.database:DatabaseBackend"
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = "json"
@@ -235,7 +238,7 @@ CELERY_TASK_SERIALIZER = "json"
 # Modules to import when celeryd starts.
 # This must import every module where you register tasks so celeryd
 # is able to find and run them.
-CELERY_IMPORTS = ["jane.filearchive.tasks"]
+# CELERY_IMPORTS = ["jane.filearchive.tasks"]
 
 
 ###############################################################################
