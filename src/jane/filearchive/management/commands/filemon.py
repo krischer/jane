@@ -61,7 +61,7 @@ class Command(BaseCommand):
         try:
             path = args[0]
             if not os.path.isdir(path):
-                raise
+                raise ValueError("Given path is not a directory.")
         except:
             path = os.path.curdir
         event_handler = EventHandler()
