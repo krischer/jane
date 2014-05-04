@@ -30,6 +30,14 @@ class EventHandler(LoggingEventHandler):
         """
         Catch-all event handler.
         """
+        # Do not deal with modified directories! Those are fired every time
+        # a new file is added to a directory and are already caught by the
+        # new files.
+        # Also created directories are of no interest. The directory will be
+        # added to the database as soon as a new file is added.
+        if event.is_directory and event.event_type in ["created", "modified"]:
+            return
+
         data = {
             'is_directory': event.is_directory,
             'event_type': event.event_type,

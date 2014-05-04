@@ -36,7 +36,8 @@ admin.site.register(models.Path, PathAdmin)
 
 
 class FileAdmin(admin.ModelAdmin):
-    list_display = ['name', 'path', 'format', 'format_trace_count']
+    list_display = ['name', 'path', 'format', 'format_trace_count', 'ctime',
+                    'mtime']
     search_fields = ['name', 'path']
     date_hierarchy = 'mtime'
     readonly_fields = ['path', 'name', 'category', 'format', 'mtime', 'ctime',
@@ -94,14 +95,16 @@ class WaveformAdmin(admin.ModelAdmin):
     format_nslc.short_description = 'SEED ID'
 
     def format_preview_image(self, obj):
-        data = base64.b64encode(str(obj.preview_image))
-        return '<img height="250" src="data:image/png;base64,%s" />' % (data)
+        data = base64.b64encode(obj.preview_image)
+        return '<img height="250" src="data:image/png;base64,%s" />' % (
+            data.decode())
     format_preview_image.allow_tags = True
     format_preview_image.short_description = 'Trace preview'
 
     def format_small_preview_image(self, obj):
-        data = base64.b64encode(str(obj.preview_image))
-        return '<img height="25" src="data:image/png;base64,%s" />' % (data)
+        data = base64.b64encode(obj.preview_image)
+        return '<img height="25" src="data:image/png;base64,%s" />' % (
+            data.decode())
     format_small_preview_image.allow_tags = True
     format_small_preview_image.short_description = 'Trace preview'
 
