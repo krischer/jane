@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
+
+from rest_framework.routers import DefaultRouter
 
 from jane.filearchive import views
 
 
+router = DefaultRouter()
+router.register(r'waveform', views.WaveformView)
+
 urlpatterns = patterns('',
-    url(r'^rest/waveforms/', views.WaveformListView.as_view(),
-        name='rest_waveforms'),
+    url(r'^rest/', include(router.urls)),
 )

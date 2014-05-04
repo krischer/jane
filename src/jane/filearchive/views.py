@@ -1,12 +1,26 @@
 # -*- coding: utf-8 -*-
 
-from rest_framework import generics
+from rest_framework import viewsets, renderers
+
+from rest_framework.response import Response
+from rest_framework.decorators import link
 
 from jane.filearchive import models, serializer
 
 
-class WaveformListView(generics.ListAPIView):
+class PNGRenderer(renderers.BaseRenderer):
+    media_type = "image/png"
+    format = "png"
+
+    def render(self, data, media_type=None, renderer_context=None):
+        return data
+
+
+class WaveformView(viewsets.ReadOnlyModelViewSet):
     queryset = models.Waveform.objects.all()
     serializer_class = serializer.WaveformSerializer
-    filter_fields = ['network', 'station', 'location', 'channel',
-        'sampling_rate']
+
+    @link(renderer_classes=[PNGRenderer])
+    def plot(self, request, *args, **kwargs):
+        obj = self.get_object()
+        return Response(obj.preview_image)
