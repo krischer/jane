@@ -19,7 +19,7 @@ def validate_document(sender, instance, **kwargs):  # @UnusedVariable
             data.seek(0, 0)
             # raise if not valid
             if not plugin.get_plugin().validate(data):
-                raise
+                raise Exception
 
 
 @receiver(post_save, sender=models.Document)
