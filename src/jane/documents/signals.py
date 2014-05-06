@@ -50,4 +50,4 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
                 except:
                     data = value['data']
                 models.IndexedValueAttachment(indexed_value=obj, category=key,
-                    content_type=value['content_type'], data=data).save()
+                    content_type=value['content-type'], data=data).save()

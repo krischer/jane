@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import io
 
+import obspy
 from obspy.core.event import readEvents, Catalog
 from obspy.core.quakeml import _validate as validate_quakeml
 
@@ -39,7 +40,8 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
             mag = event.preferred_magnitude() or event.magnitudes[0]
 
             plot = io.BytesIO()
-            Catalog(events=[event]).plot(outfile=plot)
+            Catalog(events=[event]).plot(format="png", outfile=plot)
+            plot.seek(0)
 
             indices.append({
                 "latitude": org.latitude,
@@ -49,7 +51,7 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 "magnitude": mag.mag,
                 "magnitude_type": mag.magnitude_type,
                 "attachments": {
-                    "map": {"content-type": "image/png", "data": plot}
+                    "map": {"content-type": "image/png", "data": plot.read()}
                 }
             })
         return indices

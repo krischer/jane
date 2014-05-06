@@ -3,10 +3,11 @@
 from django.contrib import admin
 
 from jane.documents import models
+import base64
 
 
 class ResourceTypeAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["name", "content_type"]
 
 admin.site.register(models.ResourceType, ResourceTypeAdmin)
 
@@ -31,3 +32,30 @@ class IndexedValueAdmin(admin.ModelAdmin):
     list_filter = ['created_at']
 
 admin.site.register(models.IndexedValue, IndexedValueAdmin)
+
+
+class IndexedValueAttachmentAdmin(admin.ModelAdmin):
+    list_display = ['pk', 'category', 'content_type',
+                    'created_at', 'format_small_preview_image']
+    list_filter = ['category']
+    readonly_fields = ['pk', 'indexed_value', 'format_preview_image']
+
+    def format_preview_image(self, obj):
+        if obj.content_type != "image/png":
+            return b""
+        data = base64.b64encode(obj.data)
+        return '<img height="500" src="data:image/png;base64,%s" />' % (
+            data.decode())
+    format_preview_image.allow_tags = True
+    format_preview_image.short_description = 'Preview'
+
+    def format_small_preview_image(self, obj):
+        if obj.content_type != "image/png":
+            return b""
+        data = base64.b64encode(obj.data)
+        return '<img height="50" src="data:image/png;base64,%s" />' % (
+            data.decode())
+    format_small_preview_image.allow_tags = True
+    format_small_preview_image.short_description = 'Preview'
+
+admin.site.register(models.IndexedValueAttachment, IndexedValueAttachmentAdmin)
