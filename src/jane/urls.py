@@ -13,7 +13,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api-root/', include('rest_framework.urls',
                                namespace='rest_framework')),
-    url(r'^test/', include('jane.documents.urls')),
+    url(r'^documents/', include('jane.documents.urls')),
     url(r'', include('jane.filearchive.urls')),
 )
 
