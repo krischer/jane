@@ -59,7 +59,7 @@ class Document(models.Model):
 
 class IndexedValue(models.Model):
     document = models.ForeignKey(Document, related_name='indexed_values')
-    json = JSONField()
+    json = JSONField(verbose_name="JSON")
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
     def __str__(self):

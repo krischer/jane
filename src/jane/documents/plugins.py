@@ -5,12 +5,14 @@ import sys
 
 from djangoplugins.point import PluginPoint
 
+from jane import settings
 
 
 class ValidatorPluginPoint(PluginPoint):
     """
     """
     group_name = "validators"
+
     def validate(self):
         raise NotImplementedError
 
@@ -19,6 +21,7 @@ class IndexerPluginPoint(PluginPoint):
     """
     """
     group_name = "indexer"
+
     def index(self):
         """
         """
@@ -39,6 +42,7 @@ class ConverterPluginPoint(PluginPoint):
     """
     """
     group_name = "converters"
+
     def convert(self):
         raise NotImplementedError
 
@@ -47,6 +51,7 @@ class OutputConverterPluginPoint(PluginPoint):
     """
     """
     group_name = "output_converters"
+
     def convert(self):
         raise NotImplementedError
 
@@ -55,6 +60,7 @@ class InputConverterPluginPoint(PluginPoint):
     """
     """
     group_name = "input_converters"
+
     def convert(self):
         raise NotImplementedError
 
@@ -79,7 +85,7 @@ def initialize_plugins():
 
     # Get all registered plugins.
     plugins = collections.defaultdict(
-        lambda : collections.defaultdict(list))
+        lambda: collections.defaultdict(list))
     for name, obj in plugin_points.items():
         for plugin in obj.get_plugins():
             plugins[plugin.name.lower()][obj.group_name].append(plugin)
@@ -101,6 +107,7 @@ def initialize_plugins():
                 "converters"]]
         resource_type.save()
 
-    import pprint
-    print("Registered Plugins:")
-    pprint.pprint(plugins)
+    if settings.DEBUG:
+        import pprint
+        print("Registered Plugins:")
+        pprint.pprint(plugins)

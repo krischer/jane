@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from rest_framework.reverse import reverse
-from rest_framework import generics, renderers
 
 from jane.documents import models, serializer
 
@@ -25,22 +24,6 @@ def test(request, resource_type):
     return render_to_response('documents/test.html',
         {'values': values},
         context_instance=RequestContext(request))
-
-
-@api_view(['GET'])
-def documents_root(request, format=None):
-    """
-    The root of the jane.documents REST interface. Lists all registered
-    resource types.
-    """
-    if request.method == "GET":
-        resource_types = models.ResourceType.objects.all()
-        data = {
-           _i.name: reverse(indexed_values_list, args=[_i.name],
-                            request=request)
-           for _i in resource_types
-        }
-        return Response(data)
 
 
 @api_view(['GET'])

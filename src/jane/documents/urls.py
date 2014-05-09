@@ -6,14 +6,13 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 
 urlpatterns = patterns('jane.documents.views',
-    url(r'^rest/$', 'documents_root'),
     url(r'^rest/(?P<resource_type>\w+)$', 'indexed_values_list'),
     url(r'^rest/(?P<resource_type>\w+)/(?P<pk>[0-9]+)$',
         'indexed_value_detail'),
     url(r'^rest/(?P<resource_type>\w+)/(?P<index_id>[0-9]+)/'
         '(?P<attachment_id>[0-9]+)$',
         'view_attachment'),
-    url(r'^(?P<resource_type>[-\w]+)/',
+    url(r'^documents/(?P<resource_type>[-\w]+)/',
         view='test',
         name='test'),
 )

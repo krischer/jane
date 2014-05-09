@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import io
 
-import obspy
 from obspy.core.event import readEvents, Catalog
 from obspy.core.quakeml import _validate as validate_quakeml
 
@@ -54,4 +53,5 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                     "map": {"content-type": "image/png", "data": plot.read()}
                 }
             })
+            plot.close()
         return indices

@@ -28,8 +28,20 @@ admin.site.register(models.Document, DocumentAdmin)
 
 
 class IndexedValueAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'json', 'created_at']
-    list_filter = ['created_at']
+    list_display = ['pk', 'json', 'format_resource_type',
+                    'created_at']
+    list_filter = ['created_at', 'document__resource__resource_type']
+    readonly_fields = ['format_resource_type', 'created_at']
+
+    def queryset(self, request):
+        return super(IndexedValueAdmin, self).queryset(request).\
+            select_related('document__resource__resource_type')
+
+    def format_resource_type(self, obj):
+        return obj.document.resource.resource_type.name
+    format_resource_type.short_description = 'Resource type'
+    format_resource_type.admin_order_field = \
+            'document__resource__resource_type'
 
 admin.site.register(models.IndexedValue, IndexedValueAdmin)
 

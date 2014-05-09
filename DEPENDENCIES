@@ -5,6 +5,7 @@ watchdog
 psycopg2
 obspy
 django-debug-toolbar
+jsonfield
 
 # Django REST framework
 djangorestframework
