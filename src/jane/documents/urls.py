@@ -20,5 +20,9 @@ urlpatterns = patterns('jane.documents.views',
 
 urlpatterns = format_suffix_patterns(urlpatterns)
 
-from .plugins import initialize_plugins
-available_plugins = initialize_plugins()
+# XXX: currently fails for initial syncdb
+try:
+    from .plugins import initialize_plugins
+    available_plugins = initialize_plugins()
+except:
+    pass

@@ -1,3 +1,5 @@
 .project
 .pydevproject
 .settings
+__pycache__
+local_settings.py

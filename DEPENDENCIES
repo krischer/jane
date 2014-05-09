@@ -4,7 +4,7 @@ django-celery
 watchdog
 psycopg2
 obspy
-pymongo
+django-debug-toolbar
 
 # Django REST framework
 djangorestframework
