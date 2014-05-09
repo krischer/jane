@@ -27,7 +27,8 @@ def test(request, resource_type):
 
 
 @api_view(['GET'])
-def indexed_values_list(request, resource_type, format=None):
+def indexed_values_list(request, resource_type,
+                        format=None):  # @ReservedAssignment
     """
     Lists all indexed values.
     """
@@ -48,7 +49,8 @@ def indexed_values_list(request, resource_type, format=None):
 
 
 @api_view(['GET'])
-def indexed_value_detail(request, resource_type, pk, format=None):
+def indexed_value_detail(request, resource_type, pk,
+                         format=None):  # @ReservedAssignment
     """
     Retrieve a single indexed value.
     """
@@ -73,6 +75,6 @@ def view_attachment(request, resource_type, index_id, attachment_id):
     get_object_or_404(models.IndexedValue, pk=index_id)
     value = get_object_or_404(models.IndexedValueAttachment, pk=attachment_id)
 
-    response = HttpResponse(mimetype=value.content_type)
+    response = HttpResponse(content_type=value.content_type)
     response.write(value.data)
     return response
