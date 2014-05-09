@@ -57,10 +57,22 @@ class Document(models.Model):
         super(Document, self).save(*args, **kwargs)
 
 
+class IndexedValueManager(models.Manager):
+
+    def get_query_set(self):
+        """
+        """
+        return super(IndexedValueManager, self).get_query_set().\
+            select_related('attachments').\
+            prefetch_related('attachments')
+
+
 class IndexedValue(models.Model):
     document = models.ForeignKey(Document, related_name='indexed_values')
     json = JSONField(verbose_name="JSON")
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
+
+    objects = IndexedValueManager()
 
     def __str__(self):
         return str(self.json)
