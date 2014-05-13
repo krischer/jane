@@ -25,5 +25,5 @@ def rest_root(request, format=None):  # @ReservedAssignment
         # the trick.
         data['waveforms'] = \
             request.build_absolute_uri().rstrip(request.path) + \
-            '/rest/waveforms'
+            '/rest/waveforms/'
         return Response(data)
