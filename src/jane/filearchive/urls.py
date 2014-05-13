@@ -6,9 +6,9 @@ from rest_framework.routers import SimpleRouter
 from jane.filearchive import views
 
 
-router = SimpleRouter()
+router = SimpleRouter(trailing_slash=False)
 router.register(r'waveforms', views.WaveformView)
 
 urlpatterns = patterns('',
-    url(r'^rest/waveforms/$', include(router.urls)),
+    url(r'^rest/', include(router.urls)),
 )
