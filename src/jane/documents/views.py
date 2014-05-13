@@ -60,13 +60,7 @@ def indexed_value_detail(request, resource_type, pk,
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        data = serializer.IndexedValueSerializer(value).data
-        #for d, v in zip(data["attachments"], value.attachments.all()):
-        #    d.insert(0, "url", reverse(
-        #        view_attachment, args=[resource_type, value.pk, v.pk],
-        #        request=request))
-        #import pdb;pdb.set_trace()
-        return Response(data)
+        return Response(serializer.IndexedValueSerializer(value).data)
 
 
 def view_attachment(request, resource_type, index_id, attachment_id):
