@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
+
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from jane.documents import models, serializer
-
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
 
 
 def test(request, resource_type):
@@ -70,10 +70,9 @@ def indexed_value_detail(request, resource_type, pk,
 
 def view_attachment(request, resource_type, index_id, attachment_id):
     # Assure resource type and index id are available.
-    # XXX: Check relation.
-    get_object_or_404(models.ResourceType, name=resource_type)
-    get_object_or_404(models.IndexedValue, pk=index_id)
-    value = get_object_or_404(models.IndexedValueAttachment, pk=attachment_id)
+    value = get_object_or_404(models.IndexedValueAttachment,
+        indexed_value__document__resource__resource_type__name=resource_type,
+        indexed_value__pk=index_id, pk=attachment_id)
 
     response = HttpResponse(content_type=value.content_type)
     response.write(value.data)
