@@ -3,6 +3,7 @@
 from django.db import models
 from djangoplugins.fields import PluginField, ManyPluginField
 from jsonfield.fields import JSONField
+from rest_framework.reverse import reverse
 
 from jane.documents import plugins
 
@@ -74,11 +75,15 @@ class IndexedValue(models.Model):
 
     objects = IndexedValueManager()
 
+    class Meta:
+        ordering = ['pk']
+
     def __str__(self):
         return str(self.json)
 
-    class Meta:
-        ordering = ['pk']
+    def get_absolute_url(self):
+        return reverse('indexed_value_detail',
+                       args=[self.document.resource.resource_type, self.pk])
 
 
 class IndexedValueAttachment(models.Model):
@@ -88,8 +93,13 @@ class IndexedValueAttachment(models.Model):
     data = models.BinaryField()
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
+    class Meta:
+        ordering = ['pk']
+
     def __str__(self):
         return str(self.data)
 
-    class Meta:
-        ordering = ['pk']
+    def get_absolute_url(self):
+        return reverse('view_attachment',
+                args=[self.indexed_value.document.resource.resource_type,
+                      self.indexed_value.pk, self.pk])

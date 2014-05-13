@@ -3,7 +3,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -54,13 +53,15 @@ def indexed_value_detail(request, resource_type, pk,
     """
     Retrieve a single indexed value.
     """
-    try:
-        value = models.IndexedValue.objects.get(pk=pk)
-    except models.IndexedValue.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    value = get_object_or_404(models.IndexedValue, pk=pk)
 
     if request.method == 'GET':
-        return Response(serializer.IndexedValueSerializer(value).data)
+        data = serializer.IndexedValueSerializer(value).data
+        for d, v in zip(data["attachments"], value.attachments.all()):
+            d.insert(0, "url", reverse(
+                view_attachment, args=[resource_type, value.pk, v.pk],
+                request=request))
+        return Response(data)
 
 
 def view_attachment(request, resource_type, index_id, attachment_id):

@@ -9,7 +9,7 @@ class IndexedValueAttachmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.IndexedValueAttachment
-        fields = ('category', 'content_type', 'created_at')
+        fields = ('id', 'category', 'content_type', 'created_at')
 
 
 class IndexedValueSerializer(serializers.ModelSerializer):
@@ -18,4 +18,4 @@ class IndexedValueSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.IndexedValue
-        fields = ('indexed_data', 'attachments', 'created_at')
+        fields = ('id', 'indexed_data', 'attachments', 'created_at')
