@@ -20,5 +20,10 @@ def rest_root(request, format=None):  # @ReservedAssignment
                             request=request)
            for _i in resource_types
         }
-        data['waveforms'] = 'http://localhost:8000/rest/waveforms'
+        # Most general way I could find. The reverse resolvers are kind of
+        # tricky when using the REST framework. In any case - this should do
+        # the trick.
+        data['waveforms'] = \
+            request.build_absolute_uri().rstrip(request.path) + \
+            '/rest/waveforms'
         return Response(data)
