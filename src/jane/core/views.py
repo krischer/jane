@@ -13,7 +13,7 @@ from collections import OrderedDict
 def rest_root(request, format=None):  # @ReservedAssignment
     """
     The root of the jane REST interface. Lists all registered
-    document resource types and the waveform type.
+    document resource types + the waveform type.
     """
     if request.method == "GET":
         resource_types = models.ResourceType.objects.order_by('name')
@@ -22,12 +22,8 @@ def rest_root(request, format=None):  # @ReservedAssignment
                             request=request)
            for _i in resource_types
         }
-        # Most general way I could find. The reverse resolvers are kind of
-        # tricky when using the REST framework. In any case - this should do
-        # the trick.
-        data['waveforms'] = \
-            request.build_absolute_uri().rstrip(request.path) + \
-            '/rest/waveforms/'
+        # manually add waveforms into our REST root
+        data['waveforms'] = reverse('waveforms-list', request=request)
 
         ordered_data = OrderedDict()
         for key in sorted(data.keys()):
