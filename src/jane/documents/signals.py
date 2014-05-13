@@ -29,7 +29,7 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
     """
     indexer = instance.resource.resource_type.indexer.get_plugin()
     # delete all existing indexed data
-    instance.indexed_values.all().delete()
+    instance.records.all().delete()
     # index data
     with io.BytesIO(bytes(instance.data)) as data:
         indices = indexer.index(data)
@@ -40,7 +40,7 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
             except:
                 pass
             # add indices
-            obj = models.IndexedValue(document=instance, json=index)
+            obj = models.Record(document=instance, json=index)
             obj.save()
             # add attachments
             for key, value in attachments.items():
@@ -49,5 +49,5 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
                     data = data.read()
                 except:
                     data = value['data']
-                models.IndexedValueAttachment(indexed_value=obj, category=key,
+                models.Attachment(record=obj, category=key,
                     content_type=value['content-type'], data=data).save()

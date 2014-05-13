@@ -55,6 +55,7 @@ def process_file(filename):
             plot.seek(0, 0)
 
             waveform_obj.preview_image = plot.read()
+            plot.close()
             waveform_obj.save()
     return
 

@@ -27,14 +27,14 @@ class DocumentAdmin(admin.ModelAdmin):
 admin.site.register(models.Document, DocumentAdmin)
 
 
-class IndexedValueAdmin(admin.ModelAdmin):
+class RecordAdmin(admin.ModelAdmin):
     list_display = ['pk', 'json', 'format_resource_type',
                     'created_at']
     list_filter = ['created_at', 'document__resource__resource_type']
     readonly_fields = ['format_resource_type', 'created_at']
 
     def queryset(self, request):
-        return super(IndexedValueAdmin, self).queryset(request).\
+        return super(RecordAdmin, self).queryset(request).\
             select_related('document__resource__resource_type')
 
     def format_resource_type(self, obj):
@@ -43,14 +43,14 @@ class IndexedValueAdmin(admin.ModelAdmin):
     format_resource_type.admin_order_field = \
             'document__resource__resource_type'
 
-admin.site.register(models.IndexedValue, IndexedValueAdmin)
+admin.site.register(models.Record, RecordAdmin)
 
 
-class IndexedValueAttachmentAdmin(admin.ModelAdmin):
+class AttachmentAdmin(admin.ModelAdmin):
     list_display = ['pk', 'category', 'content_type',
                     'created_at', 'format_small_preview_image']
     list_filter = ['category']
-    readonly_fields = ['pk', 'indexed_value', 'format_preview_image']
+    readonly_fields = ['pk', 'record', 'format_preview_image']
 
     def format_preview_image(self, obj):
         if obj.content_type != "image/png":
@@ -70,4 +70,4 @@ class IndexedValueAttachmentAdmin(admin.ModelAdmin):
     format_small_preview_image.allow_tags = True
     format_small_preview_image.short_description = 'Preview'
 
-admin.site.register(models.IndexedValueAttachment, IndexedValueAttachmentAdmin)
+admin.site.register(models.Attachment, AttachmentAdmin)

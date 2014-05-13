@@ -82,6 +82,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     # see http://docs.djangoproject.com/en/dev/ref/clickjacking/
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'jane.core.middleware.WhoDidItMiddleware',
 ]
 
 

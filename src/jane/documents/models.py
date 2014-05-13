@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from django.db import models
+from django.contrib.auth.models import User
+from django.contrib.gis.db import models
 from djangoplugins.fields import PluginField, ManyPluginField
 from jsonfield.fields import JSONField
-from rest_framework.reverse import reverse
 
 from jane.documents import plugins
 
@@ -46,6 +46,11 @@ class Document(models.Model):
     filesize = models.IntegerField()
     sha1 = models.CharField(max_length=40, db_index=True, unique=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    created_by = models.ForeignKey(User, null=True, editable=False,
+            related_name='documents_created')
+    modified_at = models.DateTimeField(auto_now=True, editable=False)
+    modified_by = models.ForeignKey(User, null=True, editable=False,
+            related_name='documents_modified')
 
     def __str__(self):
         return str(self.pk)
@@ -58,22 +63,24 @@ class Document(models.Model):
         super(Document, self).save(*args, **kwargs)
 
 
-class IndexedValueManager(models.Manager):
+class RecordManager(models.GeoManager):
 
     def get_query_set(self):
         """
         """
-        return super(IndexedValueManager, self).get_query_set().\
+        return super(RecordManager, self).get_query_set().\
             select_related('attachments').\
             prefetch_related('attachments')
 
 
-class IndexedValue(models.Model):
-    document = models.ForeignKey(Document, related_name='indexed_values')
+class Record(models.Model):
+    document = models.ForeignKey(Document, related_name='records')
     json = JSONField(verbose_name="JSON")
+    geometry = models.GeometryCollectionField(blank=True, null=True,
+        geography=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
-    objects = IndexedValueManager()
+    objects = RecordManager()
 
     class Meta:
         ordering = ['pk']
@@ -81,13 +88,9 @@ class IndexedValue(models.Model):
     def __str__(self):
         return str(self.json)
 
-    def get_absolute_url(self):
-        return reverse('indexed_value_detail',
-                       args=[self.document.resource.resource_type, self.pk])
 
-
-class IndexedValueAttachment(models.Model):
-    indexed_value = models.ForeignKey(IndexedValue, related_name='attachments')
+class Attachment(models.Model):
+    record = models.ForeignKey(Record, related_name='attachments')
     category = models.SlugField(max_length=20, db_index=True)
     content_type = models.CharField(max_length=255)
     data = models.BinaryField()
@@ -98,8 +101,3 @@ class IndexedValueAttachment(models.Model):
 
     def __str__(self):
         return str(self.data)
-
-    def get_absolute_url(self):
-        return reverse('view_attachment',
-                args=[self.indexed_value.document.resource.resource_type,
-                      self.indexed_value.pk, self.pk])

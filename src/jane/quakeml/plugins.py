@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import io
 
 from obspy.core.event import readEvents, Catalog

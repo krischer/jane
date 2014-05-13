@@ -14,7 +14,7 @@ def test(request, resource_type):
     """
     """
     resource_type = get_object_or_404(models.ResourceType, name=resource_type)
-    values = models.IndexedValue.objects.\
+    values = models.Record.objects.\
         filter(document__resource__resource_type=resource_type).\
         extra(where=["json->'longitude' <= '100'",
                      "json->'latitude' <= '50'",
@@ -26,49 +26,49 @@ def test(request, resource_type):
 
 
 @api_view(['GET'])
-def indexed_values_list(request, resource_type,
-                        format=None):  # @ReservedAssignment
+def rest_records_list(request, resource_type,
+                      format=None):  # @ReservedAssignment
     """
     Lists all indexed values.
     """
     if request.method == "GET":
         res_type = get_object_or_404(models.ResourceType, name=resource_type)
-        values = models.IndexedValue.objects. \
+        values = models.Record.objects. \
             filter(document__resource__resource_type=res_type)
-        data = serializer.IndexedValueSerializer(values, many=True).data
+        data = serializer.RecordSerializer(values, many=True).data
         for d, v in zip(data, values):
-            d.insert(0, "url", reverse(indexed_value_detail,
+            d.insert(0, "url", reverse('rest_record_detail',
                                        args=[res_type, v.pk],
                                        request=request))
             for _d, _v in zip(d["attachments"], v.attachments.all()):
                 _d.insert(0, "url", reverse(
-                    view_attachment, args=[res_type, v.pk, _v.pk],
+                    'rest_attachment_view', args=[res_type, v.pk, _v.pk],
                     request=request))
         return Response(data)
 
 
 @api_view(['GET'])
-def indexed_value_detail(request, resource_type, pk,
-                         format=None):  # @ReservedAssignment
+def rest_record_detail(request, resource_type, pk,
+                       format=None):  # @ReservedAssignment
     """
     Retrieve a single indexed value.
     """
-    value = get_object_or_404(models.IndexedValue, pk=pk)
+    value = get_object_or_404(models.Record, pk=pk)
 
     if request.method == 'GET':
-        data = serializer.IndexedValueSerializer(value).data
+        data = serializer.RecordSerializer(value).data
         for d, v in zip(data["attachments"], value.attachments.all()):
             d.insert(0, "url", reverse(
-                view_attachment, args=[resource_type, value.pk, v.pk],
+                'rest_attachment_view', args=[resource_type, value.pk, v.pk],
                 request=request))
         return Response(data)
 
 
-def view_attachment(request, resource_type, index_id, attachment_id):
+def rest_attachment_view(request, resource_type, index_id, attachment_id):
     # Assure resource type and index id are available.
-    value = get_object_or_404(models.IndexedValueAttachment,
-        indexed_value__document__resource__resource_type__name=resource_type,
-        indexed_value__pk=index_id, pk=attachment_id)
+    value = get_object_or_404(models.Attachment,
+        record__document__resource__resource_type__name=resource_type,
+        record__pk=index_id, pk=attachment_id)
 
     response = HttpResponse(content_type=value.content_type)
     response.write(value.data)
