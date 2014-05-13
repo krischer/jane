@@ -6,6 +6,8 @@ from rest_framework.reverse import reverse
 from jane.documents import models
 from jane.documents.views import indexed_values_list
 
+from collections import OrderedDict
+
 
 @api_view(['GET'])
 def rest_root(request, format=None):  # @ReservedAssignment
@@ -26,4 +28,9 @@ def rest_root(request, format=None):  # @ReservedAssignment
         data['waveforms'] = \
             request.build_absolute_uri().rstrip(request.path) + \
             '/rest/waveforms/'
-        return Response(data)
+
+        ordered_data = OrderedDict()
+        for key in sorted(data.keys()):
+            ordered_data[key] = data[key]
+
+        return Response(ordered_data)
