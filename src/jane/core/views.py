@@ -6,8 +6,6 @@ from rest_framework.reverse import reverse
 from jane.documents import models
 from jane.documents.views import indexed_values_list
 
-from collections import OrderedDict
-
 
 @api_view(['GET'])
 def rest_root(request, format=None):  # @ReservedAssignment
@@ -16,7 +14,7 @@ def rest_root(request, format=None):  # @ReservedAssignment
     document resource types + the waveform type.
     """
     if request.method == "GET":
-        resource_types = models.ResourceType.objects.order_by('name')
+        resource_types = models.ResourceType.objects.all()
         data = {
            _i.name: reverse(indexed_values_list, args=[_i.name],
                             request=request)
@@ -24,9 +22,5 @@ def rest_root(request, format=None):  # @ReservedAssignment
         }
         # manually add waveforms into our REST root
         data['waveforms'] = reverse('waveforms-list', request=request)
-
-        ordered_data = OrderedDict()
-        for key in sorted(data.keys()):
-            ordered_data[key] = data[key]
-
-        return Response(ordered_data)
+        return Response([{'name': i[0], 'url': i[1]}
+                         for i in sorted(data.items())])
