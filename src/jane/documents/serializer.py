@@ -1,13 +1,21 @@
+# -*- coding: utf-8 -*-
+
 from rest_framework import serializers
 
-
-class IndexedValueAttachmentSerializer(serializers.Serializer):
-    category = serializers.CharField()
-    content_type = serializers.CharField()
-    created_at = serializers.DateTimeField()
+from jane.documents import models
 
 
-class IndexedValueSerializer(serializers.Serializer):
+class IndexedValueAttachmentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.IndexedValueAttachment
+        fields = ('category', 'content_type', 'created_at')
+
+
+class IndexedValueSerializer(serializers.ModelSerializer):
     attachments = IndexedValueAttachmentSerializer(many=True)
-    created_at = serializers.DateTimeField()
     indexed_data = serializers.CharField(source="json")
+
+    class Meta:
+        model = models.IndexedValue
+        fields = ('indexed_data', 'attachments', 'created_at')

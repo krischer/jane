@@ -61,10 +61,11 @@ def indexed_value_detail(request, resource_type, pk,
 
     if request.method == 'GET':
         data = serializer.IndexedValueSerializer(value).data
-        for d, v in zip(data["attachments"], value.attachments.all()):
-            d.insert(0, "url", reverse(
-                view_attachment, args=[resource_type, value.pk, v.pk],
-                request=request))
+        #for d, v in zip(data["attachments"], value.attachments.all()):
+        #    d.insert(0, "url", reverse(
+        #        view_attachment, args=[resource_type, value.pk, v.pk],
+        #        request=request))
+        #import pdb;pdb.set_trace()
         return Response(data)
 
 

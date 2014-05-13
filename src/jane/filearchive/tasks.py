@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import os
 import io
+import os
 
 from celery import shared_task
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from obspy.core import read
 
-from jane.filearchive import models
 from jane.exceptions import JaneException
+from jane.filearchive import models
 
 
 class JaneFilearchiveTaskException(JaneException):
@@ -63,6 +63,7 @@ def _format_return_value(event, message):
     return "Filemon event type: {event_type}, Result: {message}, Input: {" \
            "event}".format(event_type=event["event_type"], message=message,
                            event=str(event))
+
 
 @shared_task
 def filemon_event(event):
