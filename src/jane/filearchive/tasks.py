@@ -26,9 +26,8 @@ def process_file(filename):
     stream = read(filename)
     # get gap and overlap information
     gap_list = stream.getGaps()
-    # merge channels and replace gaps/overlaps with 0 to prevent generation of
-    # masked arrays
-    stream.merge(fill_value=0)
+    # merge traces - will be converted to masked arrays if gaps are present
+    stream.merge(fill_value=None)
     # build up dictionary of gaps and overlaps for easier lookup
     gap_dict = {}
     for gap in gap_list:
@@ -75,10 +74,10 @@ def process_file(filename):
             channel_obj.preview_image = plot.read()
             plot.close()
 
-            # preview trace
+            # preview trace - replace masked values with 0
+            trace.data.filled(0)
             preview_trace = createPreview(trace, 30)
             channel_obj.preview_trace = preview_trace.data.dumps()
-
             channel_obj.save()
 
             # gaps
