@@ -2,6 +2,7 @@
 
 import io
 
+from django.contrib.gis.geos.collections import GeometryCollection
 from django.db.models.signals import pre_save, post_save
 from django.dispatch.dispatcher import receiver
 
@@ -34,20 +35,28 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
     with io.BytesIO(bytes(instance.data)) as data:
         indices = indexer.index(data)
         for index in indices:
+            # attachments
             attachments = index.get('attachments')
             try:
                 del index['attachments']
             except:
                 pass
-            # add indices
+            # geometry
+            geometry = index.get('geometry')
+            try:
+                del index['geometry']
+            except:
+                pass
+            # add record
             obj = models.Record(document=instance, json=index)
+            if geometry:
+                obj.geometry = GeometryCollection(geometry)
             obj.save()
             # add attachments
             for key, value in attachments.items():
-                try:
-                    data = value['data'].seek(0)
+                data = value['data']
+                if hasattr(data, 'seek'):
+                    data.seek(0)
                     data = data.read()
-                except:
-                    data = value['data']
                 models.Attachment(record=obj, category=key,
                     content_type=value['content-type'], data=data).save()

@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint
-
 import io
-import obspy
+
+from django.contrib.gis.geos.point import Point
 from obspy.station.stationxml import validate_StationXML
+import obspy
+
+from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint
 
 
 class StationValidatorPlugin(ValidatorPluginPoint):
@@ -53,10 +55,12 @@ class StationIndexerPlugin(IndexerPluginPoint):
                         "depth_in_m": channel.depth,
                         "start_date": str(channel.start_date),
                         "end_date": str(channel.end_date),
+                        "geometry": [Point(channel.longitude,
+                                           channel.latitude)],
                         "attachments": {
                             "response": {"content-type": "image/png",
                                          "data": plot.read()}
-                        }
+                        },
                     })
 
         return indices

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from obspy.core.quakeml import _validate as validate_quakeml
 import io
 
-import matplotlib.pyplot as plt
+from django.contrib.gis.geos.point import Point
 from obspy.core.event import readEvents, Catalog
-from obspy.core.quakeml import _validate as validate_quakeml
 
 from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint
+import matplotlib.pyplot as plt
 
 
 class QuakeMLValidatorPlugin(ValidatorPluginPoint):
@@ -52,6 +53,7 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 "origin_time": str(org.time),
                 "magnitude": mag.mag,
                 "magnitude_type": mag.magnitude_type,
+                "geometry": [Point(org.longitude, org.latitude)],
                 "attachments": {
                     "map": {"content-type": "image/png", "data": plot.read()}
                 }

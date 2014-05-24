@@ -63,6 +63,10 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
+# project wide static directories besides app specific directories
+STATICFILES_DIRS = (
+    os.path.join(PROJECT_DIR, 'static'),
+)
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (

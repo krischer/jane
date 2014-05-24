@@ -58,5 +58,3 @@ class Command(BaseCommand):
                 sha1=sha1
             )
             document.save()
-        else:
-            print("No files found to upload")

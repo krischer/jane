@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib import admin
+from django.contrib.gis import admin
 
 from jane.documents import models
 import base64
@@ -19,10 +19,11 @@ class ResourceAdmin(admin.ModelAdmin):
 admin.site.register(models.Resource, ResourceAdmin)
 
 
-class DocumentAdmin(admin.ModelAdmin):
+class DocumentAdmin(admin.GeoModelAdmin):
     list_display = ['pk', 'resource', 'revision', 'filename', 'filesize',
         'sha1', 'created_at']
     list_filter = ['resource__resource_type__name', 'created_at']
+    readonly_fields = list_display
 
 admin.site.register(models.Document, DocumentAdmin)
 
@@ -31,7 +32,7 @@ class RecordAdmin(admin.ModelAdmin):
     list_display = ['pk', 'json', 'format_resource_type',
                     'created_at']
     list_filter = ['created_at', 'document__resource__resource_type']
-    readonly_fields = ['format_resource_type', 'created_at']
+    readonly_fields = list_display + ['format_resource_type', 'created_at']
 
     def queryset(self, request):
         return super(RecordAdmin, self).queryset(request).\
