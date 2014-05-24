@@ -15,7 +15,7 @@ class Command(BaseCommand):
     args = 'resourcetype path'
     help = "Upload documents"  # @ReservedAssignment
 
-    def handle(self, *args, **kwargs):
+    def handle(self, *args, **kwargs):  # @UnusedVariable
         if len(args) < 2:
             raise ValueError("resourcetype and path are required")
         # resource type

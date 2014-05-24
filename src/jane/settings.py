@@ -82,7 +82,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     # see http://docs.djangoproject.com/en/dev/ref/clickjacking/
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'jane.core.middleware.WhoDidItMiddleware',
+    'jane.jane.middleware.WhoDidItMiddleware',
 ]
 
 
@@ -178,7 +178,7 @@ INSTALLED_APPS += [
     'jane.documents',
     'jane.stations',
     'jane.quakeml',
-    'jane.core'
+    'jane.jane'
 ]
 
 
