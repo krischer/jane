@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.http import HttpResponse
+from django.http.response import Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from rest_framework.decorators import api_view
@@ -45,6 +46,8 @@ def rest_records_list(request, resource_type,
                     'rest_attachment_view', args=[res_type, v.pk, _v.pk],
                     request=request))
         return Response(data)
+    else:
+        raise Http404
 
 
 @api_view(['GET'])
@@ -62,14 +65,20 @@ def rest_record_detail(request, resource_type, pk,
                 'rest_attachment_view', args=[resource_type, value.pk, v.pk],
                 request=request))
         return Response(data)
+    else:
+        raise Http404
 
 
+@api_view(['GET'])
 def rest_attachment_view(request, resource_type, index_id, attachment_id):
     # Assure resource type and index id are available.
     value = get_object_or_404(models.Attachment,
         record__document__resource__resource_type__name=resource_type,
         record__pk=index_id, pk=attachment_id)
 
-    response = HttpResponse(content_type=value.content_type)
-    response.write(value.data)
-    return response
+    if request.method == 'GET':
+        response = HttpResponse(content_type=value.content_type)
+        response.write(value.data)
+        return response
+    else:
+        raise Http404

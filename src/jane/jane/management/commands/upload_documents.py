@@ -12,26 +12,28 @@ from jane.documents import models
 
 
 class Command(BaseCommand):
-    args = 'resourcetype path'
+    args = 'resourcetype path path path'
     help = "Upload documents"  # @ReservedAssignment
 
     def handle(self, *args, **kwargs):  # @UnusedVariable
         if len(args) < 2:
             raise ValueError("resourcetype and path are required")
+
         # resource type
         try:
             resource_type = models.ResourceType.objects.get(name=args[0])
         except:
             raise ValueError('Valid resource type required')
-        # path
+
+        # path(s)
         paths = args[1:]
 
         all_files = []
-
         for pattern in paths:
             all_files.extend(glob.glob(pattern))
 
         for filename in all_files:
+            print(filename)
             with open(filename, "rb") as fh:
                 data = io.BytesIO(fh.read())
 
@@ -56,3 +58,5 @@ class Command(BaseCommand):
                 sha1=sha1
             )
             document.save()
+        else:
+            print("No files found to upload")

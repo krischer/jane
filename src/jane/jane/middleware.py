@@ -22,7 +22,7 @@ class WhoDidItMiddleware(object):
         signals.pre_save.disconnect(dispatch_uid=(self.__class__, request,))
         return response
 
-    def mark_whodid(self, user, sender, instance, **kwargs):
+    def mark_whodid(self, user, sender, instance, **kwargs):  # @UnusedVariable
         if not getattr(instance, 'created_by_id', None):
             instance.created_by = user
         if hasattr(instance, 'modified_by_id'):

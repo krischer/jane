@@ -2,6 +2,7 @@
 
 import io
 
+import matplotlib.pyplot as plt
 from obspy.core.event import readEvents, Catalog
 from obspy.core.quakeml import _validate as validate_quakeml
 
@@ -40,7 +41,8 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
             mag = event.preferred_magnitude() or event.magnitudes[0]
 
             plot = io.BytesIO()
-            Catalog(events=[event]).plot(format="png", outfile=plot)
+            fig = Catalog(events=[event]).plot(format="png", outfile=plot)
+            plt.close(fig)
             plot.seek(0)
 
             indices.append({

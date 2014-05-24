@@ -172,11 +172,8 @@ def index_path(path):
     """
     # convert to absolute path
     path = os.path.abspath(path)
-    try:
-        # delete all paths and files which start with path
-        models.Path.objects.filter(name__startswith=path).delete()
-    except:
-        return
+    # delete all paths and files which start with path
+    models.Path.objects.filter(name__startswith=path).delete()
     for root, _, files in os.walk(path):
         # index each file
         for file in files:

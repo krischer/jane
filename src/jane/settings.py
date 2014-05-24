@@ -5,6 +5,7 @@ import sys
 
 
 DEBUG = True
+SQL_DEBUG = False
 
 # ensure PIL is working in virtualenv
 try:
@@ -17,7 +18,6 @@ except ImportError:
 if DEBUG is True:
     DEPLOYED = False
     TEMPLATE_DEBUG = True
-    SQL_DEBUG = False
     DEBUG_TOOLBAR = True
 else:
     DEPLOYED = True
@@ -185,7 +185,6 @@ INSTALLED_APPS += [
 ###############################################################################
 # Django REST framework
 ###############################################################################
-
 INSTALLED_APPS += [
     'rest_framework',
 ]
@@ -200,7 +199,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework.renderers.XMLRenderer',
         'rest_framework.renderers.YAMLRenderer',
-        # 'rest_framework.renderers.JSONPRenderer'
+        'rest_framework.renderers.JSONPRenderer'
     ),
 
     # Use Django's standard `django.contrib.auth` permissions,
@@ -236,19 +235,13 @@ if DEPLOYED:
     BROKER_VHOST = "jane"
 else:
     # use django db on local installation
-    BROKER_TRANSPORT = "amqp"
-    # BROKER_URL = 'django://'
-    # INSTALLED_APPS += ['kombu.transport.django']
+    BROKER_URL = 'django://'
+    INSTALLED_APPS += ['kombu.transport.django']
 
 CELERY_RESULT_BACKEND = "djcelery.backends.database:DatabaseBackend"
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = "json"
-
-# Modules to import when celeryd starts.
-# This must import every module where you register tasks so celeryd
-# is able to find and run them.
-# CELERY_IMPORTS = ["jane.filearchive.tasks"]
 
 
 ###############################################################################
