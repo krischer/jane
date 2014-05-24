@@ -6,11 +6,15 @@ psycopg2
 obspy
 django-debug-toolbar
 jsonfield
+django-plugins (https://bitbucket.org/krischer/django-plugins/get/default.zip)
 
 # Django REST framework
-djangorestframework
-markdown       # Markdown support for the browsable API.
-django-filter  # Filtering support
-django-plugins
+djangorestframework (https://github.com/tomchristie/django-rest-framework/archive/master.zip)
+markdown
+django-filter
 PyYAML
 defusedxml
+
+
+# Windows
+GDAL (http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal)
