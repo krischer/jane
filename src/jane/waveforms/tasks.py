@@ -10,10 +10,10 @@ from obspy.core import read
 from obspy.core.preview import createPreview
 
 from jane.exceptions import JaneException
-from jane.filearchive import models
+from jane.waveforms import models
 
 
-class JaneFilearchiveTaskException(JaneException):
+class JaneWaveformTaskException(JaneException):
     pass
 
 
@@ -42,20 +42,20 @@ def process_file(filename):
 
     if len(stream) == 0:
         msg = "'%s' is a valid waveform file but contains no actual data"
-        raise JaneFilearchiveTaskException(msg % filename)
+        raise JaneWaveformTaskException(msg % filename)
 
     # All or nothing. Use a transaction.
     with transaction.atomic():
         # make sure path and file objects exists
-        path_obj = models.WaveformPath.objects.get_or_create(
+        path_obj = models.Path.objects.get_or_create(
             name=os.path.dirname(os.path.abspath(filename)))[0]
-        file_obj = models.WaveformFile.objects.get_or_create(
+        file_obj = models.File.objects.get_or_create(
             path=path_obj, name=os.path.basename(filename))[0]
         # set format
         file_obj.format = stream[0].stats._format
         file_obj.save()
         for trace in stream:
-            channel_obj = models.WaveformChannel.objects.get_or_create(
+            channel_obj = models.Channel.objects.get_or_create(
                 file=file_obj,
                 starttime=trace.stats.starttime.datetime,
                 endtime=trace.stats.endtime.datetime)[0]
@@ -83,7 +83,7 @@ def process_file(filename):
 
             # gaps
             for gap in gap_dict.get(trace.id, []):
-                gap_obj = models.WaveformGap(channel=channel_obj, **gap)
+                gap_obj = models.GapOverlap(channel=channel_obj, **gap)
                 gap_obj.save()
 
 
@@ -119,7 +119,7 @@ def filemon_event(event):
         # Delete file object if file has been deleted.
         elif event_type == "deleted":
             try:
-                models.WaveformFile.objects.get(path__name=src_folder,
+                models.File.objects.get(path__name=src_folder,
                                         name=src_file).delete()
                 return _format_return_value(event, "File deleted.")
             except ObjectDoesNotExist:
@@ -133,11 +133,11 @@ def filemon_event(event):
                 return _format_return_value(event, "File not moved.")
 
             with transaction.atomic():
-                dest_path_obj = models.WaveformPath.objects.get_or_create(
+                dest_path_obj = models.Path.objects.get_or_create(
                     name=dest_folder)[0]
                 dest_path_obj.save()
 
-                src_file_obj = models.WaveformFile.objects.get(
+                src_file_obj = models.File.objects.get(
                     path__name=src_folder, name=src_file)
 
                 src_file_obj.name = dest_file
@@ -147,7 +147,7 @@ def filemon_event(event):
             # Check if the src_path has files left in it. If not, try to
             # delete it.
             try:
-                src_path_obj = models.WaveformPath.objects.get(name=src_folder)
+                src_path_obj = models.Path.objects.get(name=src_folder)
             except ObjectDoesNotExist:
                 return _format_return_value(event, "File moved, path already "
                                                    "deleted.")
@@ -163,14 +163,14 @@ def filemon_event(event):
             return _format_return_value(event, "File moved, path untouched.")
         # Should not happen.
         else:
-            raise JaneFilearchiveTaskException(
+            raise JaneWaveformTaskException(
                 "Invalid watchdog event type: '%s'" % event_type)
     # Deal with directories.
     else:
         src_folder = os.path.abspath(event['src_path'])
         if event_type == "deleted":
             try:
-                models.WaveformPath.objects.get(name=src_folder).delete()
+                models.Path.objects.get(name=src_folder).delete()
                 return _format_return_value(event, "Deleted path.")
             except ObjectDoesNotExist:
                 return _format_return_value(event, "Failed deleting path.")
@@ -178,7 +178,7 @@ def filemon_event(event):
             # Only deal with it if the directory actually exists in the
             # database.
             try:
-                path_obj = models.WaveformPath.objects.get(name=src_folder)
+                path_obj = models.Path.objects.get(name=src_folder)
             except ObjectDoesNotExist:
                 return _format_return_value(event, "File could not be moved.")
             # If it does, just update the path.
@@ -188,7 +188,7 @@ def filemon_event(event):
         # Should not happen. Modified and created directories are not passed
         # to the task queue.
         else:
-            raise JaneFilearchiveTaskException(
+            raise JaneWaveformTaskException(
                 "Invalid watchdog event type: '%s'" % event_type)
 
 
@@ -200,7 +200,7 @@ def index_path(path, debug=False):
     # convert to absolute path
     path = os.path.abspath(path)
     # delete all paths and files which start with path
-    models.WaveformPath.objects.filter(name__startswith=path).delete()
+    models.Path.objects.filter(name__startswith=path).delete()
     if debug:
         print("Purging %s ..." % (path))
     # indexing

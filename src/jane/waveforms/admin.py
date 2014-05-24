@@ -5,10 +5,10 @@ import base64
 from django.contrib import admin
 from django.db.models.aggregates import Count
 
-from jane.filearchive import models, tasks
+from jane.waveforms import models, tasks
 
 
-class WaveformPathAdmin(admin.ModelAdmin):
+class PathAdmin(admin.ModelAdmin):
     list_display = ['name', 'format_file_count', 'mtime']
     search_fields = ['name']
     date_hierarchy = 'mtime'
@@ -16,7 +16,7 @@ class WaveformPathAdmin(admin.ModelAdmin):
     actions = ['action_reindex']
 
     def queryset(self, request):  # @UnusedVariable
-        return models.WaveformPath.objects.annotate(file_count=Count('files'))
+        return models.Path.objects.annotate(file_count=Count('files'))
 
     def action_reindex(self, request, queryset):  # @UnusedVariable
         for path in queryset.all():
@@ -32,10 +32,10 @@ class WaveformPathAdmin(admin.ModelAdmin):
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
         return False
 
-admin.site.register(models.WaveformPath, WaveformPathAdmin)
+admin.site.register(models.Path, PathAdmin)
 
 
-class WaveformFileAdmin(admin.ModelAdmin):
+class FileAdmin(admin.ModelAdmin):
     list_display = ['name', 'path', 'format', 'format_trace_count', 'ctime',
                     'mtime']
     search_fields = ['name', 'path']
@@ -53,7 +53,7 @@ class WaveformFileAdmin(admin.ModelAdmin):
     )
 
     def queryset(self, request):  # @UnusedVariable
-        return models.WaveformFile.objects.\
+        return models.File.objects.\
             annotate(trace_count=Count('waveforms'))
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
@@ -72,10 +72,10 @@ class WaveformFileAdmin(admin.ModelAdmin):
     format_traces.allow_tags = True
     format_traces.short_description = 'Traces'
 
-admin.site.register(models.WaveformFile, WaveformFileAdmin)
+admin.site.register(models.File, FileAdmin)
 
 
-class WaveformChannelAdmin(admin.ModelAdmin):
+class ChannelAdmin(admin.ModelAdmin):
     list_display = ['format_nslc', 'network', 'station', 'location', 'channel',
         'starttime', 'endtime', 'sampling_rate', 'npts', 'format_gaps',
         'format_overlaps', 'format_small_preview_image']
@@ -123,20 +123,20 @@ class WaveformChannelAdmin(admin.ModelAdmin):
     format_overlaps.allow_tags = True
     format_overlaps.short_description = '# Overlaps'
 
-admin.site.register(models.WaveformChannel, WaveformChannelAdmin)
+admin.site.register(models.Channel, ChannelAdmin)
 
 
-class WaveformGapAdmin(admin.ModelAdmin):
+class GapOverlapAdmin(admin.ModelAdmin):
     list_display = ['channel', 'gap', 'starttime', 'endtime', 'samples']
     readonly_fields = list_display
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
         return False
 
-admin.site.register(models.WaveformGap, WaveformGapAdmin)
+admin.site.register(models.GapOverlap, GapOverlapAdmin)
 
 
-class WaveformMappingAdmin(admin.ModelAdmin):
+class MappingAdmin(admin.ModelAdmin):
     list_filter = ['network', 'station', 'location', 'channel']
 
-admin.site.register(models.WaveformMapping, WaveformMappingAdmin)
+admin.site.register(models.Mapping, MappingAdmin)

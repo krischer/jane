@@ -5,10 +5,10 @@ import os
 from django.db import models
 from django.core.exceptions import ValidationError
 
-from jane.filearchive.utils import to_datetime
+from jane.waveforms.utils import to_datetime
 
 
-class WaveformPath(models.Model):
+class Path(models.Model):
     name = models.CharField(max_length=255, primary_key=True,
         validators=['validate_name'])
     ctime = models.DateTimeField()
@@ -18,8 +18,6 @@ class WaveformPath(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'Path'
-        verbose_name_plural = 'Paths'
         ordering = ['name']
 
     def validate_name(self, value):
@@ -32,11 +30,11 @@ class WaveformPath(models.Model):
         stats = os.stat(self.name)
         self.mtime = to_datetime(stats.st_mtime)
         self.ctime = to_datetime(stats.st_ctime)
-        super(WaveformPath, self).save(*args, **kwargs)
+        super(Path, self).save(*args, **kwargs)
 
 
-class WaveformFile(models.Model):
-    path = models.ForeignKey(WaveformPath, related_name='files')
+class File(models.Model):
+    path = models.ForeignKey(Path, related_name='files')
     name = models.CharField(max_length=255, db_index=True)
     size = models.IntegerField()
     category = models.IntegerField(default=-1, db_index=True)
@@ -49,8 +47,6 @@ class WaveformFile(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'File'
-        verbose_name_plural = 'Files'
         ordering = ['path', 'name']
         unique_together = ['path', 'name']
 
@@ -63,11 +59,11 @@ class WaveformFile(models.Model):
         self.mtime = to_datetime(stats.st_mtime)
         self.ctime = to_datetime(stats.st_ctime)
         self.size = int(stats.st_size)
-        super(WaveformFile, self).save(*args, **kwargs)
+        super(File, self).save(*args, **kwargs)
 
 
-class WaveformChannel(models.Model):
-    file = models.ForeignKey(WaveformFile, related_name='waveforms')
+class Channel(models.Model):
+    file = models.ForeignKey(File, related_name='waveforms')
     network = models.CharField(max_length=2, db_index=True, blank=True)
     station = models.CharField(max_length=5, db_index=True, blank=True)
     location = models.CharField(max_length=2, db_index=True, blank=True)
@@ -88,36 +84,34 @@ class WaveformChannel(models.Model):
             self.endtime, self.sampling_rate, self.npts)
 
     class Meta:
-        verbose_name = 'Channel'
-        verbose_name_plural = 'Channels'
         ordering = ['-starttime', '-endtime', 'network', 'station',
             'location', 'channel']
         unique_together = ['file', 'network', 'station', 'location', 'channel',
             'starttime', 'endtime']
 
 
-class WaveformGap(models.Model):
-    channel = models.ForeignKey(WaveformChannel, related_name='gaps')
+class GapOverlap(models.Model):
+    channel = models.ForeignKey(Channel, related_name='gaps')
     gap = models.BooleanField(db_index=True)
     starttime = models.DateTimeField(db_index=True)
     endtime = models.DateTimeField(db_index=True)
     samples = models.IntegerField(default=0)
 
     class Meta:
-        verbose_name = 'Gap'
-        verbose_name_plural = 'Gaps'
+        verbose_name = 'Gap/Overlap'
+        verbose_name_plural = 'Gaps/Overlaps'
         ordering = ['-starttime', '-endtime']
 
 
-class WaveformMapping(models.Model):
-    network = models.CharField(max_length=2, blank=True)
-    station = models.CharField(max_length=5, blank=True)
-    location = models.CharField(max_length=2, blank=True)
-    channel = models.CharField(max_length=3, blank=True)
+class Mapping(models.Model):
     starttime = models.DateTimeField(verbose_name="Start time (UTC)",
         db_index=True)
     endtime = models.DateTimeField(verbose_name="End time (UTC)",
         db_index=True)
+    network = models.CharField(max_length=2, blank=True)
+    station = models.CharField(max_length=5, blank=True)
+    location = models.CharField(max_length=2, blank=True)
+    channel = models.CharField(max_length=3, blank=True)
     new_network = models.CharField(max_length=2, blank=True)
     new_station = models.CharField(max_length=5, blank=True)
     new_location = models.CharField(max_length=2, blank=True)
@@ -130,3 +124,6 @@ class WaveformMapping(models.Model):
             self.station, self.location, self.channel, self.starttime,
             self.endtime, self.new_network, self.new_station,
             self.new_location, self.new_channel)
+
+    class Meta:
+        ordering = ['-starttime', '-endtime']

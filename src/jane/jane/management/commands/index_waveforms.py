@@ -4,7 +4,7 @@ import optparse
 
 from django.core.management.base import BaseCommand
 
-from jane.filearchive import tasks
+from jane.waveforms import tasks
 
 
 class Command(BaseCommand):

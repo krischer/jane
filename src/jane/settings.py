@@ -174,7 +174,7 @@ INSTALLED_APPS += [
 # Jane
 ###############################################################################
 INSTALLED_APPS += [
-    'jane.filearchive',
+    'jane.waveforms',
     'jane.documents',
     'jane.stations',
     'jane.quakeml',

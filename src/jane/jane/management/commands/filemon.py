@@ -10,7 +10,7 @@ from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler
 from watchdog.utils import platform
 
-from jane.filearchive import tasks
+from jane.waveforms import tasks
 
 
 # monkey - https://github.com/gorakhargosh/watchdog/issues/123

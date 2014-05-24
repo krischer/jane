@@ -11,7 +11,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
-    url(r'', include('jane.filearchive.urls')),
+    url(r'', include('jane.waveforms.urls')),
     url(r'', include('jane.documents.urls')),
     url(r'', include('jane.jane.urls')),
 )

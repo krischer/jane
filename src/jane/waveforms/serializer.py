@@ -2,7 +2,7 @@
 
 from rest_framework import serializers, pagination
 
-from jane.filearchive import models
+from jane.waveforms import models
 
 
 class WaveformSerializer(serializers.HyperlinkedModelSerializer):
@@ -12,7 +12,7 @@ class WaveformSerializer(serializers.HyperlinkedModelSerializer):
         view_name='waveform-file', format='binary')
 
     class Meta:
-        model = models.WaveformChannel
+        model = models.Channel
         fields = ['url', 'plot', 'containing_file', 'network', 'station',
                   'location', 'channel', 'starttime', 'endtime',
                   'sampling_rate', 'npts']
