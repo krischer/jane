@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from optparse import make_option
+import optparse
 import os
 import time
 
@@ -57,7 +57,7 @@ class Command(BaseCommand):
     args = 'path'
     help = "File monitor"  # @ReservedAssignment
     option_list = BaseCommand.option_list + (
-        make_option('-d', '--debug',
+        optparse.make_option('-d', '--debug',
             action='store_true',
             dest='debug',
             default=False,

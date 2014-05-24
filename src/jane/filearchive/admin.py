@@ -8,7 +8,7 @@ from django.db.models.aggregates import Count
 from jane.filearchive import models, tasks
 
 
-class PathAdmin(admin.ModelAdmin):
+class WaveformPathAdmin(admin.ModelAdmin):
     list_display = ['name', 'format_file_count', 'mtime']
     search_fields = ['name']
     date_hierarchy = 'mtime'
@@ -16,7 +16,7 @@ class PathAdmin(admin.ModelAdmin):
     actions = ['action_reindex']
 
     def queryset(self, request):  # @UnusedVariable
-        return models.Path.objects.annotate(file_count=Count('files'))
+        return models.WaveformPath.objects.annotate(file_count=Count('files'))
 
     def action_reindex(self, request, queryset):  # @UnusedVariable
         for path in queryset.all():
@@ -32,10 +32,10 @@ class PathAdmin(admin.ModelAdmin):
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
         return False
 
-admin.site.register(models.Path, PathAdmin)
+admin.site.register(models.WaveformPath, WaveformPathAdmin)
 
 
-class FileAdmin(admin.ModelAdmin):
+class WaveformFileAdmin(admin.ModelAdmin):
     list_display = ['name', 'path', 'format', 'format_trace_count', 'ctime',
                     'mtime']
     search_fields = ['name', 'path']
@@ -53,7 +53,8 @@ class FileAdmin(admin.ModelAdmin):
     )
 
     def queryset(self, request):  # @UnusedVariable
-        return models.File.objects.annotate(trace_count=Count('waveforms'))
+        return models.WaveformFile.objects.\
+            annotate(trace_count=Count('waveforms'))
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
         return False
@@ -71,10 +72,10 @@ class FileAdmin(admin.ModelAdmin):
     format_traces.allow_tags = True
     format_traces.short_description = 'Traces'
 
-admin.site.register(models.File, FileAdmin)
+admin.site.register(models.WaveformFile, WaveformFileAdmin)
 
 
-class WaveformAdmin(admin.ModelAdmin):
+class WaveformChannelAdmin(admin.ModelAdmin):
     list_display = ['format_nslc', 'network', 'station', 'location', 'channel',
         'starttime', 'endtime', 'sampling_rate', 'npts',
         'format_small_preview_image']
@@ -84,7 +85,7 @@ class WaveformAdmin(admin.ModelAdmin):
         'sampling_rate']
     readonly_fields = ['file', 'network', 'station', 'location', 'channel',
         'starttime', 'endtime', 'sampling_rate', 'npts', 'calib',
-        'format_preview_image']
+        'preview_trace', 'format_preview_image']
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
         return False
@@ -95,20 +96,33 @@ class WaveformAdmin(admin.ModelAdmin):
     format_nslc.short_description = 'SEED ID'
 
     def format_preview_image(self, obj):
+        if not obj.preview_image:
+            return
         data = base64.b64encode(obj.preview_image)
         return '<img height="250" src="data:image/png;base64,%s" />' % (
             data.decode())
     format_preview_image.allow_tags = True
-    format_preview_image.short_description = 'Trace preview'
+    format_preview_image.short_description = 'Preview image'
 
     def format_small_preview_image(self, obj):
+        if not obj.preview_image:
+            return
         data = base64.b64encode(obj.preview_image)
         return '<img height="25" src="data:image/png;base64,%s" />' % (
             data.decode())
     format_small_preview_image.allow_tags = True
-    format_small_preview_image.short_description = 'Trace preview'
+    format_small_preview_image.short_description = 'Preview image'
 
-admin.site.register(models.Waveform, WaveformAdmin)
+admin.site.register(models.WaveformChannel, WaveformChannelAdmin)
+
+
+class WaveformGapAdmin(admin.ModelAdmin):
+    list_display = ['channel', 'starttime', 'endtime', 'samples']
+
+    def has_add_permission(self, request, obj=None):  # @UnusedVariable
+        return False
+
+admin.site.register(models.WaveformGap, WaveformGapAdmin)
 
 
 class WaveformMappingAdmin(admin.ModelAdmin):

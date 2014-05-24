@@ -7,6 +7,7 @@ from celery import shared_task
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from obspy.core import read
+from obspy.core.preview import createPreview
 
 from jane.exceptions import JaneException
 from jane.filearchive import models
@@ -23,6 +24,22 @@ def process_file(filename):
     """
     # Will raise a proper exception if not a waveform file.
     stream = read(filename)
+    # get gap and overlap information
+    gap_list = stream.getGaps()
+    # merge channels and replace gaps/overlaps with 0 to prevent generation of
+    # masked arrays
+    stream.merge(fill_value=0)
+    # build up dictionary of gaps and overlaps for easier lookup
+    gap_dict = {}
+    for gap in gap_list:
+        id = '.'.join(gap[0:4])
+        temp = {
+            'gap': gap[6] >= 0,
+            'starttime': gap[4].datetime,
+            'endtime': gap[5].datetime,
+            'samples': abs(gap[7])
+        }
+        gap_dict.setdefault(id, []).append(temp)
 
     if len(stream) == 0:
         msg = "'%s' is a valid waveform file but contains no actual data"
@@ -31,33 +48,43 @@ def process_file(filename):
     # All or nothing. Use a transaction.
     with transaction.atomic():
         # make sure path and file objects exists
-        path_obj = models.Path.objects.get_or_create(
+        path_obj = models.WaveformPath.objects.get_or_create(
             name=os.path.dirname(os.path.abspath(filename)))[0]
-        file_obj = models.File.objects.get_or_create(
+        file_obj = models.WaveformFile.objects.get_or_create(
             path=path_obj, name=os.path.basename(filename))[0]
         # set format
         file_obj.format = stream[0].stats._format
         file_obj.save()
         for trace in stream:
-            waveform_obj = models.Waveform.objects.get_or_create(file=file_obj,
+            channel_obj = models.WaveformChannel.objects.get_or_create(
+                file=file_obj,
                 starttime=trace.stats.starttime.datetime,
                 endtime=trace.stats.endtime.datetime)[0]
-            waveform_obj.network = trace.stats.network
-            waveform_obj.station = trace.stats.station
-            waveform_obj.location = trace.stats.location
-            waveform_obj.channel = trace.stats.channel
-            waveform_obj.calib = trace.stats.calib
-            waveform_obj.sampling_rate = trace.stats.sampling_rate
-            waveform_obj.npts = trace.stats.npts
+            channel_obj.network = trace.stats.network
+            channel_obj.station = trace.stats.station
+            channel_obj.location = trace.stats.location
+            channel_obj.channel = trace.stats.channel
+            channel_obj.calib = trace.stats.calib
+            channel_obj.sampling_rate = trace.stats.sampling_rate
+            channel_obj.npts = trace.stats.npts
 
+            # preview image
             plot = io.BytesIO()
             trace.plot(format="png", outfile=plot)
             plot.seek(0, 0)
-
-            waveform_obj.preview_image = plot.read()
+            channel_obj.preview_image = plot.read()
             plot.close()
-            waveform_obj.save()
-    return
+
+            # preview trace
+            preview_trace = createPreview(trace, 30)
+            channel_obj.preview_trace = preview_trace.data.dumps()
+
+            channel_obj.save()
+
+            # gaps
+            for gap in gap_dict.get(trace.id, []):
+                gap_obj = models.WaveformGap(channel=channel_obj, **gap)
+                gap_obj.save()
 
 
 def _format_return_value(event, message):
@@ -92,7 +119,7 @@ def filemon_event(event):
         # Delete file object if file has been deleted.
         elif event_type == "deleted":
             try:
-                models.File.objects.get(path__name=src_folder,
+                models.WaveformFile.objects.get(path__name=src_folder,
                                         name=src_file).delete()
                 return _format_return_value(event, "File deleted.")
             except ObjectDoesNotExist:
@@ -106,12 +133,12 @@ def filemon_event(event):
                 return _format_return_value(event, "File not moved.")
 
             with transaction.atomic():
-                dest_path_obj = models.Path.objects.get_or_create(
+                dest_path_obj = models.WaveformPath.objects.get_or_create(
                     name=dest_folder)[0]
                 dest_path_obj.save()
 
-                src_file_obj = models.File.objects.get(path__name=src_folder,
-                                                       name=src_file)
+                src_file_obj = models.WaveformFile.objects.get(
+                    path__name=src_folder, name=src_file)
 
                 src_file_obj.name = dest_file
                 src_file_obj.path = dest_path_obj
@@ -120,7 +147,7 @@ def filemon_event(event):
             # Check if the src_path has files left in it. If not, try to
             # delete it.
             try:
-                src_path_obj = models.Path.objects.get(name=src_folder)
+                src_path_obj = models.WaveformPath.objects.get(name=src_folder)
             except ObjectDoesNotExist:
                 return _format_return_value(event, "File moved, path already "
                                                    "deleted.")
@@ -143,7 +170,7 @@ def filemon_event(event):
         src_folder = os.path.abspath(event['src_path'])
         if event_type == "deleted":
             try:
-                models.Path.objects.get(name=src_folder).delete()
+                models.WaveformPath.objects.get(name=src_folder).delete()
                 return _format_return_value(event, "Deleted path.")
             except ObjectDoesNotExist:
                 return _format_return_value(event, "Failed deleting path.")
@@ -151,9 +178,9 @@ def filemon_event(event):
             # Only deal with it if the directory actually exists in the
             # database.
             try:
-                path_obj = models.Path.objects.get(name=src_folder)
+                path_obj = models.WaveformPath.objects.get(name=src_folder)
             except ObjectDoesNotExist:
-                return _format_return_value(event, "Path could not be moved.")
+                return _format_return_value(event, "File could not be moved.")
             # If it does, just update the path.
             path_obj.name = os.path.abspath(event['dest_path'])
             path_obj.save()
@@ -166,15 +193,26 @@ def filemon_event(event):
 
 
 @shared_task
-def index_path(path):
+def index_path(path, debug=False):
     """
     Index given path
     """
     # convert to absolute path
     path = os.path.abspath(path)
     # delete all paths and files which start with path
-    models.Path.objects.filter(name__startswith=path).delete()
+    models.WaveformPath.objects.filter(name__startswith=path).delete()
+    if debug:
+        print("Purging %s ..." % (path))
+    # indexing
+    if debug:
+        print("Indexing %s ..." % (path))
     for root, _, files in os.walk(path):
         # index each file
         for file in files:
-            process_file.delay(os.path.join(root, file))
+            if debug:
+                # direct
+                print("  %s" % (file))
+                process_file(os.path.join(root, file))
+            else:
+                # use celery
+                process_file.delay(os.path.join(root, file))

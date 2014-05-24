@@ -17,11 +17,11 @@ class CoreTestCase(TestCase):
         """
         Test extraction of metadata after object creation.
         """
-        path_obj = models.Path(name=self.path)
+        path_obj = models.WaveformPath(name=self.path)
         path_obj.save()
         self.assertTrue(isinstance(path_obj.mtime, datetime.datetime))
         self.assertTrue(isinstance(path_obj.ctime, datetime.datetime))
-        file_obj = models.File(path=path_obj, name=self.file)
+        file_obj = models.WaveformFile(path=path_obj, name=self.file)
         file_obj.save()
         self.assertTrue(isinstance(path_obj.mtime, datetime.datetime))
         self.assertTrue(isinstance(path_obj.ctime, datetime.datetime))
