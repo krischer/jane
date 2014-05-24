@@ -44,47 +44,52 @@ def process_file(filename):
         msg = "'%s' is a valid waveform file but contains no actual data"
         raise JaneWaveformTaskException(msg % filename)
 
-    # All or nothing. Use a transaction.
-    with transaction.atomic():
-        # make sure path and file objects exists
-        path_obj = models.Path.objects.get_or_create(
-            name=os.path.dirname(os.path.abspath(filename)))[0]
-        file_obj = models.File.objects.get_or_create(
-            path=path_obj, name=os.path.basename(filename))[0]
-        # set format
-        file_obj.format = stream[0].stats._format
-        file_obj.save()
-        for trace in stream:
-            channel_obj = models.Channel.objects.get_or_create(
-                file=file_obj,
-                starttime=trace.stats.starttime.datetime,
-                endtime=trace.stats.endtime.datetime)[0]
-            channel_obj.network = trace.stats.network
-            channel_obj.station = trace.stats.station
-            channel_obj.location = trace.stats.location
-            channel_obj.channel = trace.stats.channel
-            channel_obj.calib = trace.stats.calib
-            channel_obj.sampling_rate = trace.stats.sampling_rate
-            channel_obj.npts = trace.stats.npts
+    # make sure path and file objects exists
+    path_obj = models.Path.objects.get_or_create(
+        name=os.path.dirname(os.path.abspath(filename)))[0]
+    file_obj = models.File.objects.get_or_create(
+        path=path_obj, name=os.path.basename(filename))[0]
+    # set format
+    file_obj.format = stream[0].stats._format
+    file_obj.save()
+    for trace in stream:
+        channel_obj = models.Channel.objects.get_or_create(
+            file=file_obj,
+            starttime=trace.stats.starttime.datetime,
+            endtime=trace.stats.endtime.datetime)[0]
+        channel_obj.network = trace.stats.network
+        channel_obj.station = trace.stats.station
+        channel_obj.location = trace.stats.location
+        channel_obj.channel = trace.stats.channel
+        channel_obj.calib = trace.stats.calib
+        channel_obj.sampling_rate = trace.stats.sampling_rate
+        channel_obj.npts = trace.stats.npts
 
-            # preview image
+        # preview image
+        try:
             plot = io.BytesIO()
             trace.plot(format="png", outfile=plot)
             plot.seek(0, 0)
             channel_obj.preview_image = plot.read()
             plot.close()
+        except:
+            pass
 
-            # preview trace - replace any masked values with 0
-            if hasattr(trace.data, 'filled'):
-                trace.data.filled(0)
+        # preview trace - replace any masked values with 0
+        if hasattr(trace.data, 'filled'):
+            trace.data.filled(0)
+        try:
             preview_trace = createPreview(trace, 30)
             channel_obj.preview_trace = preview_trace.data.dumps()
-            channel_obj.save()
+        except:
+            pass
 
-            # gaps
-            for gap in gap_dict.get(trace.id, []):
-                gap_obj = models.GapOverlap(channel=channel_obj, **gap)
-                gap_obj.save()
+        channel_obj.save()
+
+        # gaps
+        for gap in gap_dict.get(trace.id, []):
+            gap_obj = models.GapOverlap(channel=channel_obj, **gap)
+            gap_obj.save()
 
 
 def _format_return_value(event, message):
