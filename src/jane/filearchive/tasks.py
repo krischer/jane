@@ -74,8 +74,9 @@ def process_file(filename):
             channel_obj.preview_image = plot.read()
             plot.close()
 
-            # preview trace - replace masked values with 0
-            trace.data.filled(0)
+            # preview trace - replace any masked values with 0
+            if hasattr(trace.data, 'filled'):
+                trace.data.filled(0)
             preview_trace = createPreview(trace, 30)
             channel_obj.preview_trace = preview_trace.data.dumps()
             channel_obj.save()

@@ -77,8 +77,8 @@ admin.site.register(models.WaveformFile, WaveformFileAdmin)
 
 class WaveformChannelAdmin(admin.ModelAdmin):
     list_display = ['format_nslc', 'network', 'station', 'location', 'channel',
-        'starttime', 'endtime', 'sampling_rate', 'npts',
-        'format_small_preview_image']
+        'starttime', 'endtime', 'sampling_rate', 'npts', 'format_gaps',
+        'format_overlaps', 'format_small_preview_image']
     search_fields = ['network', 'station', 'location', 'channel']
     date_hierarchy = 'starttime'
     list_filter = ['network', 'station', 'location', 'channel',
@@ -113,11 +113,22 @@ class WaveformChannelAdmin(admin.ModelAdmin):
     format_small_preview_image.allow_tags = True
     format_small_preview_image.short_description = 'Preview image'
 
+    def format_gaps(self, obj):
+        return obj.gaps.filter(gap=True).count()
+    format_gaps.allow_tags = True
+    format_gaps.short_description = '# Gaps'
+
+    def format_overlaps(self, obj):
+        return obj.gaps.filter(gap=False).count()
+    format_overlaps.allow_tags = True
+    format_overlaps.short_description = '# Overlaps'
+
 admin.site.register(models.WaveformChannel, WaveformChannelAdmin)
 
 
 class WaveformGapAdmin(admin.ModelAdmin):
-    list_display = ['channel', 'starttime', 'endtime', 'samples']
+    list_display = ['channel', 'gap', 'starttime', 'endtime', 'samples']
+    readonly_fields = list_display
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
         return False
