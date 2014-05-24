@@ -5,8 +5,6 @@ import sys
 
 from djangoplugins.point import PluginPoint
 
-from jane import settings
-
 
 class ValidatorPluginPoint(PluginPoint):
     """
@@ -106,8 +104,3 @@ def initialize_plugins():
             resource_type.converters = [_i.get_model() for _i in contents[
                 "converters"]]
         resource_type.save()
-
-    if settings.DEBUG:
-        import pprint
-        print("Registered Plugins:")
-        pprint.pprint(plugins)
