@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.http.response import Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
+import geojson as geojson_module
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -24,6 +25,19 @@ def test(request, resource_type):
     return render_to_response('documents/test.html',
         {'values': values},
         context_instance=RequestContext(request))
+
+
+def geojson(request, resource_type):
+    """
+    """
+    resource_type = get_object_or_404(models.ResourceType, name=resource_type)
+    values = models.Record.objects.\
+        filter(document__resource__resource_type=resource_type)
+    values = geojson_module.dumps(
+        geojson_module.GeometryCollection([
+            _i.__geo_interface__ for _i in values])
+    )
+    return HttpResponse(values, mimetype='application/json')
 
 
 @api_view(['GET'])

@@ -27,6 +27,6 @@ SERVER_EMAIL = 'django@erdbebendienst.de'
 DEFAULT_FROM_EMAIL = 'noreply@erdbebendienst.de'
 
 # set GEOS_LIBRARY_PATH dynamically on Windows -> requires GDAL package
-import osgeo
-import os
-GEOS_LIBRARY_PATH = os.path.join(osgeo.__path__[0], 'geos_c.dll')
+#import osgeo
+#import os
+#GEOS_LIBRARY_PATH = os.path.join(osgeo.__path__[0], 'geos_c.dll')
