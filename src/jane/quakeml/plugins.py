@@ -38,25 +38,37 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
 
         inv = readEvents(document, format="quakeml")
         for event in inv:
-            org = event.preferred_origin() or event.origins[0]
-            mag = event.preferred_magnitude() or event.magnitudes[0]
+            if event.origins:
+                org = event.preferred_origin() or event.origins[0]
+            else:
+                org = None
 
-            plot = io.BytesIO()
-            fig = Catalog(events=[event]).plot(format="png", outfile=plot)
-            plt.close(fig)
-            plot.seek(0)
+            if event.magnitudes:
+                mag = event.preferred_magnitude() or event.magnitudes[0]
+            else:
+                mag = None
+
+            if mag and org:
+                plot = io.BytesIO()
+                fig = Catalog(events=[event]).plot(format="png", outfile=plot)
+                plt.close(fig)
+                plot.seek(0)
+                plot_data = plot.read()
+                plot.close()
 
             indices.append({
-                "latitude": org.latitude,
-                "longitude": org.longitude,
-                "depth_in_m": org.depth,
-                "origin_time": str(org.time),
-                "magnitude": mag.mag,
-                "magnitude_type": mag.magnitude_type,
-                "geometry": [Point(org.longitude, org.latitude)],
-                "attachments": {
-                    "map": {"content-type": "image/png", "data": plot.read()}
-                }
+                "latitude": org.latitude if org else None,
+                "longitude": org.longitude if org else None,
+                "depth_in_m": org.depth if org else None,
+                "origin_time": str(org.time) if org else None,
+                "magnitude": mag.mag if mag else None,
+                "magnitude_type": mag.magnitude_type if mag else None,
+                "geometry":
+                    [Point(org.longitude, org.latitude)] if org else None,
             })
-            plot.close()
+
+            if mag and org:
+                indices[-1]["attachments"] = {
+                    "map": {"content-type": "image/png", "data": plot_data}}
+
         return indices

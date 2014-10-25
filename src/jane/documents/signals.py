@@ -53,10 +53,11 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
                 obj.geometry = GeometryCollection(geometry)
             obj.save()
             # add attachments
-            for key, value in attachments.items():
-                data = value['data']
-                if hasattr(data, 'seek'):
-                    data.seek(0)
-                    data = data.read()
-                models.Attachment(record=obj, category=key,
-                    content_type=value['content-type'], data=data).save()
+            if attachments:
+                for key, value in attachments.items():
+                    data = value['data']
+                    if hasattr(data, 'seek'):
+                        data.seek(0)
+                        data = data.read()
+                    models.Attachment(record=obj, category=key,
+                        content_type=value['content-type'], data=data).save()
