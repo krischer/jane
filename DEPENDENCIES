@@ -10,11 +10,14 @@ django-plugins
 
 # Django REST framework
 djangorestframework
+
 markdown
 django-filter
 PyYAML
 defusedxml
 gdal
+geojson
+django-cors-headers
 
 # Windows
 # GDAL (http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal)
