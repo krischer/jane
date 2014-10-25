@@ -83,6 +83,7 @@ MIDDLEWARE_CLASSES = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.doc.XViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     # see http://docs.djangoproject.com/en/dev/ref/clickjacking/
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -228,7 +229,7 @@ REST_FRAMEWORK = {
 ###############################################################################
 # djcelery.setup_loader()
 
-INSTALLED_APPS += ["djcelery"]
+INSTALLED_APPS += ["djcelery", "corsheaders"]
 if DEPLOYED:
     # use RabbitMQ server
     BROKER_TRANSPORT = "amqp"
@@ -246,6 +247,9 @@ CELERY_RESULT_BACKEND = "djcelery.backends.database:DatabaseBackend"
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = "json"
+
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 
 ###############################################################################
