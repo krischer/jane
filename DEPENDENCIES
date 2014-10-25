@@ -6,15 +6,15 @@ psycopg2
 obspy
 django-debug-toolbar
 jsonfield
-django-plugins (https://bitbucket.org/krischer/django-plugins/get/default.zip)
+django-plugins
 
 # Django REST framework
-djangorestframework (https://github.com/tomchristie/django-rest-framework/archive/master.zip)
+djangorestframework
 markdown
 django-filter
 PyYAML
 defusedxml
-
+gdal
 
 # Windows
-GDAL (http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal)
+# GDAL (http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal)
