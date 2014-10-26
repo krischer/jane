@@ -95,11 +95,6 @@ class Record(models.Model):
     def __str__(self):
         return str(self.json)
 
-    @property
-    def __geo_interface__(self):
-        return {"type": "Point", "coordinates": self.geometry.coords[0],
-                "properties": self.json}
-
 
 class Attachment(models.Model):
     record = models.ForeignKey(Record, related_name='attachments')

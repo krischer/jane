@@ -10,7 +10,6 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-import geojson as geojson_module
 from jane.documents import models, serializer
 
 
@@ -29,19 +28,6 @@ def test(request, resource_type):
         context_instance=RequestContext(request))
 
 
-def geojson(request, resource_type):
-    """
-    """
-    resource_type = get_object_or_404(models.ResourceType, name=resource_type)
-    values = models.Record.objects.\
-        filter(document__resource__resource_type=resource_type)
-    values = geojson_module.dumps(
-        geojson_module.GeometryCollection([
-            _i.__geo_interface__ for _i in values])
-    )
-    return HttpResponse(values, content_type='application/json')
-
-
 @api_view(['GET'])
 def record_list(request, resource_type, format=None):  # @ReservedAssignment
     """
@@ -51,6 +37,8 @@ def record_list(request, resource_type, format=None):  # @ReservedAssignment
         res_type = get_object_or_404(models.ResourceType, name=resource_type)
         queryset = models.Record.objects. \
             filter(document__resource__resource_type=res_type)
+
+        context = {'request': request, 'resource_type_name': resource_type}
 
         if request.accepted_renderer.format == 'api':
             # REST API uses pagination
@@ -81,10 +69,10 @@ def record_list(request, resource_type, format=None):  # @ReservedAssignment
                 records = paginator.page(paginator.num_pages)
 
             data = serializer.PaginatedRecordSerializer(records,
-                context={'request': request}).data
+                context=context).data
         else:
             data = serializer.RecordSerializer(queryset, many=True,
-                context={'request': request}).data
+                context=context).data
         return Response(data)
     else:
         raise Http404

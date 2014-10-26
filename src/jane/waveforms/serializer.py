@@ -19,6 +19,10 @@ class WaveformSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class PaginatedWaveformSerializer(pagination.PaginationSerializer):
+    """
+    Serializes page objects of waveform querysets.
+    """
+    pages = serializers.Field(source='paginator.num_pages')
 
     class Meta:
         object_serializer_class = WaveformSerializer

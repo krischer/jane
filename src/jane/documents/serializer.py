@@ -7,15 +7,16 @@ from rest_framework_gis.serializers import GeoModelSerializer
 from jane.documents import models
 
 
-class AttachmentSerializer(serializers.HyperlinkedModelSerializer):
+class AttachmentSerializer(serializers.ModelSerializer):
 
     url = serializers.URLField(source='pk', read_only=True)
 
     def transform_url(self, obj, value):
-        rt_name = obj.record.document.resource.resource_type.name
+        request = self.context.get('request')
+        rt_name = self.context.get('resource_type_name')
         index_id = obj.record.pk
         return reverse('attachment_detail', args=[rt_name, index_id, value],
-                       request=self.context.get('request'))
+                       request=request)
 
     class Meta:
         model = models.Attachment
@@ -29,14 +30,14 @@ class RecordSerializer(GeoModelSerializer):
     url = serializers.URLField(source='pk', read_only=True)
 
     def transform_url(self, obj, value):
-        rt_name = obj.document.resource.resource_type.name
-        return reverse('record_detail', args=[rt_name, value],
-                       request=self.context.get('request'))
+        request = self.context.get('request')
+        rt_name = self.context.get('resource_type_name')
+        return reverse('record_detail', args=[rt_name, value], request=request)
 
     class Meta:
         model = models.Record
         fields = ('id', 'url', 'document', 'indexed_data', 'geometry',
-                  'attachments', 'created_at', )
+                  'attachments', 'created_at')
 
 
 class PaginatedRecordSerializer(pagination.PaginationSerializer):
