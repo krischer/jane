@@ -65,10 +65,10 @@ class Document(models.Model):
 
 class RecordManager(models.GeoManager):
 
-    def get_query_set(self):
+    def get_queryset(self):
         """
         """
-        return super(RecordManager, self).get_query_set().\
+        return super(RecordManager, self).get_queryset().\
             select_related('attachments').\
             prefetch_related('attachments')
 

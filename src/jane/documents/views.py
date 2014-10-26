@@ -52,13 +52,12 @@ def rest_records_list(request, resource_type,
             filter(document__resource__resource_type=res_type)
         data = serializer.RecordSerializer(values, many=True).data
         for d, v in zip(data, values):
-            d.insert(0, "url", reverse('rest_record_detail',
-                                       args=[res_type, v.pk],
-                                       request=request))
+            d["url"] = reverse('rest_record_detail', args=[res_type, v.pk],
+                               request=request)
             for _d, _v in zip(d["attachments"], v.attachments.all()):
-                _d.insert(0, "url", reverse(
-                    'rest_attachment_view', args=[res_type, v.pk, _v.pk],
-                    request=request))
+                _d["url"] = reverse('rest_attachment_view',
+                                    args=[res_type, v.pk, _v.pk],
+                                    request=request)
         return Response(data)
     else:
         raise Http404
@@ -75,9 +74,9 @@ def rest_record_detail(request, resource_type, pk,
     if request.method == 'GET':
         data = serializer.RecordSerializer(value).data
         for d, v in zip(data["attachments"], value.attachments.all()):
-            d.insert(0, "url", reverse(
-                'rest_attachment_view', args=[resource_type, value.pk, v.pk],
-                request=request))
+            d["url"] = reverse('rest_attachment_view',
+                               args=[resource_type, value.pk, v.pk],
+                               request=request)
         return Response(data)
     else:
         raise Http404
