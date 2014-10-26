@@ -37,7 +37,7 @@ def geojson(request, resource_type):
         geojson_module.GeometryCollection([
             _i.__geo_interface__ for _i in values])
     )
-    return HttpResponse(values, mimetype='application/json')
+    return HttpResponse(values, content_type='application/json')
 
 
 @api_view(['GET'])
