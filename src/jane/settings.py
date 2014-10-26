@@ -18,11 +18,9 @@ except ImportError:
 if DEBUG is True:
     DEPLOYED = False
     TEMPLATE_DEBUG = True
-    DEBUG_TOOLBAR = True
 else:
     DEPLOYED = True
     TEMPLATE_DEBUG = False
-    DEBUG_TOOLBAR = False
 
 
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
