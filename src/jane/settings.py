@@ -297,8 +297,12 @@ DEBUG_TOOLBAR_PANELS = [
 ###############################################################################
 # Import local settings
 ###############################################################################
-from .local_settings import *  # @UnusedWildImport
-
+try:
+    from .local_settings import *  # @UnusedWildImport
+except ImportError:
+    print("ERROR: You need to copy local_settings.py.example into " + \
+        "local_settings.py and edit its content before running this service.")
+    exit()
 
 # speed up tests
 if 'test' in sys.argv:
