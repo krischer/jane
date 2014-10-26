@@ -43,7 +43,7 @@ def record_list(request, resource_type, format=None):  # @ReservedAssignment
 
         # check for cached version
         if request.accepted_renderer.format == 'json':
-            record_list_json = cache.get('record_list_json')
+            record_list_json = cache.get('record_list_json' + resource_type)
             if record_list_json:
                 return Response(record_list_json)
 
@@ -87,7 +87,8 @@ def record_list(request, resource_type, format=None):  # @ReservedAssignment
                 context=context).data
             # cache json requests
             if request.accepted_renderer.format == 'json':
-                cache.set('record_list_json', data, CACHE_TIMEOUT)
+                cache.set('record_list_json' + resource_type, data,
+                          CACHE_TIMEOUT)
         return Response(data)
     else:
         raise Http404
