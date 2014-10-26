@@ -6,6 +6,7 @@ psycopg2
 jsonfield
 django-plugins
 djangorestframework  # make sure package is unpacked - no single .egg file!
+djangorestframework-gis
 markdown
 django-filter
 PyYAML

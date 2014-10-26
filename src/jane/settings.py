@@ -179,7 +179,7 @@ INSTALLED_APPS += [
 INSTALLED_APPS += [
     'jane.waveforms',
     'jane.documents',
-    'jane.stations',
+    'jane.stationxml',
     'jane.quakeml',
     'jane.jane'
 ]

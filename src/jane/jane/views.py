@@ -16,7 +16,7 @@ def rest_root(request, format=None):  # @ReservedAssignment
     if request.method == "GET":
         resource_types = models.ResourceType.objects.all()
         data = {
-           _i.name: reverse('rest_records_list', args=[_i.name],
+           _i.name: reverse('record_list', args=[_i.name],
                             request=request)
            for _i in resource_types
         }
