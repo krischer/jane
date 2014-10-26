@@ -22,6 +22,7 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
     @property
     def meta(self):
         return {
+            "quakeml_id": {"type": "str"},
             "latitude": {"type": "float"},
             "longitude": {"type": "float"},
             "depth_in_m": {"type": "float"},
@@ -71,6 +72,7 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 evaluationMode = None
 
             indices.append({
+                "quakeml_id": str(event.resource_id),
                 "latitude": org.latitude if org else None,
                 "longitude": org.longitude if org else None,
                 "depth_in_m": org.depth if org else None,
