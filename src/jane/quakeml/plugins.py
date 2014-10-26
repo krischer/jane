@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
 from obspy.core.quakeml import _validate as validate_quakeml
-import io
 
 from django.contrib.gis.geos.point import Point
-from obspy.core.event import readEvents, Catalog
+from obspy.core.event import readEvents
 
 from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint
-import matplotlib.pyplot as plt
 
 
 class QuakeMLValidatorPlugin(ValidatorPluginPoint):
@@ -48,14 +45,6 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
             else:
                 mag = None
 
-            if mag and org:
-                plot = io.BytesIO()
-                fig = Catalog(events=[event]).plot(format="png", outfile=plot)
-                plt.close(fig)
-                plot.seek(0)
-                plot_data = plot.read()
-                plot.close()
-
             indices.append({
                 "latitude": org.latitude if org else None,
                 "longitude": org.longitude if org else None,
@@ -66,9 +55,5 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 "geometry":
                     [Point(org.longitude, org.latitude)] if org else None,
             })
-
-            if mag and org:
-                indices[-1]["attachments"] = {
-                    "map": {"content-type": "image/png", "data": plot_data}}
 
         return indices
