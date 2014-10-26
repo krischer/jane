@@ -39,6 +39,12 @@ def record_list(request, resource_type, format=None):  # @ReservedAssignment
     """
     if request.method == "GET":
 
+        # check for cached version
+        if request.accepted_renderer.format == 'json':
+            record_list = cache.get('record_list_json')
+            if record_list:
+                return Response(record_list)
+
         res_type = get_object_or_404(models.ResourceType, name=resource_type)
         queryset = models.Record.objects. \
             filter(document__resource__resource_type=res_type)
@@ -80,9 +86,6 @@ def record_list(request, resource_type, format=None):  # @ReservedAssignment
                 context=context).data
             # cache json requests
             if request.accepted_renderer.format == 'json':
-                record_list = cache.get('record_list_json')
-                if record_list:
-                    return Response(record_list)
                 cache.set('record_list_json', data, CACHE_TIMEOUT)
         return Response(data)
     else:
