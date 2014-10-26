@@ -3,21 +3,22 @@ celery
 django-celery
 watchdog
 psycopg2
-obspy
-django-debug-toolbar
 jsonfield
 django-plugins
-
-# Django REST framework
-djangorestframework
-
+djangorestframework  # make sure package is unpacked - no single .egg file!
 markdown
 django-filter
 PyYAML
 defusedxml
-gdal
+gdal  # Windows: http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal
 geojson
 django-cors-headers
 
-# Windows
-# GDAL (http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal)
+# obspy
+obspy
+sqlalchemy
+future
+
+# dev
+django-debug-toolbar
+django-debug-toolbar-template-timings

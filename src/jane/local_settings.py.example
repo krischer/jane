@@ -12,8 +12,12 @@ DATABASES = {
 }
 
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 'CHANGEME!'
+# Be sure to fill in a unique SECRET_KEY
+# Use python to generate a unique SECRET_KEY.
+# >>> from random import choice
+# >>> "".join([choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)")
+# ... for i in range(50)])
+#SECRET_KEY = 'CHANGEME!'
 
 
 ADMINS = (
