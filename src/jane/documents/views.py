@@ -39,13 +39,14 @@ def record_list(request, resource_type, format=None):  # @ReservedAssignment
     """
     if request.method == "GET":
 
+        res_type = get_object_or_404(models.ResourceType, name=resource_type)
+
         # check for cached version
         if request.accepted_renderer.format == 'json':
-            record_list = cache.get('record_list_json')
-            if record_list:
-                return Response(record_list)
+            record_list_json = cache.get('record_list_json')
+            if record_list_json:
+                return Response(record_list_json)
 
-        res_type = get_object_or_404(models.ResourceType, name=resource_type)
         queryset = models.Record.objects. \
             filter(document__resource__resource_type=res_type)
 
