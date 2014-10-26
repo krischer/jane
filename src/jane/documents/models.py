@@ -39,6 +39,9 @@ class Resource(models.Model):
 
 
 class Document(models.Model):
+    """
+    A resource revision
+    """
     resource = models.ForeignKey(Resource, related_name='documents')
     revision = models.IntegerField(default=0, db_index=True)
     filename = models.CharField(max_length=255, blank=True, null=True)
@@ -58,6 +61,8 @@ class Document(models.Model):
     class Meta:
         ordering = ['pk']
         unique_together = ['resource', 'revision']
+        verbose_name = 'Revision'
+        verbose_name_plural = 'Revisions'
 
     def save(self, *args, **kwargs):
         super(Document, self).save(*args, **kwargs)
@@ -84,6 +89,8 @@ class Record(models.Model):
 
     class Meta:
         ordering = ['pk']
+        verbose_name = 'Index'
+        verbose_name_plural = 'Indexes'
 
     def __str__(self):
         return str(self.json)

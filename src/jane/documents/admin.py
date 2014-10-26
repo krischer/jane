@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import base64
+
 from django.contrib.gis import admin
+from django.template.defaultfilters import filesizeformat
 
 from jane.documents import models
-import base64
 
 
 class ResourceTypeAdmin(admin.ModelAdmin):
@@ -12,37 +14,69 @@ class ResourceTypeAdmin(admin.ModelAdmin):
 admin.site.register(models.ResourceType, ResourceTypeAdmin)
 
 
+class DocumentInline(admin.TabularInline):
+    model = models.Document
+    extra = 0
+    readonly_fields = [f.name for f in models.Document._meta.fields]
+
+
 class ResourceAdmin(admin.ModelAdmin):
     list_display = ['pk', 'resource_type', 'name']
     list_filter = ['resource_type__name']
+    inlines = [DocumentInline]
 
 admin.site.register(models.Resource, ResourceAdmin)
 
 
 class DocumentAdmin(admin.GeoModelAdmin):
-    list_display = ['pk', 'resource', 'revision', 'filename', 'filesize',
-        'sha1', 'created_at']
-    list_filter = ['resource__resource_type__name', 'created_at']
-    readonly_fields = list_display
+    list_display = ['pk', 'format_resource_type', 'resource', 'revision',
+        'filename', 'format_filesize', 'created_at']
+    list_filter = ['resource__resource_type', 'created_at']
+    readonly_fields = [f.name for f in models.Document._meta.fields]
+
+    def format_resource_type(self, obj):
+        return obj.resource.resource_type.name
+    format_resource_type.short_description = 'Resource type'
+    format_resource_type.admin_order_field = 'resource__resource_type__name'
+
+    def format_filesize(self, obj):
+        return filesizeformat(obj.filesize)
+    format_filesize.short_description = 'File size'
+    format_filesize.admin_order_field = 'filesize'
 
 admin.site.register(models.Document, DocumentAdmin)
 
 
+class AttachmentInline(admin.TabularInline):
+    model = models.Attachment
+    extra = 0
+    readonly_fields = [f.name for f in models.Attachment._meta.fields]
+
+
 class RecordAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'json', 'format_resource_type',
+    list_display = ['pk', 'format_resource_type', 'format_resource',
                     'created_at']
     list_filter = ['created_at', 'document__resource__resource_type']
-    readonly_fields = list_display + ['format_resource_type', 'created_at']
+    inlines = [AttachmentInline]
 
     def queryset(self, request):
         return super(RecordAdmin, self).queryset(request).\
             select_related('document__resource__resource_type')
 
+    def has_add_permission(self, request):
+        # Nobody is allowed to add
+        return False
+
     def format_resource_type(self, obj):
         return obj.document.resource.resource_type.name
     format_resource_type.short_description = 'Resource type'
     format_resource_type.admin_order_field = \
-            'document__resource__resource_type'
+            'document__resource__resource_type__name'
+
+    def format_resource(self, obj):
+        return obj.document.resource
+    format_resource.short_description = 'Resource'
+    format_resource.admin_order_field = 'document__resource'
 
 admin.site.register(models.Record, RecordAdmin)
 
