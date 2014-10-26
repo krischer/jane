@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse
 from django.http.response import Http404
@@ -11,6 +12,9 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from jane.documents import models, serializer
+
+
+CACHE_TIMEOUT = 60 * 60 * 24
 
 
 def test(request, resource_type):
@@ -34,6 +38,7 @@ def record_list(request, resource_type, format=None):  # @ReservedAssignment
     Lists all indexed values.
     """
     if request.method == "GET":
+
         res_type = get_object_or_404(models.ResourceType, name=resource_type)
         queryset = models.Record.objects. \
             filter(document__resource__resource_type=res_type)
@@ -73,6 +78,12 @@ def record_list(request, resource_type, format=None):  # @ReservedAssignment
         else:
             data = serializer.RecordSerializer(queryset, many=True,
                 context=context).data
+            # cache json requests
+            if request.accepted_renderer.format == 'json':
+                record_list = cache.get('record_list_json')
+                if record_list:
+                    return Response(record_list)
+                cache.set('record_list_json', data, CACHE_TIMEOUT)
         return Response(data)
     else:
         raise Http404

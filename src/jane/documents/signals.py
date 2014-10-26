@@ -2,6 +2,7 @@
 
 import io
 
+from django.core.cache import cache
 from django.contrib.gis.geos.collections import GeometryCollection
 from django.db.models.signals import pre_save, post_save
 from django.dispatch.dispatcher import receiver
@@ -61,3 +62,5 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
                         data = data.read()
                     models.Attachment(record=obj, category=key,
                         content_type=value['content-type'], data=data).save()
+    # invalidate cache
+    cache.delete('record_list_json')

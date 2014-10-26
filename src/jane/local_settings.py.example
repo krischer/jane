@@ -31,6 +31,14 @@ SERVER_EMAIL = 'django@localhost'
 DEFAULT_FROM_EMAIL = 'noreply@localhost'
 
 
+# see https://docs.djangoproject.com/en/dev/topics/cache/#setting-up-the-cache
+CACHE = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
+
 # set GEOS_LIBRARY_PATH dynamically on Windows -> requires GDAL package
 # import osgeo
 # import os
