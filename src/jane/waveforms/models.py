@@ -92,7 +92,7 @@ class Channel(models.Model):
 
 class GapOverlap(models.Model):
     channel = models.ForeignKey(Channel, related_name='gaps')
-    gap = models.BooleanField(db_index=True)
+    gap = models.BooleanField(db_index=True, default=True)
     starttime = models.DateTimeField(db_index=True)
     endtime = models.DateTimeField(db_index=True)
     samples = models.IntegerField(default=0)
