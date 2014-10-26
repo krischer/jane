@@ -5,6 +5,9 @@ from django.contrib.gis.geos.point import Point
 from obspy.station.stationxml import validate_StationXML
 import obspy
 
+import matplotlib
+matplotlib.use('agg')
+
 from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint
 
 
