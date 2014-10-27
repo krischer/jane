@@ -49,7 +49,10 @@ class StationIndexerPlugin(IndexerPluginPoint):
 
                     indices.append({
                         "network": network.code,
+                        "network_name": network.description,
                         "station": station.code,
+                        "station_name": station.description if
+                        station.description else station.site.name,
                         "location": channel.location_code,
                         "channel": channel.code,
                         "latitude": channel.latitude,
@@ -57,6 +60,9 @@ class StationIndexerPlugin(IndexerPluginPoint):
                         "elevation_in_m": channel.elevation,
                         "depth_in_m": channel.depth,
                         "start_date": str(channel.start_date),
+                        "sample_rate": float(channel.sample_rate),
+                        "sensor_type": channel.sensor.type if channel.sensor
+                        else None,
                         "end_date": str(channel.end_date),
                         "geometry": [Point(channel.longitude,
                                            channel.latitude)],
