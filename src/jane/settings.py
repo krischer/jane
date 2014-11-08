@@ -31,7 +31,7 @@ TEMPLATE_DIRS = (os.path.join(PROJECT_DIR, 'templates'),)
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ['*']
 APPEND_SLASH = True
-TIME_ZONE = 'Europe/Berlin'
+TIME_ZONE = 'UTC'
 LANGUAGE_CODE = 'en-gb'
 USE_I18N = False
 USE_L10N = False
@@ -181,6 +181,7 @@ INSTALLED_APPS += [
     'jane.documents',
     'jane.stationxml',
     'jane.quakeml',
+    'jane.fdsnws',
     'jane.jane'
 ]
 
@@ -302,8 +303,16 @@ except ImportError:
         "local_settings.py and edit its content before running this service.")
     exit()
 
+
 # speed up tests
 if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3'
+    }
     PASSWORD_HASHERS = (
         'django.contrib.auth.hashers.MD5PasswordHasher',
     )
+    DEBUG = False
+    TEMPLATE_DEBUG = False
+    import logging
+    logging.disable(logging.CRITICAL)

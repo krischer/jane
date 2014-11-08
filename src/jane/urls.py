@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'', include('jane.waveforms.urls')),
     url(r'', include('jane.documents.urls')),
     url(r'', include('jane.jane.urls')),
+    url(r'^fdsnws/', include('jane.fdsnws.urls')),
 )
 
 

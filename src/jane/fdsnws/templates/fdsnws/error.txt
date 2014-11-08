@@ -1,0 +1,11 @@
+Error {{ status_code }}: {{ message }}
+
+
+Request:
+{{ url }}
+
+Request Submitted:
+{{ utcnow }} UTC
+
+Service version:
+fdsnws-dataselect: v {{ version }}
