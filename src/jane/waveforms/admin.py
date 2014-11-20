@@ -15,7 +15,7 @@ class PathAdmin(admin.ModelAdmin):
     readonly_fields = ['name', 'mtime', 'ctime']
     actions = ['action_reindex']
 
-    def queryset(self, request):  # @UnusedVariable
+    def get_queryset(self, request):  # @UnusedVariable
         return models.Path.objects.annotate(file_count=Count('files'))
 
     def action_reindex(self, request, queryset):  # @UnusedVariable
@@ -52,7 +52,7 @@ class FileAdmin(admin.ModelAdmin):
         }),
     )
 
-    def queryset(self, request):  # @UnusedVariable
+    def get_queryset(self, request):  # @UnusedVariable
         return models.File.objects.\
             annotate(trace_count=Count('waveforms'))
 

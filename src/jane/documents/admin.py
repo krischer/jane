@@ -59,8 +59,8 @@ class RecordAdmin(admin.ModelAdmin):
     list_filter = ['created_at', 'document__resource__resource_type']
     inlines = [AttachmentInline]
 
-    def queryset(self, request):
-        return super(RecordAdmin, self).queryset(request).\
+    def get_queryset(self, request):
+        return super(RecordAdmin, self).get_queryset(request).\
             select_related('document__resource__resource_type')
 
     def has_add_permission(self, request):
