@@ -6,6 +6,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 
 from jane.waveforms.utils import to_datetime
+from jsonfield.fields import JSONField
 
 
 class Path(models.Model):
@@ -75,7 +76,7 @@ class Channel(models.Model):
     calib = models.FloatField(verbose_name="Calibration factor", default=1)
     sampling_rate = models.FloatField(default=1)
     npts = models.IntegerField(verbose_name="Samples", default=0)
-    preview_trace = models.BinaryField(null=True)
+    preview_trace = JSONField(null=True)
     preview_image = models.BinaryField(null=True)
 
     def __str__(self):

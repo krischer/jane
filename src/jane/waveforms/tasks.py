@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import io
+import json
 import os
 
 from celery import shared_task
@@ -31,14 +32,14 @@ def process_file(filename):
     # build up dictionary of gaps and overlaps for easier lookup
     gap_dict = {}
     for gap in gap_list:
-        id = '.'.join(gap[0:4])
+        gid = '.'.join(gap[0:4])
         temp = {
             'gap': gap[6] >= 0,
             'starttime': gap[4].datetime,
             'endtime': gap[5].datetime,
             'samples': abs(gap[7])
         }
-        gap_dict.setdefault(id, []).append(temp)
+        gap_dict.setdefault(gid, []).append(temp)
 
     if len(stream) == 0:
         msg = "'%s' is a valid waveform file but contains no actual data"
@@ -79,8 +80,8 @@ def process_file(filename):
         if hasattr(trace.data, 'filled'):
             trace.data.filled(0)
         try:
-            preview_trace = createPreview(trace, 30)
-            channel_obj.preview_trace = preview_trace.data.dumps()
+            preview_trace = createPreview(trace, 60)
+            channel_obj.preview_trace = json.dumps(preview_trace.data.tolist())
         except:
             pass
 
@@ -221,3 +222,6 @@ def index_path(path, debug=False):
             else:
                 # use celery
                 process_file.delay(os.path.join(root, file))
+    # indexing
+    if debug:
+        print("Indexing finished")
