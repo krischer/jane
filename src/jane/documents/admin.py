@@ -32,11 +32,14 @@ admin.site.register(models.Document, DocumentAdmin)
 
 
 class DocumentRevisionAdmin(admin.GeoModelAdmin):
-    list_display = ['pk', 'format_document_type', 'document',
-                    'revision_number', 'filename', 'format_filesize',
-                    'created_at']
+    list_display = [
+        'pk', 'format_document_type', 'document', 'revision_number',
+        'filename', 'format_filesize', 'created_at']
     list_filter = ['document__document_type', 'created_at']
-    readonly_fields = [f.name for f in models.DocumentRevision._meta.fields]
+    readonly_fields = [
+        'document', 'revision_number', 'filename', 'format_data',
+        'filesize', 'sha1', 'created_at', 'created_by', 'created_by',
+        'modified_at', 'modified_by']
 
     def format_document_type(self, obj):
         return obj.document.document_type.name
@@ -47,6 +50,11 @@ class DocumentRevisionAdmin(admin.GeoModelAdmin):
         return filesizeformat(obj.filesize)
     format_filesize.short_description = 'File size'
     format_filesize.admin_order_field = 'filesize'
+
+    def format_data(self, obj):
+        return "%s11" % (obj.data)
+    format_data.short_description = 'Data'
+    format_data.short_description = 'Data'
 
 admin.site.register(models.DocumentRevision, DocumentRevisionAdmin)
 

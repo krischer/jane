@@ -54,6 +54,7 @@ class DocumentRevision(models.Model):
     document = models.ForeignKey(Document, related_name='revisions')
     revision_number = models.IntegerField(default=0, db_index=True)
     filename = models.CharField(max_length=255, blank=True, null=True)
+    content_type = models.CharField(max_length=255, blank=True, null=True)
     data = models.BinaryField()
     filesize = models.IntegerField()
     sha1 = models.CharField(max_length=40, db_index=True, unique=True)
