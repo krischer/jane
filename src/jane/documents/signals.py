@@ -16,12 +16,36 @@ def validate_document(sender, instance, **kwargs):  # @UnusedVariable
     Validate document before saving using validators of specified document type
     """
     plugins = instance.document.document_type.validators.all()
+    if not plugins:
+        raise Exception("At least one ValidatorPlugin must be defined for "
+                        "document type '%s'." %
+                        instance.document.document_type.name)
     with io.BytesIO(bytes(instance.data)) as data:
         for plugin in plugins:
             data.seek(0, 0)
             # raise if not valid
             if not plugin.get_plugin().validate(data):
                 raise Exception
+
+
+@receiver(pre_save, sender=models.DocumentRevision)
+def set_content_type(sender, instance, **kwargs):  # @UnusedVariable
+    # One of the validators must contain a content-type of the data.
+    validators = instance.document.document_type.validators.all()
+    content_types = []
+    for validator in validators:
+        plugin = validator.get_plugin()
+        if hasattr(plugin, "content_type"):
+            content_types.append(plugin.content_type)
+    content_types = set(content_types)
+    if not content_types:
+        raise Exception("At least one of the validators must contains a "
+                        "content type.")
+    if len(content_types) != 1:
+        raise Exception("More then one content type defined for the document "
+                        "types validators")
+    content_type = content_types.pop()
+    instance.content_type = content_type
 
 
 @receiver(post_save, sender=models.DocumentRevision)
