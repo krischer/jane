@@ -3,6 +3,7 @@
 import base64
 
 from django.contrib.gis import admin
+from django.core.urlresolvers import reverse
 from django.template.defaultfilters import filesizeformat
 
 from jane.documents import models
@@ -37,9 +38,9 @@ class DocumentRevisionAdmin(admin.GeoModelAdmin):
         'filename', 'format_filesize', 'created_at']
     list_filter = ['document__document_type', 'created_at']
     readonly_fields = [
-        'document', 'revision_number', 'filename', 'format_data',
-        'filesize', 'sha1', 'created_at', 'created_by', 'created_by',
-        'modified_at', 'modified_by']
+        'document', 'revision_number', 'filename', 'content_type',
+        'format_data', 'filesize', 'sha1', 'created_at', 'created_by',
+        'created_by', 'modified_at', 'modified_by']
 
     def format_document_type(self, obj):
         return obj.document.document_type.name
@@ -52,7 +53,8 @@ class DocumentRevisionAdmin(admin.GeoModelAdmin):
     format_filesize.admin_order_field = 'filesize'
 
     def format_data(self, obj):
-        return "%s11" % (obj.data)
+        url = reverse('document_revision', kwargs={'pk': obj.id})
+        return '<a href="%s">%s</a>' % (url, url)
     format_data.short_description = 'Data'
     format_data.short_description = 'Data'
 
