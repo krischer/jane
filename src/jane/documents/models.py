@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models
-from djangoplugins.fields import PluginField, ManyPluginField
+from djangoplugins.fields import ManyPluginField
 from jsonfield.fields import JSONField
 
 from jane.documents import plugins
@@ -26,6 +26,8 @@ class DocumentType(models.Model):
 
     class Meta:
         ordering = ['name']
+        verbose_name = 'Type'
+        verbose_name_plural = 'Types'
 
 
 class Document(models.Model):
@@ -41,13 +43,15 @@ class Document(models.Model):
 
     class Meta:
         ordering = ['pk']
+        verbose_name = 'Document'
+        verbose_name_plural = 'Documents'
 
 
 class DocumentRevision(models.Model):
     """
     A certain document revision.
     """
-    document = models.ForeignKey(Document, related_name='document_revisions')
+    document = models.ForeignKey(Document, related_name='revisions')
     revision = models.IntegerField(default=0, db_index=True)
     filename = models.CharField(max_length=255, blank=True, null=True)
     data = models.BinaryField()
@@ -55,10 +59,10 @@ class DocumentRevision(models.Model):
     sha1 = models.CharField(max_length=40, db_index=True, unique=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     created_by = models.ForeignKey(User, null=True, editable=False,
-            related_name='document_revisions_created')
+            related_name='revisions_created')
     modified_at = models.DateTimeField(auto_now=True, editable=False)
     modified_by = models.ForeignKey(User, null=True, editable=False,
-            related_name='documents_revisions_modified')
+            related_name='revisions_modified')
 
     def __str__(self):
         return str(self.pk)
@@ -66,8 +70,8 @@ class DocumentRevision(models.Model):
     class Meta:
         ordering = ['pk']
         unique_together = ['document', 'revision']
-        verbose_name = 'DocumentRevision'
-        verbose_name_plural = 'DocumentRevisions'
+        verbose_name = 'Revision'
+        verbose_name_plural = 'Revisions'
 
     def save(self, *args, **kwargs):
         super(DocumentRevision, self).save(*args, **kwargs)
@@ -81,16 +85,16 @@ class _DocumentRevisionIndexManager(models.GeoManager):
         """
         """
         return super(_DocumentRevisionIndexManager, self).get_queryset().\
-            select_related('document_revision_attachments').\
-            prefetch_related('document_revision_attachments')
+            select_related('attachments').\
+            prefetch_related('attachments')
 
 
 class DocumentRevisionIndex(models.Model):
     """
     Indexed values for a specific revision of a document.
     """
-    document = models.ForeignKey(DocumentRevision,
-                                 related_name='document_revision_indices')
+    document_revision = models.ForeignKey(
+        DocumentRevision, related_name='indices')
     json = JSONField(verbose_name="JSON")
     geometry = models.GeometryCollectionField(blank=True, null=True,
         geography=True)
@@ -100,19 +104,20 @@ class DocumentRevisionIndex(models.Model):
 
     class Meta:
         ordering = ['pk']
-        verbose_name = 'DocumentRevisionIndex'
-        verbose_name_plural = 'DocumentRevisionIndices'
+        verbose_name = 'Index'
+        verbose_name_plural = 'Indices'
 
     def __str__(self):
         return str(self.json)
 
 
-class DocumentRevisionAttachment(models.Model):
+class DocumentRevisionIndexAttachment(models.Model):
     """
     Attachments for one DocumentRevisonIndex.
     """
     document_revision_index = models.ForeignKey(
-        DocumentRevisionIndex, related_name='document_revision_attachments')
+        DocumentRevisionIndex,
+        related_name='attachments')
     category = models.SlugField(max_length=20, db_index=True)
     content_type = models.CharField(max_length=255)
     data = models.BinaryField()
@@ -120,6 +125,8 @@ class DocumentRevisionAttachment(models.Model):
 
     class Meta:
         ordering = ['pk']
+        verbose_name = 'Attachment'
+        verbose_name_plural = 'Attachments'
 
     def __str__(self):
         return str(self.data)

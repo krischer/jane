@@ -60,7 +60,8 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
                     if hasattr(data, 'seek'):
                         data.seek(0)
                         data = data.read()
-                    models.DocumentRevisionAttachment(record=obj, category=key,
+                    models.DocumentRevisionIndexAttachment(
+                        record=obj, category=key,
                         content_type=value['content-type'], data=data).save()
     # invalidate cache
     cache.delete('record_list_json')

@@ -19,7 +19,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
                        request=request)
 
     class Meta:
-        model = models.DocumentRevisionAttachment
+        model = models.DocumentRevisionIndexAttachment
         fields = ('id', 'url', 'category', 'content_type', 'created_at')
 
 

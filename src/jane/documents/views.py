@@ -117,9 +117,13 @@ def record_detail(request, resource_type, pk,
 @api_view(['GET'])
 def attachment_detail(request, resource_type, index_id, attachment_id):
     # Assure document type and index id are available.
-    value = get_object_or_404(models.DocumentRevisionAttachment,
-        record__document__resource__resource_type__name=resource_type,
-        record__pk=index_id, pk=attachment_id)
+    value = get_object_or_404(models.DocumentRevisionIndexAttachment, 
+                               record__pk=index_id, pk=attachment_id, **{
+        "document_revision_index__document_revision_document__document_"
+        "type__name": resource_type,
+
+                                                                         }
+       )
 
     if request.method == 'GET':
         response = HttpResponse(content_type=value.content_type)
