@@ -13,6 +13,8 @@ from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint
 
 class StationValidatorPlugin(ValidatorPluginPoint):
     name = 'stationxml'
+    # The validators must contain a content-type field.
+    content_type = "text/xml"
     title = 'StationXML XMLSchema Validator'
 
     def validate(self, document):

@@ -9,6 +9,8 @@ from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint
 
 class QuakeMLValidatorPlugin(ValidatorPluginPoint):
     name = 'quakeml'
+    # The validators must contain a content-type field.
+    content_type = "text/xml"
     title = 'QuakeML XMLSchema Validator'
 
     def validate(self, document):
