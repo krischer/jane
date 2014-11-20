@@ -20,8 +20,8 @@ CACHE_TIMEOUT = 60 * 60 * 24
 def test(request, resource_type):
     """
     """
-    resource_type = get_object_or_404(models.ResourceType, name=resource_type)
-    values = models.Record.objects.\
+    resource_type = get_object_or_404(models.DocumentType, name=resource_type)
+    values = models.DocumentRevisionIndex.objects.\
         filter(document__resource__resource_type=resource_type).\
         extra(where=["json->'longitude' <= '100'",
                      "json->'latitude' <= '50'",
@@ -39,7 +39,7 @@ def record_list(request, resource_type, format=None):  # @ReservedAssignment
     """
     if request.method == "GET":
 
-        res_type = get_object_or_404(models.ResourceType, name=resource_type)
+        res_type = get_object_or_404(models.DocumentType, name=resource_type)
 
         # check for cached version
         if request.accepted_renderer.format == 'json':
@@ -47,7 +47,7 @@ def record_list(request, resource_type, format=None):  # @ReservedAssignment
             if record_list_json:
                 return Response(record_list_json)
 
-        queryset = models.Record.objects. \
+        queryset = models.DocumentRevisionIndex.objects. \
             filter(document__resource__resource_type=res_type)
 
         context = {'request': request, 'resource_type_name': resource_type}
@@ -100,8 +100,8 @@ def record_detail(request, resource_type, pk,
     """
     Retrieve a single indexed value.
     """
-    #resource_type = get_object_or_404(models.ResourceType, name=resource_type)
-    value = get_object_or_404(models.Record, pk=pk)
+    #document_type = get_object_or_404(models.DocumentType, name=document_type)
+    value = get_object_or_404(models.DocumentRevisionIndex, pk=pk)
 
     if request.method == 'GET':
         data = serializer.RecordSerializer(value).data
@@ -116,8 +116,8 @@ def record_detail(request, resource_type, pk,
 
 @api_view(['GET'])
 def attachment_detail(request, resource_type, index_id, attachment_id):
-    # Assure resource type and index id are available.
-    value = get_object_or_404(models.Attachment,
+    # Assure document type and index id are available.
+    value = get_object_or_404(models.DocumentRevisionAttachment,
         record__document__resource__resource_type__name=resource_type,
         record__pk=index_id, pk=attachment_id)
 

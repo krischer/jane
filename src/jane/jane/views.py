@@ -11,10 +11,10 @@ from jane.documents import models
 def rest_root(request, format=None):  # @ReservedAssignment
     """
     The root of the jane REST interface. Lists all registered
-    document resource types + the waveform type.
+    document document types + the waveform type.
     """
     if request.method == "GET":
-        resource_types = models.ResourceType.objects.all()
+        resource_types = models.DocumentType.objects.all()
         data = {
            _i.name: reverse('record_list', args=[_i.name],
                             request=request)

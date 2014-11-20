@@ -92,8 +92,8 @@ def initialize_plugins():
     plugins = {key: dict(value) for key, value in plugins.items()}
 
     for plugin_name, contents in plugins.items():
-        # Create the resource type if it does not yet exist.
-        resource_type = models.ResourceType.objects.get_or_create(
+        # Create the document type if it does not yet exist.
+        resource_type = models.DocumentType.objects.get_or_create(
             name=plugin_name)[0]
         if "indexer" in contents:
             resource_type.indexer = contents["indexer"][0].get_model()

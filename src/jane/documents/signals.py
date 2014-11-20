@@ -10,10 +10,10 @@ from django.dispatch.dispatcher import receiver
 from jane.documents import models
 
 
-@receiver(pre_save, sender=models.Document)
+@receiver(pre_save, sender=models.DocumentRevision)
 def validate_document(sender, instance, **kwargs):  # @UnusedVariable
     """
-    Validate document before saving using validators of specified resource type
+    Validate document before saving using validators of specified document type
     """
     plugins = instance.resource.resource_type.validators.all()
     with io.BytesIO(bytes(instance.data)) as data:
@@ -24,7 +24,7 @@ def validate_document(sender, instance, **kwargs):  # @UnusedVariable
                 raise Exception
 
 
-@receiver(post_save, sender=models.Document)
+@receiver(post_save, sender=models.DocumentRevision)
 def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
     """
     Index data
@@ -48,8 +48,8 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
                 del index['geometry']
             except:
                 pass
-            # add record
-            obj = models.Record(document=instance, json=index)
+            # add document_revision_index
+            obj = models.DocumentRevisionIndex(document=instance, json=index)
             if geometry:
                 obj.geometry = GeometryCollection(geometry)
             obj.save()
@@ -60,7 +60,7 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
                     if hasattr(data, 'seek'):
                         data.seek(0)
                         data = data.read()
-                    models.Attachment(record=obj, category=key,
+                    models.DocumentRevisionAttachment(record=obj, category=key,
                         content_type=value['content-type'], data=data).save()
     # invalidate cache
     cache.delete('record_list_json')

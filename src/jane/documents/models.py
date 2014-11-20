@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models
 from djangoplugins.fields import PluginField, ManyPluginField
@@ -8,12 +7,15 @@ from jsonfield.fields import JSONField
 from jane.documents import plugins
 
 
-class ResourceType(models.Model):
+class DocumentType(models.Model):
+    """
+    Document category. Will be determined from the registered plugins.
+    """
     name = models.SlugField(max_length=20, primary_key=True)
     content_type = models.CharField(max_length=255)
     # plugins
-    indexer = PluginField(plugins.IndexerPluginPoint, null=True,
-        blank=True, related_name='indexer')
+    indexer = ManyPluginField(plugins.IndexerPluginPoint, null=True,
+        blank=True, related_name='indexers')
     validators = ManyPluginField(plugins.ValidatorPluginPoint, null=True,
         blank=True, related_name='validators')
     converters = ManyPluginField(plugins.ConverterPluginPoint, null=True,
@@ -26,8 +28,11 @@ class ResourceType(models.Model):
         ordering = ['name']
 
 
-class Resource(models.Model):
-    resource_type = models.ForeignKey(ResourceType, related_name='resources')
+class Document(models.Model):
+    """
+    One document. Can have multiple revisions.
+    """
+    document_type = models.ForeignKey(DocumentType, related_name='documents')
     name = models.SlugField(max_length=255, null=True, blank=True,
         db_index=True)
 
@@ -38,11 +43,11 @@ class Resource(models.Model):
         ordering = ['pk']
 
 
-class Document(models.Model):
+class DocumentRevision(models.Model):
     """
-    A resource revision
+    A certain document revision.
     """
-    resource = models.ForeignKey(Resource, related_name='documents')
+    document = models.ForeignKey(Document, related_name='document_revisions')
     revision = models.IntegerField(default=0, db_index=True)
     filename = models.CharField(max_length=255, blank=True, null=True)
     data = models.BinaryField()
@@ -50,54 +55,64 @@ class Document(models.Model):
     sha1 = models.CharField(max_length=40, db_index=True, unique=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     created_by = models.ForeignKey(User, null=True, editable=False,
-            related_name='documents_created')
+            related_name='document_revisions_created')
     modified_at = models.DateTimeField(auto_now=True, editable=False)
     modified_by = models.ForeignKey(User, null=True, editable=False,
-            related_name='documents_modified')
+            related_name='documents_revisions_modified')
 
     def __str__(self):
         return str(self.pk)
 
     class Meta:
         ordering = ['pk']
-        unique_together = ['resource', 'revision']
-        verbose_name = 'Revision'
-        verbose_name_plural = 'Revisions'
+        unique_together = ['document', 'revision']
+        verbose_name = 'DocumentRevision'
+        verbose_name_plural = 'DocumentRevisions'
 
     def save(self, *args, **kwargs):
-        super(Document, self).save(*args, **kwargs)
+        super(DocumentRevision, self).save(*args, **kwargs)
 
 
-class RecordManager(models.GeoManager):
-
+class _DocumentRevisionIndexManager(models.GeoManager):
+    """
+    Custom queryset manager for the document revision indices.
+    """
     def get_queryset(self):
         """
         """
-        return super(RecordManager, self).get_queryset().\
-            select_related('attachments').\
-            prefetch_related('attachments')
+        return super(_DocumentRevisionIndexManager, self).get_queryset().\
+            select_related('document_revision_attachments').\
+            prefetch_related('document_revision_attachments')
 
 
-class Record(models.Model):
-    document = models.ForeignKey(Document, related_name='records')
+class DocumentRevisionIndex(models.Model):
+    """
+    Indexed values for a specific revision of a document.
+    """
+    document = models.ForeignKey(DocumentRevision,
+                                 related_name='document_revision_indices')
     json = JSONField(verbose_name="JSON")
     geometry = models.GeometryCollectionField(blank=True, null=True,
         geography=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
-    objects = RecordManager()
+    objects = _DocumentRevisionIndexManager()
 
     class Meta:
         ordering = ['pk']
-        verbose_name = 'Index'
-        verbose_name_plural = 'Indexes'
+        verbose_name = 'DocumentRevisionIndex'
+        verbose_name_plural = 'DocumentRevisionIndices'
 
     def __str__(self):
         return str(self.json)
 
 
-class Attachment(models.Model):
-    record = models.ForeignKey(Record, related_name='attachments')
+class DocumentRevisionAttachment(models.Model):
+    """
+    Attachments for one DocumentRevisonIndex.
+    """
+    document_revision_index = models.ForeignKey(
+        DocumentRevisionIndex, related_name='document_revision_attachments')
     category = models.SlugField(max_length=20, db_index=True)
     content_type = models.CharField(max_length=255)
     data = models.BinaryField()

@@ -19,7 +19,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
                        request=request)
 
     class Meta:
-        model = models.Attachment
+        model = models.DocumentRevisionAttachment
         fields = ('id', 'url', 'category', 'content_type', 'created_at')
 
 
@@ -35,14 +35,14 @@ class RecordSerializer(GeoModelSerializer):
         return reverse('record_detail', args=[rt_name, value], request=request)
 
     class Meta:
-        model = models.Record
+        model = models.DocumentRevisionIndex
         fields = ('id', 'url', 'document', 'indexed_data', 'geometry',
                   'attachments', 'created_at')
 
 
 class PaginatedRecordSerializer(pagination.PaginationSerializer):
     """
-    Serializes page objects of record querysets.
+    Serializes page objects of document_revision_index querysets.
     """
     pages = serializers.Field(source='paginator.num_pages')
 
