@@ -5,7 +5,7 @@ watchdog
 psycopg2
 jsonfield
 django-plugins
-djangorestframework  # make sure package is unpacked - no single .egg file!
+djangorestframework  # make sure package is unpacked - "easy_install -Z"
 djangorestframework-gis
 markdown
 django-filter

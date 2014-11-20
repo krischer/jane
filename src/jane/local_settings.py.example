@@ -30,6 +30,7 @@ EMAIL_PORT = 25
 SERVER_EMAIL = 'django@localhost'
 DEFAULT_FROM_EMAIL = 'noreply@localhost'
 
+AUTO_LOGOUT_MINUTES = 60
 
 # see https://docs.djangoproject.com/en/dev/topics/cache/#setting-up-the-cache
 CACHE = {
