@@ -21,6 +21,9 @@ class DocumentRevisionInline(admin.TabularInline):
 
 
 class DocumentAdmin(admin.ModelAdmin):
+    """
+    Test
+    """
     list_display = ['pk', 'document_type', 'name']
     list_filter = ['document_type__name']
     inlines = [DocumentRevisionInline]
@@ -29,13 +32,14 @@ admin.site.register(models.Document, DocumentAdmin)
 
 
 class DocumentRevisionAdmin(admin.GeoModelAdmin):
-    list_display = ['pk', 'format_document_type', 'document', 'revision_number',
-        'filename', 'format_filesize', 'created_at']
+    list_display = ['pk', 'format_document_type', 'document',
+                    'revision_number', 'filename', 'format_filesize',
+                    'created_at']
     list_filter = ['document__document_type', 'created_at']
     readonly_fields = [f.name for f in models.DocumentRevision._meta.fields]
 
     def format_document_type(self, obj):
-        return obj.resource.resource_type.name
+        return obj.document.document_type.name
     format_document_type.short_description = 'Document type'
     format_document_type.admin_order_field = 'document__document_type__name'
 
