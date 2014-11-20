@@ -18,7 +18,18 @@ admin.site.register(models.DocumentType, DocumentTypeAdmin)
 class DocumentRevisionInline(admin.TabularInline):
     model = models.DocumentRevision
     extra = 0
-    readonly_fields = [f.name for f in models.DocumentRevision._meta.fields]
+    readonly_fields = [
+        'document', 'revision_number', 'filename', 'content_type',
+        'format_data', 'filesize', 'sha1', 'created_at', 'created_by',
+        'created_by', 'modified_at', 'modified_by']
+
+    def format_data(self, obj):
+        if not obj.pk:
+            return
+        url = reverse('document_revision', kwargs={'pk': obj.id})
+        return '<a href="%s">%s</a>' % (url, url)
+    format_data.short_description = 'Data'
+    format_data.short_description = 'Data'
 
 
 class DocumentAdmin(admin.ModelAdmin):
