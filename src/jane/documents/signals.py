@@ -15,7 +15,7 @@ def validate_document(sender, instance, **kwargs):  # @UnusedVariable
     """
     Validate document before saving using validators of specified document type
     """
-    plugins = instance.resource.resource_type.validators.all()
+    plugins = instance.document.document_type.validators.all()
     with io.BytesIO(bytes(instance.data)) as data:
         for plugin in plugins:
             data.seek(0, 0)
@@ -29,39 +29,43 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
     """
     Index data
     """
-    indexer = instance.resource.resource_type.indexer.get_plugin()
     # delete all existing indexed data
-    instance.records.all().delete()
-    # index data
-    with io.BytesIO(bytes(instance.data)) as data:
-        indices = indexer.index(data)
-        for index in indices:
-            # attachments
-            attachments = index.get('attachments')
-            try:
-                del index['attachments']
-            except:
-                pass
-            # geometry
-            geometry = index.get('geometry')
-            try:
-                del index['geometry']
-            except:
-                pass
-            # add index
-            obj = models.DocumentRevisionIndex(document=instance, json=index)
-            if geometry:
-                obj.geometry = GeometryCollection(geometry)
-            obj.save()
-            # add attachments
-            if attachments:
-                for key, value in attachments.items():
-                    data = value['data']
-                    if hasattr(data, 'seek'):
-                        data.seek(0)
-                        data = data.read()
-                    models.DocumentRevisionIndexAttachment(
-                        record=obj, category=key,
-                        content_type=value['content-type'], data=data).save()
+    instance.indices.all().delete()
+    plugins = instance.document.document_type.indexers.all()
+    for plugin in plugins:
+        indexer = plugin.get_plugin()
+        # index data
+        with io.BytesIO(bytes(instance.data)) as data:
+            indices = indexer.index(data)
+            for index in indices:
+                # attachments
+                attachments = index.get('attachments')
+                try:
+                    del index['attachments']
+                except:
+                    pass
+                # geometry
+                geometry = index.get('geometry')
+                try:
+                    del index['geometry']
+                except:
+                    pass
+                # add index
+                obj = models.DocumentRevisionIndex(revision=instance,
+                                                   json=index)
+                if geometry:
+                    obj.geometry = GeometryCollection(geometry)
+                obj.save()
+                # add attachments
+                if attachments:
+                    for key, value in attachments.items():
+                        data = value['data']
+                        if hasattr(data, 'seek'):
+                            data.seek(0)
+                            data = data.read()
+                        models.DocumentRevisionIndexAttachment(
+                            index=obj, category=key,
+                            content_type=value['content-type'],
+                            data=data).save()
     # invalidate cache
     cache.delete('record_list_json')

@@ -18,7 +18,7 @@ class ValidatorPluginPoint(PluginPoint):
 class IndexerPluginPoint(PluginPoint):
     """
     """
-    group_name = "indexer"
+    group_name = "indexers"
 
     def index(self):
         """
@@ -95,8 +95,9 @@ def initialize_plugins():
         # Create the document type if it does not yet exist.
         resource_type = models.DocumentType.objects.get_or_create(
             name=plugin_name)[0]
-        if "indexer" in contents:
-            resource_type.indexer = contents["indexer"][0].get_model()
+        if "indexers" in contents:
+            resource_type.indexers = [_i.get_model() for _i in contents[
+                "indexers"]]
         if "validators" in contents:
             resource_type.validators = [_i.get_model() for _i in contents[
                 "validators"]]

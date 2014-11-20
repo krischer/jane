@@ -14,7 +14,7 @@ class DocumentType(models.Model):
     name = models.SlugField(max_length=20, primary_key=True)
     content_type = models.CharField(max_length=255)
     # plugins
-    indexer = ManyPluginField(plugins.IndexerPluginPoint, null=True,
+    indexers = ManyPluginField(plugins.IndexerPluginPoint, null=True,
         blank=True, related_name='indexers')
     validators = ManyPluginField(plugins.ValidatorPluginPoint, null=True,
         blank=True, related_name='validators')
