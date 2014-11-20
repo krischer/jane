@@ -86,6 +86,7 @@ MIDDLEWARE_CLASSES = [
     # see http://docs.djangoproject.com/en/dev/ref/clickjacking/
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'jane.jane.middleware.WhoDidItMiddleware',
+    'jane.jane.middleware.AutoLogoutMiddleware',
 ]
 
 
