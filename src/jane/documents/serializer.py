@@ -42,7 +42,7 @@ class RecordSerializer(GeoModelSerializer):
 
 class PaginatedRecordSerializer(pagination.PaginationSerializer):
     """
-    Serializes page objects of document_revision_index querysets.
+    Serializes page objects of index querysets.
     """
     pages = serializers.Field(source='paginator.num_pages')
 

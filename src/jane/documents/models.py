@@ -49,10 +49,10 @@ class Document(models.Model):
 
 class DocumentRevision(models.Model):
     """
-    A certain document revision.
+    A certain document revision_number.
     """
     document = models.ForeignKey(Document, related_name='revisions')
-    revision = models.IntegerField(default=0, db_index=True)
+    revision_number = models.IntegerField(default=0, db_index=True)
     filename = models.CharField(max_length=255, blank=True, null=True)
     data = models.BinaryField()
     filesize = models.IntegerField()
@@ -69,7 +69,7 @@ class DocumentRevision(models.Model):
 
     class Meta:
         ordering = ['pk']
-        unique_together = ['document', 'revision']
+        unique_together = ['document', 'revision_number']
         verbose_name = 'Revision'
         verbose_name_plural = 'Revisions'
 
@@ -79,7 +79,7 @@ class DocumentRevision(models.Model):
 
 class _DocumentRevisionIndexManager(models.GeoManager):
     """
-    Custom queryset manager for the document revision indices.
+    Custom queryset manager for the document revision_number indices.
     """
     def get_queryset(self):
         """
@@ -91,9 +91,9 @@ class _DocumentRevisionIndexManager(models.GeoManager):
 
 class DocumentRevisionIndex(models.Model):
     """
-    Indexed values for a specific revision of a document.
+    Indexed values for a specific revision_number of a document.
     """
-    document_revision = models.ForeignKey(
+    revision = models.ForeignKey(
         DocumentRevision, related_name='indices')
     json = JSONField(verbose_name="JSON")
     geometry = models.GeometryCollectionField(blank=True, null=True,
@@ -115,9 +115,8 @@ class DocumentRevisionIndexAttachment(models.Model):
     """
     Attachments for one DocumentRevisonIndex.
     """
-    document_revision_index = models.ForeignKey(
-        DocumentRevisionIndex,
-        related_name='attachments')
+    index = models.ForeignKey(DocumentRevisionIndex,
+                              related_name='attachments')
     category = models.SlugField(max_length=20, db_index=True)
     content_type = models.CharField(max_length=255)
     data = models.BinaryField()

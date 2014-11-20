@@ -48,7 +48,7 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
                 del index['geometry']
             except:
                 pass
-            # add document_revision_index
+            # add index
             obj = models.DocumentRevisionIndex(document=instance, json=index)
             if geometry:
                 obj.geometry = GeometryCollection(geometry)
