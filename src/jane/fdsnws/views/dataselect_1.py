@@ -2,14 +2,17 @@
 
 from obspy.core.utcdatetime import UTCDateTime
 
+from celery.result import AsyncResult
 from django.http.response import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 
+from jane.fdsnws.tasks import process_query
 from jane.fdsnws.views.default import fdnsws_error
 
 
 VERSION = '1.1.1'
+QUERY_TIMEOUT = 10
 
 
 def _error(request, message, status_code=400):
@@ -70,16 +73,20 @@ def query(request):
     if endtime <= starttime:
         return _error(request, 'Start time must be before end time')
     # net/sta/loc/cha
-    network = params.get('network') or params.get('net')
-    station = params.get('station') or params.get('sta')
-    location = params.get('location') or params.get('loc')
-    channel = params.get('channel') or params.get('cha')
-    if not channel:
+    networks = params.get('network') or params.get('net') or '*'
+    networks = networks.replace(' ', '').split(',')
+    stations = params.get('station') or params.get('sta') or '*'
+    stations = stations.replace(' ', '').split(',')
+    locations = params.get('location') or params.get('loc') or '*'
+    locations = locations.replace(' ', '').split(',')
+    channels = params.get('channel') or params.get('cha')
+    if not channels:
         msg = 'No channels specified, too much data selected'
         return _error(request, msg, 413)
-    # format
-    format = params.get('format') or 'miniseed'
-    if format not in ['miniseed']:
+    channels = channels.replace(' ', '').split(',')
+    # output format
+    format = params.get('format') or 'mseed'
+    if format not in ['mseed']:
         msg = 'Unrecognized output format: %s' % (format)
         return _error(request, msg)
     # nodata
@@ -101,8 +108,21 @@ def query(request):
         msg = 'Bad numeric value for minimumlength: %s' % (minimumlength)
         return _error(request, msg)
     # longestonly
-    longestonly = params.get('minimumlength') or ''
+    longestonly = params.get('longestonly') or ''
     if longestonly not in ['true', 'TRUE', '1', '']:
         msg = 'Bad boolean value for longestonly: %s' % (longestonly)
         return _error(request, msg)
     longestonly = bool(longestonly)
+    # process query using celery
+    task = process_query.delay(networks, stations, locations, channels,
+            starttime.timestamp, endtime.timestamp, format, nodata, quality,
+            minimumlength, longestonly)
+    # check task status for QUERY_TIMEOUT seconds
+    result = AsyncResult(task.task_id)
+    try:
+        data = result.get(timeout=QUERY_TIMEOUT, interval=0.5)
+    except TimeoutError:
+        msg = 'Timeout %s' % (task.task_id)
+        return _error(request, msg, 413)
+    # response
+    return HttpResponse(data, content_type="text/plain")

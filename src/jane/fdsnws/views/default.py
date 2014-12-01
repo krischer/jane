@@ -20,4 +20,5 @@ def fdnsws_error(request, status_code, message, version):
     response = render_to_response("fdsnws/error.txt", options,
         RequestContext(request), content_type="text/plain; charset=utf-8")
     response.status_code = status_code
+    response.reason_phrase = message
     return response
