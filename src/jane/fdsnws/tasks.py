@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from fnmatch import fnmatch
 from functools import reduce
 import operator
 import os
@@ -15,8 +16,8 @@ from jane.waveforms.models import Channel
 
 @shared_task
 def query_dataselect(networks, stations, locations, channels, starttime,
-        endtime, format='mseed', nodata=204, quality='B', minimumlength=0,
-        longestonly=False):
+        endtime, format='mseed', nodata=204,
+        quality='B', minimumlength=0, longestonly=False):  # @UnusedVariable
     """
     Process query and generate a combined waveform file
     """
@@ -62,16 +63,37 @@ def query_dataselect(networks, stations, locations, channels, starttime,
     for result in results:
         st = read(result.file.absolute_path, starttime=starttime,
                   endtime=endtime)
-        # XXX: filter channels by ids
         # trim
         st.trim(starttime, endtime)
-        stream += st
+        # exclude unwanted nslc ids
+        traces = []
+        for tr in st:
+            if '*' not in networks:
+                temp = tr.stats.network.upper()
+                if not True in [fnmatch(temp, i) for i in networks]:
+                    continue
+            if '*' not in stations:
+                temp = tr.stats.station.upper()
+                if not True in [fnmatch(temp, i) for i in stations]:
+                    continue
+            if '*' not in locations:
+                temp = tr.stats.location.upper()
+                if not True in [fnmatch(temp, i) for i in locations]:
+                    continue
+            if '*' not in channels:
+                temp = tr.stats.channel.upper()
+                if not True in [fnmatch(temp, i) for i in channels]:
+                    continue
+            # append trace only if selected
+            traces.append(tr)
+        # append all selected traces
+        stream.extend(traces)
         del st
 
     # get task_id
     task_id = query_dataselect.request.id or 'debug'
     path = os.path.join(settings.MEDIA_ROOT, 'fdsnws', 'dataselect',
-                        task_id[0])
+                        task_id[0:2])
     # create path if not yet exists
     if not os.path.exists(path):
         os.makedirs(path)

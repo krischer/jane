@@ -79,18 +79,21 @@ def query(request, debug=False):
     # net/sta/loc/cha
     networks = params.get('network') or params.get('net') or '*'
     networks = networks.replace(' ', '').split(',')
+    networks = [i.strip().upper() for i in networks]
     stations = params.get('station') or params.get('sta') or '*'
     stations = stations.replace(' ', '').split(',')
+    stations = [i.strip().upper() for i in stations]
     locations = params.get('location') or params.get('loc') or '*'
     locations = locations.replace(' ', '').split(',')
+    locations = [i.strip().upper() for i in locations]
     # replace empty locations
     locations = [l.replace('--', '') for l in locations]
-    locations = [l.replace('  ', '') for l in locations]
     channels = params.get('channel') or params.get('cha')
     if not channels:
         msg = 'No channels specified, too much data selected'
         return _error(request, msg, 413)
     channels = channels.replace(' ', '').split(',')
+    channels = [i.strip().upper() for i in channels]
     # output format
     format = params.get('format') or 'mseed'
     if format not in ['mseed']:
@@ -171,7 +174,7 @@ def result(request, task_id):  # @UnusedVariable
         return _error(request, msg, 413)
     # generate filename
     filename = os.path.join(settings.MEDIA_ROOT, 'fdsnws', 'dataselect',
-                            task_id[0], task_id)
+                            task_id[0:2], task_id)
     fh = FileWrapper(open(filename, 'rb'))
     response = HttpResponse(fh, content_type="application/octet-stream")
     response["Content-Disposition"] = \
