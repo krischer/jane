@@ -83,8 +83,8 @@ class ChannelAdmin(admin.ModelAdmin):
     date_hierarchy = 'starttime'
     list_filter = ['network', 'station', 'location', 'channel',
         'sampling_rate']
-    readonly_fields = ['file', 'network', 'station', 'location', 'channel',
-        'starttime', 'endtime', 'sampling_rate', 'npts', 'calib',
+    readonly_fields = ['file', 'format_path', 'network', 'station', 'location',
+        'channel', 'starttime', 'endtime', 'sampling_rate', 'npts', 'calib',
         'preview_trace', 'format_preview_image']
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
@@ -122,6 +122,10 @@ class ChannelAdmin(admin.ModelAdmin):
         return obj.gaps.filter(gap=False).count()
     format_overlaps.allow_tags = True
     format_overlaps.short_description = '# Overlaps'
+
+    def format_path(self, obj):
+        return obj.file.path
+    format_path.short_description = 'Path'
 
 admin.site.register(models.Channel, ChannelAdmin)
 
