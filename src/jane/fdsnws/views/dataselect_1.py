@@ -96,7 +96,7 @@ def query(request, debug=False):
     channels = [i.strip().upper() for i in channels]
     # output format
     format = params.get('format') or 'mseed'
-    if format not in ['mseed']:
+    if format not in ['mseed', 'gse2', 'sac']:
         msg = 'Unrecognized output format: %s' % (format)
         return _error(request, msg)
     # nodata

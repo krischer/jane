@@ -27,12 +27,17 @@
               <option value="?"/>
               <option value="*"/>
             </param>
+            <param name="format" style="query" type="xs:string" default="mseed">
+              <option value="mseed"/>
+              <option value="gse2"/>
+              <option value="sac"/>
+            </param>
             <param name="minimumlength" style="query" type="xs:double" default="0.0"/>
             <param name="longestonly" style="query" type="xs:boolean" default="false"/>
           </request>
           <response>
             <representation mediaType="text/plain"/>
-            <representation mediaType="application/vnd.fdsn.mseed"/>
+            <representation mediaType="application/octet-stream"/>
           </response>
         </method>
         <method name="POST" id="postQuery">
@@ -41,7 +46,7 @@
           </request>
           <response>
             <representation mediaType="text/plain"/>
-            <representation mediaType="application/vnd.fdsn.mseed"/>
+            <representation mediaType="application/octet-stream"/>
           </response>
         </method>
       </resource>
@@ -62,6 +67,11 @@
               <option value="B"/>
               <option value="?"/>
               <option value="*"/>
+            </param>
+            <param name="format" style="query" type="xs:string" default="mseed">
+              <option value="mseed"/>
+              <option value="gse2"/>
+              <option value="sac"/>
             </param>
             <param name="minimumlength" style="query" type="xs:double" default="0.0"/>
             <param name="longestonly" style="query" type="xs:boolean" default="false"/>
