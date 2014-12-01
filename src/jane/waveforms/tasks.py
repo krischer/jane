@@ -52,10 +52,10 @@ def process_file(filename):
             file=file_obj,
             starttime=trace.stats.starttime.datetime,
             endtime=trace.stats.endtime.datetime)[0]
-        trace_obj.network = trace.stats.network
-        trace_obj.station = trace.stats.station
-        trace_obj.location = trace.stats.location
-        trace_obj.channel = trace.stats.channel
+        trace_obj.network = trace.stats.network.upper()
+        trace_obj.station = trace.stats.station.upper()
+        trace_obj.location = trace.stats.location.upper()
+        trace_obj.channel = trace.stats.channel.upper()
         trace_obj.calib = trace.stats.calib
         trace_obj.sampling_rate = trace.stats.sampling_rate
         trace_obj.npts = trace.stats.npts
