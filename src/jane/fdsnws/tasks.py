@@ -53,7 +53,7 @@ def query_dataselect(networks, stations, locations, channels, starttime,
         query = query.filter(filter)
 
     # query
-    results = query.distinct()
+    results = query.only('file').distinct('file')
     if not results:
         # return nodata status code
         return nodata

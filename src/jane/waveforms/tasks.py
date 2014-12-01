@@ -33,8 +33,10 @@ def process_file(filename):
     # make sure path and file objects exists
     path_obj = models.Path.objects.get_or_create(
         name=os.path.dirname(os.path.abspath(filename)))[0]
-    file_obj = models.File.objects.get_or_create(
-        path=path_obj, name=os.path.basename(filename))[0]
+    models.File.objects.filter(
+        path=path_obj, name=os.path.basename(filename)).delete()
+    file_obj = models.File.objects.create(
+        path=path_obj, name=os.path.basename(filename))
 
     # set format
     file_obj.format = stream[0].stats._format

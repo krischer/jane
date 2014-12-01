@@ -2,11 +2,12 @@
 
 import os
 
-from django.db import models
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db import models
+from jsonfield.fields import JSONField
 
 from jane.waveforms.utils import to_datetime
-from jsonfield.fields import JSONField
 
 
 class Path(models.Model):
@@ -14,6 +15,7 @@ class Path(models.Model):
         validators=['validate_name'])
     ctime = models.DateTimeField()
     mtime = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
     def __str__(self):
         return self.name
@@ -38,18 +40,19 @@ class File(models.Model):
     path = models.ForeignKey(Path, related_name='files')
     name = models.CharField(max_length=255, db_index=True)
     size = models.IntegerField()
-    gaps = models.IntegerField(default=0)
-    overlaps = models.IntegerField(default=0)
+    gaps = models.IntegerField(default=0, db_index=True)
+    overlaps = models.IntegerField(default=0, db_index=True)
     format = models.CharField(max_length=255, db_index=True, null=True,
         blank=True, default=None)
     ctime = models.DateTimeField()
     mtime = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        ordering = ['path', 'name']
+        ordering = ['-created_at']
         unique_together = ['path', 'name']
 
     @property
@@ -82,6 +85,7 @@ class ContinuousTrace(models.Model):
     preview_image = models.BinaryField(null=True)
     quality = models.CharField(max_length=1, null=True, blank=True,
         db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
     def __str__(self):
         return "%s.%s.%s.%s | %s - %s | %s Hz, %d samples" % (self.network,
@@ -110,6 +114,12 @@ class Mapping(models.Model):
     new_channel = models.CharField(max_length=3, blank=True)
     path_regex = models.CharField(max_length=255, blank=True)
     file_regex = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    created_by = models.ForeignKey(User, null=True, editable=False,
+            related_name='mappings_created')
+    modified_at = models.DateTimeField(auto_now=True, editable=False)
+    modified_by = models.ForeignKey(User, null=True, editable=False,
+            related_name='mappings_modified')
 
     def __str__(self):
         return "%s.%s.%s.%s | %s - %s ==> %s.%s.%s.%s" % (self.network,

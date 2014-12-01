@@ -3,6 +3,7 @@
 import base64
 
 from django.contrib import admin
+from django.contrib.admin.filters import SimpleListFilter
 from django.db.models.aggregates import Count
 
 from jane.waveforms import models, tasks
@@ -35,22 +36,61 @@ class PathAdmin(admin.ModelAdmin):
 admin.site.register(models.Path, PathAdmin)
 
 
+class HasGapsFilter(SimpleListFilter):
+    title = 'gaps'
+    parameter_name = 'gaps'
+    parameter_args = 0
+
+    def lookups(self, request, model_admin):  # @UnusedVariable
+        return (
+            ('1', 'no gaps'),
+            ('0', 'with gaps'),
+        )
+
+    def queryset(self, request, queryset):  # @UnusedVariable
+        if self.value() == '1':
+            return queryset.filter(gaps=self.parameter_args)
+        if self.value() == '0':
+            return queryset.exclude(gaps=self.parameter_args)
+        return queryset
+
+
+class HasOverlapsFilter(SimpleListFilter):
+    title = 'overlaps'
+    parameter_name = 'overlaps'
+    parameter_args = 0
+
+    def lookups(self, request, model_admin):  # @UnusedVariable
+        return (
+            ('1', 'no overlaps'),
+            ('0', 'with overlaps'),
+        )
+
+    def queryset(self, request, queryset):  # @UnusedVariable
+        if self.value() == '1':
+            return queryset.filter(overlaps=self.parameter_args)
+        if self.value() == '0':
+            return queryset.exclude(overlaps=self.parameter_args)
+        return queryset
+
+
 class FileAdmin(admin.ModelAdmin):
     list_display = ['name', 'path', 'format', 'format_trace_count', 'gaps',
-                    'overlaps', 'ctime', 'mtime']
+                    'overlaps', 'created_at']
     search_fields = ['name', 'path']
-    date_hierarchy = 'mtime'
+    date_hierarchy = 'created_at'
     readonly_fields = ['path', 'name', 'format', 'mtime', 'ctime', 'size',
-        'format_traces', 'gaps', 'overlaps']
-    list_filter = ['format']
+        'format_traces', 'gaps', 'overlaps', 'created_at']
+    list_filter = ['format', HasGapsFilter, HasOverlapsFilter]
     fieldsets = (
         ('', {
-            'fields': ('path', 'name', 'mtime', 'ctime', 'size')
+            'fields': ('path', 'name', 'mtime', 'ctime', 'size', 'created_at')
         }),
         ('Stream', {
             'fields': ['format', 'format_traces', 'gaps', 'overlaps'],
         }),
     )
+    actions = ['action_reindex']
 
     def get_queryset(self, request):  # @UnusedVariable
         return models.File.objects.\
@@ -58,6 +98,12 @@ class FileAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
         return False
+
+    def action_reindex(self, request, queryset):  # @UnusedVariable
+        for file in queryset.all():
+            tasks.process_file.delay(file.absolute_path)  # @UndefinedVariable
+        self.message_user(request, "Re-indexing has been started ...")
+    action_reindex.short_description = "Re-index"
 
     def format_trace_count(self, obj):
         return obj.trace_count
@@ -102,7 +148,7 @@ class ContinuousTraceAdmin(admin.ModelAdmin):
         return '<img height="250" src="data:image/png;base64,%s" />' % (
             data.decode())
     format_preview_image.allow_tags = True
-    format_preview_image.short_description = 'Preview image'
+    format_preview_image.short_description = 'Plot'
 
     def format_small_preview_image(self, obj):
         if not obj.preview_image:
@@ -111,7 +157,7 @@ class ContinuousTraceAdmin(admin.ModelAdmin):
         return '<img height="25" src="data:image/png;base64,%s" />' % (
             data.decode())
     format_small_preview_image.allow_tags = True
-    format_small_preview_image.short_description = 'Preview image'
+    format_small_preview_image.short_description = 'Plot'
 
     def format_path(self, obj):
         return obj.file.path
