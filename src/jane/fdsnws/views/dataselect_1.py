@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from obspy.core.utcdatetime import UTCDateTime
+import os
 
-from celery.result import AsyncResult
-from django.http.response import HttpResponse
+from celery.result import AsyncResult, TimeoutError
+from django.conf import settings
+from django.core.servers.basehttp import FileWrapper
+from django.http.response import HttpResponse, Http404
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
+from obspy.core.utcdatetime import UTCDateTime
+from rest_framework.reverse import reverse
 
-from jane.fdsnws.tasks import process_query
+from jane.fdsnws.tasks import query_dataselect
 from jane.fdsnws.views.default import fdnsws_error
 
 
@@ -47,7 +51,7 @@ def wadl(request):  # @UnusedVariable
         RequestContext(request), content_type="application/xml; charset=utf-8")
 
 
-def query(request):
+def query(request, debug=False):
     """
     Parses and returns data request
     """
@@ -79,6 +83,9 @@ def query(request):
     stations = stations.replace(' ', '').split(',')
     locations = params.get('location') or params.get('loc') or '*'
     locations = locations.replace(' ', '').split(',')
+    # replace empty locations
+    locations = [l.replace('--', '') for l in locations]
+    locations = [l.replace('  ', '') for l in locations]
     channels = params.get('channel') or params.get('cha')
     if not channels:
         msg = 'No channels specified, too much data selected'
@@ -91,7 +98,12 @@ def query(request):
         return _error(request, msg)
     # nodata
     nodata = params.get('nodata') or '204'
-    if nodata not in ['204', '404']:
+    try:
+        nodata = int(nodata)
+    except ValueError:
+        msg = 'Bad numeric value for nodata: %s' % (nodata)
+        return _error(request, msg)
+    if nodata not in [204, 404]:
         msg = 'Invalid value for nodata: %s' % (nodata)
         return _error(request, msg)
     nodata = int(nodata)
@@ -113,16 +125,55 @@ def query(request):
         msg = 'Bad boolean value for longestonly: %s' % (longestonly)
         return _error(request, msg)
     longestonly = bool(longestonly)
-    # process query using celery
-    task = process_query.delay(networks, stations, locations, channels,
-            starttime.timestamp, endtime.timestamp, format, nodata, quality,
-            minimumlength, longestonly)
-    # check task status for QUERY_TIMEOUT seconds
-    result = AsyncResult(task.task_id)
-    try:
-        data = result.get(timeout=QUERY_TIMEOUT, interval=0.5)
-    except TimeoutError:
-        msg = 'Timeout %s' % (task.task_id)
-        return _error(request, msg, 413)
+    # process query
+    if debug:
+        # direct
+        status = query_dataselect(networks, stations, locations, channels,
+                starttime.timestamp, endtime.timestamp, format, nodata,
+                quality, minimumlength, longestonly)
+        task_id = 'debug'
+    else:
+        # using celery
+        task = query_dataselect.delay(networks, stations, locations, channels,
+                starttime.timestamp, endtime.timestamp, format, nodata,
+                quality, minimumlength, longestonly)
+        task_id = task.task_id
+        # check task status for QUERY_TIMEOUT seconds
+        asyncresult = AsyncResult(task_id)
+        try:
+            status = asyncresult.get(timeout=QUERY_TIMEOUT, interval=0.5)
+        except TimeoutError:
+            msg = """Timeout error: request took more than %s seconds
+
+You may check the current processing status and download your results via
+%s""" % (QUERY_TIMEOUT, reverse('fdsnws_dataselect_1_result', request=request,
+                                kwargs={'task_id': task_id}))
+            return _error(request, msg, 413)
     # response
-    return HttpResponse(data, content_type="text/plain")
+    if status != 200:
+        msg = 'Not Found: No data selected'
+        return _error(request, msg, status)
+    return result(request, task_id)
+
+
+def result(request, task_id):  # @UnusedVariable
+    """
+    Returns requested waveform file
+    """
+    asyncresult = AsyncResult(task_id)
+    try:
+        result = asyncresult.get(timeout=0.5)
+    except TimeoutError:
+        raise Http404()
+    # check if ready
+    if not asyncresult.ready():
+        msg = 'Request %s not ready yet' % (task_id)
+        return _error(request, msg, 413)
+    # generate filename
+    filename = os.path.join(settings.MEDIA_ROOT, 'fdsnws', 'dataselect',
+                            task_id[0], task_id)
+    fh = FileWrapper(open(filename, 'rb'))
+    response = HttpResponse(fh, content_type="application/octet-stream")
+    response["Content-Disposition"] = \
+        "attachment; filename=fdsnws_dataselect_1_%s" % (task_id)
+    return response
