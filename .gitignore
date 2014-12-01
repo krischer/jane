@@ -5,3 +5,4 @@ __pycache__
 src/jane/local_settings.py
 /data
 /static
+/media
