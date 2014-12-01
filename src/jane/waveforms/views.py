@@ -26,7 +26,7 @@ class BinaryRenderer(renderers.BaseRenderer):
 
 
 class WaveformView(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Channel.objects.all()
+    queryset = models.ContinuousTrace.objects.all()
     serializer_class = serializer.WaveformSerializer
 
     @link(renderer_classes=[PNGRenderer])

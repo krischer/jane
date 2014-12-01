@@ -11,7 +11,7 @@ from django.db.models import Q
 from obspy import Stream, read
 from obspy.core.utcdatetime import UTCDateTime
 
-from jane.waveforms.models import Channel
+from jane.waveforms.models import ContinuousTrace
 
 
 @shared_task
@@ -21,7 +21,7 @@ def query_dataselect(networks, stations, locations, channels, starttime,
     """
     Process query and generate a combined waveform file
     """
-    query = Channel.objects
+    query = ContinuousTrace.objects
     # times
     starttime = UTCDateTime(starttime)
     query = query.filter(starttime__gte=starttime.datetime)
@@ -53,7 +53,7 @@ def query_dataselect(networks, stations, locations, channels, starttime,
         query = query.filter(filter)
 
     # query
-    results = query.all()
+    results = query.distinct()
     if not results:
         # return nodata status code
         return nodata

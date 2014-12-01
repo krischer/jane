@@ -25,21 +25,6 @@ def process_file(filename):
     """
     # Will raise a proper exception if not a waveform file.
     stream = read(filename)
-    # get gap and overlap information
-    gap_list = stream.getGaps()
-    # merge traces - will be converted to masked arrays if gaps are present
-    stream.merge(fill_value=None)
-    # build up dictionary of gaps and overlaps for easier lookup
-    gap_dict = {}
-    for gap in gap_list:
-        gid = '.'.join(gap[0:4])
-        temp = {
-            'gap': gap[6] >= 0,
-            'starttime': gap[4].datetime,
-            'endtime': gap[5].datetime,
-            'samples': abs(gap[7])
-        }
-        gap_dict.setdefault(gid, []).append(temp)
 
     if len(stream) == 0:
         msg = "'%s' is a valid waveform file but contains no actual data"
@@ -50,28 +35,40 @@ def process_file(filename):
         name=os.path.dirname(os.path.abspath(filename)))[0]
     file_obj = models.File.objects.get_or_create(
         path=path_obj, name=os.path.basename(filename))[0]
+
     # set format
     file_obj.format = stream[0].stats._format
+
+    # get number of gaps and overlaps per file
+    gap_list = stream.getGaps()
+    file_obj.gaps = len([g for g in gap_list if g[6] >= 0])
+    file_obj.overlaps = len([g for g in gap_list if g[6] < 0])
     file_obj.save()
+
     for trace in stream:
-        channel_obj = models.Channel.objects.get_or_create(
+        trace_obj = models.ContinuousTrace.objects.get_or_create(
             file=file_obj,
             starttime=trace.stats.starttime.datetime,
             endtime=trace.stats.endtime.datetime)[0]
-        channel_obj.network = trace.stats.network
-        channel_obj.station = trace.stats.station
-        channel_obj.location = trace.stats.location
-        channel_obj.channel = trace.stats.channel
-        channel_obj.calib = trace.stats.calib
-        channel_obj.sampling_rate = trace.stats.sampling_rate
-        channel_obj.npts = trace.stats.npts
+        trace_obj.network = trace.stats.network
+        trace_obj.station = trace.stats.station
+        trace_obj.location = trace.stats.location
+        trace_obj.channel = trace.stats.channel
+        trace_obj.calib = trace.stats.calib
+        trace_obj.sampling_rate = trace.stats.sampling_rate
+        trace_obj.npts = trace.stats.npts
+        trace_obj.duration = trace.stats.endtime - trace.stats.starttime
+        try:
+            trace_obj.quality = trace.stats.mseed.dataquality
+        except:
+            pass
 
         # preview image
         try:
             plot = io.BytesIO()
             trace.plot(format="png", outfile=plot)
             plot.seek(0, 0)
-            channel_obj.preview_image = plot.read()
+            trace_obj.preview_image = plot.read()
             plot.close()
         except:
             pass
@@ -81,16 +78,11 @@ def process_file(filename):
             trace.data.filled(0)
         try:
             preview_trace = createPreview(trace, 60)
-            channel_obj.preview_trace = json.dumps(preview_trace.data.tolist())
+            trace_obj.preview_trace = json.dumps(preview_trace.data.tolist())
         except:
             pass
 
-        channel_obj.save()
-
-        # gaps
-        for gap in gap_dict.get(trace.id, []):
-            gap_obj = models.GapOverlap(channel=channel_obj, **gap)
-            gap_obj.save()
+        trace_obj.save()
 
 
 def _format_return_value(event, message):

@@ -9,7 +9,7 @@ from jane.waveforms import models, tasks
 
 
 class PathAdmin(admin.ModelAdmin):
-    list_display = ['name', 'format_file_count', 'mtime']
+    list_display = ['name', 'format_file_count', 'mtime', 'ctime']
     search_fields = ['name']
     date_hierarchy = 'mtime'
     readonly_fields = ['name', 'mtime', 'ctime']
@@ -36,25 +36,25 @@ admin.site.register(models.Path, PathAdmin)
 
 
 class FileAdmin(admin.ModelAdmin):
-    list_display = ['name', 'path', 'format', 'format_trace_count', 'ctime',
-                    'mtime']
+    list_display = ['name', 'path', 'format', 'format_trace_count', 'gaps',
+                    'overlaps', 'ctime', 'mtime']
     search_fields = ['name', 'path']
     date_hierarchy = 'mtime'
-    readonly_fields = ['path', 'name', 'category', 'format', 'mtime', 'ctime',
-        'size', 'format_traces']
+    readonly_fields = ['path', 'name', 'format', 'mtime', 'ctime', 'size',
+        'format_traces', 'gaps', 'overlaps']
     list_filter = ['format']
     fieldsets = (
         ('', {
-            'fields': ('path', 'name', 'category', 'mtime', 'ctime', 'size')
+            'fields': ('path', 'name', 'mtime', 'ctime', 'size')
         }),
         ('Stream', {
-            'fields': ['format', 'format_traces'],
+            'fields': ['format', 'format_traces', 'gaps', 'overlaps'],
         }),
     )
 
     def get_queryset(self, request):  # @UnusedVariable
         return models.File.objects.\
-            annotate(trace_count=Count('waveforms'))
+            annotate(trace_count=Count('traces'))
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
         return False
@@ -66,7 +66,7 @@ class FileAdmin(admin.ModelAdmin):
 
     def format_traces(self, obj):
         out = ''
-        for trace in obj.waveforms.all():
+        for trace in obj.traces.all():
             out += '%s<br />' % (trace)
         return out
     format_traces.allow_tags = True
@@ -75,17 +75,17 @@ class FileAdmin(admin.ModelAdmin):
 admin.site.register(models.File, FileAdmin)
 
 
-class ChannelAdmin(admin.ModelAdmin):
+class ContinuousTraceAdmin(admin.ModelAdmin):
     list_display = ['format_nslc', 'network', 'station', 'location', 'channel',
-        'starttime', 'endtime', 'sampling_rate', 'npts', 'format_gaps',
-        'format_overlaps', 'format_small_preview_image']
+        'starttime', 'endtime', 'sampling_rate', 'npts', 'quality',
+        'format_small_preview_image']
     search_fields = ['network', 'station', 'location', 'channel']
     date_hierarchy = 'starttime'
     list_filter = ['network', 'station', 'location', 'channel',
-        'sampling_rate']
+        'sampling_rate', 'quality']
     readonly_fields = ['file', 'format_path', 'network', 'station', 'location',
-        'channel', 'starttime', 'endtime', 'sampling_rate', 'npts', 'calib',
-        'preview_trace', 'format_preview_image']
+        'channel', 'starttime', 'endtime', 'duration', 'sampling_rate', 'npts',
+        'calib', 'quality', 'preview_trace', 'format_preview_image']
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
         return False
@@ -113,31 +113,11 @@ class ChannelAdmin(admin.ModelAdmin):
     format_small_preview_image.allow_tags = True
     format_small_preview_image.short_description = 'Preview image'
 
-    def format_gaps(self, obj):
-        return obj.gaps.filter(gap=True).count()
-    format_gaps.allow_tags = True
-    format_gaps.short_description = '# Gaps'
-
-    def format_overlaps(self, obj):
-        return obj.gaps.filter(gap=False).count()
-    format_overlaps.allow_tags = True
-    format_overlaps.short_description = '# Overlaps'
-
     def format_path(self, obj):
         return obj.file.path
     format_path.short_description = 'Path'
 
-admin.site.register(models.Channel, ChannelAdmin)
-
-
-class GapOverlapAdmin(admin.ModelAdmin):
-    list_display = ['channel', 'gap', 'starttime', 'endtime', 'samples']
-    readonly_fields = list_display
-
-    def has_add_permission(self, request, obj=None):  # @UnusedVariable
-        return False
-
-admin.site.register(models.GapOverlap, GapOverlapAdmin)
+admin.site.register(models.ContinuousTrace, ContinuousTraceAdmin)
 
 
 class MappingAdmin(admin.ModelAdmin):

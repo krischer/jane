@@ -12,7 +12,7 @@ class WaveformSerializer(serializers.HyperlinkedModelSerializer):
         view_name='waveform-file', format='binary')
 
     class Meta:
-        model = models.Channel
+        model = models.ContinuousTrace
         fields = ['url', 'plot', 'containing_file', 'network', 'station',
                   'location', 'channel', 'starttime', 'endtime',
                   'sampling_rate', 'npts']

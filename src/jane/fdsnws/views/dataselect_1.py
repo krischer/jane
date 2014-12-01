@@ -12,7 +12,7 @@ from obspy.core.utcdatetime import UTCDateTime
 from rest_framework.reverse import reverse
 
 from jane.fdsnws.tasks import query_dataselect
-from jane.fdsnws.views.default import fdnsws_error
+from jane.fdsnws.views.utils import fdnsws_error
 
 
 VERSION = '1.1.1'

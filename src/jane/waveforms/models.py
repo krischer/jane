@@ -38,7 +38,8 @@ class File(models.Model):
     path = models.ForeignKey(Path, related_name='files')
     name = models.CharField(max_length=255, db_index=True)
     size = models.IntegerField()
-    category = models.IntegerField(default=-1, db_index=True)
+    gaps = models.IntegerField(default=0)
+    overlaps = models.IntegerField(default=0)
     format = models.CharField(max_length=255, db_index=True, null=True,
         blank=True, default=None)
     ctime = models.DateTimeField()
@@ -63,8 +64,8 @@ class File(models.Model):
         super(File, self).save(*args, **kwargs)
 
 
-class Channel(models.Model):
-    file = models.ForeignKey(File, related_name='waveforms')
+class ContinuousTrace(models.Model):
+    file = models.ForeignKey(File, related_name='traces')
     network = models.CharField(max_length=2, db_index=True, blank=True)
     station = models.CharField(max_length=5, db_index=True, blank=True)
     location = models.CharField(max_length=2, db_index=True, blank=True)
@@ -73,11 +74,14 @@ class Channel(models.Model):
         db_index=True)
     endtime = models.DateTimeField(verbose_name="End time (UTC)",
         db_index=True)
+    duration = models.FloatField('Duration (s)', db_index=True, default=0)
     calib = models.FloatField(verbose_name="Calibration factor", default=1)
     sampling_rate = models.FloatField(default=1)
     npts = models.IntegerField(verbose_name="Samples", default=0)
     preview_trace = JSONField(null=True)
     preview_image = models.BinaryField(null=True)
+    quality = models.CharField(max_length=1, null=True, blank=True,
+        db_index=True)
 
     def __str__(self):
         return "%s.%s.%s.%s | %s - %s | %s Hz, %d samples" % (self.network,
@@ -89,19 +93,6 @@ class Channel(models.Model):
             'location', 'channel']
         unique_together = ['file', 'network', 'station', 'location', 'channel',
             'starttime', 'endtime']
-
-
-class GapOverlap(models.Model):
-    channel = models.ForeignKey(Channel, related_name='gaps')
-    gap = models.BooleanField(db_index=True, default=True)
-    starttime = models.DateTimeField(db_index=True)
-    endtime = models.DateTimeField(db_index=True)
-    samples = models.IntegerField(default=0)
-
-    class Meta:
-        verbose_name = 'Gap/Overlap'
-        verbose_name_plural = 'Gaps/Overlaps'
-        ordering = ['-starttime', '-endtime']
 
 
 class Mapping(models.Model):
