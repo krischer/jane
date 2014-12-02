@@ -129,9 +129,10 @@ class ContinuousTraceAdmin(admin.ModelAdmin):
     date_hierarchy = 'starttime'
     list_filter = ['network', 'station', 'location', 'channel',
         'sampling_rate', 'quality']
-    readonly_fields = ['file', 'format_path', 'network', 'station', 'location',
-        'channel', 'starttime', 'endtime', 'duration', 'sampling_rate', 'npts',
-        'calib', 'quality', 'preview_trace', 'format_preview_image']
+    readonly_fields = ['file', 'format_path', 'pos', 'network', 'station',
+        'location', 'channel', 'starttime', 'endtime', 'duration',
+        'sampling_rate', 'npts', 'calib', 'quality', 'preview_trace',
+        'format_preview_image']
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
         return False
