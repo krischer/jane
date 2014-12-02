@@ -4,6 +4,7 @@ import os
 
 from celery.result import AsyncResult, TimeoutError
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.core.servers.basehttp import FileWrapper
 from django.http.response import HttpResponse, Http404
 from django.shortcuts import render_to_response
@@ -161,6 +162,7 @@ You may check the current processing status and download your results via
         return _error(request, msg, status)
 
 
+@login_required
 def queryauth(request, debug=False):
     """
     Parses and returns data request
