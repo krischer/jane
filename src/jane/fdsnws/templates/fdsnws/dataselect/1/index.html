@@ -1,34 +1,294 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Jane FDSNWS - DataSelect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jane - FDSNWS DataSelect Web Service</title>
+  <link rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
 </head>
 <body>
-  <h1>Jane FDSNWS DataSelect Web Service</h1>
-  <p>The dataselect Web service provides access to time series data in <a
-  href="http://www.iris.edu/data/miniseed.htm">miniSEED</a> format. The data may
-  be filtered e.g. by time, station and network parameters. The request type is
-  <em>HTTP-GET</em> and <em>HTTP-POST</em>. Please refer to
-  <a href="http://www.fdsn.org/webservices">http://www.fdsn.org/webservice</a>
-  for a complete service description.</p>
+  <nav class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Jane</a>
+      </div>
+      <div id="navbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="{{ host }}">station </a></li>
+          <li class="active"><a href="#">dataselect</a></li>
+          <li><a href="{{ host }}">event</a></li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </nav>
 
-  <h2>Available URLs</h2>
-  <ul>
-    <li><a href="{% url 'fdsnws_dataselect_1_query' %}">query</a></li>
-    <li><a href="">queryauth</a></li>
-    <li><a href="{% url 'fdsnws_dataselect_1_version' %}">version</a></li>
-    <li><a href="{% url 'fdsnws_dataselect_1_wadl' %}">application.wadl</a></li>
-  </ul>
+  <div class="container">
+    <h1>FDSNWS DataSelect Web Service</h1>
+    <div class="alert alert-warning">
+      <p>
+        The <strong>fdsdws-dataselect</strong> service provides access to time
+        series data for specified channels and time ranges.
+      </p>
+      <p>
+        Data are selected using <span class="caps">SEED</span> time series
+        identifiers (network, station, location &amp; channel) in addition to
+        time ranges. Data are returned in <a
+          href="http://www.iris.edu/dms/nodes/dmc/data/formats/seed/">miniSEED</a>
+        format.
+      </p>
+      <p>
+        This service is an implementation of the <a
+          href="http://www.fdsn.org/webservices/"><span class="caps">FDSN</span>
+          web service specification</a> version 1.
+      </p>
+    </div>
+    <p>Below is a full list of service parameters and their usage.</p>
+    <h2>Query Usage</h2>
+    <pre>/query? (date-range-options) [channel-options] [quality-options] [misc-options] [format-options] [nodata=404]</pre>
+    <p>where</p>
+    <pre>date-range-options  ::  (start=&lt;time&gt;) (end=&lt;time&gt;)
+channel-options     ::  [net=&lt;network&gt;] [sta=&lt;station&gt;] [loc=&lt;location&gt;] [cha=&lt;channel&gt;]
+quality-options     ::  [quality=&lt;D|R|Q|M|B&gt;]
+misc-options        ::  [minimumlength=&lt;seconds&gt;] [longestonly=&lt;true|false&gt;]
+format-options      ::  [format=&lt;mseed&gt;]</pre>
+    <p>
+      (..) required<br /> [..] optional
+    </p>
+    <p>
+      Query parameters are joined by ampersands <strong>&#8221;&amp;&#8221;</strong>,
+      without blank space (see the sample queries).
+    </p>
+    <h2>
+      <span class="caps">POST</span> Usage
+    </h2>
+    <p>
+      Alternately, <em>instead</em> of providing parameter-value pairs in the <span
+        class="caps">URL</span>, a file containing a selection list can be <span
+        class="caps">POST</span>ed to this service. This is the same method
+      used with the (deprecated) ws-bulkdataselect webservice. For additional
+      details, including an example selection file, visit this page&#8217;s
+      help.
+    </p>
+    <pre>quality=&lt;D|R|Q|M|B&gt;
+minimumlength=&lt;seconds&gt;
+longestonly=&lt;true|false&gt;
+&lt;Network&gt; &lt;Station&gt; &lt;Location&gt; &lt;Channel&gt; &lt;StartTime&gt; &lt;EndTime&gt;
+...</pre>
+    <p>
+      Quality, minimumlength, and longestonly are optional. Wildcards are
+      acceptable for Network, Station, Location, and Channel. Click <a
+        href="#time">here</a> for time format details.
+    </p>
+    <h3>Sample Queries</h3>
+    <ul>
+      <li><a
+        href="{% url 'fdsnws_dataselect_1_query' %}?net=IU&amp;sta=ANMO&amp;loc=00&amp;cha=BHZ&amp;start=2010-02-27T06:30:00.000&amp;end=2010-02-27T10:30:00.000&nodata=404">{{ host }}{% url 'fdsnws_dataselect_1_query' %}?net=IU&sta=ANMO&loc=00&cha=BHZ&start=2010-02-27T06:30:00.000&end=2010-02-27T10:30:00.000&nodata=404</a></li>
+    </ul>
+    <h3>Detailed Descriptions of each Query Parameter</h3>
+    <table class="table table-bordered">
+      <tr>
+        <th>parameters</th>
+        <th>examples</th>
+        <th>discussion</th>
+        <th>default</th>
+        <th>type</th>
+      </tr>
+      <tr>
+        <td colspan="5"><strong><span class="caps">FDSN</span>
+            options</strong></td>
+      </tr>
+      <tr>
+        <td>start[time]</td>
+        <td>2010-02-27T06:30:00</td>
+        <td>Specifies the desired start-time for miniSEED data</td>
+        <td></td>
+        <td><a href="#time">day/time</a></td>
+      </tr>
+      <tr>
+        <td>end[time]</td>
+        <td>2010-02-27T10:30:00</td>
+        <td>Specify the end-time for the miniSEED data</td>
+        <td></td>
+        <td><a href="#time">day/time</a></td>
+      </tr>
+      <tr>
+        <td>net[work]</td>
+        <td>IU</td>
+        <td>Select one or more network codes. <a href="#wildcardsandlists">Accepts
+            wildcards and lists.</a> Can be <span class="caps">SEED</span> codes or
+          data center defined codes.
+        </td>
+        <th><em>any</em></th>
+        <td>string</td>
+      </tr>
+      <tr>
+        <td>sta[tion]</td>
+        <td><span class="caps">ANMO</span></td>
+        <td>Select one or more <span class="caps">SEED</span> station
+          codes. <a href="#wildcardsandlists">Accepts wildcards and lists.</a></td>
+        <th><em>any</em></th>
+        <td>string</td>
+      </tr>
+      <tr>
+        <td>loc[ation]</td>
+        <td>00</td>
+        <td>Select one or more <span class="caps">SEED</span> location
+          identifier. <a href="#wildcardsandlists">Accepts wildcards and
+            lists.</a> Use <code>--</code> for &#8220;Blank&#8221; location IDs
+          (ID&#8217;s containing 2 spaces).
+        </td>
+        <th><em>any</em></th>
+        <td>string</td>
+      </tr>
+      <tr>
+        <td>cha[nnel]</td>
+        <td>BH1</td>
+        <td>Select one or more <span class="caps">SEED</span> channel
+          codes. <a href="#wildcardsandlists">Accepts wildcards and lists.</a></td>
+        <th><em>any</em></th>
+        <td>string</td>
+      </tr>
+      <tr>
+        <td>quality</td>
+        <td>B</td>
+        <td>Select data based on miniSEED data quality indicator. <code>D</code>,
+          <code>R</code>, <code>Q</code>, <code>M</code>, <code>B</code>. <code>M</code>
+          and <code>B</code> (default) are treated the same and indicate <em>best</em>
+          available. If <code>M</code> or <code>B</code> are selected, the
+          output data records will be stamped with an <code>M</code>.
+        </td>
+        <td>B</td>
+        <td>quality</td>
+      </tr>
+      <tr>
+        <td>minimumlength</td>
+        <td>0.0</td>
+        <td>Limit results to continuous data segments of a minimum length
+          specified in seconds.</td>
+        <td>0.0</td>
+        <td>Float</td>
+      </tr>
+      <tr>
+        <td>longestonly</td>
+        <td>false</td>
+        <td>Limit results to the longest continuous segment per channel.</td>
+        <td>false</td>
+        <td>Boolean</td>
+      </tr>
+      <tr>
+        <td>nodata</td>
+        <td>404</td>
+        <td>Specify which <span class="caps">HTML</span> Status code is
+          returned when no data is found.<sup class="footnote"
+          id="fnrev086f83a87eae44c4824cb3eacc022ce1"><a
+            href="#fn086f83a87eae44c4824cb3eacc022ce1">1</a></sup>
+        </td>
+        <td>204</td>
+        <td>204 or 404</td>
+      </tr>
+      <tr>
+        <td>format</td>
+        <td>mseed</td>
+        <td>Specify the format of the data returned</td>
+        <td>mseed</td>
+        <td>mseed</td>
+      </tr>
+    </table>
+    <p class="footnote" id="fn086f83a87eae44c4824cb3eacc022ce1">
+      <sup>1</sup> By default, the service returns a <span class="caps">HTTP</span>
+      response code 204, which means the request was successful, but no data (<em>no
+        content</em>) was retrieved. However, because there was no
+      &#8220;error&#8221;, no error message is generated and it may appear that
+      the browser did nothing. To force an empty query response to display an
+      error message, add
+      <code>nodata=404</code>
+      to the <span class="caps">URL</span>.
+    </p>
+    <hr />
+    <h3>WADL</h3>
+    <p>
+      Retrieve the <a href="http://www.w3.org/Submission/wadl/">WADL</a>
+      associated with this service:
+    </p>
+    <p>
+      <a href="{% url 'fdsnws_dataselect_1_wadl' %}">{{ host }}{% url 'fdsnws_dataselect_1_wadl' %}</a>
+    </p>
+    <hr />
+    <h3>
+      <a name="time"></a>Date and Time Formats
+    </h3>
+    <div>
+      <p id="time">Year, Month, Day in Month &mdash; Time:</p>
+      <p>
+        <code>YYYY-MM-DDThh:mm:ss[.ssssss]</code>
+        ex. <small>1997-01-31T12:04:32.123</small>
+      </p>
+      <p>
+        <code>YYYY-MM-DD</code>
+        ex. <small>1997-01-31</small> a time of <small>00:00:00</small> is
+        assumed
+      </p>
+      <p>Where:</p>
+      <pre>
+YYYY    ::  four-digit year
+MM      ::  two-digit month (01=January, etc.)
+DD      ::  two-digit day of month (01 through 31)
+T       ::  date-time separator
+hh      ::  two digits of hour (00 through 23) (AM/PM NOT allowed)
+mm      ::  two digits of minute (00 through 59)
+ss      ::  two digits of second (00 through 59)
+ssssss  ::  one to six digits representing decimal fractions of a second, down to microseconds</pre>
+    </div>
+    <h3>
+      <a name="wildcardsandlists"></a>Wildcards and Lists
+    </h3>
+    <div>
+      <p>
+        <em>Wildcards</em><br /> The question mark
+        <code>?</code>
+        represents any single character (exactly one), while the asterisk
+        <code>*</code>
+        represents zero or more characters.
+      </p>
+      <p>
+        <em>Lists</em><br /> Multiple items may also be retrieved using a
+        comma separated list. Wildcards may be included in the list. For
+        example, with channel codes:
+        <code>channel=EH?,BHZ,BHE</code>
+      </p>
+    </div>
 
-  <h2>Feature Notes</h2>
-  <ul>
-    <li><em>quality</em> request parameter not implemented (information not
-      available in SeisComP)</li>
-    <li><em>minimumlength</em> request parameter not implemented</li>
-    <li><em>longestonly</em> request parameter not implemented</li>
-    <li>access to restricted networks and stations is only granted through the
-      <em>queryauth</em> method</li>
-  </ul>
+    <h3>Restricted Data Access</h3>
+    <p>For access to restricted data, requests should be sent to:</p>
+    <p>
+      <a href="{% url 'fdsnws_dataselect_1_queryauth' %}">{{ host }}{% url 'fdsnws_dataselect_1_queryauth' %}</a>
+    </p>
+    <p>
+      Requests sent to this URL are authenticated via <a
+        href="http://en.wikipedia.org/wiki/Digest_access_authentication">
+        digest access authentication</a> in order to establish the caller's
+      credentials. For anonymous access, the user
+      <code>anonymous</code>
+      and password
+      <code>anonymous</code>
+      may be used. This credential has identical data access permission as the
+      regular submit path's:</p>
+    <p><a href="{% url 'fdsnws_dataselect_1_query' %}">{{ host }}{% url 'fdsnws_dataselect_1_query' %}</a></p>
+  </div>
+
+
+  <script
+    src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script
+    src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>

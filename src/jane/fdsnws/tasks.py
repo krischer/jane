@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from fnmatch import fnmatch
 from functools import reduce
 import operator
 import os
@@ -16,8 +15,8 @@ from jane.waveforms.models import ContinuousTrace
 
 @shared_task
 def query_dataselect(networks, stations, locations, channels, starttime,
-        endtime, format='mseed', nodata=204,
-        quality='B', minimumlength=0, longestonly=False):  # @UnusedVariable
+                     endtime, format, nodata, quality, minimumlength,
+                     longestonly):
     """
     Process query and generate a combined waveform file
     """
@@ -51,9 +50,18 @@ def query_dataselect(networks, stations, locations, channels, starttime,
                     for v in channels)
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
+    # quality
+    if quality:
+        if quality in ['M', 'B']:
+            query = query.filter(Q(quality='M') | Q(quality='B'))
+        else:
+            query = query.filter(quality=quality)
+    # minimumlength
+    if minimumlength:
+        query = query.filter(duration__gte=minimumlength)
 
     # query
-    results = query.only('file').distinct('file')
+    results = query.all()
     if not results:
         # return nodata status code
         return nodata
@@ -63,31 +71,11 @@ def query_dataselect(networks, stations, locations, channels, starttime,
     for result in results:
         st = read(result.file.absolute_path, starttime=starttime,
                   endtime=endtime)
+        tr = st[result.pos]
         # trim
-        st.trim(starttime, endtime)
-        # exclude unwanted nslc ids
-        traces = []
-        for tr in st:
-            if '*' not in networks:
-                temp = tr.stats.network.upper()
-                if not True in [fnmatch(temp, i) for i in networks]:
-                    continue
-            if '*' not in stations:
-                temp = tr.stats.station.upper()
-                if not True in [fnmatch(temp, i) for i in stations]:
-                    continue
-            if '*' not in locations:
-                temp = tr.stats.location.upper()
-                if not True in [fnmatch(temp, i) for i in locations]:
-                    continue
-            if '*' not in channels:
-                temp = tr.stats.channel.upper()
-                if not True in [fnmatch(temp, i) for i in channels]:
-                    continue
-            # append trace only if selected
-            traces.append(tr)
-        # append all selected traces
-        stream.extend(traces)
+        tr.trim(starttime, endtime)
+        # append
+        stream.append(tr)
         del st
 
     # get task_id

@@ -28,7 +28,9 @@ def index(request):
     """
     FDSNWS dataselect Web Service HTML index page.
     """
-    options = {}
+    options = {
+        'host': request.build_absolute_uri('/')[:-1],
+    }
     return render_to_response("fdsnws/dataselect/1/index.html", options,
         RequestContext(request))
 
@@ -100,7 +102,7 @@ def query(request, debug=False):
         msg = 'Unrecognized output format: %s' % (format)
         return _error(request, msg)
     # nodata
-    nodata = params.get('nodata') or '204'
+    nodata = params.get('nodata') or 204
     try:
         nodata = int(nodata)
     except ValueError:
@@ -109,7 +111,6 @@ def query(request, debug=False):
     if nodata not in [204, 404]:
         msg = 'Invalid value for nodata: %s' % (nodata)
         return _error(request, msg)
-    nodata = int(nodata)
     # quality
     quality = params.get('quality') or 'B'
     if quality not in ['D', 'R', 'Q', 'M', 'B', '?', '*']:
@@ -153,10 +154,18 @@ You may check the current processing status and download your results via
                                 kwargs={'task_id': task_id}))
             return _error(request, msg, 413)
     # response
-    if status != 200:
+    if status == 200:
+        return result(request, task_id)
+    else:
         msg = 'Not Found: No data selected'
         return _error(request, msg, status)
-    return result(request, task_id)
+
+
+def queryauth(request, debug=False):
+    """
+    Parses and returns data request
+    """
+    return query(request, debug=debug)
 
 
 def result(request, task_id):  # @UnusedVariable

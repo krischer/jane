@@ -69,6 +69,7 @@ class File(models.Model):
 
 class ContinuousTrace(models.Model):
     file = models.ForeignKey(File, related_name='traces')
+    pos = models.IntegerField(default=0)
     network = models.CharField(max_length=2, db_index=True, blank=True)
     station = models.CharField(max_length=5, db_index=True, blank=True)
     location = models.CharField(max_length=2, db_index=True, blank=True)

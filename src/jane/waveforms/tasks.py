@@ -47,6 +47,7 @@ def process_file(filename):
     file_obj.overlaps = len([g for g in gap_list if g[6] < 0])
     file_obj.save()
 
+    pos = 0
     for trace in stream:
         trace_obj = models.ContinuousTrace.objects.get_or_create(
             file=file_obj,
@@ -84,7 +85,9 @@ def process_file(filename):
         except:
             pass
 
+        trace_obj.pos = pos
         trace_obj.save()
+        pos += 1
 
 
 def _format_return_value(event, message):
