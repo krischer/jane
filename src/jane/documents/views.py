@@ -17,21 +17,6 @@ from jane.documents import models, serializer
 CACHE_TIMEOUT = 60 * 60 * 24
 
 
-def test(request, resource_type):
-    """
-    """
-    resource_type = get_object_or_404(models.DocumentType, name=resource_type)
-    values = models.DocumentRevisionIndex.objects.\
-        filter(document__resource__resource_type=resource_type).\
-        extra(where=["json->'longitude' <= '100'",
-                     "json->'latitude' <= '50'",
-                     "json->'magnitude' > '1'"])
-
-    return render_to_response('documents/test.html',
-        {'values': values},
-        context_instance=RequestContext(request))
-
-
 @api_view(['GET'])
 def record_list(request, document_type, format=None):  # @ReservedAssignment
     """

@@ -19,10 +19,7 @@ urlpatterns = patterns('jane.documents.views',
         name='attachment_detail'),
     url(r'^revision/(?P<pk>[0-9]+)/$',
         view='document_revision',
-        name='document_revision'),
-    url(r'^documents/(?P<document_type>[-\w]+)/',
-        view='test',
-        name='test'),
+        name='document_revision')
 )
 
 urlpatterns = format_suffix_patterns(urlpatterns)
