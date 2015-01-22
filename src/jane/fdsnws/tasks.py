@@ -3,7 +3,6 @@
 from functools import reduce
 import io
 from lxml import etree
-from lxml.builder import E
 import operator
 import os
 
@@ -55,6 +54,12 @@ def query_event(nodata, orderby, starttime=None, endtime=None,
                 minlatitude=None, maxlatitude=None, minlongitude=None,
                 maxlongitude=None, mindepth_in_km=None, maxdepth_in_km=None,
                 minmagnitude=None, maxmagnitude=None):
+
+    if starttime is not None:
+        starttime = UTCDateTime(starttime)
+    if endtime is not None:
+        endtime = UTCDateTime(endtime)
+
     query = DocumentRevisionIndex.objects.filter(
         revision__document__document_type="quakeml")
 
@@ -73,7 +78,7 @@ def query_event(nodata, orderby, starttime=None, endtime=None,
             _get_json_query("latitude", "<=", float, maxlatitude))
     if minlongitude:
         where.append(
-            _get_json_query("longitude", ">=", float, maxlongitude))
+            _get_json_query("longitude", ">=", float, minlongitude))
     if maxlongitude:
         where.append(
             _get_json_query("longitude", "<=", float, maxlongitude))
@@ -88,7 +93,7 @@ def query_event(nodata, orderby, starttime=None, endtime=None,
             _get_json_query("magnitude", ">=", float, minmagnitude))
     if maxmagnitude:
         where.append(
-            _get_json_query("magnitude", "<=", float, minmagnitude))
+            _get_json_query("magnitude", "<=", float, maxmagnitude))
 
     if where:
         query = query.extra(where=where)

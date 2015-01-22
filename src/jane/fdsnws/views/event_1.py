@@ -18,28 +18,31 @@ import obspy
 VERSION = '1.1.1'
 QUERY_TIMEOUT = 10
 
+def utc_to_timestamp(value):
+    return obspy.UTCDateTime(value).timestamp
+
 
 QUERY_PARAMETERS = {
     "starttime": {
         "aliases": ["starttime", "start"],
-        "type": obspy.UTCDateTime,
+        "type": utc_to_timestamp,
         "required": False,
         "default": None
     },
     "endtime": {
         "aliases": ["endtime", "end"],
-        "type": obspy.UTCDateTime,
+        "type": utc_to_timestamp,
         "required": False,
         "default": None
     },
-    "minlongitude": {
-        "aliases": ["minlongitude", "minlat"],
+    "minlatitude": {
+        "aliases": ["minlatitude", "minlat"],
         "type": float,
         "required": False,
         "default": None
     },
-    "maxlongitude": {
-        "aliases": ["maxlongitude", "maxlat"],
+    "maxlatitude": {
+        "aliases": ["maxlatitude", "maxlat"],
         "type": float,
         "required": False,
         "default": None
@@ -166,6 +169,8 @@ You may check the current processing status and download your results via
 %s""" % (QUERY_TIMEOUT, reverse('fdsnws_event_1_result', request=request,
                                 kwargs={'task_id': task_id}))
             return _error(request, msg, 413)
+
+        print("ASD")
 
     # response
     if status == 200:
