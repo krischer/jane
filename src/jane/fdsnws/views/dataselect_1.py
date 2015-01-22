@@ -21,8 +21,8 @@ QUERY_TIMEOUT = 10
 
 
 def _error(request, message, status_code=400):
-    return fdnsws_error(request, status_code=status_code, message=message,
-                        version=VERSION)
+    return fdnsws_error(request, status_code=status_code, service="dataselect",
+                        message=message, version=VERSION)
 
 
 def index(request):

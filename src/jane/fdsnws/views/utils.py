@@ -6,13 +6,14 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 
 
-def fdnsws_error(request, status_code, message, version):
+def fdnsws_error(request, status_code, service, message, version):
     """
     Standard error page for the FDSN Web Service.
     """
     options = {
         'status_code': status_code,
         'message': message,
+        'service': service,
         'version': version,
         'url': request.build_absolute_uri(request.get_full_path()),
         'utcnow': datetime.datetime.utcnow(),

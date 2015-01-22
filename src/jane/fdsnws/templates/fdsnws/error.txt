@@ -8,4 +8,4 @@ Request Submitted:
 {{ utcnow }} UTC
 
 Service version:
-fdsnws-dataselect: v {{ version }}
+fdsnws-{{ service }}: v {{ version }}
