@@ -7,6 +7,14 @@ from jsonfield.fields import JSONField
 from jane.documents import plugins
 
 
+class PostgreSQLJsonField(JSONField):
+    """
+    Make the JSONField actually use JSON as a datatype.
+    """
+    def db_type(self, connection):
+        return "json"
+
+
 class DocumentType(models.Model):
     """
     Document category. Will be determined from the registered plugins.
@@ -96,7 +104,7 @@ class DocumentRevisionIndex(models.Model):
     """
     revision = models.ForeignKey(
         DocumentRevision, related_name='indices')
-    json = JSONField(verbose_name="JSON")
+    json = PostgreSQLJsonField(verbose_name="JSON")
     geometry = models.GeometryCollectionField(blank=True, null=True,
         geography=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
