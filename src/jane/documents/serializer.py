@@ -36,7 +36,7 @@ class RecordSerializer(GeoModelSerializer):
 
     class Meta:
         model = models.DocumentRevisionIndex
-        fields = ('id', 'url', 'document', 'indexed_data', 'geometry',
+        fields = ('id', 'url', 'revision', 'indexed_data', 'geometry',
                   'attachments', 'created_at')
 
 

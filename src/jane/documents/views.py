@@ -33,24 +33,24 @@ def test(request, resource_type):
 
 
 @api_view(['GET'])
-def record_list(request, resource_type, format=None):  # @ReservedAssignment
+def record_list(request, document_type, format=None):  # @ReservedAssignment
     """
     Lists all indexed values.
     """
     if request.method == "GET":
 
-        res_type = get_object_or_404(models.DocumentType, name=resource_type)
+        res_type = get_object_or_404(models.DocumentType, name=document_type)
 
         # check for cached version
         if request.accepted_renderer.format == 'json':
-            record_list_json = cache.get('record_list_json' + resource_type)
+            record_list_json = cache.get('record_list_json' + document_type)
             if record_list_json:
                 return Response(record_list_json)
 
         queryset = models.DocumentRevisionIndex.objects. \
-            filter(document__resource__resource_type=res_type)
+            filter(revision__document__document_type=res_type)
 
-        context = {'request': request, 'resource_type_name': resource_type}
+        context = {'request': request, 'resource_type_name': document_type}
 
         if request.accepted_renderer.format == 'api':
             # REST API uses pagination
@@ -87,7 +87,7 @@ def record_list(request, resource_type, format=None):  # @ReservedAssignment
                 context=context).data
             # cache json requests
             if request.accepted_renderer.format == 'json':
-                cache.set('record_list_json' + resource_type, data,
+                cache.set('record_list_json' + document_type, data,
                           CACHE_TIMEOUT)
         return Response(data)
     else:
@@ -95,8 +95,8 @@ def record_list(request, resource_type, format=None):  # @ReservedAssignment
 
 
 @api_view(['GET'])
-def record_detail(request, resource_type, pk,
-                       format=None):  # @ReservedAssignment
+def record_detail(request, document_type, pk,
+                  format=None):  # @ReservedAssignment
     """
     Retrieve a single indexed value.
     """
@@ -107,7 +107,7 @@ def record_detail(request, resource_type, pk,
         data = serializer.RecordSerializer(value).data
         for d, v in zip(data["attachments"], value.attachments.all()):
             d["url"] = reverse('attachment_detail',
-                               args=[resource_type, value.pk, v.pk],
+                               args=[document_type, value.pk, v.pk],
                                request=request)
         return Response(data)
     else:
@@ -115,12 +115,12 @@ def record_detail(request, resource_type, pk,
 
 
 @api_view(['GET'])
-def attachment_detail(request, resource_type, index_id, attachment_id):
+def attachment_detail(request, document_type, index_id, attachment_id):
     # Assure document type and index id are available.
     value = get_object_or_404(models.DocumentRevisionIndexAttachment,
                                record__pk=index_id, pk=attachment_id, **{
         "document_revision_index__document_revision_document__document_"
-        "type__name": resource_type,
+        "type__name": document_type,
 
                                                                          }
        )
