@@ -14,7 +14,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
     def transform_url(self, obj, value):
         request = self.context.get('request')
         rt_name = self.context.get('resource_type_name')
-        index_id = obj.record.pk
+        index_id = obj.index.pk
         return reverse('attachment_detail', args=[rt_name, index_id, value],
                        request=request)
 

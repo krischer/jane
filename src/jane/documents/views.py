@@ -102,13 +102,10 @@ def record_detail(request, document_type, pk,
 @api_view(['GET'])
 def attachment_detail(request, document_type, index_id, attachment_id):
     # Assure document type and index id are available.
-    value = get_object_or_404(models.DocumentRevisionIndexAttachment,
-                               record__pk=index_id, pk=attachment_id, **{
-        "document_revision_index__document_revision_document__document_"
-        "type__name": document_type,
-
-                                                                         }
-       )
+    value = get_object_or_404(
+        models.DocumentRevisionIndexAttachment,
+        index__pk=index_id, pk=attachment_id,
+        index__revision__document__document_type__name=document_type)
 
     if request.method == 'GET':
         response = HttpResponse(content_type=value.content_type)
