@@ -1,13 +1,96 @@
 # -*- coding: utf-8 -*-
+import os
+from celery.result import AsyncResult, TimeoutError
+from django.conf import settings
+from django.core.servers.basehttp import FileWrapper
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse, Http404
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from jane.fdsnws.views.utils import fdnsws_error
+from rest_framework.reverse import reverse
+
+from jane.fdsnws.tasks import query_event
+from jane.fdsnws.views.utils import fdnsws_error, parse_query_parameters
+
+import obspy
 
 
 VERSION = '1.1.1'
 QUERY_TIMEOUT = 10
+
+
+QUERY_PARAMETERS = {
+    "starttime": {
+        "aliases": ["starttime", "start"],
+        "type": obspy.UTCDateTime,
+        "required": False,
+        "default": None
+    },
+    "endtime": {
+        "aliases": ["endtime", "end"],
+        "type": obspy.UTCDateTime,
+        "required": False,
+        "default": None
+    },
+    "minlongitude": {
+        "aliases": ["minlongitude", "minlat"],
+        "type": float,
+        "required": False,
+        "default": None
+    },
+    "maxlongitude": {
+        "aliases": ["maxlongitude", "maxlat"],
+        "type": float,
+        "required": False,
+        "default": None
+    },
+    "minlongitude": {
+        "aliases": ["minlongitude", "minlon"],
+        "type": float,
+        "required": False,
+        "default": None
+    },
+    "maxlongitude": {
+        "aliases": ["maxlongitude", "maxlon"],
+        "type": float,
+        "required": False,
+        "default": None
+    },
+    "mindepth": {
+        "aliases": ["mindepth"],
+        "type": float,
+        "required": False,
+        "default": None
+    },
+    "maxdepth": {
+        "aliases": ["maxdepth"],
+        "type": float,
+        "required": False,
+        "default": None
+    },
+    "minmagnitude": {
+        "aliases": ["minmagnitude", "minmag"],
+        "type": float,
+        "required": False,
+        "default": None
+    },
+    "maxmagnitude": {
+        "aliases": ["maxmagnitude", "maxmag"],
+        "type": float,
+        "required": False,
+        "default": None
+    },
+    "orderby": {
+        "aliases": ["orderby"],
+        "type": str,
+        "required": False,
+        "default": "time"},
+    "nodata": {
+        "aliases": ["nodata"],
+        "type": int,
+        "required": False,
+        "default": 204}
+}
 
 
 def _error(request, message, status_code=400):
@@ -46,9 +129,50 @@ def wadl(request):  # @UnusedVariable
 
 def query(request, debug=False):
     """
-    Parses and returns data request
+    Parses and returns event request
     """
-    raise NotImplementedError
+    # handle both: HTTP POST and HTTP GET variables
+    params = parse_query_parameters(QUERY_PARAMETERS, request.REQUEST)
+
+    # A return string is interpreted as an error message.
+    if isinstance(params, str):
+        return _error(request, params, status_code=400)
+
+    if params.get("starttime") and params.get("endtime") and (
+            params.get("endtime") <= params.get("starttime")):
+        return _error(request, 'Start time must be before end time')
+
+    if params.get("nodata") not in [204, 404]:
+        return _error(request, "nodata must be '204' or '404'.",
+                      status_code=404)
+
+    # process query
+    if debug:
+        # direct
+        status = query_event(**params)
+        task_id = 'debug'
+    else:
+        # using celery
+        task = query_event.delay(**params)
+        task_id = task.task_id
+        # check task status for QUERY_TIMEOUT seconds
+        asyncresult = AsyncResult(task_id)
+        try:
+            status = asyncresult.get(timeout=QUERY_TIMEOUT, interval=0.5)
+        except TimeoutError:
+            msg = """Timeout error: request took more than %s seconds
+
+You may check the current processing status and download your results via
+%s""" % (QUERY_TIMEOUT, reverse('fdsnws_event_1_result', request=request,
+                                kwargs={'task_id': task_id}))
+            return _error(request, msg, 413)
+
+    # response
+    if status == 200:
+        return result(request, task_id)
+    else:
+        msg = 'Not Found: No data selected'
+        return _error(request, msg, status)
 
 
 @login_required
@@ -61,6 +185,23 @@ def queryauth(request, debug=False):
 
 def result(request, task_id):  # @UnusedVariable
     """
-    Returns requested waveform file
+    Returns requested event file
     """
-    raise NotImplementedError
+    if task_id != "debug":
+        asyncresult = AsyncResult(task_id)
+        try:
+            result = asyncresult.get(timeout=1.5)
+        except TimeoutError:
+            raise Http404()
+        # check if ready
+        if not asyncresult.ready():
+            msg = 'Request %s not ready yet' % (task_id)
+            return _error(request, msg, 413)
+    # generate filename
+    filename = os.path.join(settings.MEDIA_ROOT, 'fdsnws', 'events',
+                            task_id[0:2], task_id + ".xml")
+    fh = FileWrapper(open(filename, 'rb'))
+    response = HttpResponse(fh, content_type="text/xml")
+    response["Content-Disposition"] = \
+        "attachment; filename=fdsnws_event_1_%s.xml" % (task_id)
+    return response
