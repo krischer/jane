@@ -240,7 +240,7 @@ CELERY_TASK_SERIALIZER = "json"
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
 ###############################################################################
 # django-debug-toolbar

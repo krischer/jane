@@ -1,11 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from django.test import SimpleTestCase
+import os
+
 import django
+from django.test import TestCase
+from django.test.utils import override_settings
+
+
 django.setup()
 
 
-class DataSelect1TestCase(SimpleTestCase):
+PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
+
+
+class DataSelect1TestCase(TestCase):
+
+    fixtures = [os.path.join(PATH, 'dataselect.json')]
 
     def test_version(self):
         # 1 - HTTP OK
@@ -75,7 +85,30 @@ class DataSelect1TestCase(SimpleTestCase):
         self.assertTrue('Start time must be before end time' in
                         response.reason_phrase)
         # 6 - channel is required
-        param = '?start=2012-01-01&end=2012-01-02&net=GE&station=APE'
+        param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE'
         response = self.client.get('/fdsnws/dataselect/1/query' + param)
         self.assertEqual(response.status_code, 413)
         self.assertTrue('No channels specified' in response.reason_phrase)
+
+    @override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+                       CELERY_ALWAYS_EAGER=True,
+                       BROKER_URL='memory://')
+    def test_query_data(self):
+        # not existing - error 500
+        #param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE&cha=EHE'
+        #response = self.client.get('/fdsnws/dataselect/1/query' + param)
+        #print(response.reason_phrase)
+        #self.assertEqual(response.status_code, 500)
+        #print(response.reason_phrase)
+        #self.assertTrue('No channels specified' in response.reason_phrase)
+        # not existing - error 404
+        #param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE&cha=EHE&nodata=404'
+        #response = self.client.get('/fdsnws/dataselect/1/query' + param)
+        #print(response.reason_phrase)
+        #self.assertEqual(response.status_code, 500)
+        #self.assertTrue('No channels specified' in response.reason_phrase)
+        # existing
+        param = '?start=2013-05-24T06:00:00&end=2013-05-24T06:01:00&net=TA&station=X60A&cha=BHE'
+        response = self.client.get('/fdsnws/dataselect/1/query' + param)
+        self.assertEqual(response.status_code, 200)
+        print(response.reason_phrase)
