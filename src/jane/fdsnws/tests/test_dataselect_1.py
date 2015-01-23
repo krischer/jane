@@ -6,6 +6,9 @@ import django
 from django.test import TestCase
 from django.test.utils import override_settings
 
+import obspy
+from unittest import mock
+
 
 django.setup()
 
@@ -105,6 +108,11 @@ class DataSelect1TestCase(TestCase):
         # existing using fixture
         param = '?start=2013-05-24T06:00:00&end=2013-05-24T06:01:00&' + \
                 'net=TA&station=X60A&cha=BHE'
-        response = self.client.get('/fdsnws/dataselect/1/query' + param)
+
+        st = obspy.read()
+        with mock.patch("obspy.read") as p:
+            p.return_value = st
+            response = self.client.get('/fdsnws/dataselect/1/query' + param)
+
         self.assertEqual(response.status_code, 200)
         self.assertTrue('OK' in response.reason_phrase)

@@ -13,7 +13,7 @@ import os
 from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
-from obspy import Stream, read
+import obspy
 from obspy.core.utcdatetime import UTCDateTime
 from obspy.core.util.geodetics import FlinnEngdahl
 
@@ -503,10 +503,10 @@ def query_dataselect(networks, stations, locations, channels, starttime,
         return nodata
 
     # build Stream object
-    stream = Stream()
+    stream = obspy.Stream()
     for result in results:
-        st = read(result.file.absolute_path, starttime=starttime,
-                  endtime=endtime)
+        st = obspy.read(result.file.absolute_path, starttime=starttime,
+                        endtime=endtime)
         tr = st[result.pos]
         # trim
         tr.trim(starttime, endtime)
