@@ -232,12 +232,7 @@ REST_FRAMEWORK = {
 INSTALLED_APPS += ["djcelery", "corsheaders"]
 
 # use RabbitMQ server
-BROKER_TRANSPORT = "amqp"
-BROKER_HOST = "127.0.0.1"
-BROKER_PORT = 5672
-BROKER_USER = "jane"
-BROKER_PASSWORD = "jane"
-BROKER_VHOST = "jane"
+BROKER_URL = 'amqp://jane:jane@127.0.0.1:5672/jane/'
 
 CELERY_RESULT_BACKEND = "djcelery.backends.database:DatabaseBackend"
 
