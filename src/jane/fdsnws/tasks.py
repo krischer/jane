@@ -459,9 +459,9 @@ def query_dataselect(networks, stations, locations, channels, starttime,
     query = ContinuousTrace.objects
     # times
     starttime = UTCDateTime(starttime)
-    query = query.filter(starttime__gte=starttime.datetime)
     endtime = UTCDateTime(endtime)
-    query = query.filter(endtime__lte=endtime.datetime)
+    query = query.filter(starttime__lte=endtime.datetime,
+                         endtime__gte=starttime.datetime)
     # networks
     if '*' not in networks:
         iterator = (Q(network__like=v.replace('?', '_').replace('*', '%'))
