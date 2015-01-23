@@ -29,13 +29,33 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
+            <h3 class="panel-title">Admin Interface</h3>
+        </div>
+        <div class="panel-body">
+            <div class="container-fluid">
+                <dl>
+                    <dt>
+                        <a href="{{ host }}/admin">Admin</a>
+                    </dt>
+                    <dd style="padding-left: 30px">
+                        Requires permissions
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
             <h3 class="panel-title">FDSN Web Services</h3>
         </div>
         <div class="panel-body">
             <div class="container-fluid">
                 <div class="alert alert-info">
                     Jane implements version 1.1 of all three
-                    <a href="http://www.fdsn.org/webservices/">FDSN web services</a>.
+                    <a href="http://www.fdsn.org/webservices/">FDSN web
+                        services</a>.
                 </div>
                 <dl>
                     <dt>
@@ -66,6 +86,25 @@
         </div>
     </div>
 
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">REST Interface to the Documents and
+                Waveforms</h3>
+        </div>
+        <div class="panel-body">
+            <div class="container-fluid">
+                <dl>
+                    <dt>
+                        <a href="{{ host }}/rest">REST</a>
+                    </dt>
+                    <dd style="padding-left: 30px">
+                        RESTful access to the underlying Documents and
+                        Waveforms
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
 
 </div>
 
