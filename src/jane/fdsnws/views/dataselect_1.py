@@ -55,7 +55,7 @@ def wadl(request):  # @UnusedVariable
         RequestContext(request), content_type="application/xml; charset=utf-8")
 
 
-def query(request, debug=False):
+def query(request):
     """
     Parses and returns data request
     """
@@ -132,7 +132,7 @@ def query(request, debug=False):
         return _error(request, msg)
     longestonly = bool(longestonly)
     # process query
-    if debug:
+    if settings.BROKER_URL == 'DISABLE_CELERY':
         # direct
         status = query_dataselect(networks, stations, locations, channels,
                                   starttime.timestamp, endtime.timestamp,
@@ -177,15 +177,16 @@ def result(request, task_id):  # @UnusedVariable
     """
     Returns requested waveform file
     """
-    asyncresult = AsyncResult(task_id)
-    try:
-        asyncresult.get(timeout=0.5)
-    except TimeoutError:
-        raise Http404()
-    # check if ready
-    if not asyncresult.ready():
-        msg = 'Request %s not ready yet' % (task_id)
-        return _error(request, msg, 413)
+    if task_id != 'debug':
+        asyncresult = AsyncResult(task_id)
+        try:
+            asyncresult.get(timeout=0.5)
+        except TimeoutError:
+            raise Http404()
+        # check if ready
+        if not asyncresult.ready():
+            msg = 'Request %s not ready yet' % (task_id)
+            return _error(request, msg, 413)
     # generate filename
     filename = os.path.join(settings.MEDIA_ROOT, 'fdsnws', 'dataselect',
                             task_id[0:2], task_id)

@@ -90,25 +90,21 @@ class DataSelect1TestCase(TestCase):
         self.assertEqual(response.status_code, 413)
         self.assertTrue('No channels specified' in response.reason_phrase)
 
-    @override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
-                       CELERY_ALWAYS_EAGER=True,
-                       BROKER_URL='memory://')
+    @override_settings(BROKER_URL='DISABLE_CELERY')
     def test_query_data(self):
         # not existing - error 500
-        #param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE&cha=EHE'
-        #response = self.client.get('/fdsnws/dataselect/1/query' + param)
-        #print(response.reason_phrase)
-        #self.assertEqual(response.status_code, 500)
-        #print(response.reason_phrase)
-        #self.assertTrue('No channels specified' in response.reason_phrase)
+        param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE&cha=EHE'
+        response = self.client.get('/fdsnws/dataselect/1/query' + param)
+        self.assertEqual(response.status_code, 204)
+        self.assertTrue('Not Found: No data' in response.reason_phrase)
         # not existing - error 404
-        #param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE&cha=EHE&nodata=404'
-        #response = self.client.get('/fdsnws/dataselect/1/query' + param)
-        #print(response.reason_phrase)
-        #self.assertEqual(response.status_code, 500)
-        #self.assertTrue('No channels specified' in response.reason_phrase)
-        # existing
-        param = '?start=2013-05-24T06:00:00&end=2013-05-24T06:01:00&net=TA&station=X60A&cha=BHE'
+        param += '&nodata=404'
+        response = self.client.get('/fdsnws/dataselect/1/query' + param)
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue('Not Found: No data' in response.reason_phrase)
+        # existing using fixture
+        param = '?start=2013-05-24T06:00:00&end=2013-05-24T06:01:00&' + \
+                'net=TA&station=X60A&cha=BHE'
         response = self.client.get('/fdsnws/dataselect/1/query' + param)
         self.assertEqual(response.status_code, 200)
-        print(response.reason_phrase)
+        self.assertTrue('OK' in response.reason_phrase)
