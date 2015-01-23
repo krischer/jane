@@ -23,9 +23,9 @@
       </div>
       <div id="navbar" class="collapse navbar-collapse">
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="{{ host }}/fdsnws/station/1">station </a></li>
-          <li class="active"><a href="#">dataselect</a></li>
-          <li><a href="{{ host }}/fdsnws/event/1">event</a></li>
+          <li><a href="{% url 'fdsnws_station_1_index' %}">station </a></li>
+          <li class="active"><a href="{% url 'fdsnws_dataselect_1_index' %}">dataselect</a></li>
+          <li><a href="{% url 'fdsnws_event_1_index' %}">event</a></li>
         </ul>
       </div><!--/.nav-collapse -->
     </div>
@@ -220,7 +220,7 @@ longestonly=&lt;true|false&gt;
       associated with this service:
     </p>
     <p>
-      <a href="{% url 'fdsnws_dataselect_1_wadl' %}">{{ host }}{% url 'fdsnws_dataselect_1_wadl' %}</a>
+      <a href="{% url 'fdsnws_dataselect_1_wadl' %}">application.wadl</a>
     </p>
     <hr />
     <h3>

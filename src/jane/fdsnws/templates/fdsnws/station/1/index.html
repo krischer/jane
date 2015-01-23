@@ -25,10 +25,9 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li class="active"><a href="#">station </a></li>
-                <li><a href="{{ host }}/fdsnws/dataselect/1">dataselect</a>
-                </li>
-                <li><a href="{{ host }}/fdsnws/event/1">event</a></li>
+              <li class="active"><a href="{% url 'fdsnws_station_1_index' %}">station </a></li>
+              <li><a href="{% url 'fdsnws_dataselect_1_index' %}">dataselect</a></li>
+              <li><a href="{% url 'fdsnws_event_1_index' %}">event</a></li>
             </ul>
         </div>
         <!--/.nav-collapse -->
@@ -123,28 +122,27 @@ maxlongitude=&lt;degrees&gt;
     <h3>Sample Queries</h3>
     <ul>
         <li>radial geographic<br/>
-            <a href="query?latitude=-56.1&amp;longitude=-26.7&amp;
-            maxradius=15&amp;nodata=404">{{ host }}/fdsnws/station/1/query?latitude=-56.1&longitude=-26.7&maxradius=15&nodata=404</a>
+            <a href="{% url 'fdsnws_station_1_query' %}?latitude=-56.1&amp;longitude=-26.7&amp;maxradius=15&amp;nodata=404">{{ host }}{% url 'fdsnws_station_1_query' %}?latitude=-56.1&longitude=-26.7&maxradius=15&nodata=404</a>
         </li>
     </ul>
 
     <ul>
         <li>rectangular geographic with time windows<br/>
-            <a href="query?startafter=2003-01-07&amp;endbefore=2011-02-07&amp;minlatitude=15&amp;maxlatitude=55&amp;minlongitude=170&amp;maxlongitude=-170">
-                &#8230;/query?startafter=2003-01-07&endbefore=2011-02-07&minlatitude=15&maxlatitude=55&minlongitude=170&maxlongitude=-170</a>
+            <a href="{% url 'fdsnws_station_1_query' %}?startafter=2003-01-07&amp;endbefore=2011-02-07&amp;minlatitude=15&amp;maxlatitude=55&amp;minlongitude=170&amp;maxlongitude=-170">
+                {{ host }}{% url 'fdsnws_station_1_query' %}?startafter=2003-01-07&endbefore=2011-02-07&minlatitude=15&maxlatitude=55&minlongitude=170&maxlongitude=-170</a>
         </li>
     </ul>
 
     <ul>
         <li>text output, with network level exclusion<br/>
-            <a href="query?network=S*,-SY&amp;level=network&amp;format=text">
-                &#8230;/query?network=S*,-SY&level=network&format=text</a></li>
+            <a href="{% url 'fdsnws_station_1_query' %}?network=S*,-SY&amp;level=network&amp;format=text">
+                {{ host }}{% url 'fdsnws_station_1_query' %}?network=S*,-SY&level=network&format=text</a></li>
     </ul>
 
     <ul>
         <li>horizontal channels for subsetted TA data<br/>
-            <a href="query?network=TA&amp;station=A*&amp;channel=BH?,-BHZ&amp;level=channel&amp;format=text">
-                &#8230;/query?network=TA&station=A*&channel=BH?,-<span
+            <a href="{% url 'fdsnws_station_1_query' %}?network=TA&amp;station=A*&amp;channel=BH?,-BHZ&amp;level=channel&amp;format=text">
+                {{ host }}{% url 'fdsnws_station_1_query' %}?network=TA&station=A*&channel=BH?,-<span
                     class="caps">BHZ</span>&level=channel&format=text</a></li>
     </ul>
 
@@ -164,7 +162,7 @@ maxlongitude=&lt;degrees&gt;
         <tr>
             <td>start[time]</td>
             <td>
-                <a href="query?sta=ANMO&amp;channel=BH1&amp;starttime=2001-12-19T12:00:00"
+                <a href="{% url 'fdsnws_station_1_query' %}?sta=ANMO&amp;channel=BH1&amp;starttime=2001-12-19T12:00:00"
                    title="...&amp;starttime=2001-12-19T00:00:00">2001-12-19</a>
             </td>
             <td>Limit to metadata describing channels operating on or after the
@@ -175,7 +173,7 @@ maxlongitude=&lt;degrees&gt;
         </tr>
         <tr>
             <td>end[time]</td>
-            <td><a href="query?sta=ANMO&amp;channel=BH1&amp;endtime=2001-12-31"
+            <td><a href="{% url 'fdsnws_station_1_query' %}?sta=ANMO&amp;channel=BH1&amp;endtime=2001-12-31"
                    title="...&amp;endtime=2001-12-31T00:00:00">2012-12-31</a>
             </td>
             <td>Limit to metadata describing channels operating on or before
@@ -187,7 +185,7 @@ maxlongitude=&lt;degrees&gt;
         <tr>
             <td>startbefore</td>
             <td>
-                <a href="query?sta=ANMO&amp;channel=BH1&amp;startbefore=2001-12-31T00:00:00"
+                <a href="{% url 'fdsnws_station_1_query' %}?sta=ANMO&amp;channel=BH1&amp;startbefore=2001-12-31T00:00:00"
                    title="...&amp;startbefore=2001-12-31T00:00:00">2001-12-31</a>
             </td>
             <td>Limit to metadata epochs starting before specified time.
@@ -199,7 +197,7 @@ maxlongitude=&lt;degrees&gt;
         <tr>
             <td>startafter</td>
             <td>
-                <a href="query?sta=ANMO&amp;channel=BH1&amp;startafter=2005-12-31T00:00:00"
+                <a href="{% url 'fdsnws_station_1_query' %}?sta=ANMO&amp;channel=BH1&amp;startafter=2005-12-31T00:00:00"
                    title="...&amp;startafter=2005-12-31T00:00:00">2005-12-31</a>
             </td>
             <td>Limit to metadata epochs starting after specified time. Applied
@@ -211,7 +209,7 @@ maxlongitude=&lt;degrees&gt;
         <tr>
             <td>endbefore</td>
             <td>
-                <a href="query?sta=ANMO&amp;channel=BH1&amp;endbefore=2005-12-31T00:00:00"
+                <a href="{% url 'fdsnws_station_1_query' %}?sta=ANMO&amp;channel=BH1&amp;endbefore=2005-12-31T00:00:00"
                    title="...&amp;endbefore=2005-12-31T00:00:00">2005-12-31</a>
             </td>
             <td>Limit to metadata epochs ending before specified time. Applied
@@ -223,7 +221,7 @@ maxlongitude=&lt;degrees&gt;
         <tr>
             <td>endafter</td>
             <td>
-                <a href="query?sta=ANMO&amp;channel=BH1&amp;endafter=2005-12-31"
+                <a href="{% url 'fdsnws_station_1_query' %}?sta=ANMO&amp;channel=BH1&amp;endafter=2005-12-31"
                    title="...&amp;endafter=2005-12-31">2005-12-31</a></td>
             <td>Limit to metadata epochs ending after specified time. Applied
                 to channel epochs.
@@ -245,7 +243,7 @@ maxlongitude=&lt;degrees&gt;
         </tr>
         <tr>
             <td>net[work]</td>
-            <td><a href="query?network=IU&amp;station=A%2A"
+            <td><a href="{% url 'fdsnws_station_1_query' %}?network=IU&amp;station=A%2A"
                    title="...&amp;network=IU">IU</a></td>
             <td>Select one or more network codes. Can be <span class="caps">SEED</span>
                 codes or data center defined codes. <a
@@ -257,7 +255,7 @@ maxlongitude=&lt;degrees&gt;
         </tr>
         <tr>
             <td>sta[tion]</td>
-            <td><a href="query?net=IU&amp;station=ANMO"
+            <td><a href="{% url 'fdsnws_station_1_query' %}?net=IU&amp;station=ANMO"
                    title="...&amp;station=ANMO"><span class="caps">ANMO</span></a>
             </td>
             <td>Select one or more <span class="caps">SEED</span> station
@@ -269,7 +267,7 @@ maxlongitude=&lt;degrees&gt;
         </tr>
         <tr>
             <td>loc[ation]</td>
-            <td><a href="query?net=IU&amp;station=ANMO&amp;location=00"
+            <td><a href="{% url 'fdsnws_station_1_query' %}?net=IU&amp;station=ANMO&amp;location=00"
                    title="...&amp;location=00">00</a></td>
             <td>Select one or more <span class="caps">SEED</span> location
                 identifier. Use <code>--</code> for &#8220;Blank&#8221;
@@ -282,7 +280,7 @@ maxlongitude=&lt;degrees&gt;
         </tr>
         <tr>
             <td>cha[nnel]</td>
-            <td><a href="query?net=IU&amp;station=ANMO&amp;channel=BH1"
+            <td><a href="{% url 'fdsnws_station_1_query' %}?net=IU&amp;station=ANMO&amp;channel=BH1"
                    title="...&amp;channel=BH1">BH1</a></td>
             <td>Select one or more <span class="caps">SEED</span> channel
                 codes. <a href="#wildcardsandlists">Accepts wildcards and
@@ -297,7 +295,7 @@ maxlongitude=&lt;degrees&gt;
         <tr>
             <td>minlat[itude]</td>
             <td>
-                <a href="query?minlatitude=15.5&amp;maxlatitude=25.0&amp;minlongitude=-170&amp;maxlongitude=170"
+                <a href="{% url 'fdsnws_station_1_query' %}?minlatitude=15.5&amp;maxlatitude=25.0&amp;minlongitude=-170&amp;maxlongitude=170"
                    title="...&amp;minlatitude=15.5">15.5</a></td>
             <td>Southern boundary.</td>
             <td>-90&deg;</td>
@@ -306,7 +304,7 @@ maxlongitude=&lt;degrees&gt;
         <tr>
             <td>maxlat[itude]</td>
             <td>
-                <a href="query?minlatitude=15.5&amp;maxlatitude=25.0&amp;minlongitude=-170&amp;maxlongitude=170"
+                <a href="{% url 'fdsnws_station_1_query' %}?minlatitude=15.5&amp;maxlatitude=25.0&amp;minlongitude=-170&amp;maxlongitude=170"
                    title="...&amp;maxlatitude=25.0">25.0</a></td>
             <td>Northern boundary.</td>
             <td>90&deg;</td>
@@ -315,7 +313,7 @@ maxlongitude=&lt;degrees&gt;
         <tr>
             <td>minlon[gitude]</td>
             <td>
-                <a href="query?minlatitude=15.5&amp;maxlatitude=25.0&amp;minlongitude=-170&amp;maxlongitude=170"
+                <a href="{% url 'fdsnws_station_1_query' %}?minlatitude=15.5&amp;maxlatitude=25.0&amp;minlongitude=-170&amp;maxlongitude=170"
                    title="...&amp;minlongitude=-170.0">-170.0</a></td>
             <td>Western boundary.</td>
             <td>-180&deg;</td>
@@ -324,7 +322,7 @@ maxlongitude=&lt;degrees&gt;
         <tr>
             <td>maxlon[gitude]</td>
             <td>
-                <a href="query?minlatitude=15.5&amp;maxlatitude=25.0&amp;minlongitude=-170&amp;maxlongitude=170"
+                <a href="{% url 'fdsnws_station_1_query' %}?minlatitude=15.5&amp;maxlatitude=25.0&amp;minlongitude=-170&amp;maxlongitude=170"
                    title="...&amp;maxlongitude=170.0">170.0</a></td>
             <td>Eastern boundary.</td>
             <td>180&deg;</td>
@@ -335,7 +333,7 @@ maxlongitude=&lt;degrees&gt;
         </tr>
         <tr>
             <td>lat[itude]</td>
-            <td><a href="query?latitude=35&amp;longitude=170&amp;maxradius=20"
+            <td><a href="{% url 'fdsnws_station_1_query' %}?latitude=35&amp;longitude=170&amp;maxradius=20"
                    title="...&amp;latitude=35&amp;...">35</a></td>
             <td>Specify the central latitude point<sup class="footnote"
                                                        id="fnrev6da8dfbbcd974c768994ac9251a533ec"><a
@@ -346,7 +344,7 @@ maxlongitude=&lt;degrees&gt;
         </tr>
         <tr>
             <td>lon[gitude]</td>
-            <td><a href="query?latitude=35&amp;longitude=170&amp;maxradius=20"
+            <td><a href="{% url 'fdsnws_station_1_query' %}?latitude=35&amp;longitude=170&amp;maxradius=20"
                    title="...&amp;longitude=170&amp;...">170</a></td>
             <td>Specify the central longitude point<sup class="footnote"><a
                     href="#fn6da8dfbbcd974c768994ac9251a533ec">1</a></sup>.
@@ -357,7 +355,7 @@ maxlongitude=&lt;degrees&gt;
         <tr>
             <td>maxradius</td>
             <td>
-                <a href="query?latitude=35&amp;longitude=170&amp;maxradius=20&amp;format=text"
+                <a href="{% url 'fdsnws_station_1_query' %}?latitude=35&amp;longitude=170&amp;maxradius=20&amp;format=text"
                    title="...&amp;maxradius=20">20</a></td>
             <td>Specify maximum distance from the geographic point defined by
                 <code>latitude</code> and <code>longitude</code><sup
@@ -370,7 +368,7 @@ maxlongitude=&lt;degrees&gt;
         <tr>
             <td>minradius</td>
             <td>
-                <a href="query?latitude=35&amp;longitude=170&amp;maxradius=20&amp;minradius=19"
+                <a href="{% url 'fdsnws_station_1_query' %}?latitude=35&amp;longitude=170&amp;maxradius=20&amp;minradius=19"
                    title="...&amp;minradius=19">19</a></td>
             <td>Specify minimum distance from the geographic point defined by
                 <code>latitude</code> and <code>longitude</code><sup
@@ -425,7 +423,7 @@ maxlongitude=&lt;degrees&gt;
         <tr>
             <td>updatedafter</td>
             <td>
-                <a href="query?sta=ANMO&amp;channel=BH1&amp;updatedafter=2012-01-01"
+                <a href="{% url 'fdsnws_station_1_query' %}?sta=ANMO&amp;channel=BH1&amp;updatedafter=2012-01-01"
                    title="...&amp;updatedafter=2012-01-01T00:00:00">2012-01-01</a>
             </td>
             <td>Limit to metadata updated after specified <span class="caps">UTC</span>
@@ -436,7 +434,7 @@ maxlongitude=&lt;degrees&gt;
         </tr>
         <tr>
             <td>format</td>
-            <td><a href="query?station=ANMO&amp;format=text"
+            <td><a href="{% url 'fdsnws_station_1_query' %}?station=ANMO&amp;format=text"
                    title="...&amp;format=text">text</a></td>
             <td>Specify output format. Valid formats include <code>xml</code>
                 and <code>text</code>.
@@ -504,9 +502,7 @@ maxlongitude=&lt;degrees&gt;
         associated with this service:</p>
 
     <p>
-        <a href="application.wadl">
-            application.wadl
-        </a>
+        <a href="{% url 'fdsnws_station_1_wadl' %}">application.wadl</a>
     </p>
 
 

@@ -25,10 +25,9 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="{{ host }}/fdsnws/station/1">station</a></li>
-                <li><a href="{{ host }}/fdsnws/dataselect/1">dataselect</a>
-                </li>
-                <li class="active"><a href="#">event</a></li>
+              <li><a href="{% url 'fdsnws_station_1_index' %}">station </a></li>
+              <li><a href="{% url 'fdsnws_dataselect_1_index' %}">dataselect</a></li>
+              <li class="active"><a href="{% url 'fdsnws_event_1_index' %}">event</a></li>
             </ul>
         </div>
         <!--/.nav-collapse -->
@@ -107,15 +106,15 @@ id-options		  ::  (eventid=&lt;id_value&gt;)</pre>
 
     <h3>Sample Queries</h3>
     <ul>
-        <li><a href="/fdsnws/event/1/query?eventid=609301">{{ host }}/fdsnws/event/1 /query?eventid=609301</a>
+        <li><a href="{% url 'fdsnws_event_1_query' %}?eventid=609301">{{ host }}{% url 'fdsnws_event_1_query' %}?eventid=609301</a>
         </li>
-        <li><a href="/fdsnws/event/1/query?minmagnitude=8.5">/fdsnws/event/1/query?minmagnitude=8.5</a>
-        </li>
-        <li>
-            <a href="/fdsnws/event/1/query?starttime=2011-01-08T00:00:00&amp;endtime=2011-01-09T00:00:00&amp;catalog=NEIC%20PDE">/fdsnws/event/1/query?starttime=2011-01-08T00:00:00&endtime=2011-01-09T00:00:00&catalog=NEIC%20PDE</a>
+        <li><a href="{% url 'fdsnws_event_1_query' %}?minmagnitude=8.5">{{ host }}{% url 'fdsnws_event_1_query' %}?minmagnitude=8.5</a>
         </li>
         <li>
-            <a href="/fdsnws/event/1/query?starttime=2011-01-07T14:00:00&amp;endtime=2011-02-07&amp;minlatitude=15&amp;maxlatitude=40&amp;minlongitude=-170&amp;maxlongitude=170&amp;minmagnitude=5&amp;includeallmagnitudes=true&amp;orderby=magnitude">/fdsnws/event/1/query?starttime=2011-01-07T14:00:00&endtime=2011-02-07&minlatitude=15&maxlatitude=40&minlongitude=-170&maxlongitude=170&minmagnitude=5&includeallmagnitudes=true&orderby=magnitude</a>
+            <a href="{% url 'fdsnws_event_1_query' %}?starttime=2011-01-08T00:00:00&amp;endtime=2011-01-09T00:00:00&amp;catalog=NEIC%20PDE">{{ host }}{% url 'fdsnws_event_1_query' %}?starttime=2011-01-08T00:00:00&endtime=2011-01-09T00:00:00&catalog=NEIC%20PDE</a>
+        </li>
+        <li>
+            <a href="{% url 'fdsnws_event_1_query' %}?starttime=2011-01-07T14:00:00&amp;endtime=2011-02-07&amp;minlatitude=15&amp;maxlatitude=40&amp;minlongitude=-170&amp;maxlongitude=170&amp;minmagnitude=5&amp;includeallmagnitudes=true&amp;orderby=magnitude">{{ host }}{% url 'fdsnws_event_1_query' %}?starttime=2011-01-07T14:00:00&endtime=2011-02-07&minlatitude=15&maxlatitude=40&minlongitude=-170&maxlongitude=170&minmagnitude=5&includeallmagnitudes=true&orderby=magnitude</a>
         </li>
     </ul>
 
@@ -136,7 +135,7 @@ id-options		  ::  (eventid=&lt;id_value&gt;)</pre>
         <tr>
             <td>start[time]</td>
             <td>
-                <a href="/fdsnws/event/1/query?starttime=2012-11-29T00:00:00&amp;end=2012-12-01"
+                <a href="{% url 'fdsnws_event_1_query' %}?starttime=2012-11-29T00:00:00&amp;end=2012-12-01"
                    title="...&amp;start=2012-11-291T00:00:00">2012-11-29</a>
             </td>
             <td>Limit to events occurring on or after the specified start
@@ -148,7 +147,7 @@ id-options		  ::  (eventid=&lt;id_value&gt;)</pre>
         <tr>
             <td>end[time]</td>
             <td>
-                <a href="/fdsnws/event/1/query?starttime=2012-11-29T00:00:00&amp;end=2012-12-01"
+                <a href="{% url 'fdsnws_event_1_query' %}?starttime=2012-11-29T00:00:00&amp;end=2012-12-01"
                    title="...&amp;end=2012-12-01T00:00:00">2012-12-01</a></td>
             <td>Limit to events occurring on or before the specified end
                 time.
@@ -164,7 +163,7 @@ id-options		  ::  (eventid=&lt;id_value&gt;)</pre>
         <tr>
             <td>minlat[itude]</td>
             <td>
-                <a href="/fdsnws/event/1/query?minlatitude=46.8&amp;maxlatitude=46.9&amp;minlongitude=-122&amp;maxlongitude=-121.5"
+                <a href="{% url 'fdsnws_event_1_query' %}?minlatitude=46.8&amp;maxlatitude=46.9&amp;minlongitude=-122&amp;maxlongitude=-121.5"
                    title="...&amp;minlatitude=46.8">46.8</a></td>
             <td>Southern boundary.</td>
             <td>-90&deg;</td>
@@ -173,7 +172,7 @@ id-options		  ::  (eventid=&lt;id_value&gt;)</pre>
         <tr>
             <td>maxlat[itude]</td>
             <td>
-                <a href="/fdsnws/event/1/query?minlatitude=46.8&amp;maxlatitude=46.9&amp;minlongitude=-122&amp;maxlongitude=-121.5"
+                <a href="{% url 'fdsnws_event_1_query' %}?minlatitude=46.8&amp;maxlatitude=46.9&amp;minlongitude=-122&amp;maxlongitude=-121.5"
                    title="...&amp;maxlatitude=46.9">46.9</a></td>
             <td>Northern boundary.</td>
             <td>90&deg;</td>
@@ -182,7 +181,7 @@ id-options		  ::  (eventid=&lt;id_value&gt;)</pre>
         <tr>
             <td>minlon[gitude]</td>
             <td>
-                <a href="/fdsnws/event/1/query?minlatitude=46.8&amp;maxlatitude=46.9&amp;minlongitude=-122&amp;maxlongitude=-121.5"
+                <a href="{% url 'fdsnws_event_1_query' %}?minlatitude=46.8&amp;maxlatitude=46.9&amp;minlongitude=-122&amp;maxlongitude=-121.5"
                    title="...&amp;minlongitude=-122">-122</a></td>
             <td>Western boundary.</td>
             <td>-180&deg;</td>
@@ -191,7 +190,7 @@ id-options		  ::  (eventid=&lt;id_value&gt;)</pre>
         <tr>
             <td>maxlon[gitude]</td>
             <td>
-                <a href="/fdsnws/event/1/query?minlatitude=46.8&amp;maxlatitude=46.9&amp;minlongitude=-122&amp;maxlongitude=-121.5"
+                <a href="{% url 'fdsnws_event_1_query' %}?minlatitude=46.8&amp;maxlatitude=46.9&amp;minlongitude=-122&amp;maxlongitude=-121.5"
                    title="...&amp;maxlongitude=-121.5">-121.5</a></td>
             <td>Eastern boundary.</td>
             <td>180&deg;</td>
@@ -205,7 +204,7 @@ id-options		  ::  (eventid=&lt;id_value&gt;)</pre>
         <tr>
             <td>lat[itude]</td>
             <td>
-                <a href="/fdsnws/event/1/query?latitude=40.0&amp;longitude=-100.0&amp;maxradius=5.0"
+                <a href="{% url 'fdsnws_event_1_query' %}?latitude=40.0&amp;longitude=-100.0&amp;maxradius=5.0"
                    title="...&amp;latitude=40.0&amp;...">40.0</a></td>
             <td>Specify the central latitude point.</td>
             <td>0.0</td>
@@ -214,7 +213,7 @@ id-options		  ::  (eventid=&lt;id_value&gt;)</pre>
         <tr>
             <td>lon[gitude]</td>
             <td>
-                <a href="/fdsnws/event/1/query?latitude=40.0&amp;longitude=-100.0&amp;maxradius=5.0"
+                <a href="{% url 'fdsnws_event_1_query' %}?latitude=40.0&amp;longitude=-100.0&amp;maxradius=5.0"
                    title="...&amp;longitude=100.0&amp;...">100.0</a></td>
             <td>Specify the central longitude point.</td>
             <td>0.0</td>
@@ -223,7 +222,7 @@ id-options		  ::  (eventid=&lt;id_value&gt;)</pre>
         <tr>
             <td>maxradius</td>
             <td>
-                <a href="/fdsnws/event/1/query?latitude=40.0&amp;longitude=-100.0&amp;maxradius=5.0"
+                <a href="{% url 'fdsnws_event_1_query' %}?latitude=40.0&amp;longitude=-100.0&amp;maxradius=5.0"
                    title="...&amp;maxradius=5.0">5.0</a></td>
             <td>Specify maximum distance from the geographic point defined by
                 <code>latitude</code> and <code>longitude</code>.
@@ -234,7 +233,7 @@ id-options		  ::  (eventid=&lt;id_value&gt;)</pre>
         <tr>
             <td>minradius</td>
             <td>
-                <a href="/fdsnws/event/1/query?latitude=40.0&amp;longitude=-100.0&amp;maxradius=5.0&amp;minradius=1.0"
+                <a href="{% url 'fdsnws_event_1_query' %}?latitude=40.0&amp;longitude=-100.0&amp;maxradius=5.0&amp;minradius=1.0"
                    title="...&amp;minradius=1.0">1.0</a></td>
             <td>Specify minimum distance from the geographic point defined by
                 <code>latitude</code> and <code>longitude</code>.
@@ -334,7 +333,7 @@ id-options		  ::  (eventid=&lt;id_value&gt;)</pre>
         </tr>
         <tr>
             <td>offset</td>
-            <td><a href="query?minmag=7.5&amp;limit=25&amp;offset=20"
+            <td><a href="{% url 'fdsnws_event_1_query' %}?minmag=7.5&amp;limit=25&amp;offset=20"
                    title="...&amp;offset=20">20</a></td>
             <td>Return results starting at the event count specified.</td>
             <td>1</td>
@@ -502,9 +501,7 @@ Below are anchors for the example queries used in the parameter table above.
         associated with this service:</p>
 
     <p>
-        <a href="application.wadl">
-            application.wadl
-        </a>
+        <a href="{% url 'fdsnws_event_1_wadl' %}">application.wadl</a>
     </p>
 
 
