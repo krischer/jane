@@ -1,0 +1,66 @@
+<div class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" ng-show="title">
+                <button type="button" class="close"
+                        ng-click="$hide()">&times;</button>
+                <h4 class="modal-title">Details for {{title}}</h4>
+            </div>
+
+            <div class="modal-body" ng-controller="stationInfoController">
+                <div class="container-fluid" style="padding-bottom: 15px">
+                    <div class="row">
+                        <em>{{station_name}}</em> im <em>{{network_name}}</em>
+                    </div>
+                </div>
+
+                <div class="container-fluid">
+                    <small>
+                        <table class="table table-condensed table-hover">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Channel Name</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Sampling Rate</th>
+                                <th>Sensor</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="i in channels">
+                                <td>{{i.id}}</td>
+                                <td>
+                                    {{i.indexed_data.network}}.{{i.indexed_data.station}}
+                                    .{{i.indexed_data.location}}.{{i.indexed_data.channel}}
+                                </td>
+                                <td>{{i.indexed_data.start_date}}</td>
+                                <td>{{i.indexed_data.end_date}}</td>
+                                <td>{{i.indexed_data.sample_rate}} Hz</td>
+                                <td>{{i.indexed_data.sensor_type}}</td>
+                                <td><a href="{{i.attachments[0].url}}"
+                                       data-placement="left"
+                                       data-animation="am-flip-x"
+                                       data-content="{{i.attachments[0].url}}"
+                                       data-content-template="./templates/response_popover_template.html"
+                                       title="Response"
+                                       trigger="hover"
+                                       bs-popover
+                                       target="_blank"
+                                       class="btn btn-xs">Response Plot</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </small>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                        ng-click="$hide()">Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

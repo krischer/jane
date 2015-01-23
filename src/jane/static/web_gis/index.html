@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="bayNetApp">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Erdbebendienst Bayern">
+
+    <title>BayNet Expert View</title>
+
+    <!--Components CSS-->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"
+          rel="stylesheet" type="text/css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css"
+          rel="stylesheet" type="text/css">
+    <link href="./css/ol_3.0.0.css" rel="stylesheet" type="text/css">
+    <link href="./css/bootstrap-additions.0.2.3.min.css" rel="stylesheet"
+          type="text/css">
+    <link href="./css/bootstrap-slider.4.0.5.min.css" rel="stylesheet"
+          type="text/css">
+    <link href="./css/angular-toggle-switch-bootstrap-3.css" rel="stylesheet"
+          type="text/css">
+
+    <!--Baynet CSS-->
+    <link href="./css/baynet.css" rel="stylesheet" type="text/css">
+
+    <!--Components JS-->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="./js/bootstrap-slider.4.0.5.min.js"></script>
+    <!--<script src="/js/bootstrap-switch.3.0.2.min.js"></script>-->
+
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-sanitize.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-animate.min.js"></script>
+    <script src="./js/angular-locale_de-de.1.2.25.js"></script>
+
+    <script src="./js/angular-strap.2.1.1.min.js"></script>
+    <script src="./js/angular-strap.tpl.2.1.1.min.js"></script>
+    <script src="./js/angular-bootstrap-slider.js"></script>
+    <script src="./js/angular-toggle-switch.min.js"></script>
+
+    <script src="./js/ol_3.0.0.js"></script>
+
+    <!--Baynet JS-->
+    <script src="./src/baynetapp.js"></script>
+    <script src="./src/controllers/station_info_controller.js"></script>
+    <script src="./src/main.js"></script>
+    <script src="./src/directives/map.js"></script>
+
+
+</head>
+
+<body ng-controller="BayNetController">
+
+<div id="sidebar">
+<div class="container-fluid">
+    <h4>BayNet Expert View</h4>
+</div>
+
+
+<div class="sidebar-header">
+
+    <toggle-switch model="show_event_layer" class="switch-mini"
+                   on-label="Show" off-label="hide"
+                   style="position:absolute; margin-top:5px; margin-left: 5px">
+    </toggle-switch>
+        <span class="input-group-addon">
+            <i class="fa fa-dot-circle-o"></i> Erdbeben
+            <!--NEEDS DIFFERENT WAY TO LAYOUT!-->
+            <toggle-switch model="event_layer_show_points"
+                           class="switch-mini switch-default"
+                           on-label="Punkte" off-label="Heatmap"
+                           style="position:absolute;
+                           margin-top: -2px; margin-left: 20px">
+            </toggle-switch>
+        </span>
+    </toggle-switch>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4">
+            <label>
+                <i class="fa fa-calendar"></i>
+                <small>Zeitrahmen</small>
+            </label>
+        </div>
+        <div class="col-md-4 event-timepicker">
+            <input type="text" class="form-control"
+                   ng-model="event_settings.min_date"
+                   data-max-date="{{untilDate}}" placeholder="Von"
+                   bs-datepicker>
+        </div>
+        <div class="col-md-4 event-timepicker">
+            <input type="text" class="form-control"
+                   ng-model="event_settings.max_date"
+                   data-min-date="{{fromDate}}" placeholder="Bis"
+                   bs-datepicker>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <label>
+                <i class="fa fa-arrows-h"></i>
+                <small>Magnitude</small>
+            </label>
+        </div>
+        <div class="col-md-1 magnitude-label" style="text-align: right">
+            {{event_settings.magnitude_range[0]}}
+        </div>
+        <div class="col-md-6">
+            <slider
+                    ng-model="event_settings.magnitude_range"
+                    min="-5"
+                    step="0.5"
+                    precision="0.1"
+                    max="10"
+                    data-slider-tooltip="hide"
+                    value="{{event_settings.magnitude_range}}">
+            </slider>
+        </div>
+        <div class="col-md-1 magnitude-label" style="text-align: left">
+            {{event_settings.magnitude_range[1]}}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <label>
+                <i class="fa fa-institution"></i>
+                <small>Agencies</small>
+            </label>
+        </div>
+        <div class="col-md-8">
+            <button type="button" class="btn btn-default btn-xs"
+                    ng-model="event_settings.selected_agencies"
+                    data-html="1" data-multiple="1"
+                    data-animation="am-flip-x"
+                    ng-options="icon.value as icon.label for icon in event_settings.agency_icons"
+                    bs-select>
+                Action <span class="caret"></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-2">
+            <label>
+                <small>
+                    Status
+                </small>
+            </label>
+        </div>
+        <div class="col-md-4">
+            <toggle-switch model="event_settings.show_public_and_private"
+                           class="switch-mini switch-default"
+                           on-label="all" off-label="public"
+                           style="width:100%">
+            </toggle-switch>
+        </div>
+        <div class="col-md-2">
+            <label>
+                <small>
+                    Methode
+                </small>
+            </label>
+        </div>
+        <div class="col-md-4">
+            <toggle-switch model="event_settings.show_automatic_and_manual"
+                           class="switch-mini switch-default"
+                           on-label="all" off-label="manual"
+                           style="width:100%">
+            </toggle-switch>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <small>Total Available Events:
+                {{geojson_events.features.length}}
+            </small>
+        </div>
+    </div>
+
+
+</div>
+
+<div class="sidebar-header">
+    <toggle-switch model="show_station_layer" class="switch-mini"
+                   on-label="Show" off-label="hide"
+                   style="position:absolute; margin-top:5px; margin-left: 5px">
+    </toggle-switch>
+        <span class="input-group-addon">
+            <i class="fa fa-th"></i> Stationen
+        </span>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2" ng-repeat="(network, color) in station_colors">
+            <span style="color:{{color}}">▼</span>
+            <small><label>{{network}}</label></small>
+        </div>
+    </div>
+</div>
+
+
+<div class="sidebar-header">
+        <span class="input-group-addon">
+            <i class="fa fa-th"></i> Karteneinstellungen
+        </span>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <div class="col-md-4">
+            <small>Grundschicht</small>
+        </div>
+
+        <div class="col-md-8">
+            <div class="dropdown">
+                <button class="btn btn-default btn-xs dropdown-toggle"
+                        style="width:100%"
+                        type="button"
+                        data-animation="am-flip-x"
+                        bs-dropdown="base_layer_names_dropdown">
+                    {{current_base_layer}}
+                    <span class="caret"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-4">
+            <small>Rotation: {{rotation}}°</small>
+        </div>
+
+        <div class="col-md-8">
+            <slider
+                    ng-model="rotation"
+                    data-slider-tooltip="hide"
+                    min="0"
+                    step="1"
+                    max="360"
+                    value="0">
+            </slider>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <div class="col-md-4">
+            <small>Opazität: {{base_layer_opacity}}%</small>
+        </div>
+
+        <div class="col-md-8">
+            <slider
+                    ng-model="base_layer_opacity"
+                    data-slider-tooltip="hide"
+                    min="0"
+                    step="1"
+                    max="100"
+                    value="100">
+            </slider>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <small>Bayern Overlay</small>
+        </div>
+        <div class="col-md-8">
+            <toggle-switch model="show_bavaria_outline"
+                           class="switch-mini"
+                           on-label="on" off-label="off">
+            </toggle-switch>
+        </div>
+    </div>
+    <div class="row" style="padding-top: 5px">
+        <div class="col-md-3">
+            <small>Zoom to</small>
+        </div>
+        <div class="col-md-9">
+            <a type="button"
+               class="btn btn-default btn-xs"
+               ng-click="panTo(12, 49, 7)">Bayern</a>
+            <a type="button"
+               class="btn btn-default btn-xs"
+               ng-click="panTo(12.9, 47.7, 11)">Hochstaufen</a>
+            <a type="button"
+               class="btn btn-default btn-xs"
+               ng-click="panTo(11.63, 48.05, 11)">Unterhaching</a>
+            <a type="button"
+               class="btn btn-default btn-xs"
+               ng-click="panTo(12.1, 50.0, 10)">Marktredwitz</a>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<openlayers3 id="map">
+    <div id="event_tooltip"></div>
+    <div id="station_tooltip"></div>
+</openlayers3>
+
+</body>
+</html>
