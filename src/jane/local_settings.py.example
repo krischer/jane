@@ -8,6 +8,12 @@ DATABASES = {
         'PASSWORD': 'CHANGEME!',
         'HOST': '127.0.0.1',
         'PORT': 5432,
+        'test_ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'test_NAME': 'test_jane',
+        'test_USER': 'test_jane',
+        'test_PASSWORD': 'test_jane',
+        'test_HOST': '127.0.0.1',
+        'test_PORT': 5432,
     }
 }
 
