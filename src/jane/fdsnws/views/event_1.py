@@ -137,7 +137,7 @@ def query(request, debug=False):
     # handle both: HTTP POST and HTTP GET variables
     params = parse_query_parameters(QUERY_PARAMETERS, request.REQUEST)
 
-    # A return string is interpreted as an error message.
+    # A returned string is interpreted as an error message.
     if isinstance(params, str):
         return _error(request, params, status_code=400)
 
@@ -147,7 +147,7 @@ def query(request, debug=False):
 
     if params.get("nodata") not in [204, 404]:
         return _error(request, "nodata must be '204' or '404'.",
-                      status_code=404)
+                      status_code=400)
 
     # process query
     if debug:
@@ -169,8 +169,6 @@ You may check the current processing status and download your results via
 %s""" % (QUERY_TIMEOUT, reverse('fdsnws_event_1_result', request=request,
                                 kwargs={'task_id': task_id}))
             return _error(request, msg, 413)
-
-        print("ASD")
 
     # response
     if status == 200:
