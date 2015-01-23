@@ -174,7 +174,6 @@ def result(request, task_id):  # @UnusedVariable
     """
     Returns requested waveform file
     """
-    from IPython.core.debugger import Tracer; Tracer(colors="Linux")()
     asyncresult = AsyncResult(task_id)
     try:
         result = asyncresult.get(timeout=0.5)
