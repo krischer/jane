@@ -298,9 +298,7 @@ except ImportError:
 
 # speed up tests
 if 'test' in sys.argv:
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3'
-    }
+    print("Using test settings ...")
     PASSWORD_HASHERS = (
         'django.contrib.auth.hashers.MD5PasswordHasher',
     )
