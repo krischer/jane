@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jane</title>
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+</head>
+<body>
+<nav class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Jane</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+
+    <div class="page-header">
+        <h1>Jane
+            <small>Document Database for Seismology</small>
+        </h1>
+    </div>
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">FDSN Web Services</h3>
+        </div>
+        <div class="panel-body">
+            <div class="container-fluid">
+                <div class="alert alert-info">
+                    Jane implements version 1.1 of all three
+                    <a href="http://www.fdsn.org/webservices/">FDSN web services</a>.
+                </div>
+                <dl>
+                    <dt>
+                        <a href="{{ host }}/fdsnws/station/1">fdsnws-station</a>
+                    </dt>
+                    <dd style="padding-left: 30px">
+                        For access to station metadata in the FDSN StationXML
+                        format
+                    </dd>
+                </dl>
+                <dl>
+                    <dt>
+                        <a href="{{ host }}/fdsnws/dataselect/1">fdsnws-dataselect</a>
+                    </dt>
+                    <dd style="padding-left: 30px">
+                        For access to time series data in the MiniSEED format.
+                    </dd>
+                </dl>
+                <dl>
+                    <dt>
+                        <a href="{{ host }}/fdsnws/event/1">fdsnws-event</a>
+                    </dt>
+                    <dd style="padding-left: 30px">
+                        For access to event parameters in the QuakeML format.
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+<script
+        src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

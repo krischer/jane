@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from django.shortcuts import render_to_response
+from django.template.context import RequestContext
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -24,3 +26,11 @@ def rest_root(request, format=None):  # @ReservedAssignment
         data['waveforms'] = reverse('rest_waveforms-list', request=request)
         return Response([{'name': i[0], 'url': i[1]}
                          for i in sorted(data.items())])
+
+
+def index(request):
+    options = {
+        'host': request.build_absolute_uri('/')[:-1],
+        }
+    return render_to_response("index.html", options,
+                              RequestContext(request))
