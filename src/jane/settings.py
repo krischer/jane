@@ -230,18 +230,14 @@ REST_FRAMEWORK = {
 # djcelery.setup_loader()
 
 INSTALLED_APPS += ["djcelery", "corsheaders"]
-if DEPLOYED:
-    # use RabbitMQ server
-    BROKER_TRANSPORT = "amqp"
-    BROKER_HOST = "127.0.0.1"
-    BROKER_PORT = 5672
-    BROKER_USER = "jane"
-    BROKER_PASSWORD = "jane"
-    BROKER_VHOST = "jane"
-else:
-    # use django db on local installation
-    BROKER_URL = 'django://'
-    INSTALLED_APPS += ['kombu.transport.django']
+
+# use RabbitMQ server
+BROKER_TRANSPORT = "amqp"
+BROKER_HOST = "127.0.0.1"
+BROKER_PORT = 5672
+BROKER_USER = "jane"
+BROKER_PASSWORD = "jane"
+BROKER_VHOST = "jane"
 
 CELERY_RESULT_BACKEND = "djcelery.backends.database:DatabaseBackend"
 

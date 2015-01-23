@@ -1,294 +1,551 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Jane - FDSNWS DataSelect Web Service</title>
-  <link rel="stylesheet"
-    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet"
-    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jane - FDSNWS Event Web Service</title>
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
 </head>
 <body>
-  <nav class="navbar navbar-inverse" role="navigation">
+<nav class="navbar navbar-inverse" role="navigation">
     <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#">Jane</a>
-      </div>
-      <div id="navbar" class="collapse navbar-collapse">
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="{{ host }}">station </a></li>
-          <li class="active"><a href="#">dataselect</a></li>
-          <li><a href="{{ host }}">event</a></li>
-        </ul>
-      </div><!--/.nav-collapse -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed"
+                    data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Jane</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="{{ host }}/fdsnws/station/1">station</a></li>
+                <li><a href="{{ host }}/fdsnws/dataselect/1">dataselect</a>
+                </li>
+                <li class="active"><a href="#">event</a></li>
+            </ul>
+        </div>
+        <!--/.nav-collapse -->
     </div>
-  </nav>
+</nav>
 
-  <div class="container">
-    <h1>FDSNWS DataSelect Web Service</h1>
+
+<div class="container">
+    <h1>FDSNWS Station Web Service</h1>
+
     <div class="alert alert-warning">
-      <p>
-        The <strong>fdsdws-dataselect</strong> service provides access to time
-        series data for specified channels and time ranges.
-      </p>
-      <p>
-        Data are selected using <span class="caps">SEED</span> time series
-        identifiers (network, station, location &amp; channel) in addition to
-        time ranges. Data are returned in <a
-          href="http://www.iris.edu/dms/nodes/dmc/data/formats/seed/">miniSEED</a>
-        format.
-      </p>
-      <p>
-        This service is an implementation of the <a
-          href="http://www.fdsn.org/webservices/"><span class="caps">FDSN</span>
-          web service specification</a> version 1.
-      </p>
+        <p>The <strong>fdsnws-event</strong> web service returns event
+            (earthquake) information from the catalogs submitted to the <span
+                    class="caps">IRIS</span> <span class="caps">DMC</span>.</p>
+
+        <p>Events may be selected based on location, time, catalog, contributor
+            and internal identifiers. By default, events are retrieved from the
+            <span class="caps">NEIC</span> <span class="caps">PDE</span>
+            catalog for recent events and then the <span
+                    class="caps">ISC</span> catalog when it becomes available.
+            These default results include only that catalog&#8217;s &#8220;primary
+            origin&#8221; and &#8220;primary magnitude&#8221; for each event,
+            they may optionally include all available origin and magnitude
+            estimates.</p>
+
+        <p>By default results are returned as <span class="caps">XML</span> in
+            <a href="https://quake.ethz.ch/quakeml">QuakeML</a> format (<a
+                    href="https://quake.ethz.ch/quakeml/docs/xml?action=AttachFile&amp;do=get&amp;target=QuakeML-BED-1.2.xsd">schema</a>),
+            but may also be requested in text formats.</p>
+
+        <p>This service is an implementation of the <a
+                href="http://www.fdsn.org/webservices/"><span
+                class="caps">FDSN</span> web service specification</a> version
+            1.1.</p>
+
+        <p><strong>Please remember that data obtained from our fdsn-event
+            webservice should always be appropriately cited. More information
+            about proper catalog citations can be found under the <a
+                    href="/fdsnws/event/docs/1/help#cite"><em>Event catalogs
+                and citation</em></a> section in the service <a
+                    href="/fdsnws/event/docs/1/help">Help</a> page.</strong>
+        </p>
     </div>
+
     <p>Below is a full list of service parameters and their usage.</p>
+
     <h2>Query Usage</h2>
-    <pre>/query? (date-range-options) [channel-options] [quality-options] [misc-options] [format-options] [nodata=404]</pre>
+  <pre>/query?	[geographic-constraints] [depth-constraints] [temporal-constraints] [magnitude-constraints]
+	[organization-constraints] [misc-parameters] [format-option] [nodata=404]</pre>
+
+    <p>or</p>
+
+    <pre>/query?	(id-options) [includeallmagnitudes] [includeallorigins] [includearrivals] [nodata=404]</pre>
+
     <p>where</p>
-    <pre>date-range-options  ::  (start=&lt;time&gt;) (end=&lt;time&gt;)
-channel-options     ::  [net=&lt;network&gt;] [sta=&lt;station&gt;] [loc=&lt;location&gt;] [cha=&lt;channel&gt;]
-quality-options     ::  [quality=&lt;D|R|Q|M|B&gt;]
-misc-options        ::  [minimumlength=&lt;seconds&gt;] [longestonly=&lt;true|false&gt;]
-format-options      ::  [format=&lt;mseed&gt;]</pre>
-    <p>
-      (..) required<br /> [..] optional
-    </p>
-    <p>
-      Query parameters are joined by ampersands <strong>&#8221;&amp;&#8221;</strong>,
-      without blank space (see the sample queries).
-    </p>
-    <h2>
-      <span class="caps">POST</span> Usage
-    </h2>
-    <p>
-      Alternately, <em>instead</em> of providing parameter-value pairs in the <span
-        class="caps">URL</span>, a file containing a selection list can be <span
-        class="caps">POST</span>ed to this service. This is the same method
-      used with the (deprecated) ws-bulkdataselect webservice. For additional
-      details, including an example selection file, visit this page&#8217;s
-      help.
-    </p>
-    <pre>quality=&lt;D|R|Q|M|B&gt;
-minimumlength=&lt;seconds&gt;
-longestonly=&lt;true|false&gt;
-&lt;Network&gt; &lt;Station&gt; &lt;Location&gt; &lt;Channel&gt; &lt;StartTime&gt; &lt;EndTime&gt;
-...</pre>
-    <p>
-      Quality, minimumlength, and longestonly are optional. Wildcards are
-      acceptable for Network, Station, Location, and Channel. Click <a
-        href="#time">here</a> for time format details.
-    </p>
+
+<pre>geographic-constraints	  ::  [boundaries-rect] OR [boundaries-radial]
+boundaries-rect		  ::  [minlatitude=&lt;degrees&gt;] [maxlatitude=&lt;degrees&gt;]
+				  [minlongitude=&lt;degrees&gt;] [maxlongitude=&lt;degrees&gt;]
+boundaries-radial	  ::  [latitude=&lt;degrees&gt;] [longitude=&lt;degrees&gt;] [maxradius=&lt;degrees&gt;] [minradius=&lt;degrees&gt;]
+depth-constraints	  ::  [mindepth=&lt;km&gt;] [maxdepth=&lt;km&gt;]
+temporal-constraints	  ::  [starttime=&lt;datetime&gt;] [endtime=&lt;datetime&gt;]
+magnitude-constraints	  ::  [minmagnitude=&lt;float&gt;] [maxmagnitude=&lt;float&gt;] [magnitudetype=&lt;&lt;all|preferred&gt;|&lt;text&gt;&gt;]
+organization-constraints  ::  [catalog=&lt;text&gt;] [contributor=&lt;text&gt;
+misc-parameters		  ::  [limit=&lt;integer&gt;] [offset=&lt;integer&gt;] [orderby=&lt;time|magnitude&gt;]
+				  [updatedafter=&lt;datetime&gt;] [includeallmagnitude=&lt;true|false&gt;]
+				  [includearrivals=&lt;true|false&gt;] [includeallorigins=&lt;true|false&gt;]
+format-option		  ::  [format=&lt;xml|text&gt;]
+id-options		  ::  (eventid=&lt;id_value&gt;)</pre>
+
+    <p>(..) required parameter<br/>
+        [..] optional parameter</p>
+
+    <p>All parameters must be separated by ampersands (<strong>&amp;</strong>)
+        as demonstrated in the samples below.</p>
+
     <h3>Sample Queries</h3>
     <ul>
-      <li><a
-        href="{% url 'fdsnws_dataselect_1_query' %}?net=IU&amp;sta=ANMO&amp;loc=00&amp;cha=BHZ&amp;start=2010-02-27T06:30:00.000&amp;end=2010-02-27T10:30:00.000&nodata=404">{{ host }}{% url 'fdsnws_dataselect_1_query' %}?net=IU&sta=ANMO&loc=00&cha=BHZ&start=2010-02-27T06:30:00.000&end=2010-02-27T10:30:00.000&nodata=404</a></li>
+        <li><a href="/fdsnws/event/1/query?eventid=609301">{{ host }}/fdsnws/event/1 /query?eventid=609301</a>
+        </li>
+        <li><a href="/fdsnws/event/1/query?minmagnitude=8.5">/fdsnws/event/1/query?minmagnitude=8.5</a>
+        </li>
+        <li>
+            <a href="/fdsnws/event/1/query?starttime=2011-01-08T00:00:00&amp;endtime=2011-01-09T00:00:00&amp;catalog=NEIC%20PDE">/fdsnws/event/1/query?starttime=2011-01-08T00:00:00&endtime=2011-01-09T00:00:00&catalog=NEIC%20PDE</a>
+        </li>
+        <li>
+            <a href="/fdsnws/event/1/query?starttime=2011-01-07T14:00:00&amp;endtime=2011-02-07&amp;minlatitude=15&amp;maxlatitude=40&amp;minlongitude=-170&amp;maxlongitude=170&amp;minmagnitude=5&amp;includeallmagnitudes=true&amp;orderby=magnitude">/fdsnws/event/1/query?starttime=2011-01-07T14:00:00&endtime=2011-02-07&minlatitude=15&maxlatitude=40&minlongitude=-170&maxlongitude=170&minmagnitude=5&includeallmagnitudes=true&orderby=magnitude</a>
+        </li>
     </ul>
+
     <h3>Detailed Descriptions of each Query Parameter</h3>
-    <table class="table table-bordered">
-      <tr>
-        <th>parameters</th>
-        <th>examples</th>
-        <th>discussion</th>
-        <th>default</th>
-        <th>type</th>
-      </tr>
-      <tr>
-        <td colspan="5"><strong><span class="caps">FDSN</span>
-            options</strong></td>
-      </tr>
-      <tr>
-        <td>start[time]</td>
-        <td>2010-02-27T06:30:00</td>
-        <td>Specifies the desired start-time for miniSEED data</td>
-        <td></td>
-        <td><a href="#time">day/time</a></td>
-      </tr>
-      <tr>
-        <td>end[time]</td>
-        <td>2010-02-27T10:30:00</td>
-        <td>Specify the end-time for the miniSEED data</td>
-        <td></td>
-        <td><a href="#time">day/time</a></td>
-      </tr>
-      <tr>
-        <td>net[work]</td>
-        <td>IU</td>
-        <td>Select one or more network codes. <a href="#wildcardsandlists">Accepts
-            wildcards and lists.</a> Can be <span class="caps">SEED</span> codes or
-          data center defined codes.
-        </td>
-        <th><em>any</em></th>
-        <td>string</td>
-      </tr>
-      <tr>
-        <td>sta[tion]</td>
-        <td><span class="caps">ANMO</span></td>
-        <td>Select one or more <span class="caps">SEED</span> station
-          codes. <a href="#wildcardsandlists">Accepts wildcards and lists.</a></td>
-        <th><em>any</em></th>
-        <td>string</td>
-      </tr>
-      <tr>
-        <td>loc[ation]</td>
-        <td>00</td>
-        <td>Select one or more <span class="caps">SEED</span> location
-          identifier. <a href="#wildcardsandlists">Accepts wildcards and
-            lists.</a> Use <code>--</code> for &#8220;Blank&#8221; location IDs
-          (ID&#8217;s containing 2 spaces).
-        </td>
-        <th><em>any</em></th>
-        <td>string</td>
-      </tr>
-      <tr>
-        <td>cha[nnel]</td>
-        <td>BH1</td>
-        <td>Select one or more <span class="caps">SEED</span> channel
-          codes. <a href="#wildcardsandlists">Accepts wildcards and lists.</a></td>
-        <th><em>any</em></th>
-        <td>string</td>
-      </tr>
-      <tr>
-        <td>quality</td>
-        <td>B</td>
-        <td>Select data based on miniSEED data quality indicator. <code>D</code>,
-          <code>R</code>, <code>Q</code>, <code>M</code>, <code>B</code>. <code>M</code>
-          and <code>B</code> (default) are treated the same and indicate <em>best</em>
-          available. If <code>M</code> or <code>B</code> are selected, the
-          output data records will be stamped with an <code>M</code>.
-        </td>
-        <td>B</td>
-        <td>quality</td>
-      </tr>
-      <tr>
-        <td>minimumlength</td>
-        <td>0.0</td>
-        <td>Limit results to continuous data segments of a minimum length
-          specified in seconds.</td>
-        <td>0.0</td>
-        <td>Float</td>
-      </tr>
-      <tr>
-        <td>longestonly</td>
-        <td>false</td>
-        <td>Limit results to the longest continuous segment per channel.</td>
-        <td>false</td>
-        <td>Boolean</td>
-      </tr>
-      <tr>
-        <td>nodata</td>
-        <td>404</td>
-        <td>Specify which <span class="caps">HTML</span> Status code is
-          returned when no data is found.<sup class="footnote"
-          id="fnrev086f83a87eae44c4824cb3eacc022ce1"><a
-            href="#fn086f83a87eae44c4824cb3eacc022ce1">1</a></sup>
-        </td>
-        <td>204</td>
-        <td>204 or 404</td>
-      </tr>
-      <tr>
-        <td>format</td>
-        <td>mseed</td>
-        <td>Specify the format of the data returned</td>
-        <td>mseed</td>
-        <td>mseed</td>
-      </tr>
+    <table class="table table-bordered centered">
+        <tr>
+            <th>parameter</th>
+            <th>examples</th>
+            <th>discussion</th>
+            <th>default</th>
+            <th>type</th>
+        </tr>
+        <tr>
+            <td colspan="5"><strong><acronym
+                    title="International Federation of Digital Seismograph Networks"><span
+                    class="caps">FDSN</span></acronym> options</strong></td>
+        </tr>
+        <tr>
+            <td>start[time]</td>
+            <td>
+                <a href="/fdsnws/event/1/query?starttime=2012-11-29T00:00:00&amp;end=2012-12-01"
+                   title="...&amp;start=2012-11-291T00:00:00">2012-11-29</a>
+            </td>
+            <td>Limit to events occurring on or after the specified start
+                time.
+            </td>
+            <th><em>any</em></th>
+            <td><a href="#time">day/time</a></td>
+        </tr>
+        <tr>
+            <td>end[time]</td>
+            <td>
+                <a href="/fdsnws/event/1/query?starttime=2012-11-29T00:00:00&amp;end=2012-12-01"
+                   title="...&amp;end=2012-12-01T00:00:00">2012-12-01</a></td>
+            <td>Limit to events occurring on or before the specified end
+                time.
+            </td>
+            <th><em>any</em></th>
+            <td><a href="#time">day/time</a></td>
+        </tr>
+        <tr>
+            <td colspan="5"><strong><span class="caps">BOX</span> search terms</strong>
+                incompatible with radial search
+            </td>
+        </tr>
+        <tr>
+            <td>minlat[itude]</td>
+            <td>
+                <a href="/fdsnws/event/1/query?minlatitude=46.8&amp;maxlatitude=46.9&amp;minlongitude=-122&amp;maxlongitude=-121.5"
+                   title="...&amp;minlatitude=46.8">46.8</a></td>
+            <td>Southern boundary.</td>
+            <td>-90&deg;</td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td>maxlat[itude]</td>
+            <td>
+                <a href="/fdsnws/event/1/query?minlatitude=46.8&amp;maxlatitude=46.9&amp;minlongitude=-122&amp;maxlongitude=-121.5"
+                   title="...&amp;maxlatitude=46.9">46.9</a></td>
+            <td>Northern boundary.</td>
+            <td>90&deg;</td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td>minlon[gitude]</td>
+            <td>
+                <a href="/fdsnws/event/1/query?minlatitude=46.8&amp;maxlatitude=46.9&amp;minlongitude=-122&amp;maxlongitude=-121.5"
+                   title="...&amp;minlongitude=-122">-122</a></td>
+            <td>Western boundary.</td>
+            <td>-180&deg;</td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td>maxlon[gitude]</td>
+            <td>
+                <a href="/fdsnws/event/1/query?minlatitude=46.8&amp;maxlatitude=46.9&amp;minlongitude=-122&amp;maxlongitude=-121.5"
+                   title="...&amp;maxlongitude=-121.5">-121.5</a></td>
+            <td>Eastern boundary.</td>
+            <td>180&deg;</td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td colspan="5"><strong><span class="caps">RADIAL</span> search
+                terms</strong> incompatible with the box search
+            </td>
+        </tr>
+        <tr>
+            <td>lat[itude]</td>
+            <td>
+                <a href="/fdsnws/event/1/query?latitude=40.0&amp;longitude=-100.0&amp;maxradius=5.0"
+                   title="...&amp;latitude=40.0&amp;...">40.0</a></td>
+            <td>Specify the central latitude point.</td>
+            <td>0.0</td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td>lon[gitude]</td>
+            <td>
+                <a href="/fdsnws/event/1/query?latitude=40.0&amp;longitude=-100.0&amp;maxradius=5.0"
+                   title="...&amp;longitude=100.0&amp;...">100.0</a></td>
+            <td>Specify the central longitude point.</td>
+            <td>0.0</td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td>maxradius</td>
+            <td>
+                <a href="/fdsnws/event/1/query?latitude=40.0&amp;longitude=-100.0&amp;maxradius=5.0"
+                   title="...&amp;maxradius=5.0">5.0</a></td>
+            <td>Specify maximum distance from the geographic point defined by
+                <code>latitude</code> and <code>longitude</code>.
+            </td>
+            <td>180.0</td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td>minradius</td>
+            <td>
+                <a href="/fdsnws/event/1/query?latitude=40.0&amp;longitude=-100.0&amp;maxradius=5.0&amp;minradius=1.0"
+                   title="...&amp;minradius=1.0">1.0</a></td>
+            <td>Specify minimum distance from the geographic point defined by
+                <code>latitude</code> and <code>longitude</code>.
+            </td>
+            <td>0.0</td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td colspan="5"></td>
+        </tr>
+        <tr>
+            <td>mindepth</td>
+            <td>-1</td>
+            <td>Limit to events with depths equal to or greater than the
+                specified depth
+            </td>
+            <th><em>any</em></th>
+            <td>float<sup class="footnote"
+                          id="fnrev292d866015654290a14c9942731fa5ef"><a
+                    href="#fn292d866015654290a14c9942731fa5ef">1</a></sup> (km)
+            </td>
+        </tr>
+        <tr>
+            <td>maxdepth</td>
+            <td>20</td>
+            <td>Limit to events with depths less than or equal to the specified
+                depth
+            </td>
+            <th><em>any</em></th>
+            <td>float<sup class="footnote"><a
+                    href="#fn292d866015654290a14c9942731fa5ef">1</a></sup> (km)
+            </td>
+        </tr>
+        <tr>
+            <td colspan="5"></td>
+        </tr>
+        <tr>
+            <td>minmag[nitude]</td>
+            <td>-1.0</td>
+            <td>Limit to events with a magnitude larger than or equal to the
+                specified minimum.
+            </td>
+            <th><em>any</em></th>
+            <td>float</td>
+        </tr>
+        <tr>
+            <td>maxmag[nitude]</td>
+            <td>8.3</td>
+            <td>Limit to events with a magnitude smaller than or equal to the
+                specified maximum.
+            </td>
+            <th><em>any</em></th>
+            <td>float</td>
+        </tr>
+        <tr>
+            <td>magnitudetype<br/><em>magtype</em></td>
+            <td>M</td>
+            <td>Type of Magnitude used to test minimum and maximum limits. Case
+                insensitive. <em>ex.</em> <code>ML</code> <code>Ms</code>
+                <code>mb</code> <code>Mw</code> <code>all</code> <code>preferred</code>
+            </td>
+            <td>preferred</td>
+            <td>text</td>
+        </tr>
+        <tr>
+            <td colspan="5"></td>
+        </tr>
+        <tr>
+            <td>catalog</td>
+            <td><span class="caps">ISC</span></td>
+            <td>Specify the catalog from which origins and magnitudes will be
+                retrieved (<a href="catalogs">available catalogs</a>)
+            </td>
+            <td><span class="caps">NEIC</span> <span class="caps">PDE</span> or
+                <span class="caps">ISC</span></td>
+            <td>text</td>
+        </tr>
+        <tr>
+            <td>contributor</td>
+            <td><span class="caps">NEIC</span> <span class="caps">PDE</span>-Q
+            </td>
+            <td>Limit to events contributed by a specified contributor (<a
+                    href="contributors">available contributors</a>).
+            </td>
+            <th><em>any<sup class="footnote"
+                            id="fnrev57bd72214f1740a5b8048caeaa21e50e"><a
+                    href="#fn57bd72214f1740a5b8048caeaa21e50e">2</a></sup></em>
+            </th>
+            <td>text</td>
+        </tr>
+        <tr>
+            <td>limit</td>
+            <td>25</td>
+            <td>Limit the results to the specified number of events</td>
+            <td>unlimited</td>
+            <td>integer</td>
+        </tr>
+        <tr>
+            <td>offset</td>
+            <td><a href="query?minmag=7.5&amp;limit=25&amp;offset=20"
+                   title="...&amp;offset=20">20</a></td>
+            <td>Return results starting at the event count specified.</td>
+            <td>1</td>
+            <td>integer</td>
+        </tr>
+        <tr>
+            <td>orderby</td>
+            <td>time&ndash;asc</td>
+            <td>Order results by <code>time</code>/ <code>time-asc</code> or
+                <code>magnitude</code>/ <code>magnitude-asc</code></td>
+            <td>time</td>
+            <td>text<sup class="footnote"
+                         id="fnrevfa0599af0a2f4cfe8c9d7d4801994c8c"><a
+                    href="#fnfa0599af0a2f4cfe8c9d7d4801994c8c">3</a></sup></td>
+        </tr>
+        <tr>
+            <td>updatedafter</td>
+            <td>2000-05-23</td>
+            <td>Limit to events updated after the specified time (useful for
+                synchronizing events).
+            </td>
+            <th><em>any</em></th>
+            <td><a href="#time">day/time</a></td>
+        </tr>
+        <tr>
+            <td>includeallorigins</td>
+            <td><span class="caps">TRUE</span></td>
+            <td>Retrieve all origins or only the primary origin associated with
+                each event. <a href="../docs/1/help#primaryorigins">read
+                    more</a> , <a href="../docs/1/help#format"
+                                  title="only available when retrieving XML">note</a>
+            </td>
+            <td>false</td>
+            <td>true/false</td>
+        </tr>
+        <tr>
+            <td>includeallmagnitudes</td>
+            <td><span class="caps">TRUE</span></td>
+            <td>Retrieve all magnitudes for the event, or only the primary
+                magnitude. <a href="../docs/1/help#format"
+                              title="only available when retrieving XML">note</a>
+            </td>
+            <td>false</td>
+            <td>true/false</td>
+        </tr>
+        <tr>
+            <td>includearrivals</td>
+            <td><span class="caps">TRUE</span></td>
+            <td>Specify if phase arrivals should be included. <a
+                    href="../docs/1/help#format"
+                    title="only available when retrieving XML">note</a> <a
+                    href="../docs/1/help#arrivalavailability">details</a></td>
+            <td>false</td>
+            <td>true/false</td>
+        </tr>
+        <tr>
+            <td>eventid</td>
+            <td>1234</td>
+            <td>Retrieve an event based on the unique ID numbers assigned by
+                the <span class="caps">IRIS</span> <span
+                        class="caps">DMC</span><sup class="footnote"
+                                                    id="fnrev0f0e094ccdf942fa9fb154e02e3f40d9"><a
+                        href="#fn0f0e094ccdf942fa9fb154e02e3f40d9">4</a></sup>
+            </td>
+            <td></td>
+            <td>text</td>
+        </tr>
+        <tr>
+            <td>format</td>
+            <td>text</td>
+            <td>Specify format. Valid formats include <code>xml</code> and
+                <code>text</code></td>
+            <td>xml</td>
+            <td>text<sup class="footnote"
+                         id="fnrev617de19fc0f74f0caf1dba2b28be6ff6"><a
+                    href="#fn617de19fc0f74f0caf1dba2b28be6ff6">5</a></sup></td>
+        </tr>
+        <tr>
+            <td>nodata</td>
+            <td>404</td>
+            <td>Specify which <span class="caps">HTML</span> Status code is
+                returned when no data is found.<sup class="footnote"
+                                                    id="fnrev2d2554ae1d4141408fa1a926596a626e"><a
+                        href="#fn2d2554ae1d4141408fa1a926596a626e">6</a></sup>
+            </td>
+            <td>204</td>
+            <td>204 or 404</td>
+        </tr>
     </table>
-    <p class="footnote" id="fn086f83a87eae44c4824cb3eacc022ce1">
-      <sup>1</sup> By default, the service returns a <span class="caps">HTTP</span>
-      response code 204, which means the request was successful, but no data (<em>no
-        content</em>) was retrieved. However, because there was no
-      &#8220;error&#8221;, no error message is generated and it may appear that
-      the browser did nothing. To force an empty query response to display an
-      error message, add
-      <code>nodata=404</code>
-      to the <span class="caps">URL</span>.
+
+    <p class="footnote" id="fn292d866015654290a14c9942731fa5ef"><sup>1</sup>
+        Values increase positively with depth.</p>
+
+    <p class="footnote" id="fn57bd72214f1740a5b8048caeaa21e50e"><sup>2</sup>
+        When requesting a contributor, the result includes a primary origin as
+        specified by the contributor</p>
+
+    <p class="footnote" id="fnfa0599af0a2f4cfe8c9d7d4801994c8c"><sup>3</sup>
+        Valid <code>orderby</code> values
+        include:<br/><code>time</code> &mdash; order by origin descending time
+        [default]<br/><code>time-asc</code> &mdash; order by origin ascending
+        time<br/><code>magnitude</code> &mdash; order by descending
+        magnitude<br/><code>magnitude-asc</code> &mdash; order by ascending
+        magnitude</p>
+
+    <p class="footnote" id="fn0f0e094ccdf942fa9fb154e02e3f40d9"><sup>4</sup>
+        When <code>eventid</code> is used, then only the <code>includeallmagnitudes</code>,
+        <code>includeallorigins</code>, and <code>includearrivals</code>
+        parameters are also allowed</p>
+
+    <p class="footnote" id="fn617de19fc0f74f0caf1dba2b28be6ff6"><sup>5</sup>
+        For <code>format=text</code> , only the primary origin and magnitude
+        for each event will be returned.</p>
+
+    <p class="footnote" id="fn2d2554ae1d4141408fa1a926596a626e"><sup>6</sup> By
+        default, the service returns a <span class="caps">HTTP</span> response
+        code 204, which means the request was successful, but no data (<em>no
+            content</em>) was retrieved. However, because there was no &#8220;error&#8221;,
+        no error message is generated and it may appear that the browser did
+        nothing. To force an empty query response to display an error message,
+        add <code>nodata=404</code> to the <span class="caps">URL</span>.</p>
+
+    <h3 id="mags">Magnitudes</h3>
+
+    <p>Results are filtered by applying the <code>minmag</code> and <code>maxmag</code>
+        constraints to either the highest automatically ranked magnitude
+        (a.k.a. &#8220;preferred&#8221; magnitude) or to magnitudes specified
+        by <code>magtype</code>. Use <code>includeallmagnitudes</code> to then
+        specify whether one or multiple magnitudes are included in the results.
     </p>
-    <hr />
+
+    <p>Some common types (there are many) include:<br/><code>Ml</code> &mdash;
+        local (Richter) magnitude<br/><code>Ms</code> &mdash; surface magnitude<br/><code>mb</code> &mdash;
+        body wave magnitude<br/><code>Mw</code> &mdash; moment magnitude</p>
+
+    <p>Alternatively, special magtypes may be
+        specified:<br/><code>all</code> &mdash; compare <em>minmag</em> and
+        <em>maxmag</em> to all magnitudes in a
+        catalog<br/><code>preferred</code> &mdash; compare <em>minmag</em> and
+        <em>maxmag</em> to the highest-ranked magnitude for each event in a
+        catalog. (this is the same as not specifying a magtype)</p>
+
+    <p><code>magtype</code> comparisons are case-insensitive to accommodate
+        historical catalogs where case was not preserved.</p>
+
+    <h3 id="format">Format</h3>
+
+    <p>Output may be formatted as text or <span class="caps">XML</span>. If
+        <code>format=xml</code> or format is not specified, then the results
+        will be returned in quakeml format. When <code>format=text</code>, then
+        a simple <code>|</code> separated table is returned. Note, <code>format=text</code>
+        is not available for <code>includeallorigins=true</code>, <code>includeallmagnitudes=true</code>,
+        or <code>includearrivals=true</code>. <a href="../docs/1/help#format">read
+            more</a></p>
+
+    <p> <!-- Chad, 2014/1/29
+Below are anchors for the example queries used in the parameter table above.
+--></p>
+
+
+    <hr/>
     <h3>WADL</h3>
+
+    <p>Retrieve the <a href="http://www.w3.org/Submission/wadl/">WADL</a>
+        associated with this service:</p>
+
     <p>
-      Retrieve the <a href="http://www.w3.org/Submission/wadl/">WADL</a>
-      associated with this service:
+        <a href="application.wadl">
+            application.wadl
+        </a>
     </p>
-    <p>
-      <a href="{% url 'fdsnws_dataselect_1_wadl' %}">{{ host }}{% url 'fdsnws_dataselect_1_wadl' %}</a>
-    </p>
-    <hr />
-    <h3>
-      <a name="time"></a>Date and Time Formats
-    </h3>
+
+
+    <hr/>
+
+
+    <h3><a name="time"></a>Date and Time Formats</h3>
+
     <div>
-      <p id="time">Year, Month, Day in Month &mdash; Time:</p>
-      <p>
-        <code>YYYY-MM-DDThh:mm:ss[.ssssss]</code>
-        ex. <small>1997-01-31T12:04:32.123</small>
-      </p>
-      <p>
-        <code>YYYY-MM-DD</code>
-        ex. <small>1997-01-31</small> a time of <small>00:00:00</small> is
-        assumed
-      </p>
-      <p>Where:</p>
-      <pre>
-YYYY    ::  four-digit year
-MM      ::  two-digit month (01=January, etc.)
-DD      ::  two-digit day of month (01 through 31)
-T       ::  date-time separator
-hh      ::  two digits of hour (00 through 23) (AM/PM NOT allowed)
-mm      ::  two digits of minute (00 through 59)
-ss      ::  two digits of second (00 through 59)
-ssssss  ::  one to six digits representing decimal fractions of a second, down to microseconds</pre>
-    </div>
-    <h3>
-      <a name="wildcardsandlists"></a>Wildcards and Lists
-    </h3>
-    <div>
-      <p>
-        <em>Wildcards</em><br /> The question mark
-        <code>?</code>
-        represents any single character (exactly one), while the asterisk
-        <code>*</code>
-        represents zero or more characters.
-      </p>
-      <p>
-        <em>Lists</em><br /> Multiple items may also be retrieved using a
-        comma separated list. Wildcards may be included in the list. For
-        example, with channel codes:
-        <code>channel=EH?,BHZ,BHE</code>
-      </p>
+        <p id="time">Year, Month, Day in Month &mdash; Time:</p>
+
+        <p><code>YYYY-MM-DDThh:mm:ss[.ssssss]</code> ex.
+            <small>1997-01-31T12:04:32.123</small>
+        </p>
+
+        <p><code>YYYY-MM-DD</code> ex.
+            <small>1997-01-31</small>
+            a time of
+            <small>00:00:00</small>
+            is assumed
+        </p>
+
+        <p>Where:</p>
+
+<pre>YYYY	:: four-digit year
+MM	:: two-digit month (01=January, etc.)
+DD	:: two-digit day of month (01 through 31)
+T	:: date-time separator
+hh	:: two digits of hour (00 through 23) (AM/PM NOT allowed)
+mm	:: two digits of minute (00 through 59)
+ss	:: two digits of second (00 through 59)
+ssssss	:: one to six digits representing decimal fractions of a second, down to microseconds</pre>
     </div>
 
-    <h3>Restricted Data Access</h3>
-    <p>For access to restricted data, requests should be sent to:</p>
-    <p>
-      <a href="{% url 'fdsnws_dataselect_1_queryauth' %}">{{ host }}{% url 'fdsnws_dataselect_1_queryauth' %}</a>
-    </p>
-    <p>
-      Requests sent to this URL are authenticated via <a
-        href="http://en.wikipedia.org/wiki/Digest_access_authentication">
-        digest access authentication</a> in order to establish the caller's
-      credentials. For anonymous access, the user
-      <code>anonymous</code>
-      and password
-      <code>anonymous</code>
-      may be used. This credential has identical data access permission as the
-      regular submit path's:</p>
-    <p><a href="{% url 'fdsnws_dataselect_1_query' %}">{{ host }}{% url 'fdsnws_dataselect_1_query' %}</a></p>
-  </div>
+
+</div>
 
 
-  <script
-    src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script
-    src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<script
+        src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>

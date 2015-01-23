@@ -1,294 +1,576 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Jane - FDSNWS DataSelect Web Service</title>
-  <link rel="stylesheet"
-    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet"
-    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jane - FDSNWS Station Web Service</title>
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
 </head>
 <body>
-  <nav class="navbar navbar-inverse" role="navigation">
+<nav class="navbar navbar-inverse" role="navigation">
     <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#">Jane</a>
-      </div>
-      <div id="navbar" class="collapse navbar-collapse">
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="{{ host }}">station </a></li>
-          <li class="active"><a href="#">dataselect</a></li>
-          <li><a href="{{ host }}">event</a></li>
-        </ul>
-      </div><!--/.nav-collapse -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed"
+                    data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Jane</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="active"><a href="#">station </a></li>
+                <li><a href="{{ host }}/fdsnws/dataselect/1">dataselect</a>
+                </li>
+                <li><a href="{{ host }}/fdsnws/event/1">event</a></li>
+            </ul>
+        </div>
+        <!--/.nav-collapse -->
     </div>
-  </nav>
+</nav>
 
-  <div class="container">
-    <h1>FDSNWS DataSelect Web Service</h1>
+<div class="container">
+    <h1>FDSNWS Station Web Service</h1>
+
     <div class="alert alert-warning">
-      <p>
-        The <strong>fdsdws-dataselect</strong> service provides access to time
-        series data for specified channels and time ranges.
-      </p>
-      <p>
-        Data are selected using <span class="caps">SEED</span> time series
-        identifiers (network, station, location &amp; channel) in addition to
-        time ranges. Data are returned in <a
-          href="http://www.iris.edu/dms/nodes/dmc/data/formats/seed/">miniSEED</a>
-        format.
-      </p>
-      <p>
-        This service is an implementation of the <a
-          href="http://www.fdsn.org/webservices/"><span class="caps">FDSN</span>
-          web service specification</a> version 1.
-      </p>
+        <p>The <strong>fdsnws-station</strong> web service returns station
+            metadata in <a href="http://www.fdsn.org/xml/station/"><span
+                    class="caps">FDSN</span> StationXML</a> format (<a
+                    href="http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">schema
+                here</a>) or as delimited text. Results are available at
+            multiple levels of granularity: <strong>network</strong>, <strong>station</strong>,
+            <strong>channel</strong> and <strong>response</strong>.</p>
+
+        <p>Metadata may be selected based on channel descriptors, time ranges,
+            geographic regions, and more.</p>
+
+        <p>This service is an implementation of the <a
+                href="http://www.fdsn.org/webservices/"><span
+                class="caps">FDSN</span> web service specification</a> version
+            1.1.</p>
     </div>
+
+
     <p>Below is a full list of service parameters and their usage.</p>
+
     <h2>Query Usage</h2>
-    <pre>/query? (date-range-options) [channel-options] [quality-options] [misc-options] [format-options] [nodata=404]</pre>
+    <pre>/query? [channel-options] [geographic-constraints] [time-constraints] [misc-parameters] [nodata=404]</pre>
+
     <p>where</p>
-    <pre>date-range-options  ::  (start=&lt;time&gt;) (end=&lt;time&gt;)
-channel-options     ::  [net=&lt;network&gt;] [sta=&lt;station&gt;] [loc=&lt;location&gt;] [cha=&lt;channel&gt;]
-quality-options     ::  [quality=&lt;D|R|Q|M|B&gt;]
-misc-options        ::  [minimumlength=&lt;seconds&gt;] [longestonly=&lt;true|false&gt;]
-format-options      ::  [format=&lt;mseed&gt;]</pre>
-    <p>
-      (..) required<br /> [..] optional
-    </p>
-    <p>
-      Query parameters are joined by ampersands <strong>&#8221;&amp;&#8221;</strong>,
-      without blank space (see the sample queries).
-    </p>
-    <h2>
-      <span class="caps">POST</span> Usage
-    </h2>
-    <p>
-      Alternately, <em>instead</em> of providing parameter-value pairs in the <span
-        class="caps">URL</span>, a file containing a selection list can be <span
-        class="caps">POST</span>ed to this service. This is the same method
-      used with the (deprecated) ws-bulkdataselect webservice. For additional
-      details, including an example selection file, visit this page&#8217;s
-      help.
-    </p>
-    <pre>quality=&lt;D|R|Q|M|B&gt;
-minimumlength=&lt;seconds&gt;
-longestonly=&lt;true|false&gt;
-&lt;Network&gt; &lt;Station&gt; &lt;Location&gt; &lt;Channel&gt; &lt;StartTime&gt; &lt;EndTime&gt;
+
+<pre>channel-options 	        ::  [network=&lt;network&gt;] [station=&lt;station&gt;] [location=&lt;location&gt;] [channel=&lt;channel&gt;]
+geographic-constraints 	::  [boundaries-rect] OR [boundaries-circular]
+boundaries-rect 	        ::  [minlatitude=&lt;degrees&gt;][maxlatitude=&lt;degrees&gt;] [minlongitude=&lt;degrees&gt;] [maxlongitude=&lt;degrees&gt;]
+boundaries-circular 	::  [latitude=&lt;latitude&gt;&amp;longitude=&lt;longitude&gt;&amp;maxradius=&lt;degrees&gt;] [minradius=&lt;degrees&gt;]
+time-constraints 	::  [starttime=&lt;date&gt;] [endtime=&lt;date&gt;] [startbefore=&lt;date&gt;] [startafter=&lt;date&gt;]
+  			    [endbefore=&lt;date&gt;] [endafter=&lt;date&gt;]
+misc-parameters 	        ::  [level=&lt;station|network|channel|response&gt;] [format=&lt;xml|text&gt;] [includeavailability=&lt;false|true&gt;]
+			    [updatedafter=&lt;date&gt;] [matchtimeseries=&lt;false|true&gt;] [includerestricted=&lt;true|false&gt;]
+                            [includecomments=&lt;false|true&gt;] </pre>
+
+    <p>Each parameter-value pair should be separated by an ampersand <code>
+        &amp;</code>, and with no space.</p>
+
+    <p>Each parameter listed under <code>channel-options</code> can be prefixed
+        with a &#8220;-&#8221; (minus) sign to <a href="#wildcardsandlists">exclude</a>
+        certain metadata from a request.</p>
+
+    <h2>Query <span class="caps">POST</span> Usage</h2>
+
+    <p>Alternately, <em>instead</em> of providing parameter-value pairs in the
+        <span class="caps">URL</span>, a file containing a selection list can
+        be <span class="caps">POST</span>ed to this service. </p>
+
+<pre>level=&lt;network | station | channel | response&gt;
+format=&lt;xml | text&gt;
+updatedafter=&lt;date&gt;
+minlatitude=&lt;degrees&gt;
+maxlatitude=&lt;degrees&gt;
+minlongitude=&lt;degrees&gt;
+maxlongitude=&lt;degrees&gt;
+&lt;network&gt; &lt;station&gt; &lt;location&gt; &lt;channel&gt; &lt;starttime&gt; &lt;endtime&gt;
 ...</pre>
-    <p>
-      Quality, minimumlength, and longestonly are optional. Wildcards are
-      acceptable for Network, Station, Location, and Channel. Click <a
-        href="#time">here</a> for time format details.
-    </p>
+
+    <p>The parameters <strong>network</strong>, <strong>station</strong>,
+        <strong>location</strong>, <strong>channel</strong>,
+        <strong>starttime</strong>, and <strong>endtime</strong> are included
+        in the repeated lines for the selection file. <a
+                href="#wl">Wildcards</a> are acceptable for
+        <strong>network</strong>, <strong>station</strong>,
+        <strong>location</strong>, and <strong>channel</strong>. A simple
+        <code>*</code> wildcard expression is valid for
+        <strong>starttime</strong> and <strong>endtime</strong>, but
+        expressions that include <code>?</code> are not.</p>
+
+    <p>The parameters <strong>startbefore</strong>, <strong>startafter</strong>,
+        <strong>endbefore</strong>, and <strong>endafter</strong> are <em><span
+                class="caps">NOT</span></em> supported in <span class="caps">POST</span>.
+        All other valid parameter-value pairs for <span class="caps">GET</span>
+        queries are also valid for <span class="caps">POST</span> queries.</p>
+
+    <p>Parameter-value pairs should be listed at the top of the file and are
+        entirely optional.</p>
+
+    <p>For additional details, including an example selection file, visit the
+        Help section for this service.</p>
+
     <h3>Sample Queries</h3>
     <ul>
-      <li><a
-        href="{% url 'fdsnws_dataselect_1_query' %}?net=IU&amp;sta=ANMO&amp;loc=00&amp;cha=BHZ&amp;start=2010-02-27T06:30:00.000&amp;end=2010-02-27T10:30:00.000&nodata=404">{{ host }}{% url 'fdsnws_dataselect_1_query' %}?net=IU&sta=ANMO&loc=00&cha=BHZ&start=2010-02-27T06:30:00.000&end=2010-02-27T10:30:00.000&nodata=404</a></li>
+        <li>radial geographic<br/>
+            <a href="query?latitude=-56.1&amp;longitude=-26.7&amp;
+            maxradius=15&amp;nodata=404">{{ host }}/fdsnws/station/1/query?latitude=-56.1&longitude=-26.7&maxradius=15&nodata=404</a>
+        </li>
     </ul>
+
+    <ul>
+        <li>rectangular geographic with time windows<br/>
+            <a href="query?startafter=2003-01-07&amp;endbefore=2011-02-07&amp;minlatitude=15&amp;maxlatitude=55&amp;minlongitude=170&amp;maxlongitude=-170">
+                &#8230;/query?startafter=2003-01-07&endbefore=2011-02-07&minlatitude=15&maxlatitude=55&minlongitude=170&maxlongitude=-170</a>
+        </li>
+    </ul>
+
+    <ul>
+        <li>text output, with network level exclusion<br/>
+            <a href="query?network=S*,-SY&amp;level=network&amp;format=text">
+                &#8230;/query?network=S*,-SY&level=network&format=text</a></li>
+    </ul>
+
+    <ul>
+        <li>horizontal channels for subsetted TA data<br/>
+            <a href="query?network=TA&amp;station=A*&amp;channel=BH?,-BHZ&amp;level=channel&amp;format=text">
+                &#8230;/query?network=TA&station=A*&channel=BH?,-<span
+                    class="caps">BHZ</span>&level=channel&format=text</a></li>
+    </ul>
+
     <h3>Detailed Descriptions of each Query Parameter</h3>
-    <table class="table table-bordered">
-      <tr>
-        <th>parameters</th>
-        <th>examples</th>
-        <th>discussion</th>
-        <th>default</th>
-        <th>type</th>
-      </tr>
-      <tr>
-        <td colspan="5"><strong><span class="caps">FDSN</span>
-            options</strong></td>
-      </tr>
-      <tr>
-        <td>start[time]</td>
-        <td>2010-02-27T06:30:00</td>
-        <td>Specifies the desired start-time for miniSEED data</td>
-        <td></td>
-        <td><a href="#time">day/time</a></td>
-      </tr>
-      <tr>
-        <td>end[time]</td>
-        <td>2010-02-27T10:30:00</td>
-        <td>Specify the end-time for the miniSEED data</td>
-        <td></td>
-        <td><a href="#time">day/time</a></td>
-      </tr>
-      <tr>
-        <td>net[work]</td>
-        <td>IU</td>
-        <td>Select one or more network codes. <a href="#wildcardsandlists">Accepts
-            wildcards and lists.</a> Can be <span class="caps">SEED</span> codes or
-          data center defined codes.
-        </td>
-        <th><em>any</em></th>
-        <td>string</td>
-      </tr>
-      <tr>
-        <td>sta[tion]</td>
-        <td><span class="caps">ANMO</span></td>
-        <td>Select one or more <span class="caps">SEED</span> station
-          codes. <a href="#wildcardsandlists">Accepts wildcards and lists.</a></td>
-        <th><em>any</em></th>
-        <td>string</td>
-      </tr>
-      <tr>
-        <td>loc[ation]</td>
-        <td>00</td>
-        <td>Select one or more <span class="caps">SEED</span> location
-          identifier. <a href="#wildcardsandlists">Accepts wildcards and
-            lists.</a> Use <code>--</code> for &#8220;Blank&#8221; location IDs
-          (ID&#8217;s containing 2 spaces).
-        </td>
-        <th><em>any</em></th>
-        <td>string</td>
-      </tr>
-      <tr>
-        <td>cha[nnel]</td>
-        <td>BH1</td>
-        <td>Select one or more <span class="caps">SEED</span> channel
-          codes. <a href="#wildcardsandlists">Accepts wildcards and lists.</a></td>
-        <th><em>any</em></th>
-        <td>string</td>
-      </tr>
-      <tr>
-        <td>quality</td>
-        <td>B</td>
-        <td>Select data based on miniSEED data quality indicator. <code>D</code>,
-          <code>R</code>, <code>Q</code>, <code>M</code>, <code>B</code>. <code>M</code>
-          and <code>B</code> (default) are treated the same and indicate <em>best</em>
-          available. If <code>M</code> or <code>B</code> are selected, the
-          output data records will be stamped with an <code>M</code>.
-        </td>
-        <td>B</td>
-        <td>quality</td>
-      </tr>
-      <tr>
-        <td>minimumlength</td>
-        <td>0.0</td>
-        <td>Limit results to continuous data segments of a minimum length
-          specified in seconds.</td>
-        <td>0.0</td>
-        <td>Float</td>
-      </tr>
-      <tr>
-        <td>longestonly</td>
-        <td>false</td>
-        <td>Limit results to the longest continuous segment per channel.</td>
-        <td>false</td>
-        <td>Boolean</td>
-      </tr>
-      <tr>
-        <td>nodata</td>
-        <td>404</td>
-        <td>Specify which <span class="caps">HTML</span> Status code is
-          returned when no data is found.<sup class="footnote"
-          id="fnrev086f83a87eae44c4824cb3eacc022ce1"><a
-            href="#fn086f83a87eae44c4824cb3eacc022ce1">1</a></sup>
-        </td>
-        <td>204</td>
-        <td>204 or 404</td>
-      </tr>
-      <tr>
-        <td>format</td>
-        <td>mseed</td>
-        <td>Specify the format of the data returned</td>
-        <td>mseed</td>
-        <td>mseed</td>
-      </tr>
+    <table class="table table-bordered" summary="">
+        <tr>
+            <th>parameter</th>
+            <th>examples</th>
+            <th>discussion</th>
+            <th>default</th>
+            <th>type</th>
+        </tr>
+        <tr>
+            <td colspan="5"><strong><span class="caps">FDSN</span>
+                options</strong></td>
+        </tr>
+        <tr>
+            <td>start[time]</td>
+            <td>
+                <a href="query?sta=ANMO&amp;channel=BH1&amp;starttime=2001-12-19T12:00:00"
+                   title="...&amp;starttime=2001-12-19T00:00:00">2001-12-19</a>
+            </td>
+            <td>Limit to metadata describing channels operating on or after the
+                specified start time.
+            </td>
+            <th><em>any</em></th>
+            <td><a href="#time">day/time</a></td>
+        </tr>
+        <tr>
+            <td>end[time]</td>
+            <td><a href="query?sta=ANMO&amp;channel=BH1&amp;endtime=2001-12-31"
+                   title="...&amp;endtime=2001-12-31T00:00:00">2012-12-31</a>
+            </td>
+            <td>Limit to metadata describing channels operating on or before
+                the specified end time.
+            </td>
+            <th><em>any</em></th>
+            <td><a href="#time">day/time</a></td>
+        </tr>
+        <tr>
+            <td>startbefore</td>
+            <td>
+                <a href="query?sta=ANMO&amp;channel=BH1&amp;startbefore=2001-12-31T00:00:00"
+                   title="...&amp;startbefore=2001-12-31T00:00:00">2001-12-31</a>
+            </td>
+            <td>Limit to metadata epochs starting before specified time.
+                Applied to channel epochs.
+            </td>
+            <th><em>any</em></th>
+            <td><a href="#time">day/time</a></td>
+        </tr>
+        <tr>
+            <td>startafter</td>
+            <td>
+                <a href="query?sta=ANMO&amp;channel=BH1&amp;startafter=2005-12-31T00:00:00"
+                   title="...&amp;startafter=2005-12-31T00:00:00">2005-12-31</a>
+            </td>
+            <td>Limit to metadata epochs starting after specified time. Applied
+                to channel epochs.
+            </td>
+            <th><em>any</em></th>
+            <td><a href="#time">day/time</a></td>
+        </tr>
+        <tr>
+            <td>endbefore</td>
+            <td>
+                <a href="query?sta=ANMO&amp;channel=BH1&amp;endbefore=2005-12-31T00:00:00"
+                   title="...&amp;endbefore=2005-12-31T00:00:00">2005-12-31</a>
+            </td>
+            <td>Limit to metadata epochs ending before specified time. Applied
+                to channel epochs.
+            </td>
+            <th><em>any</em></th>
+            <td><a href="#time">day/time</a></td>
+        </tr>
+        <tr>
+            <td>endafter</td>
+            <td>
+                <a href="query?sta=ANMO&amp;channel=BH1&amp;endafter=2005-12-31"
+                   title="...&amp;endafter=2005-12-31">2005-12-31</a></td>
+            <td>Limit to metadata epochs ending after specified time. Applied
+                to channel epochs.
+            </td>
+            <th><em>any</em></th>
+            <td><a href="#time">day/time</a></td>
+        </tr>
+        <tr>
+            <td colspan="5"></td>
+        </tr>
+        <tr>
+            <td colspan="2"><em>Empty/No parameters</em></td>
+            <td>submitting an empty query (e.g. <code>.../query?</code>) will
+                return <span class="caps">ALL</span> stations at the default
+                level.
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>net[work]</td>
+            <td><a href="query?network=IU&amp;station=A%2A"
+                   title="...&amp;network=IU">IU</a></td>
+            <td>Select one or more network codes. Can be <span class="caps">SEED</span>
+                codes or data center defined codes. <a
+                        href="#wildcardsandlists">Accepts wildcards and
+                    lists.</a> <a href="#exclusions">Accepts exclusions.</a>
+            </td>
+            <th><em>any</em></th>
+            <td>string</td>
+        </tr>
+        <tr>
+            <td>sta[tion]</td>
+            <td><a href="query?net=IU&amp;station=ANMO"
+                   title="...&amp;station=ANMO"><span class="caps">ANMO</span></a>
+            </td>
+            <td>Select one or more <span class="caps">SEED</span> station
+                codes. <a href="#wildcardsandlists">Accepts wildcards and
+                    lists.</a> <a href="#exclusions">Accepts exclusions.</a>
+            </td>
+            <th><em>any</em></th>
+            <td>string</td>
+        </tr>
+        <tr>
+            <td>loc[ation]</td>
+            <td><a href="query?net=IU&amp;station=ANMO&amp;location=00"
+                   title="...&amp;location=00">00</a></td>
+            <td>Select one or more <span class="caps">SEED</span> location
+                identifier. Use <code>--</code> for &#8220;Blank&#8221;
+                location IDs (ID&#8217;s containing 2 spaces). <a
+                        href="#wildcardsandlists">Accepts wildcards and
+                    lists.</a> <a href="#exclusions">Accepts exclusions.</a>
+            </td>
+            <th><em>any</em></th>
+            <td>string</td>
+        </tr>
+        <tr>
+            <td>cha[nnel]</td>
+            <td><a href="query?net=IU&amp;station=ANMO&amp;channel=BH1"
+                   title="...&amp;channel=BH1">BH1</a></td>
+            <td>Select one or more <span class="caps">SEED</span> channel
+                codes. <a href="#wildcardsandlists">Accepts wildcards and
+                    lists.</a> <a href="#exclusions">Accepts exclusions.</a>
+            </td>
+            <th><em>any</em></th>
+            <td>string</td>
+        </tr>
+        <tr>
+            <td colspan="5"></td>
+        </tr>
+        <tr>
+            <td>minlat[itude]</td>
+            <td>
+                <a href="query?minlatitude=15.5&amp;maxlatitude=25.0&amp;minlongitude=-170&amp;maxlongitude=170"
+                   title="...&amp;minlatitude=15.5">15.5</a></td>
+            <td>Southern boundary.</td>
+            <td>-90&deg;</td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td>maxlat[itude]</td>
+            <td>
+                <a href="query?minlatitude=15.5&amp;maxlatitude=25.0&amp;minlongitude=-170&amp;maxlongitude=170"
+                   title="...&amp;maxlatitude=25.0">25.0</a></td>
+            <td>Northern boundary.</td>
+            <td>90&deg;</td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td>minlon[gitude]</td>
+            <td>
+                <a href="query?minlatitude=15.5&amp;maxlatitude=25.0&amp;minlongitude=-170&amp;maxlongitude=170"
+                   title="...&amp;minlongitude=-170.0">-170.0</a></td>
+            <td>Western boundary.</td>
+            <td>-180&deg;</td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td>maxlon[gitude]</td>
+            <td>
+                <a href="query?minlatitude=15.5&amp;maxlatitude=25.0&amp;minlongitude=-170&amp;maxlongitude=170"
+                   title="...&amp;maxlongitude=170.0">170.0</a></td>
+            <td>Eastern boundary.</td>
+            <td>180&deg;</td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td colspan="5"></td>
+        </tr>
+        <tr>
+            <td>lat[itude]</td>
+            <td><a href="query?latitude=35&amp;longitude=170&amp;maxradius=20"
+                   title="...&amp;latitude=35&amp;...">35</a></td>
+            <td>Specify the central latitude point<sup class="footnote"
+                                                       id="fnrev6da8dfbbcd974c768994ac9251a533ec"><a
+                    href="#fn6da8dfbbcd974c768994ac9251a533ec">1</a></sup>.
+            </td>
+            <td></td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td>lon[gitude]</td>
+            <td><a href="query?latitude=35&amp;longitude=170&amp;maxradius=20"
+                   title="...&amp;longitude=170&amp;...">170</a></td>
+            <td>Specify the central longitude point<sup class="footnote"><a
+                    href="#fn6da8dfbbcd974c768994ac9251a533ec">1</a></sup>.
+            </td>
+            <td></td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td>maxradius</td>
+            <td>
+                <a href="query?latitude=35&amp;longitude=170&amp;maxradius=20&amp;format=text"
+                   title="...&amp;maxradius=20">20</a></td>
+            <td>Specify maximum distance from the geographic point defined by
+                <code>latitude</code> and <code>longitude</code><sup
+                        class="footnote"><a
+                        href="#fn6da8dfbbcd974c768994ac9251a533ec">1</a></sup>.
+            </td>
+            <td></td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td>minradius</td>
+            <td>
+                <a href="query?latitude=35&amp;longitude=170&amp;maxradius=20&amp;minradius=19"
+                   title="...&amp;minradius=19">19</a></td>
+            <td>Specify minimum distance from the geographic point defined by
+                <code>latitude</code> and <code>longitude</code><sup
+                        class="footnote"><a
+                        href="#fn6da8dfbbcd974c768994ac9251a533ec">1</a></sup>.
+            </td>
+            <td>0</td>
+            <td>degrees</td>
+        </tr>
+        <tr>
+            <td colspan="5"></td>
+        </tr>
+        <tr>
+            <td>level</td>
+            <td>channel</td>
+            <td>Specify level of detail using <code>network</code>, <code>station</code>,
+                <code>channel</code>,or <code>response</code><sup
+                        class="footnote"
+                        id="fnrev4730a16f54e743da9fdc0578603b1c04"><a
+                        href="#fn4730a16f54e743da9fdc0578603b1c04">2</a></sup>.
+            </td>
+            <td>station</td>
+            <td><a href="#leveltype">level</a></td>
+        </tr>
+        <tr>
+            <td>includerestricted</td>
+            <td><span class="caps">TRUE</span></td>
+            <td>Specify whether results should include information relating to
+                restricted channels.
+            </td>
+            <td>true</td>
+            <td>Boolean</td>
+        </tr>
+        <tr>
+            <td>includeavailability</td>
+            <td><span class="caps">TRUE</span></td>
+            <td>Specify if results should include information about time series
+                data availability at the channel level.
+            </td>
+            <td>false</td>
+            <td>Boolean</td>
+        </tr>
+        <tr>
+            <td>includecomments</td>
+            <td><span class="caps">FALSE</span></td>
+            <td>Specify if results should include station and channel
+                comments.
+            </td>
+            <td>true</td>
+            <td>Boolean</td>
+        </tr>
+        <tr>
+            <td>updatedafter</td>
+            <td>
+                <a href="query?sta=ANMO&amp;channel=BH1&amp;updatedafter=2012-01-01"
+                   title="...&amp;updatedafter=2012-01-01T00:00:00">2012-01-01</a>
+            </td>
+            <td>Limit to metadata updated after specified <span class="caps">UTC</span>
+                date; updates are data center specific.
+            </td>
+            <th><em>any</em></th>
+            <td><a href="#time">day/time</a></td>
+        </tr>
+        <tr>
+            <td>format</td>
+            <td><a href="query?station=ANMO&amp;format=text"
+                   title="...&amp;format=text">text</a></td>
+            <td>Specify output format. Valid formats include <code>xml</code>
+                and <code>text</code>.
+            </td>
+            <td>xml</td>
+            <td><a href="#formattype" title="xml,txt">format</a></td>
+        </tr>
+        <tr>
+            <td>matchtimeseries</td>
+            <td><span class="caps">TRUE</span></td>
+            <td>Retrieve only metadata that is likely to match available time
+                series data
+            </td>
+            <td>false</td>
+            <td>Boolean</td>
+        </tr>
+        <tr>
+            <td>nodata</td>
+            <td>404</td>
+            <td>Specify which <span class="caps">HTTP</span> status code is
+                returned when no data is found.<sup class="footnote"
+                                                    id="fnrev04f42f830ed44a1394c3ebee56b1bef1"><a
+                        href="#fn04f42f830ed44a1394c3ebee56b1bef1">3</a></sup>
+            </td>
+            <td>204</td>
+            <td>204 or 404</td>
+        </tr>
     </table>
-    <p class="footnote" id="fn086f83a87eae44c4824cb3eacc022ce1">
-      <sup>1</sup> By default, the service returns a <span class="caps">HTTP</span>
-      response code 204, which means the request was successful, but no data (<em>no
-        content</em>) was retrieved. However, because there was no
-      &#8220;error&#8221;, no error message is generated and it may appear that
-      the browser did nothing. To force an empty query response to display an
-      error message, add
-      <code>nodata=404</code>
-      to the <span class="caps">URL</span>.
+
+    <p class="footnote" id="fn6da8dfbbcd974c768994ac9251a533ec"><sup>1</sup>
+        <code>latitude</code>, <code>longitude</code>, <code>maxradius</code>
+        and <code>minradius</code> work together to define a radial boundary.
     </p>
-    <hr />
+
+    <p class="footnote" id="fn4730a16f54e743da9fdc0578603b1c04"><sup>2</sup>
+        When <code>level=response</code> only 20,000 channel entries may be
+        requested.</p>
+
+    <p class="footnote" id="fn04f42f830ed44a1394c3ebee56b1bef1"><sup>3</sup> By
+        default, the service returns a <span class="caps">HTTP</span> response
+        code 204, which means the request was successful, but no data (<em>no
+            content</em>) was retrieved. However, because there was no &#8220;error&#8221;,
+        no error message is generated and it may appear that the browser did
+        nothing. To force an empty query response to display an error message,
+        add <code>nodata=404</code> to the <span class="caps">URL</span>.</p>
+
+    <h3 id="formattype">Output Format</h3>
+
+    <p>Output may be text or xml. If <code>format=xml</code> or format is not
+        specified, then the results will be returned in <span
+                class="caps">FDSN</span> StationXML format. When <code>format=text</code>,
+        then a simple <code>|</code> separated table is returned. Note, <code>format=text</code>
+        is not available for <code>level=response</code></p>
+
+    <h3 id="leveltype">Level</h3>
+
+    <p>Level specifies the level of detail returned within the returned <span
+            class="caps">XML</span>.</p>
+
+
+    <hr/>
     <h3>WADL</h3>
+
+    <p>Retrieve the <a href="http://www.w3.org/Submission/wadl/">WADL</a>
+        associated with this service:</p>
+
     <p>
-      Retrieve the <a href="http://www.w3.org/Submission/wadl/">WADL</a>
-      associated with this service:
+        <a href="application.wadl">
+            application.wadl
+        </a>
     </p>
-    <p>
-      <a href="{% url 'fdsnws_dataselect_1_wadl' %}">{{ host }}{% url 'fdsnws_dataselect_1_wadl' %}</a>
-    </p>
-    <hr />
-    <h3>
-      <a name="time"></a>Date and Time Formats
-    </h3>
+
+
+    <hr/>
+
+
+    <h3><a name="time"></a>Date and Time Formats</h3>
+
     <div>
-      <p id="time">Year, Month, Day in Month &mdash; Time:</p>
-      <p>
-        <code>YYYY-MM-DDThh:mm:ss[.ssssss]</code>
-        ex. <small>1997-01-31T12:04:32.123</small>
-      </p>
-      <p>
-        <code>YYYY-MM-DD</code>
-        ex. <small>1997-01-31</small> a time of <small>00:00:00</small> is
-        assumed
-      </p>
-      <p>Where:</p>
-      <pre>
-YYYY    ::  four-digit year
-MM      ::  two-digit month (01=January, etc.)
-DD      ::  two-digit day of month (01 through 31)
-T       ::  date-time separator
-hh      ::  two digits of hour (00 through 23) (AM/PM NOT allowed)
-mm      ::  two digits of minute (00 through 59)
-ss      ::  two digits of second (00 through 59)
-ssssss  ::  one to six digits representing decimal fractions of a second, down to microseconds</pre>
-    </div>
-    <h3>
-      <a name="wildcardsandlists"></a>Wildcards and Lists
-    </h3>
-    <div>
-      <p>
-        <em>Wildcards</em><br /> The question mark
-        <code>?</code>
-        represents any single character (exactly one), while the asterisk
-        <code>*</code>
-        represents zero or more characters.
-      </p>
-      <p>
-        <em>Lists</em><br /> Multiple items may also be retrieved using a
-        comma separated list. Wildcards may be included in the list. For
-        example, with channel codes:
-        <code>channel=EH?,BHZ,BHE</code>
-      </p>
+        <p id="time">Year, Month, Day in Month &mdash; Time:</p>
+
+        <p><code>YYYY-MM-DDThh:mm:ss[.ssssss]</code> ex.
+            <small>1997-01-31T12:04:32.123</small>
+        </p>
+
+        <p><code>YYYY-MM-DD</code> ex.
+            <small>1997-01-31</small>
+            a time of
+            <small>00:00:00</small>
+            is assumed
+        </p>
+
+        <p>Where:</p>
+
+<pre>YYYY	:: four-digit year
+MM	:: two-digit month (01=January, etc.)
+DD	:: two-digit day of month (01 through 31)
+T	:: date-time separator
+hh	:: two digits of hour (00 through 23) (AM/PM NOT allowed)
+mm	:: two digits of minute (00 through 59)
+ss	:: two digits of second (00 through 59)
+ssssss	:: one to six digits representing decimal fractions of a second, down to microseconds</pre>
     </div>
 
-    <h3>Restricted Data Access</h3>
-    <p>For access to restricted data, requests should be sent to:</p>
-    <p>
-      <a href="{% url 'fdsnws_dataselect_1_queryauth' %}">{{ host }}{% url 'fdsnws_dataselect_1_queryauth' %}</a>
-    </p>
-    <p>
-      Requests sent to this URL are authenticated via <a
-        href="http://en.wikipedia.org/wiki/Digest_access_authentication">
-        digest access authentication</a> in order to establish the caller's
-      credentials. For anonymous access, the user
-      <code>anonymous</code>
-      and password
-      <code>anonymous</code>
-      may be used. This credential has identical data access permission as the
-      regular submit path's:</p>
-    <p><a href="{% url 'fdsnws_dataselect_1_query' %}">{{ host }}{% url 'fdsnws_dataselect_1_query' %}</a></p>
-  </div>
+    <h3><a name="exclusions"></a>Exclusions</h3>
+
+    <div>
+        <p>A single dash &#8216;-&#8217; may be prefixed to a single element to
+            designate exclusion of that element from a selected set. The
+            following example would remove all <span class="caps">BHZ</span>
+            channels along with all 00 and 10 locations: <code>channel=B*,-BHZ&amp;location=-00,-10</code>
+        </p>
+    </div>
+
+    <h3><a name="wildcardsandlists"></a>Wildcards and Lists</h3>
+
+    <div>
+        <p><em>Wildcards</em><br/>
+            The question mark <code>?</code> represents any single character
+            (exactly one), while the asterisk <code>*</code> represents zero or
+            more characters.</p>
+
+        <p><em>Lists</em><br/>
+            Multiple items may also be retrieved using a comma separated list.
+            Wildcards may be included in the list. For example, with channel
+            codes: <code>channel=EH?,BHZ,BHE</code></p>
+    </div>
+
+</div>
 
 
-  <script
-    src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script
-    src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<script
+        src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
