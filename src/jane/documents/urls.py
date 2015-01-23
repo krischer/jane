@@ -6,7 +6,8 @@ from django.conf.urls import patterns, url
 from rest_framework.urlpatterns import format_suffix_patterns
 
 
-urlpatterns = patterns('jane.documents.views',
+urlpatterns = patterns(
+    'jane.documents.views',
     url(r'^rest/(?P<document_type>\w+)/$',
         view='record_list',
         name='record_list'),

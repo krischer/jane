@@ -81,8 +81,8 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 "origin_time": str(org.time) if org else None,
                 "magnitude": mag.mag if mag else None,
                 "magnitude_type": mag.magnitude_type if mag else None,
-                "agency": \
-                    event.creation_info and event.creation_info.agency_id,
+                "agency":
+                event.creation_info and event.creation_info.agency_id,
                 "author": event.creation_info and event.creation_info.author,
                 "public": public,
                 "evaluation_mode": evaluationMode,

@@ -5,8 +5,7 @@ from django.core.cache import cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse
 from django.http.response import Http404
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template.context import RequestContext
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -65,11 +64,11 @@ def record_list(request, document_type, format=None):  # @ReservedAssignment
                 # If page is out of range deliver last page of results.
                 records = paginator.page(paginator.num_pages)
 
-            data = serializer.PaginatedRecordSerializer(records,
-                context=context).data
+            data = serializer.PaginatedRecordSerializer(
+                records, context=context).data
         else:
             data = serializer.RecordSerializer(queryset, many=True,
-                context=context).data
+                                               context=context).data
             # cache json requests
             if request.accepted_renderer.format == 'json':
                 cache.set('record_list_json' + document_type, data,
@@ -85,7 +84,8 @@ def record_detail(request, document_type, pk,
     """
     Retrieve a single indexed value.
     """
-    #document_type = get_object_or_404(models.DocumentType, name=document_type)
+    # document_type = get_object_or_404(models.DocumentType,
+    # name=document_type)
     value = get_object_or_404(models.DocumentRevisionIndex, pk=pk)
 
     if request.method == 'GET':

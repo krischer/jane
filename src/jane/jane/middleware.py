@@ -13,14 +13,15 @@ class WhoDidItMiddleware(object):
     Almost entirely taken from https://github.com/Atomidata/django-audit-log/
     """
     def process_request(self, request):
-        if not request.method in ('GET', 'HEAD', 'OPTIONS', 'TRACE'):
+        if request.method not in ('GET', 'HEAD', 'OPTIONS', 'TRACE'):
             if hasattr(request, 'user') and request.user.is_authenticated():
                 user = request.user
             else:
                 user = None
             mark_whodid = curry(self.mark_whodid, user)
             signals.pre_save.connect(mark_whodid,
-                dispatch_uid=(self.__class__, request,), weak=False)
+                                     dispatch_uid=(self.__class__, request,),
+                                     weak=False)
 
     def process_response(self, request, response):
         signals.pre_save.disconnect(dispatch_uid=(self.__class__, request,))

@@ -58,10 +58,10 @@ class Command(BaseCommand):
     help = "File monitor"  # @ReservedAssignment
     option_list = BaseCommand.option_list + (
         optparse.make_option('-d', '--debug',
-            action='store_true',
-            dest='debug',
-            default=False,
-            help='Debug'),
+                             action='store_true',
+                             dest='debug',
+                             default=False,
+                             help='Debug'),
     )
 
     def handle(self, *args, **kwargs):

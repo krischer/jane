@@ -12,10 +12,10 @@ class Command(BaseCommand):
     help = "Index waveforms"  # @ReservedAssignment
     option_list = BaseCommand.option_list + (
         optparse.make_option('-d', '--debug',
-            action='store_true',
-            dest='debug',
-            default=False,
-            help='Debug'),
+                             action='store_true',
+                             dest='debug',
+                             default=False,
+                             help='Debug'),
     )
 
     def handle(self, *args, **kwargs):  # @UnusedVariable

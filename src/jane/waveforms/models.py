@@ -12,7 +12,7 @@ from jane.waveforms.utils import to_datetime
 
 class Path(models.Model):
     name = models.CharField(max_length=255, primary_key=True,
-        validators=['validate_name'])
+                            validators=['validate_name'])
     ctime = models.DateTimeField()
     mtime = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -43,7 +43,7 @@ class File(models.Model):
     gaps = models.IntegerField(default=0, db_index=True)
     overlaps = models.IntegerField(default=0, db_index=True)
     format = models.CharField(max_length=255, db_index=True, null=True,
-        blank=True, default=None)
+                              blank=True, default=None)
     ctime = models.DateTimeField()
     mtime = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -75,9 +75,9 @@ class ContinuousTrace(models.Model):
     location = models.CharField(max_length=2, db_index=True, blank=True)
     channel = models.CharField(max_length=3, db_index=True, blank=True)
     starttime = models.DateTimeField(verbose_name="Start time (UTC)",
-        db_index=True)
+                                     db_index=True)
     endtime = models.DateTimeField(verbose_name="End time (UTC)",
-        db_index=True)
+                                   db_index=True)
     duration = models.FloatField('Duration (s)', db_index=True, default=0)
     calib = models.FloatField(verbose_name="Calibration factor", default=1)
     sampling_rate = models.FloatField(default=1)
@@ -85,26 +85,26 @@ class ContinuousTrace(models.Model):
     preview_trace = JSONField(null=True)
     preview_image = models.BinaryField(null=True)
     quality = models.CharField(max_length=1, null=True, blank=True,
-        db_index=True)
+                               db_index=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
     def __str__(self):
-        return "%s.%s.%s.%s | %s - %s | %s Hz, %d samples" % (self.network,
-            self.station, self.location, self.channel, self.starttime,
-            self.endtime, self.sampling_rate, self.npts)
+        return "%s.%s.%s.%s | %s - %s | %s Hz, %d samples" % (
+            self.network, self.station, self.location, self.channel,
+            self.starttime, self.endtime, self.sampling_rate, self.npts)
 
     class Meta:
         ordering = ['-starttime', '-endtime', 'network', 'station',
-            'location', 'channel']
+                    'location', 'channel']
         unique_together = ['file', 'network', 'station', 'location', 'channel',
-            'starttime', 'endtime']
+                           'starttime', 'endtime']
 
 
 class Mapping(models.Model):
     starttime = models.DateTimeField(verbose_name="Start time (UTC)",
-        db_index=True)
+                                     db_index=True)
     endtime = models.DateTimeField(verbose_name="End time (UTC)",
-        db_index=True)
+                                   db_index=True)
     network = models.CharField(max_length=2, blank=True)
     station = models.CharField(max_length=5, blank=True)
     location = models.CharField(max_length=2, blank=True)
@@ -117,15 +117,15 @@ class Mapping(models.Model):
     file_regex = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     created_by = models.ForeignKey(User, null=True, editable=False,
-            related_name='mappings_created')
+                                   related_name='mappings_created')
     modified_at = models.DateTimeField(auto_now=True, editable=False)
     modified_by = models.ForeignKey(User, null=True, editable=False,
-            related_name='mappings_modified')
+                                    related_name='mappings_modified')
 
     def __str__(self):
-        return "%s.%s.%s.%s | %s - %s ==> %s.%s.%s.%s" % (self.network,
-            self.station, self.location, self.channel, self.starttime,
-            self.endtime, self.new_network, self.new_station,
+        return "%s.%s.%s.%s | %s - %s ==> %s.%s.%s.%s" % (
+            self.network, self.station, self.location, self.channel,
+            self.starttime, self.endtime, self.new_network, self.new_station,
             self.new_location, self.new_channel)
 
     class Meta:

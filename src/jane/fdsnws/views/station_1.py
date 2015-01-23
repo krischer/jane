@@ -110,7 +110,7 @@ def index(request):
         'host': request.build_absolute_uri('/')[:-1],
     }
     return render_to_response("fdsnws/station/1/index.html", options,
-        RequestContext(request))
+                              RequestContext(request))
 
 
 def version(request):  # @UnusedVariable
@@ -128,7 +128,8 @@ def wadl(request):  # @UnusedVariable
         'host': request.build_absolute_uri('/')
     }
     return render_to_response("fdsnws/station/1/application.wadl", options,
-        RequestContext(request), content_type="application/xml; charset=utf-8")
+                              RequestContext(request),
+                              content_type="application/xml; charset=utf-8")
 
 
 def query(request, debug=False):
@@ -143,7 +144,7 @@ def query(request, debug=False):
         return _error(request, params, status_code=400)
 
     if params.get("starttime") and params.get("endtime") and (
-                params.get("endtime") <= params.get("starttime")):
+            params.get("endtime") <= params.get("starttime")):
         return _error(request, 'Start time must be before end time')
 
     if params.get("nodata") not in [204, 404]:
@@ -159,10 +160,10 @@ def query(request, debug=False):
         if key not in params:
             continue
         params[key] = [_i.strip().upper() for _i in
-                       params[key].replace( ' ', '').split(',')]
+                       params[key].replace(' ', '').split(',')]
     if "location" in params:
         params["location"] = [_i.replace('--', '')
-                               for _i in params["location"]]
+                              for _i in params["location"]]
 
     # process query
     if debug:
@@ -208,7 +209,7 @@ def result(request, task_id):  # @UnusedVariable
     if task_id != "debug":
         asyncresult = AsyncResult(task_id)
         try:
-            result = asyncresult.get(timeout=1.5)
+            asyncresult.get(timeout=1.5)
         except TimeoutError:
             raise Http404()
         # check if ready

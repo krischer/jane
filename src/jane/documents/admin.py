@@ -98,7 +98,7 @@ class DocumentRevisionIndexAdmin(admin.ModelAdmin):
         return obj.revision.document.document_type.name
     format_document_type.short_description = 'Document type'
     format_document_type.admin_order_field = \
-            'revision__document__document_type__name'
+        'revision__document__document_type__name'
 
     def format_document(self, obj):
         return obj.revision.document

@@ -74,8 +74,8 @@ event_1_urlpatterns = patterns(
     )
 
 
-
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^dataselect/1/', include(dataselect_1_urlpatterns)),
     url(r'^station/1/', include(station_1_urlpatterns)),
     url(r'^event/1/', include(event_1_urlpatterns)),

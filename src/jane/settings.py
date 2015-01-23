@@ -58,8 +58,7 @@ else:
 # various locations.
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder'
 )
 # project wide static directories besides app specific directories
 STATICFILES_DIRS = (
@@ -69,8 +68,7 @@ STATICFILES_DIRS = (
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    'django.template.loaders.app_directories.Loader'
 )
 
 MIDDLEWARE_CLASSES = [
@@ -109,8 +107,8 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d ' + \
-                '%(thread)d %(message)s'
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d ' +
+            '%(thread)d %(message)s'
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -289,10 +287,11 @@ DEBUG_TOOLBAR_PANELS = [
 # Import local settings
 ###############################################################################
 try:
-    from .local_settings import *  # @UnusedWildImport
+    from .local_settings import *  # NOQA @UnusedWildImport
 except ImportError:
-    print("ERROR: You need to copy local_settings.py.example into " + \
-        "local_settings.py and edit its content before running this service.")
+    print("ERROR: You need to copy local_settings.py.example into " +
+          "local_settings.py and edit its content before running this "
+          "service.")
     exit()
 
 

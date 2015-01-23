@@ -33,7 +33,7 @@ def index(request):
         'host': request.build_absolute_uri('/')[:-1],
     }
     return render_to_response("fdsnws/dataselect/1/index.html", options,
-        RequestContext(request))
+                              RequestContext(request))
 
 
 def version(request):  # @UnusedVariable
@@ -50,7 +50,8 @@ def wadl(request):  # @UnusedVariable
     options = {
         'host': request.build_absolute_uri('/')
     }
-    return render_to_response("fdsnws/dataselect/1/application.wadl", options,
+    return render_to_response(
+        "fdsnws/dataselect/1/application.wadl", options,
         RequestContext(request), content_type="application/xml; charset=utf-8")
 
 
@@ -134,14 +135,16 @@ def query(request, debug=False):
     if debug:
         # direct
         status = query_dataselect(networks, stations, locations, channels,
-                starttime.timestamp, endtime.timestamp, format, nodata,
-                quality, minimumlength, longestonly)
+                                  starttime.timestamp, endtime.timestamp,
+                                  format, nodata, quality, minimumlength,
+                                  longestonly)
         task_id = 'debug'
     else:
         # using celery
         task = query_dataselect.delay(networks, stations, locations, channels,
-                starttime.timestamp, endtime.timestamp, format, nodata,
-                quality, minimumlength, longestonly)
+                                      starttime.timestamp, endtime.timestamp,
+                                      format, nodata, quality, minimumlength,
+                                      longestonly)
         task_id = task.task_id
         # check task status for QUERY_TIMEOUT seconds
         asyncresult = AsyncResult(task_id)
@@ -176,7 +179,7 @@ def result(request, task_id):  # @UnusedVariable
     """
     asyncresult = AsyncResult(task_id)
     try:
-        result = asyncresult.get(timeout=0.5)
+        asyncresult.get(timeout=0.5)
     except TimeoutError:
         raise Http404()
     # check if ready

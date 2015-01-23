@@ -18,9 +18,9 @@ def rest_root(request, format=None):  # @ReservedAssignment
     if request.method == "GET":
         resource_types = models.DocumentType.objects.all()
         data = {
-           _i.name: reverse('record_list', args=[_i.name],
-                            request=request)
-           for _i in resource_types
+            _i.name: reverse('record_list', args=[_i.name],
+                             request=request)
+            for _i in resource_types
         }
         # manually add waveforms into our REST root
         data['waveforms'] = reverse('rest_waveforms-list', request=request)

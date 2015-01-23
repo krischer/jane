@@ -18,6 +18,7 @@ import obspy
 VERSION = '1.1.1'
 QUERY_TIMEOUT = 10
 
+
 def utc_to_timestamp(value):
     return obspy.UTCDateTime(value).timestamp
 
@@ -114,7 +115,7 @@ def index(request):
         'host': request.build_absolute_uri('/')[:-1],
     }
     return render_to_response("fdsnws/event/1/index.html", options,
-        RequestContext(request))
+                              RequestContext(request))
 
 
 def version(request):  # @UnusedVariable
@@ -132,7 +133,8 @@ def wadl(request):  # @UnusedVariable
         'host': request.build_absolute_uri('/')
     }
     return render_to_response("fdsnws/event/1/application.wadl", options,
-        RequestContext(request), content_type="application/xml; charset=utf-8")
+                              RequestContext(request),
+                              content_type="application/xml; charset=utf-8")
 
 
 def query(request, debug=False):
@@ -202,7 +204,7 @@ def result(request, task_id, format):  # @UnusedVariable
     if task_id != "debug":
         asyncresult = AsyncResult(task_id)
         try:
-            result = asyncresult.get(timeout=1.5)
+            asyncresult.get(timeout=1.5)
         except TimeoutError:
             raise Http404()
         # check if ready

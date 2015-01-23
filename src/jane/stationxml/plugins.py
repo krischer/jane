@@ -35,8 +35,7 @@ class StationIndexerPlugin(IndexerPluginPoint):
         """
         return {'num_traces': {'type': 'string',
                                'minimum_allowed': True,
-                               'wildcard_allowed': True}
-        }
+                               'wildcard_allowed': True}}
 
     def index(self, document):
         inv = obspy.read_inventory(document, format="stationxml")

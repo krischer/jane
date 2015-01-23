@@ -23,11 +23,11 @@ class DocumentType(models.Model):
     content_type = models.CharField(max_length=255)
     # plugins
     indexers = ManyPluginField(plugins.IndexerPluginPoint, null=True,
-        blank=True, related_name='indexers')
+                               blank=True, related_name='indexers')
     validators = ManyPluginField(plugins.ValidatorPluginPoint, null=True,
-        blank=True, related_name='validators')
+                                 blank=True, related_name='validators')
     converters = ManyPluginField(plugins.ConverterPluginPoint, null=True,
-        blank=True, related_name='converters')
+                                 blank=True, related_name='converters')
 
     def __str__(self):
         return self.name
@@ -44,7 +44,7 @@ class Document(models.Model):
     """
     document_type = models.ForeignKey(DocumentType, related_name='documents')
     name = models.SlugField(max_length=255, null=True, blank=True,
-        db_index=True)
+                            db_index=True)
 
     def __str__(self):
         return str(self.pk)
@@ -68,10 +68,10 @@ class DocumentRevision(models.Model):
     sha1 = models.CharField(max_length=40, db_index=True, unique=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     created_by = models.ForeignKey(User, null=True, editable=False,
-            related_name='revisions_created')
+                                   related_name='revisions_created')
     modified_at = models.DateTimeField(auto_now=True, editable=False)
     modified_by = models.ForeignKey(User, null=True, editable=False,
-            related_name='revisions_modified')
+                                    related_name='revisions_modified')
 
     def __str__(self):
         return str(self.pk)
@@ -106,7 +106,7 @@ class DocumentRevisionIndex(models.Model):
         DocumentRevision, related_name='indices')
     json = PostgreSQLJsonField(verbose_name="JSON")
     geometry = models.GeometryCollectionField(blank=True, null=True,
-        geography=True)
+                                              geography=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
     objects = _DocumentRevisionIndexManager()

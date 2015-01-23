@@ -19,7 +19,8 @@ def fdnsws_error(request, status_code, service, message, version):
         'utcnow': datetime.datetime.utcnow(),
     }
     response = render_to_response("fdsnws/error.txt", options,
-        RequestContext(request), content_type="text/plain; charset=utf-8")
+                                  RequestContext(request),
+                                  content_type="text/plain; charset=utf-8")
     response.status_code = status_code
     response.reason_phrase = message.splitlines()[0]
     return response
@@ -52,7 +53,6 @@ def parse_query_parameters(query_params, request):
             elif param_def["default"] is not None:
                 parameters[param_name] = param_def["default"]
             continue
-
 
         # Convert types.
         try:
