@@ -21,6 +21,9 @@ obspy
 sqlalchemy
 future
 
+# Flake 8 is required to run the tests.
+flake8
+
 # dev
 django-debug-toolbar
 django-debug-toolbar-template-timings
