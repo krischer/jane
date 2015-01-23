@@ -92,7 +92,12 @@ QUERY_PARAMETERS = {
         "aliases": ["nodata"],
         "type": int,
         "required": False,
-        "default": 204}
+        "default": 204},
+    "format": {
+        "aliases": ["format"],
+        "type": str,
+        "required": False,
+        "default": "xml"},
 }
 
 
@@ -149,6 +154,10 @@ def query(request, debug=False):
         return _error(request, "nodata must be '204' or '404'.",
                       status_code=400)
 
+    if params.get("format") not in ["xml", "text"]:
+        return _error(request, "format must be 'xml' or 'text'.",
+                      status_code=400)
+
     # process query
     if debug:
         # direct
@@ -172,7 +181,7 @@ You may check the current processing status and download your results via
 
     # response
     if status == 200:
-        return result(request, task_id)
+        return result(request, task_id, format=params.get("format"))
     else:
         msg = 'Not Found: No data selected'
         return _error(request, msg, status)
@@ -186,7 +195,7 @@ def queryauth(request, debug=False):
     return query(request, debug=debug)
 
 
-def result(request, task_id):  # @UnusedVariable
+def result(request, task_id, format):  # @UnusedVariable
     """
     Returns requested event file
     """
@@ -202,9 +211,9 @@ def result(request, task_id):  # @UnusedVariable
             return _error(request, msg, 413)
     # generate filename
     filename = os.path.join(settings.MEDIA_ROOT, 'fdsnws', 'events',
-                            task_id[0:2], task_id + ".xml")
+                            task_id[0:2], task_id + "." + format)
     fh = FileWrapper(open(filename, 'rb'))
     response = HttpResponse(fh, content_type="text/xml")
     response["Content-Disposition"] = \
-        "attachment; filename=fdsnws_event_1_%s.xml" % (task_id)
+        "attachment; filename=fdsnws_event_1_%s.%s" % (task_id, format)
     return response

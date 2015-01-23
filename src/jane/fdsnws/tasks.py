@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import collections
+import csv
 import copy
 import fnmatch
 from functools import reduce
@@ -14,6 +15,7 @@ from django.conf import settings
 from django.db.models import Q
 from obspy import Stream, read
 from obspy.core.utcdatetime import UTCDateTime
+from obspy.core.util.geodetics import FlinnEngdahl
 
 from jane.waveforms.models import ContinuousTrace
 from jane.documents.models import DocumentRevisionIndex
@@ -31,6 +33,8 @@ JSON_QUERY_TEMPLATE_MAP = {
 SOFTWARE_MODULE = "Jane Alpha"
 SOFTWARE_URI = "http://www.github.com/krischer/jane"
 SCHEMA_VERSION = "1.0"
+
+FG = FlinnEngdahl()
 
 
 def _get_json_query(key, operator, type, value):
@@ -304,7 +308,7 @@ def get_event_node(buffer, event_id):
 
 
 @shared_task
-def query_event(nodata, orderby, starttime=None, endtime=None,
+def query_event(nodata, orderby, format, starttime=None, endtime=None,
                 minlatitude=None, maxlatitude=None, minlongitude=None,
                 maxlongitude=None, mindepth_in_km=None, maxdepth_in_km=None,
                 minmagnitude=None, maxmagnitude=None):
@@ -351,33 +355,43 @@ def query_event(nodata, orderby, starttime=None, endtime=None,
     if maxlongitude:
         where.append(
             _get_json_query("longitude", "<=", float, maxlongitude))
+    if mindepth_in_km:
+        where.append(
+            _get_json_query("depth_in_m", ">=", float, mindepth_in_km * 1000))
+    if maxdepth_in_km:
+        where.append(
+            _get_json_query("depth_in_m", "<=", float, maxdepth_in_km * 1000))
+    if minmagnitude:
+        where.append(
+            _get_json_query("magnitude", ">=", float, minmagnitude))
+    if maxmagnitude:
+        where.append(
+            _get_json_query("magnitude", "<=", float, maxmagnitude))
 
     if where:
         query = query.extra(where=where)
 
+    # Apply the ordering on the JSON fields.
+    if orderby == "time":
+        query = query \
+            .extra(select={"origin_time": "json->>'origin_time'"}) \
+            .extra(order_by=["-origin_time"])
+    elif orderby == "time-asc":
+        query = query \
+            .extra(select={"origin_time": "json->>'origin_time'"}) \
+            .extra(order_by=["origin_time"])
+    elif orderby == "magnitude":
+        query = query\
+            .extra(select={"magnitude": "json->>'magnitude'"})\
+            .extra(order_by=["-magnitude"])
+    elif orderby == "magnitude-asc":
+        query = query \
+            .extra(select={"magnitude": "json->>'magnitude'"}) \
+            .extra(order_by=["magnitude"])
 
     results = query.all()
     if not results:
         return nodata
-
-
-    nsmap = {None: "http://quakeml.org/xmlns/bed/1.2",
-             "ns0": "http://quakeml.org/xmlns/quakeml/1.2"}
-    root_el = etree.Element('{%s}quakeml' % nsmap["ns0"],
-                            nsmap=nsmap)
-    catalog_el = etree.Element('eventParameters',
-                               attrib={'publicID': "hmmm"})
-    root_el.append(catalog_el)
-
-    # Now things get a bit more interesting and this might actually require
-    # a different approach to be fast enough.
-    for result in results:
-        quakeml_id = result.json["quakeml_id"]
-        data = io.BytesIO(result.revision.data)
-        event = get_event_node(data, quakeml_id)
-        if event is None:
-            continue
-        catalog_el.append(event)
 
     # get task_id
     task_id = query_event.request.id or 'debug'
@@ -386,10 +400,52 @@ def query_event(nodata, orderby, starttime=None, endtime=None,
     # create path if not yet exists
     if not os.path.exists(path):
         os.makedirs(path)
-    filename = os.path.join(path, task_id + ".xml")
+    filename = os.path.join(path, task_id + "." + format)
 
-    etree.ElementTree(root_el).write(filename, pretty_print=True,
-                                     encoding="utf-8", xml_declaration=True)
+    if format == "xml":
+        nsmap = {None: "http://quakeml.org/xmlns/bed/1.2",
+                 "ns0": "http://quakeml.org/xmlns/quakeml/1.2"}
+        root_el = etree.Element('{%s}quakeml' % nsmap["ns0"],
+                                nsmap=nsmap)
+        catalog_el = etree.Element('eventParameters',
+                                   attrib={'publicID': "hmmm"})
+        root_el.append(catalog_el)
+
+        # Now things get a bit more interesting and this might actually require
+        # a different approach to be fast enough.
+        for result in results:
+            quakeml_id = result.json["quakeml_id"]
+            data = io.BytesIO(result.revision.data)
+            event = get_event_node(data, quakeml_id)
+            if event is None:
+                continue
+            catalog_el.append(event)
+
+        etree.ElementTree(root_el).write(filename, pretty_print=True,
+                                         encoding="utf-8",
+                                         xml_declaration=True)
+    elif format == "text":
+
+        header = ["EventID", "Time", "Latitude", "Longitude", "Depth/km",
+                  "Author", "Catalog", "Contributor", "ContributorID",
+                  "MagType", "Magnitude", "MagAuthor", "EventLocationName"]
+        json_keys = ["quakeml_id", "origin_time", "latitude", "longitude",
+                     "depth_in_m", None, None, None, None, "magnitude_type",
+                     "magnitude", None]
+
+        with open(filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter='|',
+                                quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writerow(header)
+            for result in results:
+                row = [result.json[_i] if _i is not None else ""
+                       for _i in json_keys]
+                # Convert depth to km.
+                row[4] /= 1000.0
+                row.append(FG.get_region(row[3], row[2]))
+                writer.writerow(row)
+    else:
+        raise NotImplementedError
     return 200
 
 
