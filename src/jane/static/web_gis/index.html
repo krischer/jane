@@ -222,8 +222,30 @@
         </span>
 </div>
 
+
 <div class="container-fluid">
     <div class="row">
+        <div class="col-md-4">
+            <label>
+                <i class="fa fa-calendar"></i>
+                <small>Time Range</small>
+            </label>
+        </div>
+        <div class="col-md-4 event-timepicker">
+            <input type="text" class="form-control"
+                   ng-model="station_settings.min_date"
+                   data-max-date="{{untilDate}}" placeholder="Von"
+                   bs-datepicker>
+        </div>
+        <div class="col-md-4 event-timepicker">
+            <input type="text" class="form-control"
+                   ng-model="station_settings.max_date"
+                   data-min-date="{{fromDate}}" placeholder="Bis"
+                   bs-datepicker>
+        </div>
+    </div>
+
+    <div class="row" style="padding-top: 10px">
         <div class="col-md-2" ng-repeat="(network, color) in station_colors">
             <span style="color:{{color}}">▼</span>
             <small><label>{{network}}</label></small>

@@ -92,6 +92,13 @@ module.factory('stations', function($http, $log, jane_server) {
                 _.forEach(data, function(item) {
                     var j = item.indexed_data;
                     var station_id = [j.network, j.station];
+                    var n_sd = new Date(j.start_date);
+                    if (!j.end_date || (j.end_date == "None")) {
+                        n_ed = null;
+                    }
+                    else {
+                        n_ed = new Date(j.end_date);
+                    }
                     if (!_.has(stations, station_id)) {
                         stations[station_id] = {
                             "type": "Feature",
@@ -102,7 +109,9 @@ module.factory('stations', function($http, $log, jane_server) {
                                 "station_name": j.station_name,
                                 "latitude": j.latitude,
                                 "longitude": j.longitude,
-                                "channels": []
+                                "channels": [],
+                                "min_startdate": n_sd,
+                                "max_enddate": n_ed
                             },
                             "geometry": {
                                 "type": "Point",
@@ -111,6 +120,23 @@ module.factory('stations', function($http, $log, jane_server) {
                                 ]
                             }
                         };
+                    }
+                    else {
+                        // Make sure the minimum and maximum start and end
+                        // dates of the station are consistent with the data.
+                        var o_sd = stations[station_id].min_startdate;
+                        var o_ed = stations[station_id].max_startdate;
+                        if (n_sd) {
+                            if (!o_sd || (n_sd < o_sd)) {
+                                stations[station_id].min_startdate = n_sd;
+                            }
+                        }
+                        if (n_ed) {
+                            if (!o_ed || (n_ed > o_ed)) {
+                                stations[station_id].min_startdate = n_ed;
+                            }
+                        }
+
                     }
                     stations[station_id].properties.channels.push(item);
                 });
@@ -171,6 +197,11 @@ module.controller("BayNetController", function($scope, $log, stations, station_c
         "selected_authors": [],
         "show_public_and_private": true,
         "show_automatic_and_manual": true
+    };
+
+    $scope.station_settings = {
+        "min_date": new Date("1990-01-01"),
+        "max_date": new Date()
     };
 
     $scope.station_colors = {};
@@ -237,7 +268,8 @@ module.controller("BayNetController", function($scope, $log, stations, station_c
         $scope.update_station_source(
             $scope.geojson_stations,
             $scope.show_station_layer,
-            $scope.station_colors);
+            $scope.station_colors,
+            $scope.station_settings);
     });
 
     $scope.$watch("show_station_layer", function(new_value, old_value) {
@@ -247,7 +279,8 @@ module.controller("BayNetController", function($scope, $log, stations, station_c
         $scope.update_station_source(
             $scope.geojson_stations,
             $scope.show_station_layer,
-            $scope.station_colors);
+            $scope.station_colors,
+            $scope.station_settings);
     });
 
 
@@ -280,6 +313,16 @@ module.controller("BayNetController", function($scope, $log, stations, station_c
                 $scope.show_event_layer,
                 $scope.event_layer_show_points,
                 $scope.event_settings);
+        }
+    );
+
+    $scope.$watchCollection(
+        "station_settings", function() {
+            $scope.update_station_source(
+                $scope.geojson_stations,
+                $scope.show_station_layer,
+                $scope.station_colors,
+                $scope.station_settings);
         }
     );
 

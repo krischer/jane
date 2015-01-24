@@ -214,7 +214,7 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
 
             $scope.station_layer = {};
 
-            $scope.update_station_source = function(feature_collection, show_layer, colors) {
+            $scope.update_station_source = function(feature_collection, show_layer, colors, station_settings) {
                 if ($scope.station_layer) {
                     map.removeLayer($scope.station_layer);
                     $scope.station_layer = {};
@@ -223,10 +223,29 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                     return;
                 }
 
+                // Filter events to apply the event settings.
+                var stations = {
+                    "type": "FeatureCollection",
+                    "features": _.filter(feature_collection.features, function(i) {
+                        if (i.properties.min_startdate) {
+                            if (i.properties.min_startdate > station_settings.max_date) {
+                                return false
+                            }
+                        }
+                        if (i.properties.max_enddate) {
+                            if (i.properties.max_enddate < station_settings.min_date) {
+                                return false
+                            }
+                        }
+
+                        return true
+                    })
+                };
+
                 $scope.station_layer = new ol.layer.Vector({
                     source: new ol.source.GeoJSON({
                         projection: "EPSG:3857",
-                        object: feature_collection
+                        object: stations
                     }),
                     style: get_style_function_stations(colors)
                 });
