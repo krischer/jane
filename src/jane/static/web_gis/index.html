@@ -127,19 +127,43 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-4">
+    <div class="row" style="padding-top:10px">
+        <div class="col-md-6">
             <label>
                 <i class="fa fa-institution"></i>
                 <small>Agencies</small>
             </label>
         </div>
-        <div class="col-md-8">
+    </div>
+    <div class="row" style="padding-bottom: 10px">
+        <div class="col-md-10 col-md-offset-1">
             <button type="button" class="btn btn-default btn-xs"
                     ng-model="event_settings.selected_agencies"
                     data-html="1" data-multiple="1"
                     data-animation="am-flip-x"
                     ng-options="icon.value as icon.label for icon in event_settings.agency_icons"
+                    bs-select>
+                Action <span class="caret"></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="row" style="padding-top:10px">
+        <div class="col-md-6">
+            <label>
+                <i class="fa fa-users"></i>
+                <small>Authors</small>
+            </label>
+        </div>
+    </div>
+    <div class="row" style="padding-bottom: 10px">
+        <div class="col-md-10 col-md-offset-1">
+            <button type="button" class="btn btn-default btn-xs"
+                    ng-model="event_settings.selected_authors"
+                    data-html="1" data-multiple="1"
+                    data-animation="am-flip-x"
+                    ng-options="icon.value as icon.label for icon in event_settings.available_authors"
+                    bs-select>
                     bs-select>
                 Action <span class="caret"></span>
             </button>

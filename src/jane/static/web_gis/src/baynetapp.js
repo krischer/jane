@@ -167,6 +167,8 @@ module.controller("BayNetController", function($scope, $log, stations, station_c
         "selected_agencies": [],
         "agency_colors": {},
         "agency_icons": [],
+        "available_authors": [],
+        "selected_authors": [],
         "show_public_and_private": true,
         "show_automatic_and_manual": true
     };
@@ -196,6 +198,24 @@ module.controller("BayNetController", function($scope, $log, stations, station_c
         });
 
         $scope.event_settings.selected_agencies = [agencies[0]];
+
+        // Get all authors.
+        $scope.event_settings.selected_authors = _.uniq(_.map(f, function(i) {
+            return i.properties.author;
+        }));
+
+        $scope.event_settings.available_authors = _.map($scope.event_settings.selected_authors, function(i){
+            return {
+                value: i,
+                label: '<i class="fa fa-user"></i> ' + i
+            }
+        });
+
+        $scope.event_settings.selected_authors.push("UNKNOWN");
+        $scope.event_settings.available_authors.push({
+            value: "UNKNOWN",
+            label: "<i>No given author</i>"
+        });
 
         $scope.update_event_source(
             $scope.geojson_events,

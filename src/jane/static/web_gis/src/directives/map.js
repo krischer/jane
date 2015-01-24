@@ -251,6 +251,17 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                             (i.properties.magnitude > event_settings.magnitude_range[1]) || !_.contains(event_settings.selected_agencies, i.properties.agency)) {
                             return false;
                         }
+
+                        // Author might not always be given.
+                        if (!_.has(i.properties, "author") && !i.properties.author) {
+                            if (!_.contains(event_settings.selected_authors, "UNKNOWN")) {
+                                return false
+                            }
+                        }
+                        else if (!_.contains(event_settings.selected_authors, i.properties.author)) {
+                            return false
+                        }
+
                         // Public might not be set for all.
                         if (!event_settings.show_public_and_private) {
                             if (!_.has(i.properties, "public") || !i.properties.public) {
