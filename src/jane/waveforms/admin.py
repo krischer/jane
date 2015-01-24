@@ -171,3 +171,10 @@ class MappingAdmin(admin.ModelAdmin):
     list_filter = ['network', 'station', 'location', 'channel']
 
 admin.site.register(models.Mapping, MappingAdmin)
+
+
+class RestrictionAdmin(admin.ModelAdmin):
+    list_filter = ['network', 'station']
+    list_display = ['network', 'station']
+
+admin.site.register(models.Restriction, RestrictionAdmin)

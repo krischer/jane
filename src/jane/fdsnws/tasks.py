@@ -1,24 +1,25 @@
 # -*- coding: utf-8 -*-
 
 import collections
-import csv
 import copy
+import csv
 import fnmatch
 from functools import reduce
 import io
-from lxml import etree
+from obspy.core.util.geodetics import FlinnEngdahl
 import operator
 import os
 
 from celery import shared_task
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db.models import Q
+from lxml import etree
 import obspy
 from obspy.core.utcdatetime import UTCDateTime
-from obspy.core.util.geodetics import FlinnEngdahl
 
-from jane.waveforms.models import ContinuousTrace
 from jane.documents.models import DocumentRevisionIndex
+from jane.waveforms.models import ContinuousTrace, Restriction
 
 
 JSON_QUERY_TEMPLATE_MAP = {
@@ -452,7 +453,7 @@ def query_event(nodata, orderby, format, starttime=None, endtime=None,
 @shared_task
 def query_dataselect(networks, stations, locations, channels, starttime,
                      endtime, format, nodata, quality, minimumlength,
-                     longestonly):
+                     longestonly, username=None):
     """
     Process query and generate a combined waveform file
     """
@@ -495,6 +496,16 @@ def query_dataselect(networks, stations, locations, channels, starttime,
     # minimumlength
     if minimumlength:
         query = query.filter(duration__gte=minimumlength)
+
+    # restrictions
+    if not username:
+        restrictions = Restriction.objects.all()
+    else:
+        user = User.objects.get(username=username)
+        restrictions = Restriction.objects.exclude(users=user)
+    for restriction in restrictions:
+        query = query.exclude(network=restriction.network,
+                              station=restriction.station)
 
     # query
     results = query.all()

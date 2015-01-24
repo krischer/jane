@@ -130,3 +130,27 @@ class Mapping(models.Model):
 
     class Meta:
         ordering = ['-starttime', '-endtime']
+
+
+class Restriction(models.Model):
+    """
+    Station/network restrictions of waveforms
+
+    Waveforms are generally seen as public if not listed here.
+    """
+    network = models.CharField(max_length=2, db_index=True)
+    station = models.CharField(max_length=5, db_index=True)
+    users = models.ManyToManyField(User, db_index=True)
+    comment = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    created_by = models.ForeignKey(User, null=True, editable=False,
+                                   related_name='restrictions_created')
+    modified_at = models.DateTimeField(auto_now=True, editable=False)
+    modified_by = models.ForeignKey(User, null=True, editable=False,
+                                    related_name='restrictions_modified')
+
+    def save(self, *args, **kwargs):
+        # ensure uppercase and no whitespaces around network/station ids
+        self.network = self.network.upper().strip()
+        self.station = self.station.upper().strip()
+        super(Restriction, self).save(*args, **kwargs)

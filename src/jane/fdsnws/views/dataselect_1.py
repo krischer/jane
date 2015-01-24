@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import base64
 import os
 
 from celery.result import AsyncResult, TimeoutError
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate
 from django.core.servers.basehttp import FileWrapper
 from django.http.response import HttpResponse, Http404
 from django.shortcuts import render_to_response
@@ -55,7 +56,7 @@ def wadl(request):  # @UnusedVariable
         RequestContext(request), content_type="application/xml; charset=utf-8")
 
 
-def query(request):
+def query(request, user=None):
     """
     Parses and returns data request
     """
@@ -137,14 +138,14 @@ def query(request):
         status = query_dataselect(networks, stations, locations, channels,
                                   starttime.timestamp, endtime.timestamp,
                                   format, nodata, quality, minimumlength,
-                                  longestonly)
+                                  longestonly, user.username)
         task_id = 'debug'
     else:
         # using celery
         task = query_dataselect.delay(networks, stations, locations, channels,
                                       starttime.timestamp, endtime.timestamp,
                                       format, nodata, quality, minimumlength,
-                                      longestonly)
+                                      longestonly, user.username)
         task_id = task.task_id
         # check task status for QUERY_TIMEOUT seconds
         asyncresult = AsyncResult(task_id)
@@ -165,12 +166,24 @@ You may check the current processing status and download your results via
         return _error(request, msg, status)
 
 
-@login_required
-def queryauth(request, debug=False):
+def queryauth(request):
     """
     Parses and returns data request
     """
-    return query(request, debug=debug)
+    if request.META.get('HTTP_AUTHORIZATION', False):
+        auth = request.META['HTTP_AUTHORIZATION'].split()
+        if len(auth) == 2 and auth[0].lower() == 'basic':
+            # basic auth
+            auth = base64.b64decode(auth[1])
+            username, password = auth.decode("utf-8").split(':')
+            # authenticate
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                return query(request, user)
+    # otherwise
+    response = HttpResponse("Auth Required", status=401)
+    response['WWW-Authenticate'] = 'Basic realm="restricted area"'
+    return response
 
 
 def result(request, task_id):  # @UnusedVariable
