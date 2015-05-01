@@ -25,6 +25,10 @@ class AttachmentSerializer(serializers.ModelSerializer):
 
 class RecordSerializer(GeoModelSerializer):
 
+    data_url = serializers.HyperlinkedIdentityField(
+        view_name="document_data", lookup_field="pk")
+    data_content_type = serializers.CharField(source="document.content_type")
+
     attachments = AttachmentSerializer(many=True)
     indexed_data = serializers.CharField(source="json")
     url = serializers.URLField(source='pk', read_only=True)
@@ -36,8 +40,9 @@ class RecordSerializer(GeoModelSerializer):
 
     class Meta:
         model = models.DocumentIndex
-        fields = ('id', 'url', 'document', 'indexed_data', 'geometry',
-                  'attachments', 'created_at')
+        fields = ('id', 'url', 'document', 'data_url',
+                  'data_content_type', 'created_at', 'indexed_data',
+                  'geometry', 'attachments', 'created_at')
 
 
 class PaginatedRecordSerializer(pagination.PaginationSerializer):
