@@ -18,7 +18,7 @@ from lxml import etree
 import obspy
 from obspy.core.utcdatetime import UTCDateTime
 
-from jane.documents.models import DocumentRevisionIndex
+from jane.documents.models import DocumentIndex
 from jane.waveforms.models import ContinuousTrace, Restriction
 
 
@@ -57,7 +57,7 @@ def query_stations(nodata, level, starttime=None, endtime=None,
     if endtime is not None:
         endtime = UTCDateTime(endtime)
 
-    query = DocumentRevisionIndex.objects.filter(
+    query = DocumentIndex.objects.filter(
         revision__document__document_type="stationxml")
 
     where = []
@@ -319,7 +319,7 @@ def query_event(nodata, orderby, format, starttime=None, endtime=None,
     if endtime is not None:
         endtime = UTCDateTime(endtime)
 
-    query = DocumentRevisionIndex.objects.filter(
+    query = DocumentIndex.objects.filter(
         revision__document__document_type="quakeml")
 
     where = []

@@ -10,16 +10,16 @@ from django.dispatch.dispatcher import receiver
 from jane.documents import models
 
 
-@receiver(pre_save, sender=models.DocumentRevision)
+@receiver(pre_save, sender=models.Document)
 def validate_document(sender, instance, **kwargs):  # @UnusedVariable
     """
     Validate document before saving using validators of specified document type
     """
-    plugins = instance.document.document_type.validators.all()
+    plugins = instance.document_type.validators.all()
     if not plugins:
         raise Exception("At least one ValidatorPlugin must be defined for "
                         "document type '%s'." %
-                        instance.document.document_type.name)
+                        instance.document_type.name)
     with io.BytesIO(bytes(instance.data)) as data:
         for plugin in plugins:
             data.seek(0, 0)
@@ -28,10 +28,10 @@ def validate_document(sender, instance, **kwargs):  # @UnusedVariable
                 raise Exception
 
 
-@receiver(pre_save, sender=models.DocumentRevision)
+@receiver(pre_save, sender=models.Document)
 def set_content_type(sender, instance, **kwargs):  # @UnusedVariable
     # One of the validators must contain a content-type of the data.
-    validators = instance.document.document_type.validators.all()
+    validators = instance.document_type.validators.all()
     content_types = []
     for validator in validators:
         plugin = validator.get_plugin()
@@ -48,14 +48,14 @@ def set_content_type(sender, instance, **kwargs):  # @UnusedVariable
     instance.content_type = content_type
 
 
-@receiver(post_save, sender=models.DocumentRevision)
+@receiver(post_save, sender=models.Document)
 def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
     """
     Index data
     """
     # delete all existing indexed data
     instance.indices.all().delete()
-    plugins = instance.document.document_type.indexers.all()
+    plugins = instance.document_type.indexers.all()
     for plugin in plugins:
         indexer = plugin.get_plugin()
         # index data
@@ -75,8 +75,7 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
                 except:
                     pass
                 # add index
-                obj = models.DocumentRevisionIndex(revision=instance,
-                                                   json=index)
+                obj = models.DocumentIndex(document=instance, json=index)
                 if geometry:
                     obj.geometry = GeometryCollection(geometry)
                 obj.save()
@@ -87,7 +86,7 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
                         if hasattr(data, 'seek'):
                             data.seek(0)
                             data = data.read()
-                        models.DocumentRevisionIndexAttachment(
+                        models.DocumentIndexAttachment(
                             index=obj, category=key,
                             content_type=value['content-type'],
                             data=data).save()

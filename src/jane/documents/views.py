@@ -31,8 +31,8 @@ def record_list(request, document_type, format=None):  # @ReservedAssignment
             if record_list_json:
                 return Response(record_list_json)
 
-        queryset = models.DocumentRevisionIndex.objects. \
-            filter(revision__document__document_type=res_type)
+        queryset = models.DocumentIndex.objects. \
+            filter(document__document_type=res_type)
 
         context = {'request': request, 'resource_type_name': document_type}
 
@@ -86,7 +86,7 @@ def record_detail(request, document_type, pk,
     """
     # document_type = get_object_or_404(models.DocumentType,
     # name=document_type)
-    value = get_object_or_404(models.DocumentRevisionIndex, pk=pk)
+    value = get_object_or_404(models.DocumentIndex, pk=pk)
 
     if request.method == 'GET':
         data = serializer.RecordSerializer(value).data
@@ -103,23 +103,13 @@ def record_detail(request, document_type, pk,
 def attachment_detail(request, document_type, index_id, attachment_id):
     # Assure document type and index id are available.
     value = get_object_or_404(
-        models.DocumentRevisionIndexAttachment,
+        models.DocumentIndexAttachment,
         index__pk=index_id, pk=attachment_id,
-        index__revision__document__document_type__name=document_type)
+        index__document__document_type__name=document_type)
 
     if request.method == 'GET':
         response = HttpResponse(content_type=value.content_type)
         response.write(value.data)
-        return response
-    else:
-        raise Http404
-
-
-def document_revision(request, pk):
-    revision = get_object_or_404(models.DocumentRevision, pk=pk)
-    if request.method == 'GET':
-        response = HttpResponse(content_type=revision.content_type)
-        response.write(revision.data)
         return response
     else:
         raise Http404

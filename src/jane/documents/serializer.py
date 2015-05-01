@@ -19,7 +19,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
                        request=request)
 
     class Meta:
-        model = models.DocumentRevisionIndexAttachment
+        model = models.DocumentIndexAttachment
         fields = ('id', 'url', 'category', 'content_type', 'created_at')
 
 
@@ -35,8 +35,8 @@ class RecordSerializer(GeoModelSerializer):
         return reverse('record_detail', args=[rt_name, value], request=request)
 
     class Meta:
-        model = models.DocumentRevisionIndex
-        fields = ('id', 'url', 'revision', 'indexed_data', 'geometry',
+        model = models.DocumentIndex
+        fields = ('id', 'url', 'document', 'indexed_data', 'geometry',
                   'attachments', 'created_at')
 
 

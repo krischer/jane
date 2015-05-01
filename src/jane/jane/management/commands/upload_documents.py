@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
             sha1 = hashlib.sha1(data.read()).hexdigest()
 
-            qs = models.DocumentRevision.objects.filter(sha1=sha1).exists()
+            qs = models.Document.objects.filter(sha1=sha1).exists()
             if qs is True:
                 msg = "File '%s' already exists in the database."
                 warnings.warn(msg % filename)
@@ -47,13 +47,10 @@ class Command(BaseCommand):
 
             data.seek(0, 0)
 
-            document = models.Document(document_type=document_type)
-            document.save()
-
-            document = models.DocumentRevision(
-                document=document,
-                revision_number=1,
-                filename=os.path.abspath(filename),
+            document = models.Document(
+                document_type=document_type,
+                filename=filename,
+                name=os.path.basename(filename),
                 data=data.read(),
                 filesize=os.path.getsize(filename),
                 sha1=sha1

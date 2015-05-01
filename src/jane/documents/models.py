@@ -1,4 +1,20 @@
 # -*- coding: utf-8 -*-
+"""
+Models for the document database of Jane.
+
+The hierarchy is fairly simple:
+
+* There are different types of documents stored in the ``DocumentType`` model.
+* Each document type can have various documents stored in the ``Document``
+  model.
+* Each document can have multiple indices, each stored in a
+  ``DocumentIndex`` model
+* Each index can have multiple attachments, each stored in a
+  ``DocumentIndexAttachment`` model.
+
+
+New document types can be defined by adding new plug-ins.
+"""
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models
 from djangoplugins.fields import ManyPluginField
@@ -20,8 +36,7 @@ class DocumentType(models.Model):
     Document category. Will be determined from the registered plugins.
     """
     name = models.SlugField(max_length=20, primary_key=True)
-    content_type = models.CharField(max_length=255)
-    # plugins
+    # Plugins for this document type.
     indexers = ManyPluginField(plugins.IndexerPluginPoint, null=True,
                                blank=True, related_name='indexers')
     validators = ManyPluginField(plugins.ValidatorPluginPoint, null=True,
@@ -34,33 +49,17 @@ class DocumentType(models.Model):
 
     class Meta:
         ordering = ['name']
-        verbose_name = 'Type'
-        verbose_name_plural = 'Types'
+        verbose_name = 'Document Type'
+        verbose_name_plural = 'Document Types'
 
 
 class Document(models.Model):
     """
-    One document. Can have multiple revisions.
+    A document of a particular type.
     """
     document_type = models.ForeignKey(DocumentType, related_name='documents')
     name = models.SlugField(max_length=255, null=True, blank=True,
                             db_index=True)
-
-    def __str__(self):
-        return str(self.pk)
-
-    class Meta:
-        ordering = ['pk']
-        verbose_name = 'Document'
-        verbose_name_plural = 'Documents'
-
-
-class DocumentRevision(models.Model):
-    """
-    A certain document revision_number.
-    """
-    document = models.ForeignKey(Document, related_name='revisions')
-    revision_number = models.IntegerField(default=0, db_index=True)
     filename = models.CharField(max_length=255, blank=True, null=True)
     content_type = models.CharField(max_length=255, blank=True, null=True)
     data = models.BinaryField()
@@ -78,38 +77,37 @@ class DocumentRevision(models.Model):
 
     class Meta:
         ordering = ['pk']
-        unique_together = ['document', 'revision_number']
-        verbose_name = 'Revision'
-        verbose_name_plural = 'Revisions'
+        verbose_name = 'Document'
+        verbose_name_plural = 'Documents'
 
     def save(self, *args, **kwargs):
-        super(DocumentRevision, self).save(*args, **kwargs)
+        super(Document, self).save(*args, **kwargs)
 
 
-class _DocumentRevisionIndexManager(models.GeoManager):
+class _DocumentIndexManager(models.GeoManager):
     """
-    Custom queryset manager for the document revision_number indices.
+    Custom queryset manager for the document indices.
     """
     def get_queryset(self):
         """
         """
-        return super(_DocumentRevisionIndexManager, self).get_queryset().\
+        return super(_DocumentIndexManager, self).get_queryset().\
             select_related('attachments').\
             prefetch_related('attachments')
 
 
-class DocumentRevisionIndex(models.Model):
+class DocumentIndex(models.Model):
     """
-    Indexed values for a specific revision_number of a document.
+    Indexed values for a specific document.
     """
-    revision = models.ForeignKey(
-        DocumentRevision, related_name='indices')
+    document = models.ForeignKey(
+        Document, related_name='indices')
     json = PostgreSQLJsonField(verbose_name="JSON")
     geometry = models.GeometryCollectionField(blank=True, null=True,
                                               geography=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
-    objects = _DocumentRevisionIndexManager()
+    objects = _DocumentIndexManager()
 
     class Meta:
         ordering = ['pk']
@@ -120,11 +118,11 @@ class DocumentRevisionIndex(models.Model):
         return str(self.json)
 
 
-class DocumentRevisionIndexAttachment(models.Model):
+class DocumentIndexAttachment(models.Model):
     """
-    Attachments for one DocumentRevisonIndex.
+    Attachments for one Document.
     """
-    index = models.ForeignKey(DocumentRevisionIndex,
+    index = models.ForeignKey(DocumentIndex,
                               related_name='attachments')
     category = models.SlugField(max_length=20, db_index=True)
     content_type = models.CharField(max_length=255)

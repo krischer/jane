@@ -2,113 +2,172 @@
 
 import base64
 
+from django.conf.urls import url
 from django.contrib.gis import admin
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse
 from django.template.defaultfilters import filesizeformat
 
 from jane.documents import models
 
 
 class DocumentTypeAdmin(admin.ModelAdmin):
-    list_display = ["name", "content_type"]
+    """
+    Everything is readonly as these models are filled with installed
+    Jane plugins.
+    """
+    list_display = ["name", "format_indexers", "format_validators",
+                    "format_converters"]
+    readonly_fields = ["name", "indexers", "validators", "converters"]
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def format_indexers(self, obj):
+        length = len(obj.indexers.values())
+        return "%i registered Indexer(s)" % length
+
+    def format_validators(self, obj):
+        length = len(obj.validators.values())
+        return "%i registered Validator(s)" % length
+
+    def format_converters(self, obj):
+        length = len(obj.converters.values())
+        return "%i registered Converter(s)" % length
 
 admin.site.register(models.DocumentType, DocumentTypeAdmin)
 
 
-class DocumentRevisionInline(admin.TabularInline):
-    model = models.DocumentRevision
+class DocumentIndexInline(admin.TabularInline):
+    model = models.DocumentIndex
     extra = 0
-    readonly_fields = [
-        'document', 'revision_number', 'filename', 'content_type',
-        'format_data', 'filesize', 'sha1', 'created_at', 'created_by',
-        'created_by', 'modified_at', 'modified_by']
+    readonly_fields = ["index", "json", "geometry", "created_at"]
 
-    def format_data(self, obj):
-        if not obj.pk:
-            return
-        url = reverse('document_revision', kwargs={'pk': obj.id})
-        return '<a href="%s">%s</a>' % (url, url)
-    format_data.short_description = 'Data'
-    format_data.short_description = 'Data'
+    edit_label = "View"
+
+    def index(self, obj):
+        if obj.id:
+            opts = self.model._meta
+            return "<a href='%s'>%s</a>" % (reverse(
+                'admin:%s_%s_change' % (opts.app_label,
+                                        opts.object_name.lower()),
+                args=[obj.id]
+            ), self.edit_label)
+        else:
+            return "(save to edit details)"
+    index.allow_tags = True
 
 
 class DocumentAdmin(admin.ModelAdmin):
-    """
-    Test
-    """
-    list_display = ['pk', 'document_type', 'name']
-    list_filter = ['document_type__name']
-    inlines = [DocumentRevisionInline]
-
-admin.site.register(models.Document, DocumentAdmin)
-
-
-class DocumentRevisionAdmin(admin.GeoModelAdmin):
     list_display = [
-        'pk', 'format_document_type', 'document', 'revision_number',
-        'filename', 'format_filesize', 'created_at']
-    list_filter = ['document__document_type', 'created_at']
-    readonly_fields = [
-        'document', 'revision_number', 'filename', 'content_type',
-        'format_data', 'filesize', 'sha1', 'created_at', 'created_by',
-        'created_by', 'modified_at', 'modified_by']
+        'pk',
+        'format_document_type',
+        'name',
+        'content_type',
+        'format_filesize',
+        'created_at',
+        'created_by',
+        'modified_at',
+        'modified_by'
+        ]
+    list_filter = ['document_type', 'created_at', 'created_by',
+                   'modified_at', 'modified_by']
+    readonly_fields = ['document_type', 'format_filesize', 'sha1',
+                       'created_at', 'created_by', 'modified_at',
+                       'modified_by', 'format_data']
+    exclude = ['filesize']
+    inlines = [DocumentIndexInline]
 
     def format_document_type(self, obj):
-        return obj.document.document_type.name
+        return obj.document_type.name
+
     format_document_type.short_description = 'Document type'
-    format_document_type.admin_order_field = 'document__document_type__name'
+    format_document_type.admin_order_field = 'document_type__name'
 
     def format_filesize(self, obj):
         return filesizeformat(obj.filesize)
     format_filesize.short_description = 'File size'
     format_filesize.admin_order_field = 'filesize'
 
+    def get_urls(self):
+        urls = super(DocumentAdmin, self).get_urls()
+        my_urls = [
+            # Wrap in admin_view() to enforce permissions.
+            url(r'^data/(?P<pk>[0-9]+)/$',
+                self.admin_site.admin_view(self.data_view)),
+        ]
+        return my_urls + urls
+
+    def data_view(self, request, pk):
+        document = models.Document.objects.filter(pk=pk).first()
+        return HttpResponse(document.data, document.content_type)
+
     def format_data(self, obj):
-        url = reverse('document_revision', kwargs={'pk': obj.id})
-        return '<a href="%s">%s</a>' % (url, url)
+        # XXX: Figure out how to do it by properly reversing the URL.
+        url = "../data/%i" % obj.id
+        return '<a href="%s">Download</a>' % url
     format_data.short_description = 'Data'
-    format_data.short_description = 'Data'
 
-admin.site.register(models.DocumentRevision, DocumentRevisionAdmin)
+admin.site.register(models.Document, DocumentAdmin)
 
 
-class DocumentRevisionIndexAttachmentInline(admin.TabularInline):
-    model = models.DocumentRevisionIndexAttachment
+class DocumentIndexAttachmentInline(admin.TabularInline):
+    model = models.DocumentIndexAttachment
     extra = 0
-    readonly_fields = \
-        [f.name for f in models.DocumentRevisionIndexAttachment._meta.fields]
+    readonly_fields = ["attachment", "category", "content_type",
+                       "created_at", "format_small_preview_image"]
+
+    edit_label = "View"
+
+    def attachment(self, obj):
+        if obj.id:
+            opts = self.model._meta
+            return "<a href='%s'>%s</a>" % (reverse(
+                'admin:%s_%s_change' % (opts.app_label,
+                                        opts.object_name.lower()),
+                args=[obj.id]
+            ), self.edit_label)
+        else:
+            return "(save to edit details)"
+    attachment.allow_tags = True
+
+    def format_small_preview_image(self, obj):
+        if obj.content_type != "image/png":
+            return b""
+        data = base64.b64encode(obj.data)
+        return '<img height="50" src="data:image/png;base64,%s" />' % (
+            data.decode())
+    format_small_preview_image.allow_tags = True
+    format_small_preview_image.short_description = 'Preview'
 
 
-class DocumentRevisionIndexAdmin(admin.ModelAdmin):
+class DocumentIndexAdmin(admin.ModelAdmin):
     list_display = ['pk', 'format_document_type', 'format_document',
                     'created_at']
-    list_filter = ['created_at',
-                   'revision__document__document_type']
-    inlines = [DocumentRevisionIndexAttachmentInline]
+    list_filter = ['created_at', 'document__document_type']
 
-    def get_queryset(self, request):
-        return super(DocumentRevisionIndexAdmin, self).get_queryset(request).\
-            select_related('revision__document__document_type')
-
-    def has_add_permission(self, request):
-        # Nobody is allowed to add
-        return False
+    inlines = [DocumentIndexAttachmentInline]
 
     def format_document_type(self, obj):
-        return obj.revision.document.document_type.name
+        return obj.document.document_type.name
+
     format_document_type.short_description = 'Document type'
     format_document_type.admin_order_field = \
-        'revision__document__document_type__name'
+        'document__document_type__name'
 
     def format_document(self, obj):
-        return obj.revision.document
+        return obj.document
+
     format_document.short_description = 'Document'
-    format_document.admin_order_field = 'revision__document'
+    format_document.admin_order_field = 'document'
 
-admin.site.register(models.DocumentRevisionIndex, DocumentRevisionIndexAdmin)
+admin.site.register(models.DocumentIndex, DocumentIndexAdmin)
 
 
-class DocumentRevisionIndexAttachmentAdmin(admin.ModelAdmin):
+class DocumentIndexAttachmentAdmin(admin.ModelAdmin):
     list_display = ['pk', 'category', 'content_type',
                     'created_at', 'format_small_preview_image']
     list_filter = ['category']
@@ -132,5 +191,5 @@ class DocumentRevisionIndexAttachmentAdmin(admin.ModelAdmin):
     format_small_preview_image.allow_tags = True
     format_small_preview_image.short_description = 'Preview'
 
-admin.site.register(models.DocumentRevisionIndexAttachment,
-                    DocumentRevisionIndexAttachmentAdmin)
+admin.site.register(models.DocumentIndexAttachment,
+                    DocumentIndexAttachmentAdmin)

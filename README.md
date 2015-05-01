@@ -84,7 +84,7 @@ Jane stores data from plugins in a document database. The hierarchical data mode
 * `DocumentType`: The document category. Determined from the installed plugins.
 * `Document`: One document of a certain type. Can have multiple revisions.
 * `DocumentRevision`: A certain revision of a document.
-* `DocumentRevisionIndex`: The indices of a certain revision of a document.
+* `DocumentIndex`: The indices of a certain revision of a document.
 * `DocumentRevisionIndexAttachments`: The attachments for one index.
 
     

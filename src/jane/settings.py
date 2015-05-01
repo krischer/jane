@@ -230,7 +230,7 @@ REST_FRAMEWORK = {
 INSTALLED_APPS += ['djcelery', 'corsheaders', 'kombu.transport.django']
 
 # use RabbitMQ server
-BROKER_URL = 'amqp://jane:jane@127.0.0.1:5672/jane/'
+BROKER_URL = 'amqp://jane:jane@127.0.0.1:5672/jane'
 
 CELERY_RESULT_BACKEND = "djcelery.backends.database:DatabaseBackend"
 
