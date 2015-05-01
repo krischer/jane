@@ -115,3 +115,11 @@ def attachment_detail(request, document_type, index_id, attachment_id):
         return response
     else:
         raise Http404
+
+
+def document_data(request, pk, *args, **kwargs):
+    """
+    Get the data for the document corresponding to the index id.
+    """
+    document = models.DocumentIndex.objects.filter(pk=pk).first().document
+    return HttpResponse(document.data, document.content_type)

@@ -17,7 +17,10 @@ urlpatterns = patterns(
     url(r'^rest/(?P<document_type>\w+)/(?P<index_id>[0-9]+)/'
         '(?P<attachment_id>[0-9]+)/$',
         view='attachment_detail',
-        name='attachment_detail')
+        name='attachment_detail'),
+    url(r'^rest/(?P<document_type>\w+)/(?P<pk>[0-9]+)/data/$',
+        view='document_data',
+        name='document_data')
 )
 
 urlpatterns = format_suffix_patterns(urlpatterns)
