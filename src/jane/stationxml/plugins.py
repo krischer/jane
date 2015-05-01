@@ -2,13 +2,15 @@
 import io
 
 from django.contrib.gis.geos.point import Point
+
+import matplotlib
 from obspy.station.stationxml import validate_StationXML
 import obspy
 
-import matplotlib
-matplotlib.use('agg')
-
 from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint
+
+# Use antigrain interface which also does not require an open display.
+matplotlib.use('agg')
 
 
 class StationValidatorPlugin(ValidatorPluginPoint):
@@ -31,11 +33,22 @@ class StationIndexerPlugin(IndexerPluginPoint):
     @property
     def meta(self):
         """
-        types: string, date, datetime, bool, int, float
+        This defines which fields can be searched over in the indices.
         """
-        return {'num_traces': {'type': 'string',
-                               'minimum_allowed': True,
-                               'wildcard_allowed': True}}
+        return {
+            "network": {"type": str},
+            "station": {"type": str},
+            "location": {"type": str},
+            "channel": {"type": str},
+            "latitude": {"type": float},
+            "longitude": {"type": float},
+            "elevation_in_m": {"type": float},
+            "depth_in_m": {"type": float},
+            "start_date": {"type": obspy.UTCDateTime},
+            "end_date": {"type": obspy.UTCDateTime},
+            "sample_rate": {"type": float},
+            "sensor_type": {"type": str},
+        }
 
     def index(self, document):
         inv = obspy.read_inventory(document, format="stationxml")

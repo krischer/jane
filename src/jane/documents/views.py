@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from jane.documents import models, serializer
+from jane.documents import models, serializer, utils
 
 
 CACHE_TIMEOUT = 60 * 60 * 24
@@ -22,17 +22,16 @@ def record_list(request, document_type, format=None):  # @ReservedAssignment
     Lists all indexed values.
     """
     if request.method == "GET":
-
-        res_type = get_object_or_404(models.DocumentType, name=document_type)
-
         # check for cached version
-        if request.accepted_renderer.format == 'json':
+        if request.accepted_renderer.format == 'json' and \
+                not request.QUERY_PARAMS:
             record_list_json = cache.get('record_list_json' + document_type)
             if record_list_json:
                 return Response(record_list_json)
 
-        queryset = models.DocumentIndex.objects. \
-            filter(document__document_type=res_type)
+        queryset = utils.get_document_index_queryset(
+            document_type=document_type,
+            query_params=request.QUERY_PARAMS)
 
         context = {'request': request, 'resource_type_name': document_type}
 

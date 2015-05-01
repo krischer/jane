@@ -2,6 +2,7 @@
 from obspy.core.quakeml import _validate as validate_quakeml
 
 from django.contrib.gis.geos.point import Point
+import obspy
 from obspy.core.event import readEvents
 
 from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint
@@ -24,18 +25,18 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
     @property
     def meta(self):
         return {
-            "quakeml_id": {"type": "str"},
-            "latitude": {"type": "float"},
-            "longitude": {"type": "float"},
-            "depth_in_m": {"type": "float"},
-            "origin_time": {"type": "datetime"},
-            "magnitude": {"type": "float"},
-            "magnitude_type": {"type": "str"},
-            "agency": {"type": "str"},
-            "author": {"type": "str"},
-            "public": {"type": "bool"},
-            "evaluation_mode": {"type": "str"},
-            "event_type": {"type": "str"}
+            "quakeml_id": {"type": str},
+            "latitude": {"type": float},
+            "longitude": {"type": float},
+            "depth_in_m": {"type": float},
+            "origin_time": {"type": obspy.UTCDateTime},
+            "magnitude": {"type": float},
+            "magnitude_type": {"type": str},
+            "agency": {"type": str},
+            "author": {"type": str},
+            "public": {"type": bool},
+            "evaluation_mode": {"type": str},
+            "event_type": {"type": str}
         }
 
     def index(self, document):

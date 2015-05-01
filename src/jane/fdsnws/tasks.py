@@ -58,7 +58,7 @@ def query_stations(nodata, level, starttime=None, endtime=None,
         endtime = UTCDateTime(endtime)
 
     query = DocumentIndex.objects.filter(
-        revision__document__document_type="stationxml")
+        document__document_type="stationxml")
 
     where = []
     # XXX: Deal with non-existing start and end-dates!
