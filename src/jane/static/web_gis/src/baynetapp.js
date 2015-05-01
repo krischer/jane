@@ -6,7 +6,7 @@ var module = angular.module("bayNetApp", ["mgcrea.ngStrap",
     "toggle-switch"]);
 
 // Jane server constant.
-module.constant('jane_server', 'http://localhost:8000');
+module.constant('jane_server', '../..');
 
 // Bing API Key
 module.constant(
