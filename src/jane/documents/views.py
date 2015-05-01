@@ -29,6 +29,7 @@ def record_list(request, document_type, format=None):  # @ReservedAssignment
             if record_list_json:
                 return Response(record_list_json)
 
+        # Perform potentially complex queries on the JSON indices.
         queryset = utils.get_document_index_queryset(
             document_type=document_type,
             query_params=request.QUERY_PARAMS)
@@ -69,7 +70,8 @@ def record_list(request, document_type, format=None):  # @ReservedAssignment
             data = serializer.RecordSerializer(queryset, many=True,
                                                context=context).data
             # cache json requests
-            if request.accepted_renderer.format == 'json':
+            if request.accepted_renderer.format == 'json' and \
+                    not request.QUERY_PARAMS:
                 cache.set('record_list_json' + document_type, data,
                           CACHE_TIMEOUT)
         return Response(data)
@@ -88,7 +90,8 @@ def record_detail(request, document_type, pk,
     value = get_object_or_404(models.DocumentIndex, pk=pk)
 
     if request.method == 'GET':
-        data = serializer.RecordSerializer(value).data
+        context = {'request': request, 'resource_type_name': document_type}
+        data = serializer.RecordSerializer(value, context=context).data
         for d, v in zip(data["attachments"], value.attachments.all()):
             d["url"] = reverse('attachment_detail',
                                args=[document_type, value.pk, v.pk],
