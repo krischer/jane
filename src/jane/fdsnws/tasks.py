@@ -249,11 +249,11 @@ def parse_stationxml_files(results):
     }
     for result in results:
         # The indexed document which contains the data.
-        pk = result.revision.pk
+        pk = result.pk
         if pk in parsed_docs:
             continue
         parsed_docs.append(pk)
-        data = io.BytesIO(result.revision.data)
+        data = io.BytesIO(result.document.data)
 
         # Small state machine.
         net_state, sta_state = [None, None]
@@ -320,7 +320,7 @@ def query_event(nodata, orderby, format, starttime=None, endtime=None,
         endtime = UTCDateTime(endtime)
 
     query = DocumentIndex.objects.filter(
-        revision__document__document_type="quakeml")
+        document__document_type="quakeml")
 
     where = []
 
@@ -416,7 +416,7 @@ def query_event(nodata, orderby, format, starttime=None, endtime=None,
         # a different approach to be fast enough.
         for result in results:
             quakeml_id = result.json["quakeml_id"]
-            data = io.BytesIO(result.revision.data)
+            data = io.BytesIO(result.document.data)
             event = get_event_node(data, quakeml_id)
             if event is None:
                 continue

@@ -216,6 +216,4 @@ def result(request, task_id, format):  # @UnusedVariable
                             task_id[0:2], task_id + "." + format)
     fh = FileWrapper(open(filename, 'rb'))
     response = HttpResponse(fh, content_type="text/xml")
-    response["Content-Disposition"] = \
-        "attachment; filename=fdsnws_event_1_%s.%s" % (task_id, format)
     return response

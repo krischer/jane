@@ -186,6 +186,8 @@ You may check the current processing status and download your results via
                                 kwargs={'task_id': task_id}))
             return _error(request, msg, 413)
 
+    print("STATUS:", status)
+
     # response
     if status == 200:
         return result(request, task_id)
@@ -221,6 +223,4 @@ def result(request, task_id):  # @UnusedVariable
                             task_id[0:2], task_id + ".xml")
     fh = FileWrapper(open(filename, 'rb'))
     response = HttpResponse(fh, content_type="text/xml")
-    response["Content-Disposition"] = \
-        "attachment; filename=fdsnws_stations_1_%s.xml" % (task_id)
     return response
