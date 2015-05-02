@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import hashlib
+
 from django.conf import settings
 from django.core.cache import cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view
+from rest_framework import status
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
@@ -16,7 +20,8 @@ from jane.documents import models, serializer, utils
 CACHE_TIMEOUT = 60 * 60 * 24
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
+@parser_classes((FileUploadParser, ))
 def record_list(request, document_type, format=None):  # @ReservedAssignment
     """
     Lists all indexed values.
@@ -75,15 +80,42 @@ def record_list(request, document_type, format=None):  # @ReservedAssignment
                 cache.set('record_list_json' + document_type, data,
                           CACHE_TIMEOUT)
         return Response(data)
+    elif request.method == "POST":
+        res_type = get_object_or_404(models.DocumentType, name=document_type)
+
+        file = request.FILES["file"]
+
+        sha1 = hashlib.sha1(file.read()).hexdigest()
+
+        qs = models.Document.objects.filter(sha1=sha1).exists()
+        if qs is True:
+            msg = "File already exists in the database."
+            return Response(msg, status=status.HTTP_409_CONFLICT)
+
+        file.seek(0, 0)
+
+        document = models.Document(
+            document_type=res_type,
+            filename=file.name,
+            name=file.name,
+            data = file.read(),
+            filesize=file.size,
+            sha1=sha1
+        )
+        document.save()
+        return Response("", status=status.HTTP_201_CREATED)
     else:
         raise Http404
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
+@parser_classes((FileUploadParser, ))
 def record_detail(request, document_type, pk,
                   format=None):  # @ReservedAssignment
     """
     Retrieve a single indexed value.
+
+    POSTing to this url will create a new attachment.
     """
     # document_type = get_object_or_404(models.DocumentType,
     # name=document_type)
@@ -97,12 +129,21 @@ def record_detail(request, document_type, pk,
                                args=[document_type, value.pk, v.pk],
                                request=request)
         return Response(data)
+    elif request.method == 'POST':
+        # Posting will crate a new attachment.
+        raise NotImplementedError
     else:
         raise Http404
 
 
-@api_view(['GET'])
+@api_view(['GET', 'DELETE'])
 def attachment_detail(request, document_type, index_id, attachment_id):
+    """
+    Getting an attachment will return the actual attachment with the proper
+    content-type.
+
+    Attachments can also be deleted.
+    """
     # Assure document type and index id are available.
     value = get_object_or_404(
         models.DocumentIndexAttachment,
@@ -113,6 +154,9 @@ def attachment_detail(request, document_type, index_id, attachment_id):
         response = HttpResponse(content_type=value.content_type)
         response.write(value.data)
         return response
+    elif request.method == 'DELETE':
+        value.delete()
+        return Response("", status=status.HTTP_200_OK)
     else:
         raise Http404
 
