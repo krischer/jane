@@ -9,8 +9,7 @@ from django.http import HttpResponse
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import FileUploadParser
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
@@ -21,7 +20,6 @@ CACHE_TIMEOUT = 60 * 60 * 24
 
 
 @api_view(['GET', 'POST'])
-@parser_classes((FileUploadParser, ))
 def record_list(request, document_type, format=None):  # @ReservedAssignment
     """
     Lists all indexed values.
@@ -109,7 +107,6 @@ def record_list(request, document_type, format=None):  # @ReservedAssignment
 
 
 @api_view(['GET', 'POST'])
-@parser_classes((FileUploadParser, ))
 def record_detail(request, document_type, pk,
                   format=None):  # @ReservedAssignment
     """
@@ -129,14 +126,21 @@ def record_detail(request, document_type, pk,
                                args=[document_type, value.pk, v.pk],
                                request=request)
         return Response(data)
+    # POSTing adds a new attachment.
     elif request.method == 'POST':
-        # Posting will crate a new attachment.
-        raise NotImplementedError
+        content_type = request.content_type
+        category = request.stream.META["HTTP_CATEGORY"]
+
+        models.DocumentIndexAttachment(
+            index=value, category=category,
+            content_type=content_type,
+            data=request.stream.read()).save()
+        return Response("", status=status.HTTP_201_CREATED)
     else:
         raise Http404
 
 
-@api_view(['GET', 'DELETE'])
+@api_view(['GET', 'DELETE', 'PUT'])
 def attachment_detail(request, document_type, index_id, attachment_id):
     """
     Getting an attachment will return the actual attachment with the proper
@@ -156,6 +160,16 @@ def attachment_detail(request, document_type, index_id, attachment_id):
         return response
     elif request.method == 'DELETE':
         value.delete()
+        return Response("", status=status.HTTP_200_OK)
+    elif request.method == "PUT":
+        content_type = request.content_type
+        category = request.stream.META["HTTP_CATEGORY"]
+
+        value.category = category
+        value.content_type = content_type
+        value.data = request.stream.read()
+        value.save()
+
         return Response("", status=status.HTTP_200_OK)
     else:
         raise Http404
