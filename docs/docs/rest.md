@@ -36,6 +36,9 @@ The API endpoint for the waveform data is at
 JANE_ROOT/rest/waveforms
 ```
 
+It can currently display all available traces including a picture and some meta
+information. In the future it might evolve to do some different things.
+
 ## Plugin Data
 
 Jane's document database is based on the notion of plugins: Jane can thus store
