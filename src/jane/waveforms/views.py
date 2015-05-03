@@ -13,7 +13,7 @@ class PNGRenderer(renderers.BaseRenderer):
     media_type = "image/png"
     format = "png"
 
-    def render(self, data, **kwargs):  # @UnusedVariable
+    def render(self, data, media_type=None, renderer_context=None):
         return data
 
 
@@ -21,7 +21,7 @@ class BinaryRenderer(renderers.BaseRenderer):
     media_type = "application/octet-stream"
     format = "binary"
 
-    def render(self, data, **kwargs):  # @UnusedVariable
+    def render(self, data, media_type=None, renderer_context=None):
         return data
 
 
