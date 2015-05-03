@@ -116,7 +116,7 @@ def record_list(request, document_type, format=None):  # @ReservedAssignment
         raise Http404
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'DELETE'])
 def record_detail(request, document_type, pk,
                   format=None):  # @ReservedAssignment
     """
@@ -146,6 +146,11 @@ def record_detail(request, document_type, pk,
             content_type=content_type,
             data=request.stream.read()).save()
         return Response("", status=status.HTTP_201_CREATED)
+    # DELETEing deletes the corresponding Document. NOT REST compliant but
+    # fairly convenient.
+    elif request.method == 'DELETE':
+        value.document.delete()
+        return Response("", status=status.HTTP_200_OK)
     else:
         raise Http404
 

@@ -225,6 +225,27 @@ with open(filename, "rb") as fh:
 assert r.ok
 ```
 
+### Deleting Documents
+
+This is not really REST compliant but fairly convenient to use. To delete a
+documents and **ALL ASSOCIATED INDICES AND THEIR ATTACHMENTS** send a `DELETE`
+request to any of the indices. Please be aware of the consequences!
+
+With `curl`:
+
+```bash
+$ curl -v -X DELETE JANE_ROOT/rest/stationxml/590/
+```
+
+or the Python [requests](http://python-requests.org) library:
+
+```python
+import requests
+
+r = requests.delete("JANE_ROOT/rest/stationxml/590/")
+assert r.ok
+```
+
 
 ## Dealing with Attachments
 
