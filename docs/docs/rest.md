@@ -246,6 +246,44 @@ r = requests.delete("JANE_ROOT/rest/stationxml/590/")
 assert r.ok
 ```
 
+### Modifying Documents
+
+This is not really REST compliant but fairly convenient to use. To delete a
+documents and **ALL ASSOCIATED INDICES AND THEIR ATTACHMENTS** send a `PUT`
+request to any of the indices. Please be aware of the consequences: it will
+delete any existing indices and attachments. It is possible to optionally pass
+`filename` and `name` headers just like for uploading new documents.
+
+Using `curl`:
+
+```bash
+$ curl -v \
+    --data-binary @BW.FURT.xml \
+    -H "Filename: /home/test/BW.FURT.xml" \
+    -H "Name: BW.FURT.xml" \
+    -X PUT JANE_ROOT/rest/stationxml/596/
+```
+
+or the Python [requests](http://python-requests.org) library:
+
+```python
+import os
+import requests
+
+filename = "StationXML/BW.FURT.xml"
+
+headers = {"Filename": filename,
+           "Name": os.path.basename(filename)}
+
+with open(filename, "rb") as fh:
+    r = requests.put(
+        url="http://localhost:7000/rest/stationxml/596/",
+        data=fh,
+        headers=headers)
+
+assert r.ok
+```
+
 
 ## Dealing with Attachments
 

@@ -105,7 +105,7 @@ def record_list(request, document_type, format=None):  # @ReservedAssignment
                 document_type=res_type,
                 filename=filename,
                 name=name,
-                data = buf.read(),
+                data=buf.read(),
                 filesize=size,
                 sha1=sha1
             )
@@ -116,7 +116,7 @@ def record_list(request, document_type, format=None):  # @ReservedAssignment
         raise Http404
 
 
-@api_view(['GET', 'POST', 'DELETE'])
+@api_view(['GET', 'POST', 'DELETE', 'PUT'])
 def record_detail(request, document_type, pk,
                   format=None):  # @ReservedAssignment
     """
@@ -151,6 +151,37 @@ def record_detail(request, document_type, pk,
     elif request.method == 'DELETE':
         value.document.delete()
         return Response("", status=status.HTTP_200_OK)
+    # PUTing changed a document and all associated indices. Again not REST
+    # compliant but fairly convenient to use.
+    elif request.method == 'PUT':
+        # Optional filename and name parameters.
+        filename = request.stream.META["HTTP_FILENAME"] \
+            if "HTTP_FILENAME" in request.stream.META else None
+        name = request.stream.META["HTTP_NAME"] \
+            if "HTTP_NAME" in request.stream.META else None
+
+        with io.BytesIO(request.stream.read()) as buf:
+            sha1 = hashlib.sha1(buf.read()).hexdigest()
+
+            qs = models.Document.objects.filter(sha1=sha1).exists()
+            if qs is True:
+                msg = "File already exists in the database."
+                return Response(msg, status=status.HTTP_409_CONFLICT)
+
+            buf.seek(0, 2)
+            size = buf.tell()
+            buf.seek(0, 0)
+
+            document = value.document
+
+            document.filename = filename
+            document.name = name
+            document.data = buf.read()
+            document.filesize = size
+            document.sha1 = sha1
+            document.save()
+
+        return Response("", status=status.HTTP_201_CREATED)
     else:
         raise Http404
 
