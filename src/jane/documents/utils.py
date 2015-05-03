@@ -70,7 +70,7 @@ def get_document_index_queryset(document_type, query_params):
                     where.append(_get_json_query(key, "=", value_type, value))
         # Handle integers and floats.
         elif value_type in (int, float, obspy.UTCDateTime):
-            choices = ("min_%s", ">"), ("max_%s", "<")
+            choices = ("min_%s", ">="), ("max_%s", "<="), ("%s", "=")
             for name, operator in choices:
                 name = name % key
                 if name not in query_params:
