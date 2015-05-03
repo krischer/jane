@@ -1,6 +1,7 @@
 site_name: Jane Docs
 theme: simplex
 repo_url: https://github.com/krischer/jane/
+use_directory_urls: false
 pages:
 - ['index.md', 'Jane Documentation']
 - ['setup.md', 'Jane Setup']
