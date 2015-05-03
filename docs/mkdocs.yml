@@ -1,0 +1,8 @@
+site_name: Jane Docs
+theme: simplex
+repo_url: https://github.com/krischer/jane/
+pages:
+- ['index.md', 'Jane Documentation']
+- ['setup.md', 'Jane Setup']
+- ['internals.md', 'Jane Internals']
+- ['rest.md', 'Rest Interface']

@@ -6,3 +6,4 @@ src/jane/local_settings.py
 /data
 /static
 /media
+src/jane/static/docs
