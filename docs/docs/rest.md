@@ -190,9 +190,41 @@ GET JANE_ROOT/rest/quakeml?public=true
 
 ### Data Upload
 
+To upload a new document, `POST` to the URL of the document type. One can
+optionally specify the filename and the name of the document in the database by
+passing custom HTTP headers. Both are not crucial for Jane to work but rather
+serve documentary purposes.
+
+Using `curl`:
+
 ```bash
-$ curl -v -F file="@IU.KBL..BH_.xml" -X POST http://localhost:7000/rest/stationxml/
+$ curl -v \
+    --data-binary @BW.FURT.xml \
+    -H "Filename: /home/test/BW.FURT.xml" \
+    -H "Name: BW.FURT.xml" \
+    -X POST JANE_ROOT/rest/stationxml/
 ```
+
+or the Python [requests](http://python-requests.org) library:
+
+```python
+import os
+import requests
+
+filename = "StationXML/BW.FURT.xml"
+
+headers = {"Filename": filename,
+           "Name": os.path.basename(filename)}
+
+with open(filename, "rb") as fh:
+    r = requests.post(
+        url="http://localhost:7000/rest/stationxml/",
+        data=fh,
+        headers=headers)
+
+assert r.ok
+```
+
 
 ## Dealing with Attachments
 

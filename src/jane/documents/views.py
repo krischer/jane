@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import hashlib
+import io
 
 from django.conf import settings
 from django.core.cache import cache
@@ -78,29 +79,38 @@ def record_list(request, document_type, format=None):  # @ReservedAssignment
                 cache.set('record_list_json' + document_type, data,
                           CACHE_TIMEOUT)
         return Response(data)
+    # Posting will add a new model.
     elif request.method == "POST":
+        # Optional filename and name parameters.
+        filename = request.stream.META["HTTP_FILENAME"] \
+            if "HTTP_FILENAME" in request.stream.META else None
+        name = request.stream.META["HTTP_NAME"] \
+            if "HTTP_NAME" in request.stream.META else None
+
         res_type = get_object_or_404(models.DocumentType, name=document_type)
 
-        file = request.FILES["file"]
+        with io.BytesIO(request.stream.read()) as buf:
+            sha1 = hashlib.sha1(buf.read()).hexdigest()
 
-        sha1 = hashlib.sha1(file.read()).hexdigest()
+            qs = models.Document.objects.filter(sha1=sha1).exists()
+            if qs is True:
+                msg = "File already exists in the database."
+                return Response(msg, status=status.HTTP_409_CONFLICT)
 
-        qs = models.Document.objects.filter(sha1=sha1).exists()
-        if qs is True:
-            msg = "File already exists in the database."
-            return Response(msg, status=status.HTTP_409_CONFLICT)
+            buf.seek(0, 2)
+            size = buf.tell()
+            buf.seek(0, 0)
 
-        file.seek(0, 0)
+            document = models.Document(
+                document_type=res_type,
+                filename=filename,
+                name=name,
+                data = buf.read(),
+                filesize=size,
+                sha1=sha1
+            )
+            document.save()
 
-        document = models.Document(
-            document_type=res_type,
-            filename=file.name,
-            name=file.name,
-            data = file.read(),
-            filesize=file.size,
-            sha1=sha1
-        )
-        document.save()
         return Response("", status=status.HTTP_201_CREATED)
     else:
         raise Http404
