@@ -132,20 +132,21 @@ def query(request, user=None):
         msg = 'Bad boolean value for longestonly: %s' % (longestonly)
         return _error(request, msg)
     longestonly = bool(longestonly)
+    username = user.username if user else None
     # process query
     if settings.BROKER_URL == 'DISABLE_CELERY':
         # direct
         status = query_dataselect(networks, stations, locations, channels,
                                   starttime.timestamp, endtime.timestamp,
                                   format, nodata, quality, minimumlength,
-                                  longestonly, user.username)
+                                  longestonly, username)
         task_id = 'debug'
     else:
         # using celery
         task = query_dataselect.delay(networks, stations, locations, channels,
                                       starttime.timestamp, endtime.timestamp,
                                       format, nodata, quality, minimumlength,
-                                      longestonly, user.username)
+                                      longestonly, username)
         task_id = task.task_id
         # check task status for QUERY_TIMEOUT seconds
         asyncresult = AsyncResult(task_id)

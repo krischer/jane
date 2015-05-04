@@ -4,13 +4,14 @@ import io
 from django.contrib.gis.geos.point import Point
 
 import matplotlib
+# Use antigrain interface which also does not require an open display.
+matplotlib.use('agg')
+import matplotlib.pylab as plt  # NOQA
+
 from obspy.station.stationxml import validate_StationXML
 import obspy
 
 from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint
-
-# Use antigrain interface which also does not require an open display.
-matplotlib.use('agg')
 
 
 class StationValidatorPlugin(ValidatorPluginPoint):
@@ -56,6 +57,10 @@ class StationIndexerPlugin(IndexerPluginPoint):
         for network in inv:
             for station in network:
                 for channel in station:
+                    try:
+                        plt.close()
+                    except:
+                        pass
                     # Plot response.
                     plot = io.BytesIO()
                     channel.plot(min_freq=1E-3, outfile=plot)
