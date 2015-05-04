@@ -74,6 +74,13 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                         crossOrigin: null
                     })
                 }),
+                "opentopomap": new ol.layer.Tile({
+                    visible: false,
+                    source: new ol.source.OSM({
+                        url: '//{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png',
+                        crossOrigin: null
+                    })
+                }),
                 "Bing (Road)": new ol.layer.Tile({
                     visible: false,
                     source: new ol.source.BingMaps({
