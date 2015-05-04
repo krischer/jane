@@ -7,6 +7,11 @@ import os
 from celery import shared_task
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+
+import matplotlib
+matplotlib.use("agg")  # NOQA
+import matplotlib.pylab as plt
+
 from obspy.core import read
 from obspy.core.preview import createPreview
 
@@ -68,6 +73,10 @@ def process_file(filename):
 
         # preview image
         try:
+            try:
+                plt.close()
+            except:
+                pass
             plot = io.BytesIO()
             trace.plot(format="png", outfile=plot)
             plot.seek(0, 0)

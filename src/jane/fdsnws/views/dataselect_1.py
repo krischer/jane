@@ -133,6 +133,7 @@ def query(request, user=None):
         return _error(request, msg)
     longestonly = bool(longestonly)
     username = user.username if user else None
+
     # process query
     if settings.BROKER_URL == 'DISABLE_CELERY':
         # direct
