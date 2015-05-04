@@ -2,12 +2,14 @@
 
 import os
 
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from jsonfield.fields import JSONField
 
 from jane.waveforms.utils import to_datetime
+
+User = settings.AUTH_USER_MODEL
 
 
 class Path(models.Model):
