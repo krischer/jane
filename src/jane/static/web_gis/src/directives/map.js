@@ -37,7 +37,7 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
             // at any given time and they share their opacity setting.
             $scope.baseLayers = {
                 "Stamen Toner-Lite": new ol.layer.Tile({
-                    visible: true,
+                    visible: false,
                     source: new ol.source.Stamen({layer: 'toner-lite'})
                 }),
                 "Stamen Toner": new ol.layer.Tile({
@@ -75,7 +75,7 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                     })
                 }),
                 "opentopomap": new ol.layer.Tile({
-                    visible: false,
+                    visible: true,
                     source: new ol.source.OSM({
                         url: '//{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png',
                         crossOrigin: null
