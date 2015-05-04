@@ -15,7 +15,7 @@ module.constant(
 
 // Colors for the different event agencies. From the color brewer website.
 module.constant('event_agency_colors', [
-    'rgba(77, 175, 74, 0.7)',
+    'rgba(0, 0, 255, 0.7)',
     'rgba(152, 78, 163, 0.7)',
     'rgba(228, 26, 28, 0.7)',
     'rgba(255, 127, 0, 0.7)',
@@ -24,8 +24,14 @@ module.constant('event_agency_colors', [
 
 
 module.constant('station_colors', [
-    '#ff7f00', '#1f78b4', '#a6cee3', '#33a02c', '#b2df8a', '#e31a1c',
-    '#fb9a99', '#fdbf6f']);
+    '#ff7f00',
+    '#1f78b4',
+    '#a6cee3',
+    '#33a02c',
+    '#b2df8a',
+    '#e31a1c',
+    '#fb9a99',
+    '#fdbf6f']);
 
 
 // Factory dealing with events.
