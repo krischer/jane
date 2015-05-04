@@ -45,6 +45,9 @@ CACHE = {
     }
 }
 
+# RabbitMQ broker URL.
+BROKER_URL = 'amqp://jane:jane@127.0.0.1:5672/jane'
+
 
 # set GEOS_LIBRARY_PATH dynamically on Windows -> requires GDAL package
 # import osgeo

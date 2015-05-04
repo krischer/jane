@@ -20,8 +20,6 @@ furthermore
 and the following Python modules
 
 * `obspy==0.10`
-* `sqlalchemy==0.9`
-* `basemap==1.0.7`
 * `django==1.7`
 * `celery`
 * `django-celery`
@@ -42,6 +40,7 @@ and the following Python modules
 * `flake8`
 * `django-debug-toolbar`
 * `django-debug-toolbar-template-timings`
+* `mkdocs`
 
 
 ## Installation of Python and the Dependencies
@@ -56,14 +55,32 @@ $ pip install celery django-celery watchdog jsonfield django-plugins djangorestf
 
 ## PostgreSQL Setup
 
-PostgreSQL should also be run as a service via whatever mechanism your operating system requires. It is also good practice to run PostgreSQL as another non-root user to minimize the attack surface. The database name, user, and password can of course be changed and be configured within `Jane`.
+PostgreSQL should also be run as a service via whatever mechanism your
+operating system requires. It is also good practice to run PostgreSQL as
+another non-root user to minimize the attack surface. The database name, user,
+and password can of course be changed and be configured within `Jane`.
+
+If you don't run PostgreSQL as a service (**DO NOT DO THIS IN PRODUCTION**),
+you can initalize and start it with:
 
 ```bash
 initdb -D /path/to/db
 postgres -D /path/to/db
 createuser --superuser postgres
-createuser --createdb --no-createrole --no-superuser jane
+```
+
+Jane needs a database to work with. Here we will create a new database user
+`jane` and a new database also called `jane`. You are free to choose the names
+however you see fit.
+
+```bash
+createuser --encrypted --pwprompt jane
 createdb --owner=jane jane
+```
+
+The last step is to enable the PostGIS extension for the just created database.
+
+```bash
 psql --command="CREATE EXTENSION postgis;" jane
 ```
 
