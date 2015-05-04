@@ -10,11 +10,15 @@ from jane.documents import models
 
 # Cache the plugin metainformation to only have to retrieve it once.
 PLUGIN_META_CACHE = {}
-for plugin in jane.documents.plugins.IndexerPluginPoint.get_plugins():
-    if not plugin.is_active():
-        continue
-    plugin = plugin.get_plugin()
-    PLUGIN_META_CACHE[plugin.name] = plugin.meta
+# Cannot be imported until plugins are synced...
+try:
+    for plugin in jane.documents.plugins.IndexerPluginPoint.get_plugins():
+        if not plugin.is_active():
+            continue
+        plugin = plugin.get_plugin()
+        PLUGIN_META_CACHE[plugin.name] = plugin.meta
+except:
+    pass
 
 
 def get_document_index_queryset(document_type, query_params):
