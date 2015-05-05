@@ -12,7 +12,6 @@ import os
 
 from celery import shared_task
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db.models import Q
 from lxml import etree
 import obspy
@@ -501,7 +500,7 @@ def query_dataselect(networks, stations, locations, channels, starttime,
     if not username:
         restrictions = Restriction.objects.all()
     else:
-        user = User.objects.get(username=username)
+        user = settings.AUTH_USER_MODEL.objects.get(username=username)
         restrictions = Restriction.objects.exclude(users=user)
     for restriction in restrictions:
         query = query.exclude(network=restriction.network,

@@ -15,7 +15,7 @@ The hierarchy is fairly simple:
 
 New document types can be defined by adding new plug-ins.
 """
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.gis.db import models
 from djangoplugins.fields import ManyPluginField
 from jsonfield.fields import JSONField
@@ -70,7 +70,8 @@ class Document(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     # Editable in the admin interface; maybe someone wants to change it due
     # to some reason.
-    created_by = models.ForeignKey(User, null=True, editable=True,
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
+                                   editable=True,
                                    related_name='documents_created')
 
     def __str__(self):
