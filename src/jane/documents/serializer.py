@@ -7,6 +7,11 @@ from rest_framework_gis.serializers import GeoModelSerializer
 from jane.documents import models
 
 
+class DocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Document
+
+
 class AttachmentSerializer(serializers.ModelSerializer):
 
     url = serializers.URLField(source='pk', read_only=True)
@@ -45,11 +50,11 @@ class RecordSerializer(GeoModelSerializer):
                   'geometry', 'attachments', 'created_at')
 
 
-class PaginatedRecordSerializer(pagination.PaginationSerializer):
-    """
-    Serializes page objects of index querysets.
-    """
-    pages = serializers.Field(source='paginator.num_pages')
-
-    class Meta:
-        object_serializer_class = RecordSerializer
+# class PaginatedRecordSerializer(pagination.PaginationSerializer):
+#     """
+#     Serializes page objects of index querysets.
+#     """
+#     pages = serializers.Field(source='paginator.num_pages')
+#
+#     class Meta:
+#         object_serializer_class = RecordSerializer

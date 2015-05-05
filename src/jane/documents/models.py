@@ -58,27 +58,30 @@ class Document(models.Model):
     A document of a particular type.
     """
     document_type = models.ForeignKey(DocumentType, related_name='documents')
-    name = models.SlugField(max_length=255, null=True, blank=True,
-                            db_index=True)
+    # Name must be given.
+    name = models.SlugField(max_length=255, db_index=True)
+    # Filename is optional and only serves documentary purposes.
     filename = models.CharField(max_length=255, blank=True, null=True)
-    content_type = models.CharField(max_length=255, blank=True, null=True)
+    # Content type must be given.
+    content_type = models.CharField(max_length=255)
     data = models.BinaryField()
     filesize = models.IntegerField()
     sha1 = models.CharField(max_length=40, db_index=True, unique=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    created_by = models.ForeignKey(User, null=True, editable=False,
-                                   related_name='revisions_created')
-    modified_at = models.DateTimeField(auto_now=True, editable=False)
-    modified_by = models.ForeignKey(User, null=True, editable=False,
-                                    related_name='revisions_modified')
+    # Editable in the admin interface; maybe someone wants to change it due
+    # to some reason.
+    created_by = models.ForeignKey(User, null=True, editable=True,
+                                   related_name='documents_created')
 
     def __str__(self):
-        return str(self.pk)
+        return "Document of type '%s', name: %s" % (self.document_type,
+                                                    self.name)
 
     class Meta:
         ordering = ['pk']
         verbose_name = 'Document'
         verbose_name_plural = 'Documents'
+        unique_together = ['document_type', 'name']
 
     def save(self, *args, **kwargs):
         super(Document, self).save(*args, **kwargs)
@@ -100,8 +103,7 @@ class DocumentIndex(models.Model):
     """
     Indexed values for a specific document.
     """
-    document = models.ForeignKey(
-        Document, related_name='indices')
+    document = models.ForeignKey(Document, related_name='indices')
     json = PostgreSQLJsonField(verbose_name="JSON")
     geometry = models.GeometryCollectionField(blank=True, null=True,
                                               geography=True)
@@ -122,8 +124,7 @@ class DocumentIndexAttachment(models.Model):
     """
     Attachments for one Document.
     """
-    index = models.ForeignKey(DocumentIndex,
-                              related_name='attachments')
+    index = models.ForeignKey(DocumentIndex, related_name='attachments')
     category = models.SlugField(max_length=20, db_index=True)
     content_type = models.CharField(max_length=255)
     data = models.BinaryField()

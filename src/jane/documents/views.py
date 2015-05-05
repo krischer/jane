@@ -16,8 +16,58 @@ from rest_framework.reverse import reverse
 
 from jane.documents import models, serializer, utils
 
+from rest_framework import viewsets
+
 
 CACHE_TIMEOUT = 60 * 60 * 24
+
+
+class GenericDocumentView(viewsets.ReadOnlyModelViewSet):
+    document_type = None
+    serializer_class = serializer.DocumentSerializer
+
+    def get_queryset(self):
+        res_type = get_object_or_404(models.DocumentType,
+                                     name=self.document_type)
+
+        queryset = models.Document.objects. \
+            filter(document_type=res_type)
+
+        return queryset
+
+
+def get_document_viewset(document_type):
+    obj = type("DocumentType%s" % document_type.capitalize(),
+               (GenericDocumentView, ), {})
+    obj.document_type = document_type
+    return obj
+
+
+# Now create one for each document type.
+document_viewsets = {
+    _i.name: get_document_viewset(_i.name)
+    for _i in models.DocumentType.objects.all()
+}
+
+
+@api_view(['GET'])
+def documents_rest_root(request, format=None):
+    """
+    Index of all document types.
+    """
+    if request.method == "GET":
+        # DRF likes to have strings. This is a bit magic but does the trick.
+        data = [(_i, reverse("rest_documents_%s-list" % _i, request=request))
+                for _i in document_viewsets.keys()]
+
+        return Response([
+            {'document_type': i[0],
+             'url': i[1],
+             'available_documents':
+                models.Document.objects.filter(document_type=i[0]).count()}
+                for i in sorted(data, key=lambda x: x[0])])
+    else:
+        raise Http404
 
 
 @api_view(['GET', 'POST'])

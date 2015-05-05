@@ -200,9 +200,10 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
-        'rest_framework.renderers.XMLRenderer',
-        'rest_framework.renderers.YAMLRenderer',
-        'rest_framework.renderers.JSONPRenderer'
+        # Starting with DRF 3, some renderers get moved to separate modules.
+        'rest_framework_xml.renderers.XMLRenderer',
+        'rest_framework_yaml.renderers.YAMLRenderer',
+        'rest_framework_jsonp.renderers.JSONPRenderer'
     ),
 
     # Use Django's standard `django.contrib.auth` permissions,
@@ -210,15 +211,16 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PERMISSION_CLASSES': [
     #     'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     # ],
-    'DEFAULT_FILTER_BACKENDS': [
-        'rest_framework.filters.DjangoFilterBackend'
-    ],
-    # Default to 10
-    'PAGINATE_BY': 10,
-    # Allow client to override, using `?page_size=xxx`.
-    'PAGINATE_BY_PARAM': 'page_size',
-    # Maximum limit allowed when using `?page_size=xxx`.
-    'MAX_PAGINATE_BY': 100
+    # 'DEFAULT_FILTER_BACKENDS': [
+    #     'rest_framework.filters.DjangoFilterBackend'
+    # ],
+
+    # Pagination. This one here gives access to `limit` and `offset`
+    # parameters and still has nice page numbers in the web API.
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.LimitOffsetPagination',
+    # Default to 10.
+    'PAGE_SIZE': 10
 }
 
 
