@@ -69,15 +69,12 @@ class DocumentAdmin(admin.ModelAdmin):
         'content_type',
         'format_filesize',
         'created_at',
-        'created_by',
-        'modified_at',
-        'modified_by'
+        'created_by'
         ]
     list_filter = ['document_type', 'created_at', 'created_by',
-                   'modified_at', 'modified_by']
+                   'created_at', 'created_by']
     readonly_fields = ['document_type', 'format_filesize', 'sha1',
-                       'created_at', 'created_by', 'modified_at',
-                       'modified_by', 'format_data']
+                       'created_at', 'created_by', 'format_data']
     exclude = ['filesize']
     inlines = [DocumentIndexInline]
 

@@ -6,6 +6,7 @@ import io
 from django.conf import settings
 from django.core.cache import cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.utils import ProgrammingError
 from django.http import HttpResponse
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
@@ -44,10 +45,15 @@ def get_document_viewset(document_type):
 
 
 # Now create one for each document type.
-document_viewsets = {
-    _i.name: get_document_viewset(_i.name)
-    for _i in models.DocumentType.objects.all()
-}
+# XXX: Will fails for the original database sync as the plugins are not yet
+# synchronized.
+try:
+    document_viewsets = {
+        _i.name: get_document_viewset(_i.name)
+        for _i in models.DocumentType.objects.all()
+    }
+except ProgrammingError:
+    document_viewsets = {}
 
 
 @api_view(['GET'])
