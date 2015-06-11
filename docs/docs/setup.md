@@ -20,15 +20,15 @@ furthermore
 and the following Python modules
 
 * `obspy==0.10`
-* `django==1.7`
+* `django==1.8`
 * `celery`
 * `django-celery`
 * `watchdog`
 * `psycopg2`
 * `jsonfield`
 * `django-plugins`
-* `djangorestframework==2.4`
-* `djangorestframework-gis==0.7`
+* `djangorestframework==3.1`
+* `djangorestframework-gis==0.8`
 * `markdown`
 * `django-filter`
 * `pyyaml`
@@ -48,8 +48,8 @@ and the following Python modules
 A simple way to install an up-to-date version of the dependencies is to use the Anaconda Python distribution. Once that is installed, the following two lines should do the trick:
 
 ```bash
-$ conda install -c obspy obspy django==1.7 psycopg2 markdown flake8 gdal basemap pyyaml
-$ pip install celery django-celery watchdog jsonfield django-plugins djangorestframework==2.4 djangorestframework-gis==0.7 defusedxml geojson django-cors-headers django_like django-debug-toolbar django-debug-toolbar-template-timings
+$ conda install -c obspy obspy django==1.8 psycopg2 markdown flake8 gdal basemap pyyaml
+$ pip install celery django-celery watchdog jsonfield django-plugins djangorestframework==3.1 djangorestframework-gis==0.8 defusedxml geojson django-cors-headers django_like django-debug-toolbar django-debug-toolbar-template-timings
 ```
 
 
@@ -101,12 +101,6 @@ This command will setup all necessary tables and what not.
 ```bash
 $ python manage.py migrate
 $ python manage.py createsupseruser
-```
-
-This should also sync the `Jane` plugins. If it does not, please run
-
-```bash
-$ python manage.py syncplugins
 ```
 
 ## Start Celery workers

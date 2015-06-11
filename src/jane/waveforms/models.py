@@ -23,6 +23,7 @@ class Path(models.Model):
         return self.name
 
     class Meta:
+        app_label = "jane.waveforms"
         ordering = ['name']
 
     def validate_name(self, value):
@@ -54,6 +55,7 @@ class File(models.Model):
         return self.name
 
     class Meta:
+        app_label = "jane.waveforms"
         ordering = ['-created_at']
         unique_together = ['path', 'name']
 
@@ -96,6 +98,7 @@ class ContinuousTrace(models.Model):
             self.starttime, self.endtime, self.sampling_rate, self.npts)
 
     class Meta:
+        app_label = "jane.waveforms"
         ordering = ['-starttime', '-endtime', 'network', 'station',
                     'location', 'channel']
         unique_together = ['file', 'network', 'station', 'location', 'channel',
@@ -131,6 +134,7 @@ class Mapping(models.Model):
             self.new_location, self.new_channel)
 
     class Meta:
+        app_label = "jane.waveforms"
         ordering = ['-starttime', '-endtime']
 
 
@@ -156,3 +160,6 @@ class Restriction(models.Model):
         self.network = self.network.upper().strip()
         self.station = self.station.upper().strip()
         super(Restriction, self).save(*args, **kwargs)
+
+    class Meta:
+        app_label = "jane.waveforms"
