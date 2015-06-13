@@ -37,11 +37,11 @@ class DocumentType(models.Model):
     """
     name = models.SlugField(max_length=20, primary_key=True)
     # Plugins for this document type.
-    indexers = ManyPluginField(plugins.IndexerPluginPoint, null=True,
+    indexers = ManyPluginField(plugins.IndexerPluginPoint,
                                blank=True, related_name='indexers')
-    validators = ManyPluginField(plugins.ValidatorPluginPoint, null=True,
+    validators = ManyPluginField(plugins.ValidatorPluginPoint,
                                  blank=True, related_name='validators')
-    converters = ManyPluginField(plugins.ConverterPluginPoint, null=True,
+    converters = ManyPluginField(plugins.ConverterPluginPoint,
                                  blank=True, related_name='converters')
 
     def __str__(self):
@@ -56,23 +56,32 @@ class DocumentType(models.Model):
 class Document(models.Model):
     """
     A document of a particular type.
+
+    Each document within Jane's document database is essentially a file of
+    any type that is described by indices.
     """
+    # The type of the document. Depends on the available Jane plug-ins.
     document_type = models.ForeignKey(DocumentType, related_name='documents')
-    # Name must be given.
+    # The name of that particular document. Oftentimes the filename. Unique
+    # together with the document type to enable a nice REST API.
     name = models.SlugField(max_length=255, db_index=True)
-    # Filename is optional and only serves documentary purposes.
-    filename = models.CharField(max_length=255, blank=True, null=True)
-    # Content type must be given.
+    # The content type of the data. Must be given to be able to provide a
+    # reasonable HTTP view of the data.
     content_type = models.CharField(max_length=255)
+    # The actual data as a binary field.
     data = models.BinaryField()
+    # The file's size in bytes.
     filesize = models.IntegerField()
-    sha1 = models.CharField(max_length=40, db_index=True, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    # Editable in the admin interface; maybe someone wants to change it due
-    # to some reason.
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
-                                   editable=True,
+    # sha1 hash of the data to avoid duplicates.
+    sha1 = models.CharField(max_length=40, db_index=True, unique=True,
+                            editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now_add=True)
+    # Users responsible for the aforementioned actions.
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL,
                                    related_name='documents_created')
+    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                    related_name='documents_modified')
 
     def __str__(self):
         return "Document of type '%s', name: %s" % (self.document_type,
@@ -84,17 +93,12 @@ class Document(models.Model):
         verbose_name_plural = 'Documents'
         unique_together = ['document_type', 'name']
 
-    def save(self, *args, **kwargs):
-        super(Document, self).save(*args, **kwargs)
-
 
 class _DocumentIndexManager(models.GeoManager):
     """
     Custom queryset manager for the document indices.
     """
     def get_queryset(self):
-        """
-        """
         return super(_DocumentIndexManager, self).get_queryset().\
             select_related('attachments').\
             prefetch_related('attachments')
