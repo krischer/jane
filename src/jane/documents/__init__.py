@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from . import signals  # NOQA
+# from . import signals  # NOQA

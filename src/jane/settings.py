@@ -173,19 +173,6 @@ INSTALLED_APPS += [
 
 
 ###############################################################################
-# Jane
-###############################################################################
-INSTALLED_APPS += [
-    'jane.waveforms',
-    'jane.documents',
-    'jane.stationxml',
-    'jane.quakeml',
-    'jane.fdsnws',
-    'jane.jane'
-]
-
-
-###############################################################################
 # Django REST framework
 ###############################################################################
 INSTALLED_APPS += [
@@ -283,6 +270,20 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.redirects.RedirectsPanel',
     'template_timings_panel.panels.TemplateTimings.TemplateTimings',
 ]
+
+###############################################################################
+# Jane
+###############################################################################
+INSTALLED_APPS += [
+    'jane.jane',
+    'jane.waveforms',
+    'jane.documents',
+    'jane.stationxml',
+    'jane.quakeml',
+    'jane.fdsnws'
+]
+
+
 
 
 ###############################################################################

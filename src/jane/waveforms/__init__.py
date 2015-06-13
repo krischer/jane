@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-from . import tasks  # NOQA
+# from . import tasks  # NOQA

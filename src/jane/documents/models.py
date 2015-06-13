@@ -48,7 +48,6 @@ class DocumentType(models.Model):
         return self.name
 
     class Meta:
-        app_label = "jane.documents"
         ordering = ['name']
         verbose_name = 'Document Type'
         verbose_name_plural = 'Document Types'
@@ -80,7 +79,6 @@ class Document(models.Model):
                                                     self.name)
 
     class Meta:
-        app_label = "jane.documents"
         ordering = ['pk']
         verbose_name = 'Document'
         verbose_name_plural = 'Documents'
@@ -115,7 +113,6 @@ class DocumentIndex(models.Model):
     objects = _DocumentIndexManager()
 
     class Meta:
-        app_label = "jane.documents"
         ordering = ['pk']
         verbose_name = 'Index'
         verbose_name_plural = 'Indices'
@@ -135,7 +132,6 @@ class DocumentIndexAttachment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:
-        app_label = "jane.documents"
         ordering = ['pk']
         verbose_name = 'Attachment'
         verbose_name_plural = 'Attachments'
