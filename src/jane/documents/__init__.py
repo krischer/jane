@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-# from . import signals  # NOQA
+default_app_config = "jane.documents.apps.JaneDocumentsConfig"
