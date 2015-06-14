@@ -39,7 +39,10 @@ class DocumentType(models.Model):
     # Plugins for this document type.
     definition = PluginField(plugins.DocumentPluginPoint,
                              related_name="definition")
+    # Each document type must have exactly one indexer.
     indexer = PluginField(plugins.IndexerPluginPoint, related_name='indexer')
+    # It can have any number of validators. It is strongly recommended to
+    # provide at least one.
     validators = ManyPluginField(plugins.ValidatorPluginPoint, blank=True,
                                  related_name='validators')
 
