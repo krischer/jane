@@ -23,12 +23,12 @@ from jsonfield.fields import JSONField
 from jane.documents import plugins
 
 
-class PostgreSQLJsonField(JSONField):
+class PostgreSQLJSONBField(JSONField):
     """
-    Make the JSONField actually use JSON as a datatype.
+    Make the JSONField use JSONB as a datatype, a typed JSON variant.
     """
     def db_type(self, connection):
-        return "json"
+        return "jsonb"
 
 
 class DocumentType(models.Model):
@@ -111,7 +111,7 @@ class DocumentIndex(models.Model):
     Indexed values for a specific document.
     """
     document = models.ForeignKey(Document, related_name='indices')
-    json = PostgreSQLJsonField(verbose_name="JSON")
+    json = PostgreSQLJSONBField(verbose_name="JSON")
     geometry = models.GeometryCollectionField(blank=True, null=True,
                                               geography=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
