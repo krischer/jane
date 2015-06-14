@@ -26,9 +26,5 @@ for name, viewset in views.document_viewsets.items():
     urlpatterns.append(url(r'^rest/documents/', include(router.urls)))
 
 
-# XXX: currently fails for initial syncdb
-try:
-    from .plugins import initialize_plugins
-    available_plugins = initialize_plugins()
-except:
-    pass
+from .plugins import initialize_plugins
+available_plugins = initialize_plugins()

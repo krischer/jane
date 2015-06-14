@@ -11,7 +11,7 @@ from jane.documents import models
 
 
 @receiver(pre_save, sender=models.Document)
-def validate_document(sender, instance, **kwargs):  # @UnusedVariable
+def validate_document(sender, instance, **kwargs):
     """
     Validate document before saving using validators of specified document type
     """
@@ -29,23 +29,12 @@ def validate_document(sender, instance, **kwargs):  # @UnusedVariable
 
 
 @receiver(pre_save, sender=models.Document)
-def set_content_type(sender, instance, **kwargs):  # @UnusedVariable
-    # One of the validators must contain a content-type of the data.
-    validators = instance.document_type.validators.all()
-    content_types = []
-    for validator in validators:
-        plugin = validator.get_plugin()
-        if hasattr(plugin, "content_type"):
-            content_types.append(plugin.content_type)
-    content_types = set(content_types)
-    if not content_types:
-        raise Exception("At least one of the validators must contains a "
-                        "content type.")
-    if len(content_types) != 1:
-        raise Exception("More then one content type defined for the document "
-                        "types validators")
-    content_type = content_types.pop()
-    instance.content_type = content_type
+def set_content_type(sender, instance, **kwargs):
+    # If not set, use the default content type for that particular document
+    # type.
+    if not instance.content_type:
+        instance.content_type = \
+            instance.document_type.definition.default_content_type
 
 
 @receiver(post_save, sender=models.Document)

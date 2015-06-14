@@ -17,7 +17,7 @@ New document types can be defined by adding new plug-ins.
 """
 from django.conf import settings
 from django.contrib.gis.db import models
-from djangoplugins.fields import ManyPluginField
+from djangoplugins.fields import PluginField, ManyPluginField
 from jsonfield.fields import JSONField
 
 from jane.documents import plugins
@@ -37,12 +37,11 @@ class DocumentType(models.Model):
     """
     name = models.SlugField(max_length=20, primary_key=True)
     # Plugins for this document type.
-    indexers = ManyPluginField(plugins.IndexerPluginPoint,
-                               blank=True, related_name='indexers')
-    validators = ManyPluginField(plugins.ValidatorPluginPoint,
-                                 blank=True, related_name='validators')
-    converters = ManyPluginField(plugins.ConverterPluginPoint,
-                                 blank=True, related_name='converters')
+    definition = PluginField(plugins.DocumentPluginPoint,
+                             related_name="definition")
+    indexer = PluginField(plugins.IndexerPluginPoint, related_name='indexer')
+    validators = ManyPluginField(plugins.ValidatorPluginPoint, blank=True,
+                                 related_name='validators')
 
     def __str__(self):
         return self.name
@@ -69,14 +68,14 @@ class Document(models.Model):
     # reasonable HTTP view of the data.
     content_type = models.CharField(max_length=255)
     # The actual data as a binary field.
-    data = models.BinaryField()
+    data = models.BinaryField(editable=False)
     # The file's size in bytes.
-    filesize = models.IntegerField()
+    filesize = models.IntegerField(editable=False)
     # sha1 hash of the data to avoid duplicates.
     sha1 = models.CharField(max_length=40, db_index=True, unique=True,
                             editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    modified_at = models.DateTimeField(auto_now=True, editable=False)
     # Users responsible for the aforementioned actions.
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL,
                                    related_name='documents_created')

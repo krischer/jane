@@ -11,13 +11,18 @@ import matplotlib.pylab as plt  # NOQA
 from obspy.station.stationxml import validate_StationXML
 import obspy
 
-from jane.documents.plugins import ValidatorPluginPoint, IndexerPluginPoint
+from jane.documents.plugins import (ValidatorPluginPoint, IndexerPluginPoint,
+                                    DocumentPluginPoint)
+
+
+class StationXMLPlugin(DocumentPluginPoint):
+    name = 'stationxml'
+    title = "StationXML Plugin for Jane's Document Database"
+    default_content_type = 'text/xml'
 
 
 class StationValidatorPlugin(ValidatorPluginPoint):
     name = 'stationxml'
-    # The validators must contain a content-type field.
-    content_type = "text/xml"
     title = 'StationXML XMLSchema Validator'
 
     def validate(self, document):
@@ -31,24 +36,19 @@ class StationIndexerPlugin(IndexerPluginPoint):
     name = 'stationxml'
     title = 'StationXML Indexer'
 
-    @property
-    def meta(self):
-        """
-        This defines which fields can be searched over in the indices.
-        """
-        return {
-            "network": {"type": str},
-            "station": {"type": str},
-            "location": {"type": str},
-            "channel": {"type": str},
-            "latitude": {"type": float},
-            "longitude": {"type": float},
-            "elevation_in_m": {"type": float},
-            "depth_in_m": {"type": float},
-            "start_date": {"type": obspy.UTCDateTime},
-            "end_date": {"type": obspy.UTCDateTime},
-            "sample_rate": {"type": float},
-            "sensor_type": {"type": str},
+    meta = {
+        "network": "str",
+        "station": "str",
+        "location": "str",
+        "channel": "str",
+        "latitude": "float",
+        "longitude": "float",
+        "elevation_in_m": "float",
+        "depth_in_m": "float",
+        "start_date": "UTCDateTime",
+        "end_date": "UTCDateTime",
+        "sample_rate": "float",
+        "sensor_type": "str"
         }
 
     def index(self, document):
