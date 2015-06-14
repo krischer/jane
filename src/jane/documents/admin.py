@@ -16,8 +16,8 @@ class DocumentTypeAdmin(admin.ModelAdmin):
     Everything is readonly as these models are filled with installed
     Jane plugins.
     """
-    list_display = ["name", "format_validators"]
-    readonly_fields = ["name", "indexer", "validators"]
+    list_display = ["name", "definition", "indexer", "format_validators"]
+    readonly_fields = ["name", "definition", "indexer", "validators"]
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -60,12 +60,25 @@ class DocumentAdmin(admin.ModelAdmin):
         'content_type',
         'format_filesize',
         'created_at',
-        'created_by'
+        'modified_at',
+        'created_by',
+        'modified_by'
         ]
-    list_filter = ['document_type', 'created_at', 'created_by',
-                   'created_at', 'created_by']
-    readonly_fields = ['document_type', 'format_filesize', 'sha1',
-                       'created_at', 'created_by', 'format_data']
+    list_filter = [
+        'document_type',
+        'created_at',
+        'modified_at',
+        'created_by',
+        'modified_by']
+    readonly_fields = [
+        'document_type',
+        'format_filesize',
+        'sha1',
+        'created_at',
+        'created_by',
+        'modified_at',
+        'modified_by',
+        'format_data']
     exclude = ['filesize']
     inlines = [DocumentIndexInline]
 
@@ -133,8 +146,11 @@ class DocumentIndexAttachmentInline(admin.TabularInline):
 
 
 class DocumentIndexAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'format_document_type', 'format_document',
-                    'created_at']
+    list_display = [
+        'pk',
+        'format_document_type',
+        'format_document',
+        'created_at']
     list_filter = ['created_at', 'document__document_type']
 
     inlines = [DocumentIndexAttachmentInline]

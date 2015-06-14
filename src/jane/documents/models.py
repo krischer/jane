@@ -96,14 +96,14 @@ class Document(models.Model):
         unique_together = ['document_type', 'name']
 
 
-class _DocumentIndexManager(models.GeoManager):
-    """
-    Custom queryset manager for the document indices.
-    """
-    def get_queryset(self):
-        return super(_DocumentIndexManager, self).get_queryset().\
-            select_related('attachments').\
-            prefetch_related('attachments')
+# class _DocumentIndexManager(models.GeoManager):
+#     """
+#     Custom queryset manager for the document indices.
+#     """
+#     def get_queryset(self):
+#         return super(_DocumentIndexManager, self).get_queryset().\
+#             select_related('attachments').\
+#             prefetch_related('attachments')
 
 
 class DocumentIndex(models.Model):
@@ -116,7 +116,7 @@ class DocumentIndex(models.Model):
                                               geography=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
-    objects = _DocumentIndexManager()
+    # objects = _DocumentIndexManager()
 
     class Meta:
         ordering = ['pk']
