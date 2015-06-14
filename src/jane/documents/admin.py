@@ -16,7 +16,7 @@ class DocumentTypeAdmin(admin.ModelAdmin):
     Everything is readonly as these models are filled with installed
     Jane plugins.
     """
-    list_display = ["name", "format_indexers", "format_validators"]
+    list_display = ["name", "format_validators"]
     readonly_fields = ["name", "indexer", "validators"]
 
     def has_add_permission(self, request, obj=None):
@@ -24,10 +24,6 @@ class DocumentTypeAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
-
-    def format_indexers(self, obj):
-        length = len(obj.indexers.values())
-        return "%i registered Indexer(s)" % length
 
     def format_validators(self, obj):
         length = len(obj.validators.values())
