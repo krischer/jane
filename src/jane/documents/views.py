@@ -24,6 +24,9 @@ CACHE_TIMEOUT = 60 * 60 * 24
 
 
 class GenericDocumentView(viewsets.ReadOnlyModelViewSet):
+    """
+    Simple read-only view-set for documents of a particular document type.
+    """
     document_type = None
     serializer_class = serializer.DocumentSerializer
 
@@ -37,23 +40,65 @@ class GenericDocumentView(viewsets.ReadOnlyModelViewSet):
         return queryset
 
 
-def get_document_viewset(document_type):
-    obj = type("DocumentType%s" % document_type.capitalize(),
-               (GenericDocumentView, ), {})
+class GenericDocumentIndexView(viewsets.ReadOnlyModelViewSet):
+    """
+    Simple read-only view-set for document indices of a particular document
+    type.
+    """
+    document_type = None
+    serializer_class = serializer.DocumentIndexSerializer
+
+    def get_queryset(self):
+        res_type = get_object_or_404(models.DocumentType,
+                                     name=self.document_type)
+
+        queryset = models.DocumentIndex.objects. \
+            filter(document__document_type=res_type)
+
+        return queryset
+
+
+def viewset_factory(base_class, base_name, document_type):
+    """
+    Factory to create a view-set for a certain document type by inheriting
+    from a base class.
+
+    The name of the class will be
+
+    ``'%s.%s' % (base_name, document_type.capitalize())
+
+    :param base_class: The class to inherit from.
+    :param base_name: Prefix for the class name.
+    :param document_type: The document type for which to generate a view-set.
+    """
+    obj = type("%s%s" % (base_name, document_type.capitalize()),
+               (base_class, ), {})
     obj.document_type = document_type
     return obj
 
-
 # Now create one for each document type.
-# XXX: Will fails for the original database sync as the plugins are not yet
+# XXX: Will fail for the original database sync as the plugins are not yet
 # synchronized.
 try:
     document_viewsets = {
-        _i.name: get_document_viewset(_i.name)
+        _i.name: viewset_factory(GenericDocumentView, "DocumentType", _i.name)
         for _i in models.DocumentType.objects.all()
     }
 except ProgrammingError:
     document_viewsets = {}
+
+
+# Now create one for each document type.
+# XXX: Will fail for the original database sync as the plugins are not yet
+# synchronized.
+try:
+    document_index_viewsets = {
+        _i.name: viewset_factory(GenericDocumentIndexView,
+                                 "DocumentTypeIndex", _i.name)
+        for _i in models.DocumentType.objects.all()
+    }
+except ProgrammingError:
+    document_index_viewsets = {}
 
 
 @api_view(['GET'])
@@ -69,9 +114,35 @@ def documents_rest_root(request, format=None):
         return Response([
             {'document_type': i[0],
              'url': i[1],
+             'description': models.DocumentType.objects.get(name=i[0])
+                 .definition.get_plugin().title,
              'available_documents':
                 models.Document.objects.filter(document_type=i[0]).count()}
                 for i in sorted(data, key=lambda x: x[0])])
+    else:
+        raise Http404
+
+@api_view(['GET'])
+def documents_indices_rest_root(request, format=None):
+    """
+    Index of all document types for the document indices.
+    """
+    if request.method == "GET":
+        # DRF likes to have strings. This is a bit magic but does the trick.
+        data = [(_i, reverse("rest_document_indices_%s-list" % _i,
+                             request=request))
+                for _i in document_index_viewsets.keys()]
+
+
+        return Response([
+            {'document_type': i[0],
+             'url': i[1],
+             'description': models.DocumentType.objects.get(name=i[0])
+                 .definition.get_plugin().title,
+             'available_indices':
+                 models.DocumentIndex.objects.filter(
+                     document__document_type=i[0]).count()}
+            for i in sorted(data, key=lambda x: x[0])])
     else:
         raise Http404
 

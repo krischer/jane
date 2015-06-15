@@ -8,6 +8,7 @@ from jane.jane.utils import OptionalTrailingSlashSimpleRouter
 
 urlpatterns = [
     url(r'^rest/documents/?$', views.documents_rest_root),
+    url(r'^rest/document_indices/?$', views.documents_indices_rest_root),
     url(r'^rest/(?P<document_type>\w+)/$', views.record_list),
     url(r'^rest/(?P<document_type>\w+)/(?P<pk>[0-9]+)/$',
         views.record_detail),
@@ -24,6 +25,12 @@ for name, viewset in views.document_viewsets.items():
     router.register(name, viewset, base_name="rest_documents_%s" % name)
 
     urlpatterns.append(url(r'^rest/documents/', include(router.urls)))
+
+for name, viewset in views.document_index_viewsets.items():
+    router = OptionalTrailingSlashSimpleRouter(trailing_slash=False)
+    router.register(name, viewset, base_name="rest_document_indices_%s" % name)
+
+    urlpatterns.append(url(r'^rest/document_indices/', include(router.urls)))
 
 
 from .plugins import initialize_plugins

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 
@@ -12,22 +14,60 @@ from jane.documents import models, views
 @api_view(['GET'])
 def rest_root(request, format=None):
     """
-    The root of the Jane's REST interface. Lists all registered
-    document document types + the waveform type.
+    The root of Jane's REST interface. From here you have access to three
+    subsections:
+
+    **/waveforms**
+    <div style="margin-left: 50px; margin-right: 50px;">
+    *Browseable read-only REST API to explore the waveform database of Jane
+    on a per waveform trace basis. Likely of limited usability but maybe
+    interesting for some use cases. Each resource maps to one trace
+    including a plot and some meta information.*
+    </div>
+
+    **/documents**
+    <div style="margin-left: 50px; margin-right: 50px;">
+    *REST API to work with Jane's document database at the document level.
+    You can browse the available documents and view its associated indices.
+    It is furthermore possible to add new documents via ``POST`` and ``PUT``
+    or delete documents including all indices and attachments with
+    ``DELETE``. Indices are generated automatically upon uploading or
+    modifying a document.*
+    </div>
+
+    **/document_indices**
+    <div style="margin-left: 50px; margin-right: 50px;">
+    *REST API to work with Jane's document database at the index level. Each
+    REST resource is one index which can also be searched upon. You can
+    furthermore add, modify, or delete attachments for each index with
+    ``POST``, ``PUT``, or ``DELETE``. One cannot delete or modify
+    individual indices as they are tied to a document. To add, modify, or
+    delete a whole document including all associated indices and attachments,
+    please work with the **/documents** endpoint.*
+    </div>
     """
     if request.method == "GET":
-        resource_types = models.DocumentType.objects.all()
-        data = {
-            _i.name: reverse(views.record_list, args=[_i.name],
-                             request=request)
-            for _i in resource_types
-        }
-        # manually add waveforms into our REST root
-        # data['documents'] = reverse('rest_documents-list', request=request)
-        data["documents"] = reverse(views.documents_rest_root, request=request)
-        data['waveforms'] = reverse('rest_waveforms-list', request=request)
-        return Response([{'name': i[0], 'url': i[1]}
-                         for i in sorted(data.items())])
+        # Use OrderedDicts to force the order of keys. Is there a different
+        # way to do this within DRF?
+        waveforms = OrderedDict()
+        waveforms["name"] = "waveforms"
+        waveforms["url"] = reverse('rest_waveforms-list', request=request)
+        waveforms["description"] = ("REST view of Jane's waveform database")
+
+        documents = OrderedDict()
+        documents["name"] = "documents"
+        documents["url"] = reverse(views.documents_rest_root, request=request)
+        documents["description"] = ("Jane's document database at the "
+                                    "document level")
+
+        document_indices = OrderedDict()
+        document_indices["name"] = "document_indices"
+        document_indices["url"] = reverse(views.documents_indices_rest_root,
+                                          request=request)
+        document_indices["description"] = (
+            "Jane's document database at the index level")
+
+        return Response([waveforms, documents, document_indices])
 
 
 def index(request):

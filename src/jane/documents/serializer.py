@@ -12,6 +12,11 @@ class DocumentSerializer(serializers.ModelSerializer):
         model = models.Document
 
 
+class DocumentIndexSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.DocumentIndex
+
+
 class AttachmentSerializer(serializers.ModelSerializer):
 
     url = serializers.URLField(source='pk', read_only=True)

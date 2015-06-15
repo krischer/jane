@@ -32,6 +32,7 @@ class Command(BaseCommand):
         document_type = models.DocumentType.objects.get(
             name=kwargs["document_type"])
 
+        # Same with the user.
         user = get_user_model().objects.get(username=kwargs["user"])
 
         paths = kwargs["path"]
