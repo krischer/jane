@@ -66,7 +66,7 @@ class DocumentSerializer(serializers.ModelSerializer):
         ]
 
 
-class AttachmentSerializer(serializers.ModelSerializer):
+class DocumentIndexAttachmentSerializer(serializers.ModelSerializer):
 
     url = serializers.URLField(source='pk', read_only=True)
 
@@ -101,7 +101,7 @@ class DocumentIndexSerializer(GeoModelSerializer):
 
     indexed_data = serializers.DictField(source="json")
 
-    attachments = AttachmentSerializer(many=True)
+    attachments = DocumentIndexAttachmentSerializer(many=True)
 
     class Meta:
         model = models.DocumentIndex

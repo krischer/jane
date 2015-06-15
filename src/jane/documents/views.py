@@ -43,6 +43,15 @@ class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
             document__document_type=res_type)
 
 
+class DocumentIndexAttachmentsView(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializer.DocumentIndexAttachmentSerializer
+
+    def get_queryset(self):
+        index = get_object_or_404(models.DocumentIndex,
+                                  pk=self.kwargs['idx'])
+        return models.DocumentIndexAttachment.objects.filter(index=index)
+
+
 @api_view(['GET'])
 def documents_rest_root(request, format=None):
     """

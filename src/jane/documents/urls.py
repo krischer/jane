@@ -33,6 +33,11 @@ router.register(prefix='documents/(?P<document_type>[a-zA-Z0-9]+)',
 router.register(prefix='document_indices/(?P<document_type>[a-zA-Z0-9]+)',
                 viewset=views.DocumentIndicesView,
                 base_name="rest_document_indices")
+router.register(
+    prefix=('document_indices/(?P<document_type>[a-zA-Z0-9]+)/(?P<idx>[0-9]+)'
+            '/attachments'),
+    viewset=views.DocumentIndexAttachmentsView,
+    base_name="rest_document_index_attachments")
 urlpatterns.append(url(r'^rest/', include(router.urls)))
 
 
