@@ -7,9 +7,13 @@ from rest_framework_gis.serializers import GeoModelSerializer
 from jane.documents import models
 
 
-
 class DocumentTypeHyperlinkedIdentifyField(
         serializers.HyperlinkedIdentityField):
+    """
+    The document and document indices views are parametrized with the
+    document type. The default HyperlinkedIdentifyField class cannot deal
+    with this. This version can.
+    """
     def get_url(self, obj, view_name, request, format):
         """
         Given an object, return the URL that hyperlinks to the object.
@@ -62,36 +66,6 @@ class DocumentSerializer(serializers.ModelSerializer):
         ]
 
 
-class DocumentIndexSerializer(serializers.ModelSerializer):
-    url = DocumentTypeHyperlinkedIdentifyField(
-        view_name='rest_document_indices-detail',
-        lookup_field="pk",
-        read_only=True)
-
-    containing_document_url = DocumentTypeHyperlinkedIdentifyField(
-        view_name='rest_documents-detail',
-        lookup_field="document_id",
-        lookup_url_kwarg="pk",
-        read_only=True)
-
-    containing_document_data_url = serializers.HyperlinkedIdentityField(
-        view_name="document_data", lookup_field="document_id",
-        lookup_url_kwarg="pk")
-
-
-    class Meta:
-        model = models.DocumentIndex
-        fields = [
-            'id',
-            'url',
-            'containing_document_url',
-            'containing_document_data_url',
-            'json',
-            'geometry',
-            'created_at'
-        ]
-
-
 class AttachmentSerializer(serializers.ModelSerializer):
 
     url = serializers.URLField(source='pk', read_only=True)
@@ -108,33 +82,37 @@ class AttachmentSerializer(serializers.ModelSerializer):
         fields = ('id', 'url', 'category', 'content_type', 'created_at')
 
 
-class RecordSerializer(GeoModelSerializer):
+class DocumentIndexSerializer(GeoModelSerializer):
+    url = DocumentTypeHyperlinkedIdentifyField(
+        view_name='rest_document_indices-detail',
+        lookup_field="pk",
+        read_only=True)
 
-    data_url = serializers.HyperlinkedIdentityField(
-        view_name="document_data", lookup_field="pk")
+    containing_document_url = DocumentTypeHyperlinkedIdentifyField(
+        view_name='rest_documents-detail',
+        lookup_field="document_id",
+        lookup_url_kwarg="pk",
+        read_only=True)
+
+    containing_document_data_url = serializers.HyperlinkedIdentityField(
+        view_name="document_data", lookup_field="document_id",
+        lookup_url_kwarg="pk")
     data_content_type = serializers.CharField(source="document.content_type")
 
-    attachments = AttachmentSerializer(many=True)
-    indexed_data = serializers.CharField(source="json")
-    url = serializers.URLField(source='pk', read_only=True)
+    indexed_data = serializers.DictField(source="json")
 
-    def transform_url(self, obj, value):
-        request = self.context.get('request')
-        rt_name = self.context.get('resource_type_name')
-        return reverse('record_detail', args=[rt_name, value], request=request)
+    attachments = AttachmentSerializer(many=True)
 
     class Meta:
         model = models.DocumentIndex
-        fields = ('id', 'url', 'document', 'data_url',
-                  'data_content_type', 'created_at', 'indexed_data',
-                  'geometry', 'attachments', 'created_at')
-
-
-# class PaginatedRecordSerializer(pagination.PaginationSerializer):
-#     """
-#     Serializes page objects of index querysets.
-#     """
-#     pages = serializers.Field(source='paginator.num_pages')
-#
-#     class Meta:
-#         object_serializer_class = RecordSerializer
+        fields = [
+            'id',
+            'url',
+            'containing_document_url',
+            'containing_document_data_url',
+            'data_content_type',
+            'indexed_data',
+            'geometry',
+            'attachments',
+            'created_at'
+        ]
