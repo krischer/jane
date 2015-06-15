@@ -25,19 +25,15 @@ urlpatterns = [
 urlpatterns = format_suffix_patterns(urlpatterns)
 
 
-# Documents.
+# Route documents and document indices.
 router = OptionalTrailingSlashSimpleRouter(trailing_slash=False)
-router.register(prefix="", viewset=views.DocumentsView,
+router.register(prefix='documents/(?P<document_type>[a-zA-Z0-9]+)',
+                viewset=views.DocumentsView,
                 base_name="rest_documents")
-urlpatterns.append(url(r'^rest/documents/(?P<document_type>.+)',
-                       include(router.urls)))
-
-# Document indices.
-router = OptionalTrailingSlashSimpleRouter(trailing_slash=False)
-router.register(prefix="", viewset=views.DocumentIndicesView,
+router.register(prefix='document_indices/(?P<document_type>[a-zA-Z0-9]+)',
+                viewset=views.DocumentIndicesView,
                 base_name="rest_document_indices")
-urlpatterns.append(url(r'^rest/document_indices/(?P<document_type>.+)',
-                       include(router.urls)))
+urlpatterns.append(url(r'^rest/', include(router.urls)))
 
 
 from .plugins import initialize_plugins
