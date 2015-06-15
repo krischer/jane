@@ -28,11 +28,14 @@ class DocumentTypeHyperlinkedIdentifyField(
         lookup_value = getattr(obj, self.lookup_field)
         kwargs = {self.lookup_url_kwarg: lookup_value}
 
-        # Deal with documents as well as indices.
+        # Deal with documents as well as indices and attachments.
         if hasattr(obj, "document_type"):
             kwargs["document_type"] = obj.document_type.name
-        else:
+        elif hasattr(obj, "document"):
             kwargs["document_type"] = obj.document.document_type.name
+        else:
+            kwargs["document_type"] = obj.index.document.document_type.name
+            kwargs["idx"] = obj.index_id
 
         url = self.reverse(view_name, kwargs=kwargs, request=request,
                            format=format)
@@ -67,15 +70,10 @@ class DocumentSerializer(serializers.ModelSerializer):
 
 
 class DocumentIndexAttachmentSerializer(serializers.ModelSerializer):
-
-    url = serializers.URLField(source='pk', read_only=True)
-
-    def transform_url(self, obj, value):
-        request = self.context.get('request')
-        rt_name = self.context.get('resource_type_name')
-        index_id = obj.index.pk
-        return reverse('attachment_detail', args=[rt_name, index_id, value],
-                       request=request)
+    url = DocumentTypeHyperlinkedIdentifyField(
+        view_name='rest_document_index_attachments-detail',
+        lookup_field="pk",
+        read_only=True)
 
     class Meta:
         model = models.DocumentIndexAttachment
@@ -101,7 +99,14 @@ class DocumentIndexSerializer(GeoModelSerializer):
 
     indexed_data = serializers.DictField(source="json")
 
+    attachments_url = DocumentTypeHyperlinkedIdentifyField(
+        view_name='rest_document_index_attachments-list',
+        lookup_field="pk",
+        lookup_url_kwarg="idx",
+        read_only=True)
+
     attachments = DocumentIndexAttachmentSerializer(many=True)
+
 
     class Meta:
         model = models.DocumentIndex
@@ -113,6 +118,7 @@ class DocumentIndexSerializer(GeoModelSerializer):
             'data_content_type',
             'indexed_data',
             'geometry',
+            'attachments_url',
             'attachments',
             'created_at'
         ]
