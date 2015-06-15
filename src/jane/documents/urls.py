@@ -7,6 +7,9 @@ from jane.jane.utils import OptionalTrailingSlashSimpleRouter
 
 
 urlpatterns = [
+    # This view just returns the data of a document. Its thus a bit "hidden".
+    url(r'^rest/__document_data__/(?P<pk>[0-9]+)$', views.document_data,
+        name="document_data"),
     url(r'^rest/documents/?$', views.documents_rest_root),
     url(r'^rest/document_indices/?$', views.documents_indices_rest_root),
     url(r'^rest/(?P<document_type>\w+)/$', views.record_list),
@@ -14,8 +17,7 @@ urlpatterns = [
         views.record_detail),
     url(r'^rest/(?P<document_type>\w+)/(?P<index_id>[0-9]+)/'
         '(?P<attachment_id>[0-9]+)/$',
-        views.attachment_detail),
-    url(r'^rest/(?P<pk>[0-9]+)/data/$', views.document_data),
+        views.attachment_detail)
 ]
 urlpatterns = format_suffix_patterns(urlpatterns)
 

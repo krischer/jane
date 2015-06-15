@@ -8,8 +8,24 @@ from jane.documents import models
 
 
 class DocumentSerializer(serializers.ModelSerializer):
+    data_url = serializers.HyperlinkedIdentityField(
+        view_name="document_data", lookup_field="pk")
+
     class Meta:
         model = models.Document
+        fields = [
+            'id',
+            'name',
+            'document_type',
+            'content_type',
+            'data_url',
+            'filesize',
+            'sha1',
+            'created_at',
+            'modified_at',
+            'created_by',
+            'modified_by'
+        ]
 
 
 class DocumentIndexSerializer(serializers.ModelSerializer):
