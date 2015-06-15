@@ -7,24 +7,21 @@ from jane.jane.utils import OptionalTrailingSlashSimpleRouter
 
 
 urlpatterns = [
-    # This view just returns the data of a document. Its thus a bit "hidden".
-    url(r'^rest/__document_data__/(?P<pk>[0-9]+)$', views.document_data,
-        name="document_data"),
-    # This view just returns the data of an attachment. Its thus a bit
-    # "hidden".
-    url(r'^rest/__attachment_data__/(?P<pk>[0-9]+)$', views.attachment_data,
-        name="attachment_data"),
     # Root url for the documents.
     url(r'^rest/documents/?$', views.documents_rest_root),
     # Root url for the indices.
     url(r'^rest/document_indices/?$', views.documents_indices_rest_root),
+    # Document data
+    url(r'^rest/documents/(?P<document_type>[a-zA-Z0-9]+)'
+        r'/(?P<pk>[0-9]+)/data$',
+        views.document_data,
+        name="document_data"),
+    # Attachment data
+    url(r'^rest/document_indices/(?P<document_type>[a-zA-Z0-9]+)'
+        r'/(?P<idx>[0-9]+)/attachments/(?P<pk>[0-9]+)/data$',
+        views.attachment_data,
+        name="attachment_data")
 
-    # url(r'^rest/(?P<document_type>\w+)/$', views.record_list),
-    # url(r'^rest/(?P<document_type>\w+)/(?P<pk>[0-9]+)/$',
-    #     views.record_detail),
-    # url(r'^rest/(?P<document_type>\w+)/(?P<index_id>[0-9]+)/'
-    #     '(?P<attachment_id>[0-9]+)/$',
-    #     views.attachment_detail)
 ]
 urlpatterns = format_suffix_patterns(urlpatterns)
 

@@ -43,8 +43,10 @@ class DocumentTypeHyperlinkedIdentifyField(
 
 
 class DocumentSerializer(serializers.ModelSerializer):
-    data_url = serializers.HyperlinkedIdentityField(
-        view_name="document_data", lookup_field="pk")
+    data_url = DocumentTypeHyperlinkedIdentifyField(
+        view_name='document_data',
+        lookup_field="pk",
+        read_only=True)
 
     url = DocumentTypeHyperlinkedIdentifyField(
         view_name='rest_documents-detail',
@@ -75,8 +77,10 @@ class DocumentIndexAttachmentSerializer(serializers.ModelSerializer):
         lookup_field="pk",
         read_only=True)
 
-    data_url = serializers.HyperlinkedIdentityField(
-        view_name="attachment_data", lookup_field="pk")
+    data_url = DocumentTypeHyperlinkedIdentifyField(
+        view_name='attachment_data',
+        lookup_field="pk",
+        read_only=True)
 
     class Meta:
         model = models.DocumentIndexAttachment
@@ -96,9 +100,11 @@ class DocumentIndexSerializer(GeoModelSerializer):
         lookup_url_kwarg="pk",
         read_only=True)
 
-    containing_document_data_url = serializers.HyperlinkedIdentityField(
-        view_name="document_data", lookup_field="document_id",
-        lookup_url_kwarg="pk")
+    containing_document_data_url = DocumentTypeHyperlinkedIdentifyField(
+        view_name='document_data',
+        lookup_field="pk",
+        read_only=True)
+
     data_content_type = serializers.CharField(source="document.content_type")
 
     indexed_data = serializers.DictField(source="json")

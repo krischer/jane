@@ -308,7 +308,7 @@ def attachment_detail(request, document_type, index_id, attachment_id):
         raise Http404
 
 
-def document_data(request, pk, *args, **kwargs):
+def document_data(request, document_type, pk, *args, **kwargs):
     """
     Get the data for the document corresponding to the index id.
     """
