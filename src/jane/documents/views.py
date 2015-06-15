@@ -314,3 +314,11 @@ def document_data(request, pk, *args, **kwargs):
     """
     document = models.DocumentIndex.objects.filter(pk=pk).first().document
     return HttpResponse(document.data, document.content_type)
+
+
+def attachment_data(request, pk, *args, **kwargs):
+    """
+    Get the data for the attachment with a certain id.
+    """
+    attachment = models.DocumentIndexAttachment.objects.filter(pk=pk).first()
+    return HttpResponse(attachment.data, attachment.content_type)

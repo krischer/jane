@@ -75,9 +75,13 @@ class DocumentIndexAttachmentSerializer(serializers.ModelSerializer):
         lookup_field="pk",
         read_only=True)
 
+    data_url = serializers.HyperlinkedIdentityField(
+        view_name="attachment_data", lookup_field="pk")
+
     class Meta:
         model = models.DocumentIndexAttachment
-        fields = ('id', 'url', 'category', 'content_type', 'created_at')
+        fields = ('id', 'url', 'data_url', 'category', 'content_type',
+                  'created_at')
 
 
 class DocumentIndexSerializer(GeoModelSerializer):

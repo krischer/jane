@@ -10,6 +10,10 @@ urlpatterns = [
     # This view just returns the data of a document. Its thus a bit "hidden".
     url(r'^rest/__document_data__/(?P<pk>[0-9]+)$', views.document_data,
         name="document_data"),
+    # This view just returns the data of an attachment. Its thus a bit
+    # "hidden".
+    url(r'^rest/__attachment_data__/(?P<pk>[0-9]+)$', views.attachment_data,
+        name="attachment_data"),
     # Root url for the documents.
     url(r'^rest/documents/?$', views.documents_rest_root),
     # Root url for the indices.
