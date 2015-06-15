@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import collections
 import hashlib
 import io
 
@@ -54,14 +55,17 @@ def documents_rest_root(request, format=None):
                              kwargs={"document_type": _i}, request=request))
                 for _i in document_types]
 
+        # Use OrderedDict to force order in browseable REST API.
         return Response([
-            {'document_type': i[0],
-             'url': i[1],
-             'description': models.DocumentType.objects.get(name=i[0])
-                 .definition.get_plugin().title,
-             'available_documents':
-                models.Document.objects.filter(document_type=i[0]).count()}
-                for i in sorted(data, key=lambda x: x[0])])
+            collections.OrderedDict([
+                ('document_type', i[0]),
+                ('url', i[1]),
+                ('description', models.DocumentType.objects.get(name=i[0])
+                 .definition.get_plugin().title),
+                ('available_documents',
+                 models.Document.objects.filter(document_type=i[0]).count())]
+            ) for i in sorted(data, key=lambda x: x[0])
+        ])
     else:
         raise Http404
 
@@ -78,15 +82,18 @@ def documents_indices_rest_root(request, format=None):
                              kwargs={"document_type": _i}, request=request))
                 for _i in document_types]
 
+        # Use OrderedDict to force order in browseable REST API.
         return Response([
-            {'document_type': i[0],
-             'url': i[1],
-             'description': models.DocumentType.objects.get(name=i[0])
-                 .definition.get_plugin().title,
-             'available_indices':
+            collections.OrderedDict([
+                ('document_type', i[0]),
+                ('url', i[1]),
+                ('description', models.DocumentType.objects.get(name=i[0])
+                 .definition.get_plugin().title),
+                ('available_documents',
                  models.DocumentIndex.objects.filter(
-                     document__document_type=i[0]).count()}
-            for i in sorted(data, key=lambda x: x[0])])
+                     document__document_type=i[0]).count())]
+            ) for i in sorted(data, key=lambda x: x[0])
+        ])
     else:
         raise Http404
 
