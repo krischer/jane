@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from jane.documents import models, views
+from jane.waveforms.models import ContinuousTrace
 
 
 @api_view(['GET'])
@@ -53,12 +54,14 @@ def rest_root(request, format=None):
         waveforms["name"] = "waveforms"
         waveforms["url"] = reverse('rest_waveforms-list', request=request)
         waveforms["description"] = ("REST view of Jane's waveform database")
+        waveforms["available_traces"] = ContinuousTrace.objects.count()
 
         documents = OrderedDict()
         documents["name"] = "documents"
         documents["url"] = reverse(views.documents_rest_root, request=request)
         documents["description"] = ("Jane's document database at the "
                                     "document level")
+        documents["available_documents"] = models.Document.objects.count()
 
         document_indices = OrderedDict()
         document_indices["name"] = "document_indices"
@@ -66,6 +69,8 @@ def rest_root(request, format=None):
                                           request=request)
         document_indices["description"] = (
             "Jane's document database at the index level")
+        document_indices["available_indices"] = \
+            models.DocumentIndex.objects.count()
 
         return Response([waveforms, documents, document_indices])
 
