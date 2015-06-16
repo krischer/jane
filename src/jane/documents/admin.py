@@ -35,7 +35,7 @@ admin.site.register(models.DocumentType, DocumentTypeAdmin)
 class DocumentIndexInline(admin.TabularInline):
     model = models.DocumentIndex
     extra = 0
-    readonly_fields = ["index", "json", "geometry", "created_at"]
+    readonly_fields = ["index", "json", "geometry"]
 
     edit_label = "View"
 
@@ -149,9 +149,8 @@ class DocumentIndexAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
         'format_document_type',
-        'format_document',
-        'created_at']
-    list_filter = ['created_at', 'document__document_type']
+        'format_document']
+    list_filter = ['document__document_type']
 
     inlines = [DocumentIndexAttachmentInline]
 

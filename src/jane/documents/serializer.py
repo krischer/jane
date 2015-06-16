@@ -58,10 +58,22 @@ class DocumentIndexAttachmentSerializer(serializers.ModelSerializer):
         lookup_field="pk",
         read_only=True)
 
+    created_by = serializers.CharField(source="created_by.username")
+    modified_by = serializers.CharField(source="modified_by.username")
+
     class Meta:
         model = models.DocumentIndexAttachment
-        fields = ('id', 'url', 'data_url', 'category', 'content_type',
-                  'created_at')
+        fields = (
+            'id',
+            'url',
+            'data_url',
+            'category',
+            'content_type',
+            'created_at',
+            'modified_at',
+            'created_by',
+            'modified_by'
+        )
 
 
 class DocumentIndexSerializer(GeoModelSerializer):
@@ -106,8 +118,7 @@ class DocumentIndexSerializer(GeoModelSerializer):
             'indexed_data',
             'geometry',
             'attachments_url',
-            'attachments',
-            'created_at'
+            'attachments'
         ]
 
 

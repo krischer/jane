@@ -114,7 +114,6 @@ class DocumentIndex(models.Model):
     json = PostgreSQLJSONBField(verbose_name="JSON")
     geometry = models.GeometryCollectionField(blank=True, null=True,
                                               geography=True)
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
     # objects = _DocumentIndexManager()
 
@@ -135,7 +134,15 @@ class DocumentIndexAttachment(models.Model):
     category = models.SlugField(max_length=20, db_index=True)
     content_type = models.CharField(max_length=255)
     data = models.BinaryField()
+    # Attachments are almost independent from Documents thus they should
+    # have people responsible for them.
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    modified_at = models.DateTimeField(auto_now=True, editable=False)
+    # Users responsible for the aforementioned actions.
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                   related_name='attachments_created')
+    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                    related_name='attachments_modified')
 
     class Meta:
         ordering = ['pk']

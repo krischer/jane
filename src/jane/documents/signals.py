@@ -83,6 +83,9 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
                     models.DocumentIndexAttachment(
                         index=obj, category=key,
                         content_type=value['content-type'],
-                        data=data).save()
+                        data=data,
+                        created_by=instance.created_by,
+                        modified_by=instance.modified_by,
+                    ).save()
     # invalidate cache
     cache.delete('record_list_json')
