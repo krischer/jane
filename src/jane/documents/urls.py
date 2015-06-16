@@ -2,7 +2,7 @@
 from django.conf.urls import patterns, url, include
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from jane.documents import views
+from jane.documents import views, DOCUMENT_FILENAME_REGEX
 from jane.jane.utils import OptionalTrailingSlashSimpleRouter
 
 
@@ -13,7 +13,7 @@ urlpatterns = [
     url(r'^rest/document_indices/?$', views.documents_indices_rest_root),
     # Document data
     url(r'^rest/documents/(?P<document_type>[a-zA-Z0-9]+)'
-        r'/(?P<pk>[0-9]+)/data$',
+        r'/(?P<name>' + DOCUMENT_FILENAME_REGEX + ')/data$',
         views.document_data,
         name="document_data"),
     # Attachment data

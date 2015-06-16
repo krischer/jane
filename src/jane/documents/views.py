@@ -311,17 +311,21 @@ def attachment_detail(request, document_type, index_id, attachment_id):
         raise Http404
 
 
-def document_data(request, document_type, pk, *args, **kwargs):
+def document_data(request, document_type, name, *args, **kwargs):
     """
-    Get the data for the document corresponding to the index id.
+    Get the data for the document corresponding to a certain document type
+    and name.
     """
-    document = models.DocumentIndex.objects.filter(pk=pk).first().document
-    return HttpResponse(document.data, document.content_type)
+    document = get_object_or_404(models.Document,
+                                 document_type__name=document_type, name=name)
+    return HttpResponse(content=document.data,
+                        content_type=document.content_type)
 
 
 def attachment_data(request, pk, *args, **kwargs):
     """
     Get the data for the attachment with a certain id.
     """
-    attachment = models.DocumentIndexAttachment.objects.filter(pk=pk).first()
-    return HttpResponse(attachment.data, attachment.content_type)
+    attachment = get_object_or_404(models.DocumentIndexAttachment, pk=pk)
+    return HttpResponse(content=attachment.data,
+                        content_type=attachment.content_type)

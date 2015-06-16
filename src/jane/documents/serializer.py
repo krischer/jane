@@ -13,6 +13,8 @@ class DocumentTypeHyperlinkedIdentifyField(
     The document and document indices views are parametrized with the
     document type. The default HyperlinkedIdentifyField class cannot deal
     with this. This version can.
+
+    Also has support for nested lookup fields.
     """
     def get_url(self, obj, view_name, request, format):
         """
@@ -25,7 +27,11 @@ class DocumentTypeHyperlinkedIdentifyField(
         if obj.pk is None:
             return None
 
-        lookup_value = getattr(obj, self.lookup_field)
+        # Enables to lookup for example `document__name`
+        lookups = self.lookup_field.split("__")
+        lookup_value = getattr(obj, lookups.pop(0))
+        while lookups:
+            lookup_value = getattr(lookup_value, lookups.pop(0))
         kwargs = {self.lookup_url_kwarg: lookup_value}
 
         # Deal with documents as well as indices and attachments.
@@ -45,7 +51,7 @@ class DocumentTypeHyperlinkedIdentifyField(
 class DocumentSerializer(serializers.ModelSerializer):
     data_url = DocumentTypeHyperlinkedIdentifyField(
         view_name='document_data',
-        lookup_field="pk",
+        lookup_field="name",
         read_only=True)
 
     url = DocumentTypeHyperlinkedIdentifyField(
@@ -96,13 +102,14 @@ class DocumentIndexSerializer(GeoModelSerializer):
 
     containing_document_url = DocumentTypeHyperlinkedIdentifyField(
         view_name='rest_documents-detail',
-        lookup_field="document_id",
-        lookup_url_kwarg="pk",
+        lookup_field="document__name",
+        lookup_url_kwarg="name",
         read_only=True)
 
     containing_document_data_url = DocumentTypeHyperlinkedIdentifyField(
         view_name='document_data',
-        lookup_field="pk",
+        lookup_field="document__name",
+        lookup_url_kwarg="name",
         read_only=True)
 
     data_content_type = serializers.CharField(source="document.content_type")
