@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from rest_framework import serializers, pagination
-from rest_framework.reverse import reverse
+from rest_framework import serializers
 from rest_framework_gis.serializers import GeoModelSerializer
 
 from jane.documents import models
@@ -58,6 +57,9 @@ class DocumentSerializer(serializers.ModelSerializer):
         view_name='rest_documents-detail',
         lookup_field="name",
         read_only=True)
+
+    created_by = serializers.CharField(source="created_by.username")
+    modified_by = serializers.CharField(source="modified_by.username")
 
     class Meta:
         model = models.Document
