@@ -47,38 +47,6 @@ class DocumentTypeHyperlinkedIdentifyField(
         return url
 
 
-class DocumentSerializer(serializers.ModelSerializer):
-    data_url = DocumentTypeHyperlinkedIdentifyField(
-        view_name='document_data',
-        lookup_field="name",
-        read_only=True)
-
-    url = DocumentTypeHyperlinkedIdentifyField(
-        view_name='rest_documents-detail',
-        lookup_field="name",
-        read_only=True)
-
-    created_by = serializers.CharField(source="created_by.username")
-    modified_by = serializers.CharField(source="modified_by.username")
-
-    class Meta:
-        model = models.Document
-        fields = [
-            'id',
-            'name',
-            'url',
-            'data_url',
-            'document_type',
-            'content_type',
-            'filesize',
-            'sha1',
-            'created_at',
-            'modified_at',
-            'created_by',
-            'modified_by'
-        ]
-
-
 class DocumentIndexAttachmentSerializer(serializers.ModelSerializer):
     url = DocumentTypeHyperlinkedIdentifyField(
         view_name='rest_document_index_attachments-detail',
@@ -140,4 +108,39 @@ class DocumentIndexSerializer(GeoModelSerializer):
             'attachments_url',
             'attachments',
             'created_at'
+        ]
+
+
+class DocumentSerializer(serializers.ModelSerializer):
+    data_url = DocumentTypeHyperlinkedIdentifyField(
+        view_name='document_data',
+        lookup_field="name",
+        read_only=True)
+
+    url = DocumentTypeHyperlinkedIdentifyField(
+        view_name='rest_documents-detail',
+        lookup_field="name",
+        read_only=True)
+
+    created_by = serializers.CharField(source="created_by.username")
+    modified_by = serializers.CharField(source="modified_by.username")
+
+    indices = DocumentIndexSerializer(many=True)
+
+    class Meta:
+        model = models.Document
+        fields = [
+            'id',
+            'name',
+            'url',
+            'data_url',
+            'document_type',
+            'content_type',
+            'filesize',
+            'sha1',
+            'created_at',
+            'modified_at',
+            'created_by',
+            'modified_by',
+            'indices'
         ]
