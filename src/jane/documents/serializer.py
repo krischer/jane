@@ -50,7 +50,7 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     url = DocumentTypeHyperlinkedIdentifyField(
         view_name='rest_documents-detail',
-        lookup_field="pk",
+        lookup_field="name",
         read_only=True)
 
     class Meta:

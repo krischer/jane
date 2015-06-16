@@ -17,14 +17,3 @@ class OptionalTrailingSlashSimpleRouter(SimpleRouter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.trailing_slash = "/?"
-
-    def get_lookup_regex(self, viewset):
-        """
-        Given a viewset, return the portion of URL regex that is used
-        to match against a single instance.
-        """
-        # Don't consume `.json` style suffixes
-        base_regex = '(?P<{lookup_field}>[^/.]+)'
-        lookup_field = getattr(viewset, 'lookup_field', 'pk')
-
-        return base_regex.format(lookup_field=lookup_field)

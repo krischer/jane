@@ -27,6 +27,9 @@ CACHE_TIMEOUT = 60 * 60 * 24
 class DocumentsView(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializer.DocumentSerializer
 
+    lookup_field = 'name'
+    lookup_value_regex = r'[A-Za-z0-9-_.,]+'
+
     def get_queryset(self):
         res_type = get_object_or_404(models.DocumentType,
                                      name=self.kwargs['document_type'])
