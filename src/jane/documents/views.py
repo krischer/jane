@@ -16,7 +16,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from jane.documents import models, serializer, utils, DOCUMENT_FILENAME_REGEX
+from jane.documents import models, serializer, DOCUMENT_FILENAME_REGEX
 
 from rest_framework import viewsets
 
@@ -40,10 +40,18 @@ class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializer.DocumentIndexSerializer
 
     def get_queryset(self):
-        res_type = get_object_or_404(models.DocumentType,
-                                     name=self.kwargs['document_type'])
-        return models.DocumentIndex.objects.filter(
-            document__document_type=res_type)
+        # Get the query dictionary.
+        query = dict(self.request.QUERY_PARAMS)
+        # Remove some that might be due to the API.
+        if "offset" in query:
+            del query["offset"]
+        if "format" in query:
+            del query["format"]
+        # Flatten the rest.
+        query = {key: value[0] for key, value in query.items()}
+
+        return models.DocumentIndex.objects.get_filtered_queryset(
+            document_type=self.kwargs["document_type"], **query)
 
 
 class DocumentIndexAttachmentsView(viewsets.ReadOnlyModelViewSet):

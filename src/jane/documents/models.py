@@ -17,6 +17,7 @@ New document types can be defined by adding new plug-ins.
 """
 from django.conf import settings
 from django.contrib.gis.db import models
+from django.shortcuts import get_object_or_404
 from djangoplugins.fields import PluginField, ManyPluginField
 from jsonfield.fields import JSONField
 
@@ -96,14 +97,103 @@ class Document(models.Model):
         unique_together = ['document_type', 'name']
 
 
-# class _DocumentIndexManager(models.GeoManager):
-#     """
-#     Custom queryset manager for the document indices.
-#     """
-#     def get_queryset(self):
-#         return super(_DocumentIndexManager, self).get_queryset().\
-#             select_related('attachments').\
-#             prefetch_related('attachments')
+class _DocumentIndexManager(models.GeoManager):
+    """
+    Custom queryset manager for the document indices.
+    """
+    JSON_QUERY_TEMPLATE_MAP = {
+        "int": "CAST(json->>'%s' AS INTEGER) %s %s",
+        "float": "CAST(json->>'%s' AS REAL) %s %s",
+        "str": "LOWER(json->>'%s') %s LOWER('%s')",
+        "UTCDateTime": "CAST(json->>'%s' AS TIMESTAMP) %s TIMESTAMP '%s'"
+    }
+
+
+    def _get_json_query(self, key, operator, type, value):
+        return self.JSON_QUERY_TEMPLATE_MAP[type] % (key, operator, str(value))
+
+    def get_filtered_queryset(self, document_type, **kwargs):
+        """
+        Returns a queryset filtered on the items in the JSON document.
+
+        :param document_type: The document type to query.
+        :param kwargs: Any additional query parameters.
+
+        The available search parameters depend on the type.
+
+        * String can have wildcards, e.g.
+            `...&author=ja*&...`
+        * Ints/Floats can either be searched for equality
+            `...&magnitude=7.2&...`
+          or minimum and maximum values
+            `...&min_magnitude=5&max_magnitude=7&...`
+        * Same for obspy.UTCDateTime objects.
+            `...&origin_time=2012-01-02&...`
+            `...&min_origin_time=2012-01-02&max_origin_time=2013-01-01&...`
+        * Booleans can only be searched for equality.
+            `...&public=True&...`
+        """
+        from obspy import UTCDateTime
+
+        res_type = get_object_or_404(DocumentType, name=document_type)
+
+        queryset = DocumentIndex.objects.\
+            filter(document__document_type=res_type)
+
+        # Nothing to do.
+        if not kwargs:
+            return queryset
+
+        meta = res_type.indexer.get_plugin().meta
+
+        type_map = {
+            "str": str,
+            "float": float,
+            "int": int,
+            "bool": bool,
+            "UTCDateTime": UTCDateTime
+        }
+
+        # Filter based on the attributes in the meta field.
+        where = []
+
+        for key, value_type in meta.items():
+            # Handle strings.
+            if value_type == "str":
+                if key in kwargs:
+                    value = kwargs[key]
+                    # Possible wildcards.
+                    if "*" in value or "?" in value:
+                        value = value.replace("?", "_").replace("*", r"%%")
+                        # PostgreSQL specific case insensitive LIKE statement.
+                        where.append("json->>'%s' ILIKE '%s'" % (key, value))
+                    else:
+                        where.append(
+                            self._get_json_query(key, "=", value_type, value))
+            # Handle integers and floats.
+            elif value_type in ("int", "float", "UTCDateTime"):
+                choices = ("min_%s", ">="), ("max_%s", "<="), ("%s", "=")
+                for name, operator in choices:
+                    name = name % key
+                    if name not in kwargs:
+                        continue
+                    where.append(self._get_json_query(
+                        key, operator, value_type,
+                        type_map[value_type](kwargs[name])))
+            # Handle bools.
+            elif value_type == "bool":
+                if key in kwargs:
+                    value = kwargs[key].lower()
+                    if value in ["t", "true", "yes", "y"]:
+                        value = True
+                    elif value in ["f", "false", "no", "n"]:
+                        value = False
+                    else:
+                        raise NotImplementedError
+                    where.append(self._get_json_query(key, "=", bool, value))
+
+        queryset = queryset.extra(where=where)
+        return queryset
 
 
 class DocumentIndex(models.Model):
@@ -115,7 +205,7 @@ class DocumentIndex(models.Model):
     geometry = models.GeometryCollectionField(blank=True, null=True,
                                               geography=True)
 
-    # objects = _DocumentIndexManager()
+    objects = _DocumentIndexManager()
 
     class Meta:
         ordering = ['pk']
