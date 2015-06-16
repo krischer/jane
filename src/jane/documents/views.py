@@ -16,7 +16,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from jane.documents import models, serializer, utils
+from jane.documents import models, serializer, utils, DOCUMENT_FILENAME_REGEX
 
 from rest_framework import viewsets
 
@@ -28,7 +28,7 @@ class DocumentsView(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializer.DocumentSerializer
 
     lookup_field = 'name'
-    lookup_value_regex = r'[A-Za-z0-9-_.,]+'
+    lookup_value_regex = DOCUMENT_FILENAME_REGEX
 
     def get_queryset(self):
         res_type = get_object_or_404(models.DocumentType,
