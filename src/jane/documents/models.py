@@ -105,6 +105,7 @@ class _DocumentIndexManager(models.GeoManager):
         "int": "CAST(json->>'%s' AS INTEGER) %s %s",
         "float": "CAST(json->>'%s' AS REAL) %s %s",
         "str": "LOWER(json->>'%s') %s LOWER('%s')",
+        "bool": "CAST(json->>'%s' AS BOOL) %s %s",
         "UTCDateTime": "CAST(json->>'%s' AS TIMESTAMP) %s TIMESTAMP '%s'"
     }
 
@@ -185,12 +186,15 @@ class _DocumentIndexManager(models.GeoManager):
                 if key in kwargs:
                     value = kwargs[key].lower()
                     if value in ["t", "true", "yes", "y"]:
-                        value = True
+                        value = "true"
                     elif value in ["f", "false", "no", "n"]:
-                        value = False
+                        value = "false"
                     else:
                         raise NotImplementedError
-                    where.append(self._get_json_query(key, "=", bool, value))
+                    where.append(self._get_json_query(key, "=", value_type,
+                                                      value))
+            else:
+                raise NotImplementedError
 
         queryset = queryset.extra(where=where)
         return queryset
