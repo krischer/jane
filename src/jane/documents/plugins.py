@@ -3,6 +3,9 @@ import collections
 import inspect
 import sys
 
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+
 from djangoplugins.point import PluginPoint
 
 from jane.exceptions import JaneException
@@ -121,3 +124,29 @@ def initialize_plugins():
 
         resource_type.validators = validators
         resource_type.save()
+
+    # Permissions.
+    permissions = []
+    for plugin_name in plugins.keys():
+        # Two default permissions for every plugin: Can upload documents and
+        # attachments.
+        permissions.append(
+            {"codename": "can_upload_%s" % plugin_name,
+             "name": "Can Upload %s Documents" % plugin_name.capitalize()})
+        permissions.append(
+            {"codename": "can_upload_%s_attachments" % plugin_name,
+             "name": "Can Upload Attachments for %s Indices" %
+                     plugin_name.capitalize()})
+
+    content_type = ContentType.objects.get_for_model(models.DocumentType)
+    for perm in permissions:
+        try:
+            p = Permission.objects.get(codename=perm["codename"])
+            p.name = perm["name"]
+            p.content_type = content_type
+        except Permission.DoesNotExist:
+            p = Permission.objects.create(
+                codename=perm["codename"],
+                name=perm["name"],
+                content_type=content_type)
+        p.save()
