@@ -114,13 +114,13 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                     else:
                         raise NotImplementedError
                 else:
-                    public = None
+                    public = False
                 if "evaluationMode" in event.extra:
                     evaluationMode = event.extra["evaluationMode"]["value"]
                 else:
                     evaluationMode = None
             else:
-                public = None
+                public = False
                 evaluationMode = None
 
             indices.append({
