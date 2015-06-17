@@ -75,6 +75,13 @@ def initialize_plugins():
     plugins = collections.defaultdict(
         lambda: collections.defaultdict(list))
     for name, obj in plugin_points.items():
+        # Might fail on the migrate run. obj.plugins will be empty in this
+        # case.
+        try:
+            [_i for _i in obj.get_plugins()]
+        except:
+            pass
+
         for plugin in obj.plugins:
             plugins[plugin.name.lower()][obj.group_name].append(plugin)
 
