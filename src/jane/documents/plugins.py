@@ -165,8 +165,8 @@ def initialize_plugins():
              "name": "Can Upload Attachments for %s Indices" %
                      plugin_name.capitalize()})
 
-    content_type = ContentType.objects.get_for_model(models.DocumentType)
     for perm in permissions:
+        content_type = ContentType.objects.get_for_model(models.DocumentType)
         try:
             p = Permission.objects.get(codename=perm["codename"])
             p.name = perm["name"]
