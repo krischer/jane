@@ -31,9 +31,24 @@ class DocumentsView(viewsets.ReadOnlyModelViewSet):
     lookup_value_regex = DOCUMENT_FILENAME_REGEX
 
     def get_queryset(self):
-        res_type = get_object_or_404(models.DocumentType,
-                                     name=self.kwargs['document_type'])
-        return models.Document.objects.filter(document_type=res_type)
+        doctype = get_object_or_404(models.DocumentType,
+                                    name=self.kwargs['document_type'])
+        queryset = models.Document.objects.filter(document_type=doctype)
+
+        doctype = models.DocumentType.objects.get(
+            name=self.kwargs["document_type"])
+        retrieve_permissions = doctype.retrieve_permissions.all()
+        if retrieve_permissions:
+            for perm in retrieve_permissions:
+                perm = perm.get_plugin()
+                if self.request.user.has_perm(perm.permission_codename):
+                    queryset = perm.filter_queryset_user_has_permission(
+                        queryset, model_type="document")
+                else:
+                    queryset = \
+                        perm.filter_queryset_user_does_not_have_permission(
+                            queryset, model_type="document")
+        return queryset
 
 
 class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
@@ -50,8 +65,24 @@ class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
         # Flatten the rest.
         query = {key: value[0] for key, value in query.items()}
 
-        return models.DocumentIndex.objects.get_filtered_queryset(
+        queryset = models.DocumentIndex.objects.get_filtered_queryset(
             document_type=self.kwargs["document_type"], **query)
+
+        # Apply potential additional restrictions based on the permissions.
+        doctype = models.DocumentType.objects.get(
+            name=self.kwargs["document_type"])
+        retrieve_permissions = doctype.retrieve_permissions.all()
+        if retrieve_permissions:
+            for perm in retrieve_permissions:
+                perm = perm.get_plugin()
+                if self.request.user.has_perm(perm.permission_codename):
+                    queryset = perm.filter_queryset_user_has_permission(
+                        queryset, model_type="index")
+                else:
+                    queryset = \
+                        perm.filter_queryset_user_does_not_have_permission(
+                            queryset, model_type="index")
+        return queryset
 
 
 class DocumentIndexAttachmentsView(viewsets.ReadOnlyModelViewSet):

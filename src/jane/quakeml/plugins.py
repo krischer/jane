@@ -55,7 +55,7 @@ class CanSeePrivateEventsRetrievePermissionPlugin(
 
     # Permission codename and name according to Django's nomenclature.
     permission_codename = 'can_see_private_events'
-    permission_name = 'Can see private Events'
+    permission_name = 'Can See Private Events'
 
     def filter_queryset_user_has_permission(self, queryset, model_type):
         # If the user has the permission, everything is fine and the
@@ -66,6 +66,7 @@ class CanSeePrivateEventsRetrievePermissionPlugin(
                                                       model_type):
         # model_type can be document or document index.
         if model_type == "document":
+            # XXX: Find a good way to do this.
             pass
         elif model_type == "index":
             # Modify the queryset to only contain indices that are public.
