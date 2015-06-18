@@ -8,7 +8,8 @@ thus extensively commented.
 # In the interest of quick import/startup times, please try to import within
 # the functions and not at the file level.
 from jane.documents.plugins import (ValidatorPluginPoint, IndexerPluginPoint,
-                                    DocumentPluginPoint)
+                                    DocumentPluginPoint,
+                                    RetrievePermissionPluginPoint)
 
 
 class QuakeMLPlugin(DocumentPluginPoint):
@@ -42,6 +43,39 @@ class QuakeMLValidatorPlugin(ValidatorPluginPoint):
     def validate(self, document):
         from obspy.core.quakeml import _validate as validate_quakeml  # NOQA
         return validate_quakeml(document)
+
+
+class CanSeePrivateEventsRetrievePermissionPlugin(
+        RetrievePermissionPluginPoint):
+    """
+    Custom permissions are possible but optional and fairly complex.
+    """
+    name = 'quakeml'
+    title = 'Can See Private Events Permission'
+
+    # Permission codename and name according to Django's nomenclature.
+    permission_codename = 'can_see_private_events'
+    permission_name = 'Can see private Events'
+
+    def filter_queryset_user_has_permission(self, queryset, model_type):
+        # If the user has the permission, everything is fine and the
+        # original queryset can be returned.
+        return queryset
+
+    def filter_queryset_user_does_not_have_permission(self, queryset,
+                                                      model_type):
+        # model_type can be document or document index.
+        if model_type == "document":
+            pass
+        elif model_type == "index":
+            # Modify the queryset to only contain indices that are public.
+            # Events that have null for public are considered to be private
+            # and will not be shown here.
+            queryset = queryset.model.objects.get_filtered_queryset(
+                queryset=queryset, public=True)
+        else:
+            raise NotImplementedError
+        return queryset
 
 
 class QuakeMLIndexerPlugin(IndexerPluginPoint):

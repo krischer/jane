@@ -55,6 +55,20 @@ class IndexerPluginPoint(PluginPoint):
         return self.meta.keys()
 
 
+class RetrievePermissionPluginPoint(PluginPoint):
+    """
+    Plugin point for custom permission upon retrieving documents and indices.
+    """
+    group_name = "retrieve_permissions"
+
+    def filter_queryset_user_has_permission(self, queryset, model_type):
+        raise NotImplementedError
+
+    def filter_queryset_user_does_not_have_permission(self, queryset,
+                                                      model_type):
+        raise NotImplementedError
+
+
 def initialize_plugins():
     """
     Initializes all found plugins.
@@ -77,6 +91,8 @@ def initialize_plugins():
     # Get all registered plugins.
     plugins = collections.defaultdict(
         lambda: collections.defaultdict(list))
+
+    # Set optional arguments as they might not exist for every plugin.
     for name, obj in plugin_points.items():
         # Might fail on the migrate run. obj.plugins will be empty in this
         # case.
@@ -109,7 +125,18 @@ def initialize_plugins():
     for plugin_name, contents in plugins.items():
         definition = contents["definition"][0].get_model()
         indexer = contents["indexer"][0].get_model()
-        validators = [_i.get_model() for _i in contents["validators"]]
+        # Validators are optional.
+        if "validators" in contents:
+            validators = [_i.get_model() for _i in contents["validators"]]
+        else:
+            validators = []
+        # Retreive permissions are also optional.
+        if "retrieve_permissions" in contents:
+            retrieve_permissions = [
+                _i.get_model() for _i in contents["retrieve_permissions"]]
+        else:
+            retrieve_permissions = []
+        print(retrieve_permissions)
 
         try:
             resource_type = models.DocumentType.objects.get(name=plugin_name)

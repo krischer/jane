@@ -46,6 +46,10 @@ class DocumentType(models.Model):
     # provide at least one.
     validators = ManyPluginField(plugins.ValidatorPluginPoint, blank=True,
                                  related_name='validators')
+    # Custom permissions upon retrieving data.
+    retrieve_permissions = ManyPluginField(
+        plugins.RetrievePermissionPluginPoint, blank=True,
+        related_name='retrieve_permissions')
 
     def __str__(self):
         return self.name
