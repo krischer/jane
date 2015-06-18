@@ -113,33 +113,60 @@ class _DocumentIndexManager(models.GeoManager):
     def _get_json_query(self, key, operator, type, value):
         return self.JSON_QUERY_TEMPLATE_MAP[type] % (key, operator, str(value))
 
-    def get_filtered_queryset(self, document_type, **kwargs):
+    def get_filtered_queryset(self, document_type=None, queryset=None,
+                              **kwargs):
         """
         Returns a queryset filtered on the items in the JSON document.
 
-        :param document_type: The document type to query.
+        :param document_type: The document type to query. Will be ignored if a
+            queryset is passed.
+        :param queryset: If no queryset is passed, a new one will be
+            created, otherwise an existing one will be used and filtered.
         :param kwargs: Any additional query parameters.
 
-        The available search parameters depend on the type.
+        Assuming a key named ``"example"`` in the JSON file you can search
+        for:
 
-        * String can have wildcards, e.g.
-            `...&author=ja*&...`
-        * Ints/Floats can either be searched for equality
-            `...&magnitude=7.2&...`
-          or minimum and maximum values
-            `...&min_magnitude=5&max_magnitude=7&...`
-        * Same for obspy.UTCDateTime objects.
-            `...&origin_time=2012-01-02&...`
+        * Equality with ``get_filtered_queryset("ex", example=1)``
+          (Potentially with wildcards for strings)
+        * Inequality with ``get_filtered_queryset(
+            "ex", kwargs={"!example": 1})``
+          (Potentially with wildcards for strings). Exclamation marks are
+          not valid identifiers, thus a kwargs dict  has to be used.
+        * Larger or equal (``>=``) or smaller or equal (``<=``) with
+          ``get_filtered_queryset("ex", min_example=1)`` or
+          ``get_filtered_queryset("ex", max_example=1)``, respectively.
+
+        The available operations and search parameters depend on the type::
+
+        * String can have wildcards for (in)equality searches:
+            ``author=ja*``
+            ``!author=?test``
+        * Ints/Floats can either be searched for (in)equality (these
+          naturally are very fragile for floating point numbers):
+            ``magnitude=7.2``
+            ``!count=0``
+          or minimum and maximum values:
+            ``min_magnitude=5, max_magnitude=7``
+        * Same for ``obspy.UTCDateTime`` objects:
+            ``origin_time=obspy.UTCDateTime("2012-01-02")``
             `...&min_origin_time=2012-01-02&max_origin_time=2013-01-01&...`
-        * Booleans can only be searched for equality.
-            `...&public=True&...`
+        * Booleans can only be searched for (in)equality.
+            ``public=True``
+            ``kwargs={"!public": True}``
+
+        Please note that as soon as you search for a value, all values that
+        are null will be discarded from the queryset (even if you search for
+        !=)! This might be changed in the future.
         """
         from obspy import UTCDateTime
 
         res_type = get_object_or_404(DocumentType, name=document_type)
 
-        queryset = DocumentIndex.objects.\
-            filter(document__document_type=res_type)
+        # Only create if necessary.
+        if queryset is None:
+            queryset = DocumentIndex.objects.\
+                filter(document__document_type=res_type)
 
         # Nothing to do.
         if not kwargs:
@@ -161,19 +188,33 @@ class _DocumentIndexManager(models.GeoManager):
         for key, value_type in meta.items():
             # Handle strings.
             if value_type == "str":
-                if key in kwargs:
-                    value = kwargs[key]
+                # Strings can be searched on wildcarded (in)equalities
+                choices = (("%s", "="), ("!%s", "!="))
+                for name, operator in choices:
+                    name = name % key
+                    if name not in kwargs:
+                        continue
+                    value = kwargs[name]
                     # Possible wildcards.
                     if "*" in value or "?" in value:
                         value = value.replace("?", "_").replace("*", r"%%")
                         # PostgreSQL specific case insensitive LIKE statement.
-                        where.append("json->>'%s' ILIKE '%s'" % (key, value))
+                        if operator == "=":
+                            where.append("json->>'%s' ILIKE '%s'" % (key,
+                                                                     value))
+                        elif operator == "!=":
+                            where.append("json->>'%s' NOT ILIKE '%s'" % (
+                                key, value))
+                        else:
+                            raise NotImplementedError
                     else:
                         where.append(
-                            self._get_json_query(key, "=", value_type, value))
-            # Handle integers and floats.
+                            self._get_json_query(key, operator, value_type,
+                                                 value))
+            # Handle integers, floats, and UTCDateTimes.
             elif value_type in ("int", "float", "UTCDateTime"):
-                choices = ("min_%s", ">="), ("max_%s", "<="), ("%s", "=")
+                choices = (("min_%s", ">="), ("max_%s", "<="), ("%s", "="),
+                           ("!%s", "!="))
                 for name, operator in choices:
                     name = name % key
                     if name not in kwargs:
@@ -183,16 +224,21 @@ class _DocumentIndexManager(models.GeoManager):
                         type_map[value_type](kwargs[name])))
             # Handle bools.
             elif value_type == "bool":
-                if key in kwargs:
-                    value = kwargs[key].lower()
-                    if value in ["t", "true", "yes", "y"]:
+                # Booleans can be searched for (in)equality.
+                choices = (("%s", "="), ("!%s", "!="))
+                for name, operator in choices:
+                    name = name % key
+                    if name not in kwargs:
+                        continue
+                    value = kwargs[name].lower()
+                    if value in ["t", "true", "yes", "y", True]:
                         value = "true"
-                    elif value in ["f", "false", "no", "n"]:
+                    elif value in ["f", "false", "no", "n", False]:
                         value = "false"
                     else:
                         raise NotImplementedError
-                    where.append(self._get_json_query(key, "=", value_type,
-                                                      value))
+                    where.append(self._get_json_query(
+                        key, operator, value_type, value))
             else:
                 raise NotImplementedError
 
