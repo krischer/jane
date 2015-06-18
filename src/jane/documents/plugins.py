@@ -136,7 +136,6 @@ def initialize_plugins():
                 _i.get_model() for _i in contents["retrieve_permissions"]]
         else:
             retrieve_permissions = []
-        print(retrieve_permissions)
 
         try:
             resource_type = models.DocumentType.objects.get(name=plugin_name)
@@ -150,11 +149,12 @@ def initialize_plugins():
             resource_type.save()
 
         resource_type.validators = validators
+        resource_type.retrieve_permissions = retrieve_permissions
         resource_type.save()
 
     # Permissions.
     permissions = []
-    for plugin_name in plugins.keys():
+    for plugin_name, contents in plugins.items():
         # Two default permissions for every plugin: Can upload documents and
         # attachments.
         permissions.append(
@@ -164,6 +164,12 @@ def initialize_plugins():
             {"codename": "can_upload_%s_attachments" % plugin_name,
              "name": "Can Upload Attachments for %s Indices" %
                      plugin_name.capitalize()})
+
+        if "retrieve_permissions" in contents:
+            for perm in contents["retrieve_permissions"]:
+                permissions.append({
+                    "codename": perm.permission_codename,
+                    "name": perm.permission_name})
 
     for perm in permissions:
         content_type = ContentType.objects.get_for_model(models.DocumentType)
