@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Jane - FDSNWS Station Web Service</title>
     <link rel="stylesheet" href="{{ host }}/static/css/bootstrap-custom.min.css">
+    <style>
+        a, a:hover, a:active, a:focus {
+            color: {{ accent_color }}
+        }
+
+        .navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus, .navbar-inverse .navbar-nav > li > a:hover, .navbar-inverse .navbar-nav > li > a:focus {
+            color: rgba(255, 255, 255, 0.4)
+        }
+    </style>
 </head>
 <body style="padding-top: 50px">
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation"
