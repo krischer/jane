@@ -4,8 +4,30 @@
 Jane REST Framework
 {% endblock %}
 
+{% block head %}
+{{ block.super }}
+<style>
+    a, a:hover, a:active, a:focus, .str, body a, body a:hover, body a:active, body a:focus {
+        color: {{ accent_color }}
+    }
+
+    .lit, .kwd {
+        color: #666666
+    }
+
+    code {
+        color: {{ accent_color }};
+        background-color: #eeeeee
+    }
+
+    .navbar {
+        border-color: {{ accent_color }} -moz-use-text-color -moz-use-text-color
+    }
+</style>
+{% endblock %}
+
 {% block branding %}
 <a class='navbar-brand' rel="nofollow" href='/rest'>
-  Jane REST Framework
+  {{ instance_name }} REST API
 </a>
 {% endblock %}

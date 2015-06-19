@@ -186,7 +186,7 @@ REST_FRAMEWORK = {
 
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
+        'jane.jane.renderers.JaneBrowsableAPIRenderer',
         # Starting with DRF 3, some renderers get moved to separate modules.
         'rest_framework_xml.renderers.XMLRenderer',
         'rest_framework_yaml.renderers.YAMLRenderer',
