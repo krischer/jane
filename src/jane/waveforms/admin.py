@@ -123,15 +123,14 @@ admin.site.register(models.File, FileAdmin)
 
 class ContinuousTraceAdmin(admin.ModelAdmin):
     list_display = ['format_nslc', 'network', 'station', 'location', 'channel',
-                    'starttime', 'endtime', 'sampling_rate', 'npts', 'quality',
+                    'timerange', 'sampling_rate', 'npts', 'quality',
                     'format_small_preview_image']
     search_fields = ['network', 'station', 'location', 'channel']
-    date_hierarchy = 'starttime'
     list_filter = ['network', 'station', 'location', 'channel',
                    'sampling_rate', 'quality']
     readonly_fields = [
         'file', 'format_path', 'pos', 'network', 'station', 'location',
-        'channel', 'starttime', 'endtime', 'duration', 'sampling_rate', 'npts',
+        'channel', 'timerange', 'duration', 'sampling_rate', 'npts',
         'calib', 'quality', 'preview_trace', 'format_preview_image']
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable

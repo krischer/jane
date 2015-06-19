@@ -5,6 +5,7 @@ import os
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.contrib.postgres.fields import DateTimeRangeField
 from jsonfield.fields import JSONField
 
 from jane.waveforms.utils import to_datetime
@@ -76,9 +77,7 @@ class ContinuousTrace(models.Model):
     station = models.CharField(max_length=5, db_index=True, blank=True)
     location = models.CharField(max_length=2, db_index=True, blank=True)
     channel = models.CharField(max_length=3, db_index=True, blank=True)
-    starttime = models.DateTimeField(verbose_name="Start time (UTC)",
-                                     db_index=True)
-    endtime = models.DateTimeField(verbose_name="End time (UTC)",
+    timerange = DateTimeRangeField(verbose_name="Temporal Range (UTC)",
                                    db_index=True)
     duration = models.FloatField('Duration (s)', db_index=True, default=0)
     calib = models.FloatField(verbose_name="Calibration factor", default=1)
@@ -91,21 +90,18 @@ class ContinuousTrace(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
     def __str__(self):
-        return "%s.%s.%s.%s | %s - %s | %s Hz, %d samples" % (
+        return "%s.%s.%s.%s | %s | %s Hz, %d samples" % (
             self.network, self.station, self.location, self.channel,
-            self.starttime, self.endtime, self.sampling_rate, self.npts)
+            self.timerange, self.sampling_rate, self.npts)
 
     class Meta:
-        ordering = ['-starttime', '-endtime', 'network', 'station',
-                    'location', 'channel']
+        ordering = ['-timerange', 'network', 'station', 'location', 'channel']
         unique_together = ['file', 'network', 'station', 'location', 'channel',
-                           'starttime', 'endtime']
+                           'timerange']
 
 
 class Mapping(models.Model):
-    starttime = models.DateTimeField(verbose_name="Start time (UTC)",
-                                     db_index=True)
-    endtime = models.DateTimeField(verbose_name="End time (UTC)",
+    timerange = DateTimeRangeField(verbose_name="Temporal Range (UTC)",
                                    db_index=True)
     network = models.CharField(max_length=2, blank=True)
     station = models.CharField(max_length=5, blank=True)
@@ -125,13 +121,13 @@ class Mapping(models.Model):
                                     related_name='mappings_modified')
 
     def __str__(self):
-        return "%s.%s.%s.%s | %s - %s ==> %s.%s.%s.%s" % (
+        return "%s.%s.%s.%s | %s ==> %s.%s.%s.%s" % (
             self.network, self.station, self.location, self.channel,
-            self.starttime, self.endtime, self.new_network, self.new_station,
+            self.timerange, self.new_network, self.new_station,
             self.new_location, self.new_channel)
 
     class Meta:
-        ordering = ['-starttime', '-endtime']
+        ordering = ['-timerange']
 
 
 class Restriction(models.Model):

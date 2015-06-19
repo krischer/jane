@@ -18,5 +18,5 @@ class WaveformSerializer(serializers.HyperlinkedModelSerializer):
         model = models.ContinuousTrace
         fields = ['url', 'plot', 'containing_file',
                   'network', 'station', 'location', 'channel',
-                  'starttime', 'endtime', 'duration', 'sampling_rate',
+                  'timerange', 'duration', 'sampling_rate',
                   'quality', 'npts', 'created_at']

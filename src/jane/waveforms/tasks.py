@@ -7,6 +7,7 @@ import os
 from celery import shared_task
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from psycopg2.extras import DateTimeTZRange
 
 import matplotlib
 matplotlib.use("agg")  # NOQA
@@ -56,8 +57,9 @@ def process_file(filename):
     for trace in stream:
         trace_obj = models.ContinuousTrace.objects.get_or_create(
             file=file_obj,
-            starttime=trace.stats.starttime.datetime,
-            endtime=trace.stats.endtime.datetime)[0]
+            timerange=DateTimeTZRange(
+                lower=trace.stats.starttime.datetime,
+                upper=trace.stats.endtime.datetime))[0]
         trace_obj.network = trace.stats.network.upper()
         trace_obj.station = trace.stats.station.upper()
         trace_obj.location = trace.stats.location.upper()

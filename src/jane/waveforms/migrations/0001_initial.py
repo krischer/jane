@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-from django.conf import settings
+import django.contrib.postgres.fields.ranges
 import jsonfield.fields
+from django.conf import settings
 
 
 class Migration(migrations.Migration):
@@ -16,36 +17,35 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ContinuousTrace',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
                 ('pos', models.IntegerField(default=0)),
-                ('network', models.CharField(blank=True, max_length=2, db_index=True)),
-                ('station', models.CharField(blank=True, max_length=5, db_index=True)),
-                ('location', models.CharField(blank=True, max_length=2, db_index=True)),
-                ('channel', models.CharField(blank=True, max_length=3, db_index=True)),
-                ('starttime', models.DateTimeField(db_index=True, verbose_name='Start time (UTC)')),
-                ('endtime', models.DateTimeField(db_index=True, verbose_name='End time (UTC)')),
+                ('network', models.CharField(db_index=True, blank=True, max_length=2)),
+                ('station', models.CharField(db_index=True, blank=True, max_length=5)),
+                ('location', models.CharField(db_index=True, blank=True, max_length=2)),
+                ('channel', models.CharField(db_index=True, blank=True, max_length=3)),
+                ('timerange', django.contrib.postgres.fields.ranges.DateTimeRangeField(verbose_name='Temporal Range (UTC)', db_index=True)),
                 ('duration', models.FloatField(default=0, verbose_name='Duration (s)', db_index=True)),
                 ('calib', models.FloatField(default=1, verbose_name='Calibration factor')),
                 ('sampling_rate', models.FloatField(default=1)),
                 ('npts', models.IntegerField(default=0, verbose_name='Samples')),
                 ('preview_trace', jsonfield.fields.JSONField(null=True)),
                 ('preview_image', models.BinaryField(null=True)),
-                ('quality', models.CharField(blank=True, max_length=1, null=True, db_index=True)),
+                ('quality', models.CharField(null=True, db_index=True, blank=True, max_length=1)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
             ],
             options={
-                'ordering': ['-starttime', '-endtime', 'network', 'station', 'location', 'channel'],
+                'ordering': ['-timerange', 'network', 'station', 'location', 'channel'],
             },
         ),
         migrations.CreateModel(
             name='File',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
-                ('name', models.CharField(db_index=True, max_length=255)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('name', models.CharField(max_length=255, db_index=True)),
                 ('size', models.IntegerField()),
                 ('gaps', models.IntegerField(default=0, db_index=True)),
                 ('overlaps', models.IntegerField(default=0, db_index=True)),
-                ('format', models.CharField(db_index=True, blank=True, max_length=255, null=True, default=None)),
+                ('format', models.CharField(default=None, null=True, db_index=True, blank=True, max_length=255)),
                 ('ctime', models.DateTimeField()),
                 ('mtime', models.DateTimeField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
@@ -57,9 +57,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Mapping',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
-                ('starttime', models.DateTimeField(db_index=True, verbose_name='Start time (UTC)')),
-                ('endtime', models.DateTimeField(db_index=True, verbose_name='End time (UTC)')),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('timerange', django.contrib.postgres.fields.ranges.DateTimeRangeField(verbose_name='Temporal Range (UTC)', db_index=True)),
                 ('network', models.CharField(blank=True, max_length=2)),
                 ('station', models.CharField(blank=True, max_length=5)),
                 ('location', models.CharField(blank=True, max_length=2)),
@@ -72,17 +71,17 @@ class Migration(migrations.Migration):
                 ('file_regex', models.CharField(blank=True, max_length=255)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('modified_at', models.DateTimeField(auto_now=True)),
-                ('created_by', models.ForeignKey(related_name='mappings_created', editable=False, null=True, to=settings.AUTH_USER_MODEL)),
-                ('modified_by', models.ForeignKey(related_name='mappings_modified', editable=False, null=True, to=settings.AUTH_USER_MODEL)),
+                ('created_by', models.ForeignKey(editable=False, null=True, related_name='mappings_created', to=settings.AUTH_USER_MODEL)),
+                ('modified_by', models.ForeignKey(editable=False, null=True, related_name='mappings_modified', to=settings.AUTH_USER_MODEL)),
             ],
             options={
-                'ordering': ['-starttime', '-endtime'],
+                'ordering': ['-timerange'],
             },
         ),
         migrations.CreateModel(
             name='Path',
             fields=[
-                ('name', models.CharField(primary_key=True, max_length=255, serialize=False, validators=['validate_name'])),
+                ('name', models.CharField(validators=['validate_name'], serialize=False, primary_key=True, max_length=255)),
                 ('ctime', models.DateTimeField()),
                 ('mtime', models.DateTimeField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
@@ -94,14 +93,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Restriction',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
-                ('network', models.CharField(db_index=True, max_length=2)),
-                ('station', models.CharField(db_index=True, max_length=5)),
-                ('comment', models.TextField(blank=True, null=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('network', models.CharField(max_length=2, db_index=True)),
+                ('station', models.CharField(max_length=5, db_index=True)),
+                ('comment', models.TextField(null=True, blank=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('modified_at', models.DateTimeField(auto_now=True)),
-                ('created_by', models.ForeignKey(related_name='restrictions_created', editable=False, null=True, to=settings.AUTH_USER_MODEL)),
-                ('modified_by', models.ForeignKey(related_name='restrictions_modified', editable=False, null=True, to=settings.AUTH_USER_MODEL)),
+                ('created_by', models.ForeignKey(editable=False, null=True, related_name='restrictions_created', to=settings.AUTH_USER_MODEL)),
+                ('modified_by', models.ForeignKey(editable=False, null=True, related_name='restrictions_modified', to=settings.AUTH_USER_MODEL)),
                 ('users', models.ManyToManyField(db_index=True, to=settings.AUTH_USER_MODEL)),
             ],
         ),
@@ -121,6 +120,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='continuoustrace',
-            unique_together=set([('file', 'network', 'station', 'location', 'channel', 'starttime', 'endtime')]),
+            unique_together=set([('file', 'network', 'station', 'location', 'channel', 'timerange')]),
         ),
     ]
