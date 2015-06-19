@@ -137,7 +137,8 @@ def query(request, debug=False):
     Parses and returns event request
     """
     # handle both: HTTP POST and HTTP GET variables
-    params = parse_query_parameters(QUERY_PARAMETERS, request.REQUEST)
+    params = parse_query_parameters(QUERY_PARAMETERS,
+                                    getattr(request, request.method))
 
     # A returned string is interpreted as an error message.
     if isinstance(params, str):

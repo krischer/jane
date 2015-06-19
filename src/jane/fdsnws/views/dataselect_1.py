@@ -61,7 +61,8 @@ def query(request, user=None):
     Parses and returns data request
     """
     # handle both: HTTP POST and HTTP GET variables
-    params = request.REQUEST
+    params = getattr(request, request.method)
+
     # starttime/endtime
     starttime = params.get('starttime') or params.get('start')
     if not starttime:
