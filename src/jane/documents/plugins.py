@@ -29,7 +29,7 @@ class ValidatorPluginPoint(PluginPoint):
     """
     group_name = "validators"
 
-    def validate(self):
+    def validate(self, document):
         raise NotImplementedError
 
 
@@ -66,6 +66,22 @@ class RetrievePermissionPluginPoint(PluginPoint):
 
     def filter_queryset_user_does_not_have_permission(self, queryset,
                                                       model_type):
+        raise NotImplementedError
+
+
+class UploadPermissionPluginPoint(PluginPoint):
+    """
+    Plugin point for custom permission during the uploading stage of
+    documents. Will be run right after the validators.
+    """
+    group_name = "upload_permissions"
+
+    def check_document(self, document):
+        """
+        Check if the document qualifies for the permission. If this returns
+        True, and the user does not have the required permission, uploading
+        will be refused.
+        """
         raise NotImplementedError
 
 
@@ -125,6 +141,7 @@ def initialize_plugins():
     for plugin_name, contents in plugins.items():
         definition = contents["definition"][0].get_model()
         indexer = contents["indexer"][0].get_model()
+
         # Validators are optional.
         if "validators" in contents:
             validators = [_i.get_model() for _i in contents["validators"]]
@@ -136,6 +153,13 @@ def initialize_plugins():
                 _i.get_model() for _i in contents["retrieve_permissions"]]
         else:
             retrieve_permissions = []
+        # As are upload permissions.
+        if "upload_permissions" in contents:
+            upload_permissions = [
+                _i.get_model() for _i in contents["upload_permissions"]]
+        else:
+            upload_permissions = []
+
 
         try:
             resource_type = models.DocumentType.objects.get(name=plugin_name)
@@ -150,6 +174,7 @@ def initialize_plugins():
 
         resource_type.validators = validators
         resource_type.retrieve_permissions = retrieve_permissions
+        resource_type.upload_permissions = upload_permissions
         resource_type.save()
 
     # Permissions.
@@ -167,6 +192,12 @@ def initialize_plugins():
 
         if "retrieve_permissions" in contents:
             for perm in contents["retrieve_permissions"]:
+                permissions.append({
+                    "codename": perm.permission_codename,
+                    "name": perm.permission_name})
+
+        if "upload_permissions" in contents:
+            for perm in contents["upload_permissions"]:
                 permissions.append({
                     "codename": perm.permission_codename,
                     "name": perm.permission_name})

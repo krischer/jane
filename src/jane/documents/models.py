@@ -50,6 +50,10 @@ class DocumentType(models.Model):
     retrieve_permissions = ManyPluginField(
         plugins.RetrievePermissionPluginPoint, blank=True,
         related_name='retrieve_permissions')
+    # Same for uploading documents.
+    upload_permissions = ManyPluginField(
+        plugins.UploadPermissionPluginPoint, blank=True,
+        related_name='upload_permissions')
 
     def __str__(self):
         return self.name
