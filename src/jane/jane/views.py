@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 
+from django.conf import settings
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 
@@ -78,6 +79,8 @@ def rest_root(request, format=None):
 def index(request):
     options = {
         'host': request.build_absolute_uri('/')[:-1],
+        'instance_name': settings.JANE_INSTANCE_NAME,
+        'accent_color': settings.JANE_ACCENT_COLOR
         }
     return render_to_response("index.html", options,
                               RequestContext(request))

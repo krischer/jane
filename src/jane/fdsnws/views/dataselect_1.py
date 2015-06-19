@@ -32,6 +32,8 @@ def index(request):
     """
     options = {
         'host': request.build_absolute_uri('/')[:-1],
+        'instance_name': settings.JANE_INSTANCE_NAME,
+        'accent_color': settings.JANE_ACCENT_COLOR
     }
     return render_to_response("fdsnws/dataselect/1/index.html", options,
                               RequestContext(request))

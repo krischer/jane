@@ -8,7 +8,16 @@
           href="{{ host }}/static/css/bootstrap-custom.min.css">
 
 </head>
-<body>
+<body style="padding-top: 30px">
+
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation"
+     style="background-color: {{ accent_color }}; border-color: {{ accent_color }}; border-radius: 0px">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">{{ instance_name }}</a>
+        </div>
+    </div>
+</nav>
 
 <div class="container">
 

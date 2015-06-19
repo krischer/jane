@@ -272,7 +272,7 @@ DEBUG_TOOLBAR_PANELS = [
 ]
 
 ###############################################################################
-# Jane
+# Jane Apps
 ###############################################################################
 INSTALLED_APPS += [
     'jane.jane',
@@ -284,6 +284,15 @@ INSTALLED_APPS += [
 ]
 
 
+###############################################################################
+# Jane Default Config
+###############################################################################
+
+# Name of the instance used in parts of the web interface.
+JANE_INSTANCE_NAME = "Jane"
+# Color used in certain parts of the web interface. Useful to distinguish
+# separate Jane installations.
+JANE_ACCENT_COLOR = "#D9230F"
 
 
 ###############################################################################
