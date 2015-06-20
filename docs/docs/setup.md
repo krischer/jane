@@ -2,22 +2,22 @@
 
 This page details how to setup `Jane` on a production server. Most of these
 steps only need to be done once but of course the availability of all these
-service must be monitored and security critical updates must be applied to
+service must be monitored and security critical updates have to be applied to
 maintain a stable installation.
 
 ## Dependencies of Jane
 
 `Jane` depends on the following non-Python dependencies
 
-* PostgreSQL 9.4
-* PostGIS 2.1
-* RabbitMQ 3.5
+* `PostgreSQL 9.4`
+* `PostGIS 2.1`
+* `RabbitMQ 3.5`
 
-furthermore
+and furthermore on
 
-* Python 3.4
+* `Python 3.4`
 
-and the following Python modules
+with the following Python modules
 
 * `obspy==0.10`
 * `django==1.8`
@@ -29,6 +29,9 @@ and the following Python modules
 * `django-plugins`
 * `djangorestframework==3.1`
 * `djangorestframework-gis==0.8`
+* `djangorestframework-jsonp`
+* `djangorestframework-xml`
+* `djangorestframework-yaml`
 * `markdown`
 * `django-filter`
 * `pyyaml`
@@ -48,7 +51,7 @@ and the following Python modules
 A simple way to install an up-to-date version of the dependencies is to use the Anaconda Python distribution. Once that is installed, the following two lines should do the trick:
 
 ```bash
-$ conda install -c obspy obspy django==1.8 psycopg2 markdown flake8 gdal basemap pyyaml
+$ conda install -c obspy obspy django==1.8 psycopg2 markdown flake8 gdal pyyaml
 $ pip install celery django-celery watchdog jsonfield django-plugins djangorestframework==3.1 djangorestframework-gis==0.8 defusedxml geojson django-cors-headers django_like django-debug-toolbar django-debug-toolbar-template-timings
 ```
 
