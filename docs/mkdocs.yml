@@ -7,3 +7,4 @@ pages:
 - ['setup.md', 'Jane Setup']
 - ['internals.md', 'Jane Internals']
 - ['rest.md', 'Rest Interface']
+- ['settings.md', 'Jane Settings']
