@@ -43,11 +43,11 @@ module.factory('events', function($http, $log, jane_server) {
         },
         update: function() {
             var self = this;
-            var url = jane_server + "/rest/quakeml/";
+            var url = jane_server + "/rest/document_indices/quakeml?limit=20000";
             $http.get(url).success(function(data) {
                 // Filter events to only keep those with a valid origin and
                 // magnitude.
-                var data = _(data)
+                var data = _(data.results)
                     .filter(function(i) {
                         if (!i.indexed_data.latitude && !i.indexed_data.longitude) {
                             return false;
@@ -92,10 +92,10 @@ module.factory('stations', function($http, $log, jane_server) {
         },
         update: function() {
             var self = this;
-            var url = jane_server + "/rest/stationxml/";
+            var url = jane_server + "/rest/document_indices/stationxml?limit=10000";
             $http.get(url).success(function(data) {
                 var stations = {};
-                _.forEach(data, function(item) {
+                _.forEach(data.results, function(item) {
                     var j = item.indexed_data;
                     var station_id = [j.network, j.station];
                     var n_sd = new Date(j.start_date);
