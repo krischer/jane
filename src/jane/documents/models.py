@@ -176,6 +176,15 @@ class _DocumentIndexManager(models.GeoManager):
             queryset = DocumentIndex.objects.\
                 filter(document__document_type=res_type)
 
+        # The REST API is fairly excessive with nested lookups. Prefetch
+        # most of them which greatly speeds up everything.
+        # prefetch_related() does the join in Python which is slower but
+        # works with many-to-many fields. Select related is faster but only
+        # works with foreign keys.
+        queryset = queryset\
+            .prefetch_related('attachments')\
+            .select_related('document', 'document__document_type')
+
         # Nothing to do.
         if not kwargs:
             return queryset
@@ -274,6 +283,16 @@ class DocumentIndex(models.Model):
         return str(self.json)
 
 
+class _DocumentIndexAttachmentManager(models.Manager):
+    def get_queryset(self, *args, **kwargs):
+        # Usernames are always looked up for the REST API. This is much
+        # quicker.
+        queryset = super()\
+            .get_queryset(*args, **kwargs)\
+            .select_related("created_by", "modified_by")
+        return queryset
+
+
 class DocumentIndexAttachment(models.Model):
     """
     Attachments for one Document.
@@ -291,6 +310,7 @@ class DocumentIndexAttachment(models.Model):
                                    related_name='attachments_created')
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL,
                                     related_name='attachments_modified')
+    objects = _DocumentIndexAttachmentManager()
 
     class Meta:
         ordering = ['pk']
