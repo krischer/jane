@@ -121,7 +121,7 @@ class _DocumentIndexManager(models.GeoManager):
     def _get_json_query(self, key, operator, type, value):
         return self.JSON_QUERY_TEMPLATE_MAP[type] % (key, operator, str(value))
 
-    def get_filtered_queryset(self, document_type=None, queryset=None,
+    def get_filtered_queryset(self, document_type, queryset=None,
                               **kwargs):
         """
         Returns a queryset filtered on the items in the JSON document.
@@ -247,10 +247,10 @@ class _DocumentIndexManager(models.GeoManager):
                     name = name % key
                     if name not in kwargs:
                         continue
-                    value = kwargs[name].lower()
-                    if value in ["t", "true", "yes", "y", True]:
+                    value = str(kwargs[name]).lower()
+                    if value in ["t", "true", "yes", "y"]:
                         value = "true"
-                    elif value in ["f", "false", "no", "n", False]:
+                    elif value in ["f", "false", "no", "n"]:
                         value = "false"
                     else:
                         raise NotImplementedError

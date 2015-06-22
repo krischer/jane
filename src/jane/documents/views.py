@@ -81,7 +81,7 @@ class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
                 else:
                     queryset = \
                         perm.filter_queryset_user_does_not_have_permission(
-                            queryset, model_type="index")
+                            queryset=queryset, model_type="index")
         return queryset
 
 

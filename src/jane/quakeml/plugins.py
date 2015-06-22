@@ -73,7 +73,7 @@ class CanSeePrivateEventsRetrievePermissionPlugin(
             # Events that have null for public are considered to be private
             # and will not be shown here.
             queryset = queryset.model.objects.get_filtered_queryset(
-                queryset=queryset, public=True)
+                document_type="quakeml", queryset=queryset, public=True)
         else:
             raise NotImplementedError
         return queryset
