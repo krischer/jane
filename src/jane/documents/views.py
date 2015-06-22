@@ -75,7 +75,9 @@ class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
         if retrieve_permissions:
             for perm in retrieve_permissions:
                 perm = perm.get_plugin()
-                if self.request.user.has_perm(perm.permission_codename):
+                # XXX: Any way to dynamically fill the 'documents.' part?
+                if self.request.user.has_perm(
+                        "documents." + perm.permission_codename):
                     queryset = perm.filter_queryset_user_has_permission(
                         queryset, model_type="index")
                 else:
