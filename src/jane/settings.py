@@ -184,6 +184,11 @@ REST_FRAMEWORK = {
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',
 
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'jane.jane.renderers.JaneBrowsableAPIRenderer',
@@ -192,15 +197,6 @@ REST_FRAMEWORK = {
         'rest_framework_yaml.renderers.YAMLRenderer',
         'rest_framework_jsonp.renderers.JSONPRenderer'
     ),
-
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    # ],
-    # 'DEFAULT_FILTER_BACKENDS': [
-    #     'rest_framework.filters.DjangoFilterBackend'
-    # ],
 
     # Pagination. This one here gives access to `limit` and `offset`
     # parameters and still has nice page numbers in the web API.
