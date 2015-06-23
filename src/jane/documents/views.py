@@ -56,11 +56,15 @@ class DocumentsView(mixins.RetrieveModelMixin, mixins.ListModelMixin,
         Method called upon "PUT"ting a new document. Creates a new or
         replaces an existing document.
         """
-        models.Document.objects.add_or_modify_document(
+        status = models.Document.objects.add_or_modify_document(
             document_type=document_type,
             name=name,
             data=request.data.body,
             user=request.user)
+
+        return Response(
+            {"status": "Successfully created or updated the document"},
+            status=status)
 
 
 class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):

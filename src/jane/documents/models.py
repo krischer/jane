@@ -21,6 +21,8 @@ from django.shortcuts import get_object_or_404
 from djangoplugins.fields import PluginField, ManyPluginField
 from jsonfield.fields import JSONField
 
+from rest_framework import status
+
 import hashlib
 
 from jane.documents import plugins
@@ -108,16 +110,22 @@ class _DocumentManager(models.Manager):
             document = Document.objects.get(
                 document_type=document_type, name=name)
             document.modified_by = user
+            stat = status.HTTP_204_NO_CONTENT
         except Document.DoesNotExist:
             document = Document(
                 document_type=document_type,
                 name=name,
                 modified_by=user,
                 created_by=user)
+            stat = status.HTTP_201_CREATED
 
         document.data = data
 
         document.save()
+
+        # Return the status to be able to generate good HTTP responses. Can
+        # be ignored if not needed.
+        return stat
 
 
 class Document(models.Model):
