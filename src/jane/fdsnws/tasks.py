@@ -13,6 +13,7 @@ import os
 from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
+from psycopg2.extras import DateTimeTZRange
 from lxml import etree
 import obspy
 from obspy.core.utcdatetime import UTCDateTime
@@ -460,8 +461,8 @@ def query_dataselect(networks, stations, locations, channels, starttime,
     # times
     starttime = UTCDateTime(starttime)
     endtime = UTCDateTime(endtime)
-    query = query.filter(starttime__lte=endtime.datetime,
-                         endtime__gte=starttime.datetime)
+    daterange = DateTimeTZRange(starttime.datetime, endtime.datetime)
+    query = query.filter(timerange__overlap=daterange)
     # networks
     if '*' not in networks:
         iterator = (Q(network__like=v.replace('?', '_').replace('*', '%'))
