@@ -206,7 +206,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.LimitOffsetPagination',
     # Default to 10.
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 10,
+
+    'EXCEPTION_HANDLER':
+        'jane.jane.rest_exception_handler.custom_exception_handler'
 }
 
 

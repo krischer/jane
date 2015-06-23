@@ -63,7 +63,8 @@ class DocumentsView(mixins.RetrieveModelMixin, mixins.ListModelMixin,
             user=request.user)
 
         return Response(
-            {"status": "Successfully created or updated the document"},
+            {"status": "Successfully created or updated the document",
+             "status_code": status},
             status=status)
 
 
