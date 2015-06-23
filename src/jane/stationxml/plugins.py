@@ -8,11 +8,11 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pylab as plt  # NOQA
 
-from obspy.station.stationxml import validate_StationXML
-import obspy
+from obspy.station.stationxml import validate_StationXML  # NOQA
+import obspy  # NOQA
 
 from jane.documents.plugins import (ValidatorPluginPoint, IndexerPluginPoint,
-                                    DocumentPluginPoint)
+                                    DocumentPluginPoint)  # NOQA
 
 
 class StationXMLPlugin(DocumentPluginPoint):

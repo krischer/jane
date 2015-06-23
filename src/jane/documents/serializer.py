@@ -106,7 +106,6 @@ class DocumentIndexSerializer(GeoModelSerializer):
 
     attachments = DocumentIndexAttachmentSerializer(many=True)
 
-
     class Meta:
         model = models.DocumentIndex
         fields = [

@@ -20,8 +20,11 @@ class TestCodeFormatting(unittest.TestCase):
 
         # Possibility to ignore some files and paths.
         ignore_paths = [
-            os.path.join(jane_dir, "doc"),
-            os.path.join(jane_dir, ".git")]
+            os.path.join(jane_dir, os.path.pardir, "docs"),
+            os.path.join(jane_dir, os.path.pardir, ".git"),
+            os.path.join(jane_dir, "jane", "documents", "migrations"),
+            os.path.join(jane_dir, "jane", "waveforms", "migrations")
+            ]
         files = []
         for dirpath, _, filenames in os.walk(jane_dir):
             ignore = False

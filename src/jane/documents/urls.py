@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url, include
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from jane.documents import views, DOCUMENT_FILENAME_REGEX
@@ -43,5 +43,5 @@ router.register(
 urlpatterns.append(url(r'^rest/', include(router.urls)))
 
 
-from .plugins import initialize_plugins
+from .plugins import initialize_plugins  # NOQA
 available_plugins = initialize_plugins()

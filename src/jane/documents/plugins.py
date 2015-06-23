@@ -160,7 +160,6 @@ def initialize_plugins():
         else:
             upload_permissions = []
 
-
         try:
             resource_type = models.DocumentType.objects.get(name=plugin_name)
             resource_type.definition = definition
