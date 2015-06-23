@@ -27,7 +27,8 @@ def validate_document(sender, instance, **kwargs):
             data.seek(0, 0)
             # raise if not valid
             if not plugin.get_plugin().validate(data):
-                raise Exception
+                raise Exception("Not a valid document of type %s." %
+                                instance.document_type.name)
 
 
 @receiver(pre_save, sender=models.Document)

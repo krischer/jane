@@ -42,7 +42,11 @@ class QuakeMLValidatorPlugin(ValidatorPluginPoint):
 
     def validate(self, document):
         from obspy.core.quakeml import _validate as validate_quakeml  # NOQA
-        return validate_quakeml(document)
+        try:
+            is_valid = validate_quakeml(document)
+        except:
+            is_valid = False
+        return is_valid
 
 
 class CanSeePrivateEventsRetrievePermissionPlugin(

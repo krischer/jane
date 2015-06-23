@@ -17,13 +17,14 @@ from rest_framework.reverse import reverse
 
 from jane.documents import models, serializer, DOCUMENT_FILENAME_REGEX
 
-from rest_framework import viewsets
+from rest_framework import viewsets, generics, mixins
 
 
 CACHE_TIMEOUT = 60 * 60 * 24
 
 
-class DocumentsView(viewsets.ReadOnlyModelViewSet):
+class DocumentsView(mixins.RetrieveModelMixin, mixins.ListModelMixin,
+                    viewsets.ViewSetMixin, generics.GenericAPIView):
     serializer_class = serializer.DocumentSerializer
 
     lookup_field = 'name'
@@ -40,7 +41,8 @@ class DocumentsView(viewsets.ReadOnlyModelViewSet):
         if retrieve_permissions:
             for perm in retrieve_permissions:
                 perm = perm.get_plugin()
-                if self.request.user.has_perm(perm.permission_codename):
+                if self.request.user.has_perm(
+                        "documents." + perm.permission_codename):
                     queryset = perm.filter_queryset_user_has_permission(
                         queryset, model_type="document")
                 else:
@@ -48,6 +50,17 @@ class DocumentsView(viewsets.ReadOnlyModelViewSet):
                         perm.filter_queryset_user_does_not_have_permission(
                             queryset, model_type="document")
         return queryset
+
+    def update(self, request, document_type, name):
+        """
+        Method called upon "PUT"ting a new document. Creates a new or
+        replaces an existing document.
+        """
+        models.Document.objects.add_or_modify_document(
+            document_type=document_type,
+            name=name,
+            data=request.data.body,
+            user=request.user)
 
 
 class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):

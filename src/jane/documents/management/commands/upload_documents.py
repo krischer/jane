@@ -44,14 +44,11 @@ class Command(BaseCommand):
             print('Uploading %s...' % filename)
             with open(filename, "rb") as fh:
                 with io.BytesIO(fh.read()) as data:
-                    document = models.Document(
-                        document_type=document_type,
-                        name=os.path.basename(filename),
-                        data=data.read(),
-                        created_by=user,
-                        modified_by=user
-                    )
                     try:
-                        document.save()
+                        models.Document.objects.add_or_modify_document(
+                            document_type=document_type,
+                            name=os.path.basename(filename),
+                            data=data.read(),
+                            user=user)
                     except Exception as e:
                         print("Failed uploading due to: %s" % str(e))

@@ -82,7 +82,6 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     # see http://docs.djangoproject.com/en/dev/ref/clickjacking/
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'jane.jane.middleware.WhoDidItMiddleware',
     'jane.jane.middleware.AutoLogoutMiddleware',
 ]
 
@@ -187,6 +186,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+    ),
+
+    'DEFAULT_PARSER_CLASSES': (
+        'jane.documents.parsers.JaneDocumentUploadParser',
     ),
 
     'DEFAULT_RENDERER_CLASSES': (

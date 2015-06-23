@@ -3,8 +3,6 @@ import time
 
 from django.conf import settings
 from django.contrib import auth
-from django.db.models import signals
-from django.utils.functional import curry
 
 
 class AutoLogoutMiddleware(object):

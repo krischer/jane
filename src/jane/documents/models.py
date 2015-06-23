@@ -21,7 +21,11 @@ from django.shortcuts import get_object_or_404
 from djangoplugins.fields import PluginField, ManyPluginField
 from jsonfield.fields import JSONField
 
+import hashlib
+
 from jane.documents import plugins
+from jane.exceptions import (JaneDocumentAlreadyExists,
+                             JaneNotAuthorizedException)
 
 
 class PostgreSQLJSONBField(JSONField):
@@ -64,6 +68,58 @@ class DocumentType(models.Model):
         verbose_name_plural = 'Document Types'
 
 
+class _DocumentManager(models.Manager):
+    def add_or_modify_document(self, document_type, name, data, user):
+        """
+        Add a new or modify an existing document.
+
+        Use this method everywhere to ensure a consistent handling of the
+        permissions. A user object has to be passed for this purpose.
+
+        :param document_type: The document type either as a
+            jane.documents.models.DocumentType instance or as a string.
+        :param name: The name of the resource. If it exists, it will be
+            updated, otherwise a new one will be created.
+        :param data: The data as a byte string.
+        :param user: The user object responsible for the action. Must be
+            passed to ensure a consistent handling of permissions.
+        """
+        # Works with strings and DocumentType instances.
+        if not isinstance(document_type, DocumentType):
+            document_type = get_object_or_404(
+                DocumentType, name=document_type)
+        document_type_str = document_type.name
+
+        # The user in question must have the permission to modify documents
+        # of that type.
+        if not user.has_perm(
+                        "documents.can_modify_%s" % document_type_str):
+            raise JaneNotAuthorizedException(
+                "No permission to upload documents of that type")
+
+        # Calculate the hash upfront to not upload any duplicates.
+        sha1 = hashlib.sha1(data).hexdigest()
+        if Document.objects.filter(sha1=sha1).exists():
+            raise JaneDocumentAlreadyExists("Data already exists in the "
+                                            "database.")
+
+
+        try:
+            document = Document.objects.get(
+                document_type=document_type, name=name)
+            document.modified_by = user
+        except Document.DoesNotExist:
+            document = Document(
+                document_type=document_type,
+                name=name,
+                modified_by=user,
+                created_by=user)
+
+        document.data = data
+
+        document.save()
+
+
 class Document(models.Model):
     """
     A document of a particular type.
@@ -93,6 +149,7 @@ class Document(models.Model):
                                    related_name='documents_created')
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL,
                                     related_name='documents_modified')
+    objects = _DocumentManager()
 
     def __str__(self):
         return "Document of type '%s', name: %s" % (self.document_type,
