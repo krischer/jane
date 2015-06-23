@@ -385,6 +385,90 @@ class _DocumentIndexAttachmentManager(models.Manager):
             .select_related("created_by", "modified_by")
         return queryset
 
+    def delete_attachment(self, document_type, pk, user):
+        """
+        For convenience reasons, offer that method here, including
+        authentication.
+
+        :param document_type: The document type either as a
+            jane.documents.models.DocumentType instance or as a string.
+        :param pk: The primary key of the attachment.
+        :param user: The user object responsible for the action. Must be
+            passed to ensure a consistent handling of permissions.
+        """
+        # Works with strings and DocumentType instances.
+        if not isinstance(document_type, DocumentType):
+            document_type = get_object_or_404(
+                DocumentType, name=document_type)
+        document_type_str = document_type.name
+
+        # The user in question must have the permission to modify
+        # attachments for documents of that type.
+        if not user.has_perm("documents.can_modify_%s_attachments" %
+                              document_type_str):
+            raise JaneNotAuthorizedException(
+                "No permission to delete attachments for documents of that "
+                "type")
+
+        obj = get_object_or_404(DocumentIndexAttachment, pk=pk)
+        obj.delete()
+
+    def add_or_modify_document(self, document_type, name, data, user):
+        """
+        Add a new or modify an existing document.
+
+        Use this method everywhere to ensure a consistent handling of the
+        permissions. A user object has to be passed for this purpose.
+
+        :param document_type: The document type either as a
+            jane.documents.models.DocumentType instance or as a string.
+        :param name: The name of the resource. If it exists, it will be
+            updated, otherwise a new one will be created.
+        :param data: The data as a byte string.
+        :param user: The user object responsible for the action. Must be
+            passed to ensure a consistent handling of permissions.
+        """
+        # Works with strings and DocumentType instances.
+        if not isinstance(document_type, DocumentType):
+            document_type = get_object_or_404(
+                DocumentType, name=document_type)
+        document_type_str = document_type.name
+
+        # The user in question must have the permission to modify documents
+        # of that type.
+        if not user.has_perm(
+                        "documents.can_modify_%s" % document_type_str):
+            raise JaneNotAuthorizedException(
+                "No permission to upload documents of that type")
+
+        # Calculate the hash upfront to not upload any duplicates.
+        sha1 = hashlib.sha1(data).hexdigest()
+        if Document.objects.filter(sha1=sha1).exists():
+            raise JaneDocumentAlreadyExists("Data already exists in the "
+                                            "database.")
+
+
+        try:
+            document = Document.objects.get(
+                document_type=document_type, name=name)
+            document.modified_by = user
+            stat = status.HTTP_204_NO_CONTENT
+        except Document.DoesNotExist:
+            document = Document(
+                document_type=document_type,
+                name=name,
+                modified_by=user,
+                created_by=user)
+            stat = status.HTTP_201_CREATED
+
+        document.data = data
+
+        document.save()
+
+        # Return the status to be able to generate good HTTP responses. Can
+        # be ignored if not needed.
+        return stat
+
 
 class DocumentIndexAttachment(models.Model):
     """

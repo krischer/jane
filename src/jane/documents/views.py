@@ -116,13 +116,32 @@ class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
         return queryset
 
 
-class DocumentIndexAttachmentsView(viewsets.ReadOnlyModelViewSet):
+class DocumentIndexAttachmentsView(mixins.RetrieveModelMixin,
+                                   mixins.ListModelMixin,
+                                   viewsets.ViewSetMixin,
+                                   generics.GenericAPIView):
     serializer_class = serializer.DocumentIndexAttachmentSerializer
 
     def get_queryset(self):
         index = get_object_or_404(models.DocumentIndex,
                                   pk=self.kwargs['idx'])
         return models.DocumentIndexAttachment.objects.filter(index=index)
+
+    def destroy(self, request, document_type, idx, pk):
+        """
+        Called upon "DELETING" a resource.
+
+        :param document_type: The document type.
+        :param idx: The document index id.
+        :param pk: The primary key of the attachment.
+        """
+        models.DocumentIndexAttachment.objects.delete_attachment(
+            document_type=document_type, pk=pk, user=request.user)
+
+        return Response(
+            {"status": "Successfully deleted the document",
+             "status_code": status.HTTP_200_OK},
+            status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
