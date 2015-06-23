@@ -179,14 +179,14 @@ def initialize_plugins():
     # Permissions.
     permissions = []
     for plugin_name, contents in plugins.items():
-        # Two default permissions for every plugin: Can upload documents and
+        # Two default permissions for every plugin: Can modify documents and
         # attachments.
         permissions.append(
-            {"codename": "can_upload_%s" % plugin_name,
-             "name": "Can Upload %s Documents" % plugin_name.capitalize()})
+            {"codename": "can_modify_%s" % plugin_name,
+             "name": "Can Modify %s Documents" % plugin_name.capitalize()})
         permissions.append(
-            {"codename": "can_upload_%s_attachments" % plugin_name,
-             "name": "Can Upload Attachments for %s Indices" %
+            {"codename": "can_modify_%s_attachments" % plugin_name,
+             "name": "Can Modify Attachments for %s Indices" %
                      plugin_name.capitalize()})
 
         if "retrieve_permissions" in contents:
