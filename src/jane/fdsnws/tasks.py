@@ -319,10 +319,7 @@ def query_event(nodata, orderby, format, starttime=None, endtime=None,
     if endtime is not None:
         endtime = UTCDateTime(endtime)
 
-    query = DocumentIndex.objects.filter(
-        document__document_type="quakeml")
-
-    where = []
+    kwargs = {}
 
     # Definitions in the FDSNWS spec:
     #
@@ -335,42 +332,32 @@ def query_event(nodata, orderby, format, starttime=None, endtime=None,
     # currently implemented in most services.
     # Starttime will make sure only channels whose end date is after the
     # given time remain.
-    if starttime:
-        where.append(
-            _get_json_query("end_date", ">=", UTCDateTime, starttime))
+    if starttime is not None:
+        kwargs["min_end_date"] = starttime
     # Inverse is true for the stations.
-    if endtime:
-        where.append(
-            _get_json_query("start_date", "<=", UTCDateTime, endtime))
+    if endtime is not None:
+        kwargs["max_start_date"] = endtime
 
     # Spatial constraints.
-    if minlatitude:
-        where.append(
-            _get_json_query("latitude", ">=", float, minlatitude))
-    if maxlatitude:
-        where.append(
-            _get_json_query("latitude", "<=", float, maxlatitude))
-    if minlongitude:
-        where.append(
-            _get_json_query("longitude", ">=", float, minlongitude))
+    if minlatitude is not None:
+        kwargs["min_latitude"] = minlatitude
+    if maxlatitude is not None:
+        kwargs["max_latitude"] = maxlatitude
+    if minlongitude is not None:
+        kwargs["min_longitude"] = minlongitude
     if maxlongitude:
-        where.append(
-            _get_json_query("longitude", "<=", float, maxlongitude))
+        kwargs["max_longitude"] = maxlongitude
     if mindepth_in_km:
-        where.append(
-            _get_json_query("depth_in_m", ">=", float, mindepth_in_km * 1000))
+        kwargs["min_depth_in_m"] = mindepth_in_km * 1000
     if maxdepth_in_km:
-        where.append(
-            _get_json_query("depth_in_m", "<=", float, maxdepth_in_km * 1000))
+        kwargs["max_depth_in_m"] = maxdepth_in_km * 1000
     if minmagnitude:
-        where.append(
-            _get_json_query("magnitude", ">=", float, minmagnitude))
+        kwargs["min_magnitude"] = minmagnitude
     if maxmagnitude:
-        where.append(
-            _get_json_query("magnitude", "<=", float, maxmagnitude))
+        kwargs["max_magnitude"] = minmagnitude
 
-    if where:
-        query = query.extra(where=where)
+    query = DocumentIndex.objects.get_filtered_queryset(
+        document_type="quakeml", **kwargs)
 
     # Apply the ordering on the JSON fields.
     if orderby == "time":
