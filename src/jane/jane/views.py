@@ -31,10 +31,9 @@ def rest_root(request, format=None):
     <div style="margin-left: 50px; margin-right: 50px;">
     *REST API to work with Jane's document database at the document level.
     You can browse the available documents and view its associated indices.
-    It is furthermore possible to add new documents via ``POST`` and ``PUT``
-    or delete documents including all indices and attachments with
-    ``DELETE``. Indices are generated automatically upon uploading or
-    modifying a document.*
+    It is furthermore possible to add new documents via ``PUT`` or delete
+    documents including all indices and attachments with ``DELETE``. Indices
+    are generated automatically upon uploading or modifying a document.*
     </div>
 
     **/document_indices**
@@ -42,10 +41,10 @@ def rest_root(request, format=None):
     *REST API to work with Jane's document database at the index level. Each
     REST resource is one index which can also be searched upon. You can
     furthermore add, modify, or delete attachments for each index with
-    ``POST``, ``PUT``, or ``DELETE``. One cannot delete or modify
-    individual indices as they are tied to a document. To add, modify, or
-    delete a whole document including all associated indices and attachments,
-    please work with the **/documents** endpoint.*
+    ``PUT`` or ``DELETE``. One cannot delete or modify individual indices
+    as they are tied to a document. To add, modify, or delete a whole
+    document including all associated indices and attachments, please work
+    with the **/documents** endpoint.*
     </div>
     """
     if request.method == "GET":
