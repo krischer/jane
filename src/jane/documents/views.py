@@ -67,6 +67,18 @@ class DocumentsView(mixins.RetrieveModelMixin, mixins.ListModelMixin,
              "status_code": status},
             status=status)
 
+    def destroy(self, request, document_type, name):
+        """
+        Called upon "DELETING" a resource.
+        """
+        models.Document.objects.delete_document(
+            document_type=document_type, name=name, user=request.user)
+
+        return Response(
+            {"status": "Successfully deleted the document",
+             "status_code": status.HTTP_200_OK},
+            status=status.HTTP_200_OK)
+
 
 class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializer.DocumentIndexSerializer

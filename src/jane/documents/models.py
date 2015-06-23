@@ -71,6 +71,35 @@ class DocumentType(models.Model):
 
 
 class _DocumentManager(models.Manager):
+    def delete_document(self, document_type, name, user):
+        """
+        For convenience reasons, offer that method here, including
+        authentication.
+
+        :param document_type: The document type either as a
+            jane.documents.models.DocumentType instance or as a string.
+        :param name: The name of the resource. If it exists, it will be
+            deleted.
+        :param user: The user object responsible for the action. Must be
+            passed to ensure a consistent handling of permissions.
+        """
+        # Works with strings and DocumentType instances.
+        if not isinstance(document_type, DocumentType):
+            document_type = get_object_or_404(
+                DocumentType, name=document_type)
+        document_type_str = document_type.name
+
+        # The user in question must have the permission to modify documents
+        # of that type.
+        if not user.has_perm(
+                        "documents.can_modify_%s" % document_type_str):
+            raise JaneNotAuthorizedException(
+                "No permission to delete documents of that type")
+
+        obj = get_object_or_404(Document, document_type=document_type,
+                                name=name)
+        obj.delete()
+
     def add_or_modify_document(self, document_type, name, data, user):
         """
         Add a new or modify an existing document.

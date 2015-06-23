@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.http import Http404
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
@@ -24,6 +25,9 @@ def custom_exception_handler(exc, context):
 
     # Now add the HTTP status code to the response.
     if response is not None:
-        response.data['status_code'] = exc.status_code
+        if isinstance(exc, Http404):
+            response.data['status_code'] = "404"
+        else:
+            response.data['status_code'] = exc.status_code
 
     return response
