@@ -14,13 +14,13 @@ JANE_ACCENT_COLOR = "#D9230F"
 
 ## Available Settings
 
-Detailed documentation of all available settings. Any reasonably short 
-string should work.
+Detailed documentation of all available settings. 
 
 #### JANE_INSTANCE_NAME
 
-Name of the instance used in parts of the web interface.
- 
+Name of the instance used in parts of the web interface. Any reasonably short 
+string should work.
+
 * *Default Value:* `"Jane"`
 
 
