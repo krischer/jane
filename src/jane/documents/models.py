@@ -167,7 +167,7 @@ class Document(models.Model):
     document_type = models.ForeignKey(DocumentType, related_name='documents')
     # The name of that particular document. Oftentimes the filename. Unique
     # together with the document type to enable a nice REST API.
-    name = models.SlugField(max_length=255, db_index=True)
+    name = models.CharField(max_length=255, db_index=True)
     # The content type of the data. Must be given to be able to provide a
     # reasonable HTTP view of the data.
     content_type = models.CharField(max_length=255)
@@ -481,7 +481,7 @@ class DocumentIndexAttachment(models.Model):
     Attachments for one Document.
     """
     index = models.ForeignKey(DocumentIndex, related_name='attachments')
-    category = models.SlugField(max_length=20, db_index=True)
+    category = models.CharField(max_length=50, db_index=True)
     content_type = models.CharField(max_length=255)
     data = models.BinaryField()
     # Attachments are almost independent from Documents thus they should
