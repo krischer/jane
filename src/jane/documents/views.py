@@ -15,6 +15,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
+from jane.exceptions import JaneInvalidRequestException
 from jane.documents import models, serializer, DOCUMENT_FILENAME_REGEX
 
 from rest_framework import viewsets, generics, mixins
@@ -140,6 +141,54 @@ class DocumentIndexAttachmentsView(mixins.RetrieveModelMixin,
 
         return Response(
             {"status": "Successfully deleted the document",
+             "status_code": status.HTTP_200_OK},
+            status=status.HTTP_200_OK)
+
+    def create(self, request, document_type, idx):
+        """
+        Called when "POSTING" a new attachment.
+        """
+        # Two headers must be given. The content type is usually always set.
+        if "HTTP_CATEGORY" not in request.stream.META:
+            raise JaneInvalidRequestException("The 'category' must be passed "
+                                              "in the HTTP header.")
+        category  = request.stream.META["HTTP_CATEGORY"]
+
+        models.DocumentIndexAttachment.objects.add_or_modify_attachment(
+            document_type=document_type,
+            index_id=idx,
+            content_type=request.content_type,
+            category=category,
+            data=request.data.body,
+            user=request.user)
+
+        return Response(
+            {"status": "Successfully added an attachment.",
+             "status_code": status.HTTP_201_CREATED},
+            status=status.HTTP_201_CREATED)
+
+    def update(self, request, document_type, idx, pk):
+        """
+        Method called upon "PUT"ting an attachment. Modifies an existing
+        document.
+        """
+        # Two headers must be given. The content type is usually always set.
+        if "HTTP_CATEGORY" not in request.stream.META:
+            raise JaneInvalidRequestException("The 'category' must be passed "
+                                              "in the HTTP header.")
+        category  = request.stream.META["HTTP_CATEGORY"]
+
+        models.DocumentIndexAttachment.objects.add_or_modify_attachment(
+            document_type=document_type,
+            index_id=idx,
+            content_type=request.content_type,
+            category=category,
+            data=request.data.body,
+            user=request.user,
+            pk=pk)
+
+        return Response(
+            {"status": "Successfully modified an attachment.",
              "status_code": status.HTTP_200_OK},
             status=status.HTTP_200_OK)
 

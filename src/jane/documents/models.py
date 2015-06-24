@@ -413,21 +413,31 @@ class _DocumentIndexAttachmentManager(models.Manager):
         obj = get_object_or_404(DocumentIndexAttachment, pk=pk)
         obj.delete()
 
-    def add_or_modify_document(self, document_type, name, data, user):
+    def add_or_modify_attachment(self, document_type, index_id,
+                                 content_type, category,
+                                 data, user, pk=None):
         """
-        Add a new or modify an existing document.
+        Add a new or modify an existing attachment.
 
         Use this method everywhere to ensure a consistent handling of the
         permissions. A user object has to be passed for this purpose.
 
         :param document_type: The document type either as a
             jane.documents.models.DocumentType instance or as a string.
-        :param name: The name of the resource. If it exists, it will be
-            updated, otherwise a new one will be created.
+        :param index_id: The id of the document index this attachment is for.
+        :param content_type: The content type of the attachment as a string.
+        :param category: The category of the attachment (the tag) as a string.
         :param data: The data as a byte string.
         :param user: The user object responsible for the action. Must be
             passed to ensure a consistent handling of permissions.
+        :param pk: The primary key of the attachment. If given, an existing
+            one will modified, if not, a new one will be created.
         """
+        if pk is None:
+            method = "create"
+        else:
+            method = "update"
+
         # Works with strings and DocumentType instances.
         if not isinstance(document_type, DocumentType):
             document_type = get_object_or_404(
@@ -439,31 +449,28 @@ class _DocumentIndexAttachmentManager(models.Manager):
         if not user.has_perm(
                         "documents.can_modify_%s" % document_type_str):
             raise JaneNotAuthorizedException(
-                "No permission to upload documents of that type")
+                "No permission to %s attachments for documents of that type."
+                % method)
 
-        # Calculate the hash upfront to not upload any duplicates.
-        sha1 = hashlib.sha1(data).hexdigest()
-        if Document.objects.filter(sha1=sha1).exists():
-            raise JaneDocumentAlreadyExists("Data already exists in the "
-                                            "database.")
+        index = get_object_or_404(DocumentIndex, pk=index_id)
 
-
-        try:
-            document = Document.objects.get(
-                document_type=document_type, name=name)
-            document.modified_by = user
+        if method == "update":
+            attachment = get_object_or_404(DocumentIndexAttachment, pk=pk,
+                                           index=index)
             stat = status.HTTP_204_NO_CONTENT
-        except Document.DoesNotExist:
-            document = Document(
-                document_type=document_type,
-                name=name,
-                modified_by=user,
-                created_by=user)
+        else:
+            attachment = DocumentIndexAttachment(
+                index=index,
+                created_by=user
+            )
             stat = status.HTTP_201_CREATED
 
-        document.data = data
+        attachment.category = category
+        attachment.content_type = content_type
+        attachment.modified_by = user
+        attachment.data = data
 
-        document.save()
+        attachment.save()
 
         # Return the status to be able to generate good HTTP responses. Can
         # be ignored if not needed.
