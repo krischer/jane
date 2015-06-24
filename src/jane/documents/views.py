@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
-
 import collections
-import hashlib
-import io
 
-from django.conf import settings
-from django.core.cache import cache
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
@@ -152,7 +146,7 @@ class DocumentIndexAttachmentsView(mixins.RetrieveModelMixin,
         if "HTTP_CATEGORY" not in request.stream.META:
             raise JaneInvalidRequestException("The 'category' must be passed "
                                               "in the HTTP header.")
-        category  = request.stream.META["HTTP_CATEGORY"]
+        category = request.stream.META["HTTP_CATEGORY"]
 
         models.DocumentIndexAttachment.objects.add_or_modify_attachment(
             document_type=document_type,
@@ -176,7 +170,7 @@ class DocumentIndexAttachmentsView(mixins.RetrieveModelMixin,
         if "HTTP_CATEGORY" not in request.stream.META:
             raise JaneInvalidRequestException("The 'category' must be passed "
                                               "in the HTTP header.")
-        category  = request.stream.META["HTTP_CATEGORY"]
+        category = request.stream.META["HTTP_CATEGORY"]
 
         models.DocumentIndexAttachment.objects.add_or_modify_attachment(
             document_type=document_type,

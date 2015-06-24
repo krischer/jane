@@ -134,7 +134,6 @@ class _DocumentManager(models.Manager):
             raise JaneDocumentAlreadyExists("Data already exists in the "
                                             "database.")
 
-
         try:
             document = Document.objects.get(
                 document_type=document_type, name=name)
@@ -405,7 +404,7 @@ class _DocumentIndexAttachmentManager(models.Manager):
         # The user in question must have the permission to modify
         # attachments for documents of that type.
         if not user.has_perm("documents.can_modify_%s_attachments" %
-                              document_type_str):
+                             document_type_str):
             raise JaneNotAuthorizedException(
                 "No permission to delete attachments for documents of that "
                 "type")
