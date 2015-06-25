@@ -181,9 +181,19 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                 });
                 return function(feature, resolution) {
                     var net = feature.get('network');
-                    var textFill = new ol.style.Fill({
-                        color: colors[net]
-                    });
+
+                    var is_active = feature.get('is_active');
+
+                    if (!is_active && $scope.station_settings.grey_out_inactive_stations){
+                        var textFill = new ol.style.Fill({
+                            color: "#999999"
+                        });
+                    } else {
+                        var textFill = new ol.style.Fill({
+                            color: colors[net]
+                        });
+                    }
+
                     return [new ol.style.Style({
                         text: new ol.style.Text({
                             text: "▼",

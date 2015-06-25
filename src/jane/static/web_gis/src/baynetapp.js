@@ -158,10 +158,26 @@ module.factory('stations', function($http, $log, jane_server) {
                     }
                     stations[station_id].properties.channels.push(item);
                 });
+
                 // Update the stations set.
                 self.stations.features.length = 0;
                 _.forEach(stations, function(i) {
                     self.stations.features.push(i);
+                });
+
+                // Do one last pass and figure out if the station is active
+                // today.
+                var today = new Date();
+                _.forEach(stations, function(i) {
+                    var sd = i.properties.min_startdate;
+                    var ed = i.properties.max_enddate;
+
+                    if (ed && ed < today) {
+                        i.properties.is_active = false;
+                    }
+                    else {
+                        i.properties.is_active = true;
+                    }
                 });
             })
         }
@@ -219,7 +235,8 @@ module.controller("BayNetController", function($scope, $log, stations, station_c
 
     $scope.station_settings = {
         "min_date": new Date("1990-01-01"),
-        "max_date": new Date()
+        "max_date": new Date(),
+        "grey_out_inactive_stations": false
     };
 
     $scope.station_colors = {};
