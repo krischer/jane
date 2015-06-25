@@ -98,6 +98,8 @@ module.factory('stations', function($http, $log, jane_server) {
                 _.forEach(data.results, function(item) {
                     var j = item.indexed_data;
                     var station_id = [j.network, j.station];
+
+                    // Start- and end dates for the current channel.
                     var n_sd = new Date(j.start_date);
                     if (!j.end_date || (j.end_date == "None")) {
                         n_ed = null;
@@ -105,6 +107,8 @@ module.factory('stations', function($http, $log, jane_server) {
                     else {
                         n_ed = new Date(j.end_date);
                     }
+
+                    // Station encountered the first time.
                     if (!_.has(stations, station_id)) {
                         stations[station_id] = {
                             "type": "Feature",
@@ -127,22 +131,30 @@ module.factory('stations', function($http, $log, jane_server) {
                             }
                         };
                     }
+                    // Station already exists. Now only the times have to be
+                    // adjusted.
                     else {
                         // Make sure the minimum and maximum start and end
                         // dates of the station are consistent with the data.
-                        var o_sd = stations[station_id].min_startdate;
-                        var o_ed = stations[station_id].max_startdate;
-                        if (n_sd) {
-                            if (!o_sd || (n_sd < o_sd)) {
-                                stations[station_id].min_startdate = n_sd;
-                            }
-                        }
-                        if (n_ed) {
-                            if (!o_ed || (n_ed > o_ed)) {
-                                stations[station_id].min_startdate = n_ed;
-                            }
+                        var o_sd = stations[station_id].properties.min_startdate;
+                        var o_ed = stations[station_id].properties.max_enddate;
+
+                        // There should really always be a startdate.
+                        if (n_sd < o_sd) {
+                            stations[station_id].properties.min_startdate = n_sd;
                         }
 
+                        // Only adjust if the endtime is set. If it is set it
+                        // is already in the future.
+                        if (o_ed) {
+                            if (!n_ed) {
+                                stations[station_id].properties.max_enddate = null;
+                            }
+
+                            else if (n_ed > o_ed) {
+                                stations[station_id].properties.max_enddate = n_ed;
+                            }
+                        }
                     }
                     stations[station_id].properties.channels.push(item);
                 });
@@ -194,7 +206,7 @@ module.controller("BayNetController", function($scope, $log, stations, station_c
 
     $scope.event_settings = {
         "min_date": new Date("2014-06-01"),
-        "max_date": new Date("2014-10-26"),
+        "max_date": new Date(),
         "magnitude_range": [-5, 10],
         "selected_agencies": [],
         "agency_colors": {},
