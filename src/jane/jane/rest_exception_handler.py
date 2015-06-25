@@ -15,9 +15,7 @@ def custom_exception_handler(exc, context):
     if response is None:
 
         data = {}
-        if isinstance(exc, exceptions.JaneDocumentAlreadyExists):
-            data["reason"] = exc.args[0]
-        elif isinstance(exc, exceptions.JaneNotAuthorizedException):
+        if isinstance(exc, exceptions.JaneException):
             data["reason"] = exc.args[0]
         else:
             return None
