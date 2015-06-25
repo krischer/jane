@@ -60,7 +60,10 @@ module.factory('events', function($http, $log, jane_server) {
                     .map(function(i) {
                         var j = i.indexed_data;
                         j.id = i.id;
+                        j.url = i.url;
                         j.origin_time = new Date(j.origin_time);
+                        j.attachments = i.attachments;
+                        j.containing_document_data_url = i.containing_document_data_url;
                         // Now create GeoJSON
                         return {
                             "type": "Feature",

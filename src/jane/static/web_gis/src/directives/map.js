@@ -473,7 +473,30 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                 });
                 if (feature) {
                     if (detectFeatureType(feature) == "event") {
-                        $log.info("event");
+                        var modal = $modal({
+                            title: feature.get("quakeml_id"),
+                            template: "./templates/event_modal.tpl.html",
+                            persist: false,
+                            show: true});
+
+                        // Set scope of modal.
+                        modal.$scope.attachments = feature.get("attachments");
+                        modal.$scope.containing_document_data_url = feature.get("containing_document_data_url");
+                        modal.$scope.url = feature.get("url");
+                        modal.$scope.agency = feature.get("agency");
+                        modal.$scope.author = feature.get("author");
+                        modal.$scope.depth_in_m = feature.get("depth_in_m");
+                        modal.$scope.evaluation_mode = feature.get("evaluation_mode");
+                        modal.$scope.event_type = feature.get("event_type");
+                        modal.$scope.latitude = feature.get("latitude");
+                        modal.$scope.longitude = feature.get("longitude");
+                        modal.$scope.magnitude = feature.get("magnitude");
+                        modal.$scope.magnitude_type = feature.get("magnitude_type");
+                        modal.$scope.origin_time = feature.get("origin_time");
+                        modal.$scope.public = feature.get("public");
+                        modal.$scope.quakeml_id = feature.get("quakeml_id");
+
+
                     }
                     else {
                         net = feature.get('network');

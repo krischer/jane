@@ -1,0 +1,84 @@
+<div class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" ng-show="title">
+                <button type="button" class="close"
+                        ng-click="$hide()">&times;</button>
+                <h4 class="modal-title">Details for event {{title}}</h4>
+            </div>
+
+
+            <div class="modal-body" ng-controller="eventInfoController">
+                <div class="container-fluid">
+                    <div class="row">
+                        <a class="pull-right" target="_blank" href="{{ containing_document_data_url }}">
+                            <i class="glyphicon glyphicon-download-alt" aria-hidden="true"></i>
+                            Download QuakeML file containing this event
+                        </a>
+                        <dl class="dl-horizontal">
+                          <dt>Coordinates</dt>
+                          <dd>Lat: {{ latitude }}, Lng: {{ longitude }},
+                              Depth: {{ depth_in_m }} m</dd>
+                          <dt>Magnitude</dt>
+                          <dd>{{ magnitude }} {{ magnitude_type }}</dd>
+                          <dt>Origin Time</dt>
+                          <dd>{{ origin_time | date:medium}}</dd>
+                          <dt>Event Type</dt>
+                          <dd>{{ event_type }}</dd>
+                          <dt>Evaluation Mode</dt>
+                          <dd>{{ evaluation_mode }}</dd>
+                          <dt>Public</dt>
+                          <dd>{{ public }}</dd>
+                        </dl>
+                    </div>
+                    <div class="row">
+                        <h3>Attachments for this Event</h3>
+                    </div>
+                    <small>
+                        <table class="table table-condensed table-hover">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Category</th>
+                                <th>Content Type</th>
+                                <th>Created By</th>
+                                <th>Modified By</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="i in attachments">
+                                <td><a target="_blank" href="{{ i.url }}">{{ i.id }}</a></td>
+                                <td>{{ i.category }}</td>
+                                <td>{{ i.content_type }}</td>
+                                <td>{{ i.created_by }}
+                                    <small><em>[{{ i.created_at }}]</em></small>
+                                </td>
+                                <td>{{ i.modified_by }}
+                                    <small><em>[{{ i.modified_at }}]</em></small>
+                                </td>
+                                <td><a href="{{i.data_url}}"
+                                       data-placement="left"
+                                       data-animation="am-flip-x"
+                                       data-content="{{i.data_url}}"
+                                       data-content-template="./templates/response_popover_template.html"
+                                       title="Response"
+                                       trigger="hover"
+                                       bs-popover
+                                       target="_blank"
+                                       class="btn btn-xs">Data</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </small>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                        ng-click="$hide()">Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
