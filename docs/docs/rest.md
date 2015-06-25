@@ -70,7 +70,7 @@ $ http -a user:pw JANE_ROOT/rest/...
 
 ##### Example using `curl`:
 ```bash
-$ curl --user user:pw JANE_ROOT/...
+$ curl --user user:pw JANE_ROOT/rest/...
 ```
 
 ### HTTP Methods and Headers
@@ -185,7 +185,7 @@ which Jane's document database is built around.
 To get a list of all available documents of a certain document type, send, e.g.
 
 ```
-GET JANE_ROOT/documents/stationxml
+GET JANE_ROOT/rest/documents/stationxml
 ```
 
 #### Document View
@@ -194,7 +194,7 @@ Documents are identified via filename, which thus has to be unique per document
 type.
 
 ```
-GET JANE_ROOT/documents/stationxml/BW.FURT.xml
+GET JANE_ROOT/rest/documents/stationxml/BW.FURT.xml
 ```
 
 #### Data
@@ -202,7 +202,7 @@ GET JANE_ROOT/documents/stationxml/BW.FURT.xml
 The REST API shows some information for each file, to download the actual file, do, e.g.
 
 ```
-GET JANE_ROOT/documents/stationxml/BW.FURT.xml/data
+GET JANE_ROOT/rest/documents/stationxml/BW.FURT.xml/data
 ```
 
 #### Add New or Modify Existing Document
@@ -211,7 +211,7 @@ To create a new or modify an existing document, send a `PUT` request to a
 certain document URL, e.g.
 
 ```
-PUT JANE_ROOT/documents/stationxml/BW.FURT.xml
+PUT JANE_ROOT/rest/documents/stationxml/BW.FURT.xml
 ```
 
 If it does not exist, it will be created, otherwise it will be modified. Please
@@ -226,7 +226,7 @@ import request
 
 with open("BW.FURT.xml", "rb") as fh:
     r = requests.put(
-        url="REST_ROOT/document_indices/stationxml/BW.FURT.xml",
+        url="JANE_ROOT/rest/documents/stationxml/BW.FURT.xml",
         auth=("user", "pw"),
         data=fh)
 
@@ -252,7 +252,7 @@ this will also delete all indices and potential attachments of the document.
 The attachments might not be restorable if you have no backup.
 
 ```
-DELETE JANE_ROOT/documents/stationxml/BW.FURT.xml
+DELETE JANE_ROOT/rest/documents/stationxml/BW.FURT.xml
 ```
 
 ##### Example using the Python [requests](http://python-requests.org) library:
@@ -260,7 +260,7 @@ DELETE JANE_ROOT/documents/stationxml/BW.FURT.xml
 import request
 
 r = requests.delete(
-    url="REST_ROOT/document_indices/stationxml/BW.FURT.xml",
+    url="JANE_ROOT/rest/documents/stationxml/BW.FURT.xml",
     auth=("user", "pw"))
 
 assert r.ok
@@ -287,7 +287,7 @@ The `JANE_ROOT/rest/document_indices` route is the entry point to the indices,
 To get a list of all available indices of a certain document type, send, e.g.
 
 ```
-GET JANE_ROOT/document_indices/stationxml
+GET JANE_ROOT/rest/document_indices/stationxml
 ```
 
 ##### Searching Over the Indices
@@ -316,7 +316,7 @@ meta = {
 It is necessary to define this, as the available queries depend on the data
 type. There are 5 possible data types: `"str"`, `"int"`, `"float"`, `"bool"`,
 and `"UTCDateTime"`. Search parameters are appended to the URL and the type
-of the parameters specifies the available searches. Any number of them can
+of the parameters determines the available queries. Any number of them can
 be combined. Identity queries can be negated by prefixing with an
 exclamation mark. Furthermore as soon as you query a parameter and it is
 `null` for a certain document, that document will not be returned even for
@@ -327,14 +327,14 @@ inequality queries.
 Strings can be searched based on (in)equality. Wildcards can be used.
 
 ```
-GET JANE_ROOT/rest/stationxml?network=BW
-GET JANE_ROOT/rest/stationxml?network=B?
-GET JANE_ROOT/rest/stationxml?station=A*M
+GET JANE_ROOT/rest/document_indices/stationxml?network=BW
+GET JANE_ROOT/rest/document_indices/stationxml?network=B?
+GET JANE_ROOT/rest/document_indices/stationxml?station=A*M
 # An exclamation mark negates the query, meaning it will now return everything
 # not containing the chosen string.
-GET JANE_ROOT/rest/stationxml?!network=BW
-GET JANE_ROOT/rest/stationxml?!network=B?
-GET JANE_ROOT/rest/stationxml?!station=A*M
+GET JANE_ROOT/rest/document_indices/stationxml?!network=BW
+GET JANE_ROOT/rest/document_indices/stationxml?!network=B?
+GET JANE_ROOT/rest/document_indices/stationxml?!station=A*M
 ```
 
 ###### Ints, Floats, and UTCDateTimes
@@ -345,9 +345,9 @@ Please keep in mind that (in)equality comparisons are extremely fragile for
 floating point numbers and should not be used in almost all cases.
 
 ```
-GET JANE_ROOT/rest/stationxml?min_latitude=15.1&max_latitude=16.1
-GET JANE_ROOT/rest/stationxml?sample_rate=20.0
-GET JANE_ROOT/rest/stationxml?!sample_rate=20.0
+GET JANE_ROOT/rest/document_indices/stationxml?min_latitude=15.1&max_latitude=16.1
+GET JANE_ROOT/rest/document_indices/stationxml?sample_rate=20.0
+GET JANE_ROOT/rest/document_indices/stationxml?!sample_rate=20.0
 ```
 
 ###### Booleans
@@ -355,9 +355,9 @@ GET JANE_ROOT/rest/stationxml?!sample_rate=20.0
 Booleans can only be searched for (in)equality.
 
 ```
-GET JANE_ROOT/rest/quakeml?public=true
-GET JANE_ROOT/rest/quakeml?public=false
-GET JANE_ROOT/rest/quakeml?!public=false
+GET JANE_ROOT/rest/document_indices/quakeml?public=true
+GET JANE_ROOT/rest/document_indices/quakeml?public=false
+GET JANE_ROOT/rest/document_indices/quakeml?!public=false
 ```
 
 #### Index View
@@ -365,7 +365,7 @@ GET JANE_ROOT/rest/quakeml?!public=false
 Indices are identified by their numeric id; get a certain index with, e.g.
 
 ```
-GET JANE_ROOT/document_indices/stationxml/1
+GET JANE_ROOT/rest/document_indices/stationxml/1
 ```
 
 #### Attachments List
@@ -373,7 +373,7 @@ GET JANE_ROOT/document_indices/stationxml/1
 To get a list of all attachments for a certain index, query, e.g.
 
 ```
-GET JANE_ROOT/document_indices/stationxml/1/attachments
+GET JANE_ROOT/rest/document_indices/stationxml/1/attachments
 ```
 
 #### Attachment
@@ -381,7 +381,7 @@ GET JANE_ROOT/document_indices/stationxml/1/attachments
 To get a certain attachment, you have to use the id of the attachment, e.g.
 
 ```
-GET JANE_ROOT/document_indices/stationxml/1/attachments/11
+GET JANE_ROOT/rest/document_indices/stationxml/1/attachments/11
 ```
 
 #### Attachment Data
@@ -389,7 +389,7 @@ GET JANE_ROOT/document_indices/stationxml/1/attachments/11
 The actual data of any attachment can be queried with
 
 ```
-GET JANE_ROOT/document_indices/stationxml/1/attachments/11/data
+GET JANE_ROOT/rest/document_indices/stationxml/1/attachments/11/data
 ```
 
 
@@ -434,7 +434,7 @@ To create a new attachment, send a `POST` request to the attachments URL of a
 certain index.
 
 ```
-POST JANE_ROOT/document_indices/stationxml/1/attachments
+POST JANE_ROOT/rest/document_indices/stationxml/1/attachments
 ```
 
 and add two HTTP headers:
@@ -455,7 +455,7 @@ headers = {"content-type": "image/png",
 
 with open("test.png", "rb") as fh:
     r = requests.post(
-        url="REST_ROOT/document_indices/stationxml/1/attachments",
+        url="JANE_ROOT/rest/document_indices/stationxml/1/attachments",
         auth=("user", "pw"),
         headers=headers,
         data=fh)
@@ -483,7 +483,7 @@ The same logic hold true to modify an attachment, this time just send a `PUT`
 request to the URL of a particular attachment.
 
 ```
-PUT JANE_ROOT/document_indices/stationxml/1/attachments/11
+PUT JANE_ROOT/rest/document_indices/stationxml/1/attachments/11
 ```
 
 ##### Example using the Python [requests](http://python-requests.org) library:
@@ -495,7 +495,7 @@ headers = {"content-type": "image/png",
 
 with open("test.png", "rb") as fh:
     r = requests.put(
-        url="REST_ROOT/document_indices/stationxml/1/attachments/11",
+        url="JANE_ROOT/rest/document_indices/stationxml/1/attachments/11",
         auth=("user", "pw"),
         headers=headers,
         data=fh)
@@ -522,7 +522,7 @@ $ curl --user user:pw \
 To delete an attachment, just send a `DELETE` request.
 
 ```
-DELETE JANE_ROOT/document_indices/stationxml/1/attachments/11
+DELETE JANE_ROOT/rest/document_indices/stationxml/1/attachments/11
 ```
 
 ##### Example using the Python [requests](http://python-requests.org) library:
@@ -530,7 +530,7 @@ DELETE JANE_ROOT/document_indices/stationxml/1/attachments/11
 import request
 
 r = requests.delete(
-    url="REST_ROOT/document_indices/stationxml/1/attachments/11"
+    url="JANE_ROOT/rest/document_indices/stationxml/1/attachments/11"
     auth=("user", "pw"))
 
 assert r.ok
