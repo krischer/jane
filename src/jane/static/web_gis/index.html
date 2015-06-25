@@ -91,12 +91,14 @@
             <input type="text" class="form-control"
                    ng-model="event_settings.min_date"
                    data-max-date="{{untilDate}}" placeholder="Von"
+                   data-date-format="dd.MM.yyyy"
                    bs-datepicker>
         </div>
         <div class="col-md-4 event-timepicker">
             <input type="text" class="form-control"
                    ng-model="event_settings.max_date"
                    data-min-date="{{fromDate}}" placeholder="Bis"
+                   data-date-format="dd.MM.yyyy"
                    bs-datepicker>
         </div>
     </div>
