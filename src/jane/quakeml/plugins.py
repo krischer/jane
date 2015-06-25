@@ -143,6 +143,8 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 mag = None
 
             # Parse attributes in the baynet namespace.
+            # The public attribute defaults to True, it can only be set to
+            # False by utilizing the baynet namespace as of now.
             if hasattr(event, "extra"):
                 if "public" in event.extra:
                     public = event.extra["public"]["value"]
@@ -153,13 +155,13 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                     else:
                         raise NotImplementedError
                 else:
-                    public = False
+                    public = True
                 if "evaluationMode" in event.extra:
                     evaluationMode = event.extra["evaluationMode"]["value"]
                 else:
                     evaluationMode = None
             else:
-                public = False
+                public = True
                 evaluationMode = None
 
             indices.append({
