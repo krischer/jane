@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
+import jane
 from jane.documents import models, views
 from jane.waveforms.models import ContinuousTrace
 
@@ -79,7 +80,8 @@ def index(request):
     options = {
         'host': request.build_absolute_uri('/')[:-1],
         'instance_name': settings.JANE_INSTANCE_NAME,
-        'accent_color': settings.JANE_ACCENT_COLOR
+        'accent_color': settings.JANE_ACCENT_COLOR,
+        'version': jane.__version__
         }
     return render_to_response("index.html", options,
                               RequestContext(request))
