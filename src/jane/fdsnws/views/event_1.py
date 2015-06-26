@@ -9,7 +9,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from rest_framework.reverse import reverse
 
-from jane.fdsnws.tasks import query_event
+from fdsnws.query_event import query_event
 from jane.fdsnws.views.utils import fdnsws_error, parse_query_parameters
 
 import obspy

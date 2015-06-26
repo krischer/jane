@@ -1,24 +1,20 @@
-# -*- coding: utf-8 -*-
-
 import collections
 import copy
-import csv
 import fnmatch
-from functools import reduce
 import io
-from obspy.core.util.geodetics import FlinnEngdahl
-import operator
 import os
-
 from django.conf import settings
-from django.db.models import Q
-from psycopg2.extras import DateTimeTZRange
 from lxml import etree
-import obspy
-from obspy.core.utcdatetime import UTCDateTime
+from obspy import UTCDateTime
+from documents.models import DocumentIndex
 
-from jane.documents.models import DocumentIndex
-from jane.waveforms.models import ContinuousTrace, Restriction
+
+def _get_json_query(key, operator, type, value):
+    return JSON_QUERY_TEMPLATE_MAP[type] % (key, operator, str(value))
+
+
+def _format_time(value):
+    return value.strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
 
 JSON_QUERY_TEMPLATE_MAP = {
@@ -33,16 +29,6 @@ JSON_QUERY_TEMPLATE_MAP = {
 SOFTWARE_MODULE = "Jane Alpha"
 SOFTWARE_URI = "http://www.github.com/krischer/jane"
 SCHEMA_VERSION = "1.0"
-
-FG = FlinnEngdahl()
-
-
-def _get_json_query(key, operator, type, value):
-    return JSON_QUERY_TEMPLATE_MAP[type] % (key, operator, str(value))
-
-
-def _format_time(value):
-    return value.strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
 
 def query_stations(nodata, level, starttime=None, endtime=None,
@@ -282,226 +268,3 @@ def parse_stationxml_files(results):
                 net_state = elem.get('code')
                 final_results["networks"][net_state] = elem
     return final_results
-
-
-def get_event_node(buffer, event_id):
-    """
-    Really fast way to extract the event node from QuakeML file with the
-    correct event_id.
-    """
-    event_tag = "{http://quakeml.org/xmlns/bed/1.2}event"
-
-    context = etree.iterparse(buffer, events=("start", ),
-                              tag=(event_tag,))
-
-    event = []
-    for _, elem in context:
-        if elem.attrib["publicID"] == event_id:
-            event.append(elem)
-            break
-        while elem.getprevious() is not None:
-            del elem.getparent()[0]
-    if event:
-        return event[0]
-    return None
-
-
-def query_event(nodata, orderby, format, starttime=None, endtime=None,
-                minlatitude=None, maxlatitude=None, minlongitude=None,
-                maxlongitude=None, mindepth_in_km=None, maxdepth_in_km=None,
-                minmagnitude=None, maxmagnitude=None):
-
-    if starttime is not None:
-        starttime = UTCDateTime(starttime)
-    if endtime is not None:
-        endtime = UTCDateTime(endtime)
-
-    kwargs = {}
-
-    # Definitions in the FDSNWS spec:
-    #
-    # Starttime: Limit to metadata epochs starting on or after the specified
-    # start time.
-    # Endtime: Limit to metadata epochs ending on or before the specified end
-    # time.
-    #
-    # These don't really make sense and I don't think that's how they are
-    # currently implemented in most services.
-    # Starttime will make sure only channels whose end date is after the
-    # given time remain.
-    if starttime is not None:
-        kwargs["min_end_date"] = starttime
-    # Inverse is true for the stations.
-    if endtime is not None:
-        kwargs["max_start_date"] = endtime
-
-    # Spatial constraints.
-    if minlatitude is not None:
-        kwargs["min_latitude"] = minlatitude
-    if maxlatitude is not None:
-        kwargs["max_latitude"] = maxlatitude
-    if minlongitude is not None:
-        kwargs["min_longitude"] = minlongitude
-    if maxlongitude:
-        kwargs["max_longitude"] = maxlongitude
-    if mindepth_in_km:
-        kwargs["min_depth_in_m"] = mindepth_in_km * 1000
-    if maxdepth_in_km:
-        kwargs["max_depth_in_m"] = maxdepth_in_km * 1000
-    if minmagnitude:
-        kwargs["min_magnitude"] = minmagnitude
-    if maxmagnitude:
-        kwargs["max_magnitude"] = minmagnitude
-
-    query = DocumentIndex.objects.get_filtered_queryset(
-        document_type="quakeml", **kwargs)
-
-    # Apply the ordering on the JSON fields.
-    if orderby == "time":
-        query = query \
-            .extra(select={"origin_time": "json->>'origin_time'"}) \
-            .extra(order_by=["-origin_time"])
-    elif orderby == "time-asc":
-        query = query \
-            .extra(select={"origin_time": "json->>'origin_time'"}) \
-            .extra(order_by=["origin_time"])
-    elif orderby == "magnitude":
-        query = query\
-            .extra(select={"magnitude": "json->>'magnitude'"})\
-            .extra(order_by=["-magnitude"])
-    elif orderby == "magnitude-asc":
-        query = query \
-            .extra(select={"magnitude": "json->>'magnitude'"}) \
-            .extra(order_by=["magnitude"])
-
-    results = query.all()
-    if not results:
-        return nodata
-
-    # get task_id
-    task_id = query_event.request.id or 'debug'
-    path = os.path.join(settings.MEDIA_ROOT, 'fdsnws', 'events',
-                        task_id[0:2])
-    # create path if not yet exists
-    if not os.path.exists(path):
-        os.makedirs(path)
-    filename = os.path.join(path, task_id + "." + format)
-
-    if format == "xml":
-        nsmap = {None: "http://quakeml.org/xmlns/bed/1.2",
-                 "ns0": "http://quakeml.org/xmlns/quakeml/1.2"}
-        root_el = etree.Element('{%s}quakeml' % nsmap["ns0"],
-                                nsmap=nsmap)
-        catalog_el = etree.Element('eventParameters',
-                                   attrib={'publicID': "hmmm"})
-        root_el.append(catalog_el)
-
-        # Now things get a bit more interesting and this might actually require
-        # a different approach to be fast enough.
-        for result in results:
-            quakeml_id = result.json["quakeml_id"]
-            data = io.BytesIO(result.document.data)
-            event = get_event_node(data, quakeml_id)
-            if event is None:
-                continue
-            catalog_el.append(event)
-
-        etree.ElementTree(root_el).write(filename, pretty_print=True,
-                                         encoding="utf-8",
-                                         xml_declaration=True)
-    elif format == "text":
-
-        header = ["EventID", "Time", "Latitude", "Longitude", "Depth/km",
-                  "Author", "Catalog", "Contributor", "ContributorID",
-                  "MagType", "Magnitude", "MagAuthor", "EventLocationName"]
-        json_keys = ["quakeml_id", "origin_time", "latitude", "longitude",
-                     "depth_in_m", None, None, None, None, "magnitude_type",
-                     "magnitude", None]
-
-        with open(filename, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter='|',
-                                quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            writer.writerow(header)
-            for result in results:
-                row = [result.json[_i] if _i is not None else ""
-                       for _i in json_keys]
-                # Convert depth to km.
-                row[4] /= 1000.0
-                row.append(FG.get_region(row[3], row[2]))
-                writer.writerow(row)
-    else:
-        raise NotImplementedError
-    return 200
-
-
-def query_dataselect(fh, networks, stations, locations, channels,
-                     starttime, endtime, format, nodata, minimumlength,
-                     longestonly, username=None):
-    """
-    Process query and generate a combined waveform file
-    """
-    query = ContinuousTrace.objects
-    # times
-    starttime = UTCDateTime(starttime)
-    endtime = UTCDateTime(endtime)
-    daterange = DateTimeTZRange(starttime.datetime, endtime.datetime)
-    query = query.filter(timerange__overlap=daterange)
-    # networks
-    if '*' not in networks:
-        iterator = (Q(network__like=v.replace('?', '_').replace('*', '%'))
-                    for v in networks)
-        filter = reduce(operator.or_, iterator)
-        query = query.filter(filter)
-    # stations
-    if '*' not in stations:
-        iterator = (Q(station__like=v.replace('?', '_').replace('*', '%'))
-                    for v in stations)
-        filter = reduce(operator.or_, iterator)
-        query = query.filter(filter)
-    # locations
-    if '*' not in locations:
-        iterator = (Q(location__like=v.replace('?', '_').replace('*', '%'))
-                    for v in locations)
-        filter = reduce(operator.or_, iterator)
-        query = query.filter(filter)
-    # channels
-    if '*' not in channels:
-        iterator = (Q(channel__like=v.replace('?', '_').replace('*', '%'))
-                    for v in channels)
-        filter = reduce(operator.or_, iterator)
-        query = query.filter(filter)
-    # minimumlength
-    if minimumlength:
-        query = query.filter(duration__gte=minimumlength)
-
-    # restrictions
-    if not username:
-        restrictions = Restriction.objects.all()
-    else:
-        user = settings.AUTH_USER_MODEL.objects.get(username=username)
-        restrictions = Restriction.objects.exclude(users=user)
-    for restriction in restrictions:
-        query = query.exclude(network=restriction.network,
-                              station=restriction.station)
-
-    # query
-    results = query.all()
-    if not results:
-        # return nodata status code
-        return nodata
-
-    # build Stream object
-    stream = obspy.Stream()
-    for result in results:
-        st = obspy.read(result.file.absolute_path, starttime=starttime,
-                        endtime=endtime)
-        tr = st[result.pos]
-        # trim
-        tr.trim(starttime, endtime)
-        # append
-        stream.append(tr)
-        del st
-
-    # Write to file handler which is a BytesIO object.
-    stream.write(fh, format=format.upper())
-    return 200

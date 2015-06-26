@@ -13,7 +13,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from obspy.core.utcdatetime import UTCDateTime
 
-from jane.fdsnws.tasks import query_dataselect
+from fdsnws.dataselect_query import query_dataselect
 from jane.fdsnws.views.utils import fdnsws_error
 
 
