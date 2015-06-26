@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import optparse
 import os
 import time
 
 from django.core.management.base import BaseCommand
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler
+from watchdog.observers.polling import PollingObserverVFS
 from watchdog.utils import platform
 
 from jane.waveforms import tasks
@@ -56,27 +56,39 @@ class EventHandler(LoggingEventHandler):
 class Command(BaseCommand):
     args = 'path'
     help = "File monitor"  # @ReservedAssignment
-    option_list = BaseCommand.option_list + (
-        optparse.make_option('-d', '--debug',
-                             action='store_true',
-                             dest='debug',
-                             default=False,
-                             help='Debug'),
-    )
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--debug', '-d', action='store_true',
+            help="Debug on")
+
+        parser.add_argument(
+            '--poll', action='store_true',
+            help="Don't use the OS filesystem monitors, but poll the "
+                 "filesystem in intervals.")
+
+        parser.add_argument(
+            '--polling-interval', type=int, default=60,
+            help="Polling interval if --poll is used in seconds."
+        )
+
+        parser.add_argument("path", type=str, help="The path to monitor.")
+
 
     def handle(self, *args, **kwargs):
         logging.basicConfig(level=logging.INFO,
                             format='%(asctime)s - %(message)s',
                             datefmt='%Y-%m-%d %H:%M:%S')
-        try:
-            path = args[0]
-            if not os.path.isdir(path):
-                raise ValueError("Given path is not a directory.")
-        except:
-            path = os.path.curdir
+        path = os.path.abspath(kwargs["path"])
         event_handler = EventHandler()
         event_handler.debug = kwargs['debug']
-        observer = Observer()
+        if kwargs["poll"]:
+            observer = PollingObserverVFS(
+                stat=os.stat, listdir=os.listdir,
+                polling_interval=kwargs["polling_interval"])
+        else:
+            observer = Observer()
+        print("Monitoring %s" % path)
         observer.schedule(event_handler, path, recursive=True)
         observer.start()
         try:
