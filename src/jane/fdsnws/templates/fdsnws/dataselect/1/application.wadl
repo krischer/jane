@@ -21,16 +21,6 @@
                         <param name="station" style="query" type="xs:string"/>
                         <param name="location" style="query" type="xs:string"/>
                         <param name="channel" style="query" type="xs:string"/>
-                        <param name="quality" style="query" type="xs:string"
-                               default="B">
-                            <option value="D"/>
-                            <option value="R"/>
-                            <option value="Q"/>
-                            <option value="M"/>
-                            <option value="B"/>
-                            <option value="?"/>
-                            <option value="*"/>
-                        </param>
                         <param name="format" style="query" type="xs:string"
                                default="mseed">
                             <option value="mseed"/>
@@ -68,16 +58,6 @@
                         <param name="station" style="query" type="xs:string"/>
                         <param name="location" style="query" type="xs:string"/>
                         <param name="channel" style="query" type="xs:string"/>
-                        <param name="quality" style="query" type="xs:string"
-                               default="B">
-                            <option value="D"/>
-                            <option value="R"/>
-                            <option value="Q"/>
-                            <option value="M"/>
-                            <option value="B"/>
-                            <option value="?"/>
-                            <option value="*"/>
-                        </param>
                         <param name="format" style="query" type="xs:string"
                                default="mseed">
                             <option value="mseed"/>

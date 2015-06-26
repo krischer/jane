@@ -65,11 +65,10 @@
     </div>
     <p>Below is a full list of service parameters and their usage.</p>
     <h2>Query Usage</h2>
-    <pre>/query? (date-range-options) [channel-options] [quality-options] [misc-options] [format-options] [nodata=404]</pre>
+    <pre>/query? (date-range-options) [channel-options] [misc-options] [format-options] [nodata=404]</pre>
     <p>where</p>
     <pre>date-range-options  ::  (start=&lt;time&gt;) (end=&lt;time&gt;)
 channel-options     ::  [net=&lt;network&gt;] [sta=&lt;station&gt;] [loc=&lt;location&gt;] [cha=&lt;channel&gt;]
-quality-options     ::  [quality=&lt;D|R|Q|M|B&gt;]
 misc-options        ::  [minimumlength=&lt;seconds&gt;] [longestonly=&lt;true|false&gt;]
 format-options      ::  [format=&lt;mseed&gt;]</pre>
     <p>
@@ -90,13 +89,12 @@ format-options      ::  [format=&lt;mseed&gt;]</pre>
       details, including an example selection file, visit this page&#8217;s
       help.
     </p>
-    <pre>quality=&lt;D|R|Q|M|B&gt;
-minimumlength=&lt;seconds&gt;
+    <pre>minimumlength=&lt;seconds&gt;
 longestonly=&lt;true|false&gt;
 &lt;Network&gt; &lt;Station&gt; &lt;Location&gt; &lt;Channel&gt; &lt;StartTime&gt; &lt;EndTime&gt;
 ...</pre>
     <p>
-      Quality, minimumlength, and longestonly are optional. Wildcards are
+      Minimumlength, and longestonly are optional. Wildcards are
       acceptable for Network, Station, Location, and Channel. Click <a
         href="#time">here</a> for time format details.
     </p>
@@ -168,18 +166,6 @@ longestonly=&lt;true|false&gt;
           codes. <a href="#wildcardsandlists">Accepts wildcards and lists.</a></td>
         <th><em>any</em></th>
         <td>string</td>
-      </tr>
-      <tr>
-        <td>quality</td>
-        <td>B</td>
-        <td>Select data based on miniSEED data quality indicator. <code>D</code>,
-          <code>R</code>, <code>Q</code>, <code>M</code>, <code>B</code>. <code>M</code>
-          and <code>B</code> (default) are treated the same and indicate <em>best</em>
-          available. If <code>M</code> or <code>B</code> are selected, the
-          output data records will be stamped with an <code>M</code>.
-        </td>
-        <td>B</td>
-        <td>quality</td>
       </tr>
       <tr>
         <td>minimumlength</td>

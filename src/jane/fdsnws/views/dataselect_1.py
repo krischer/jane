@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import base64
+import io
 import os
+from uuid import uuid4
 
-from celery.result import AsyncResult, TimeoutError
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.core.servers.basehttp import FileWrapper
@@ -11,7 +12,6 @@ from django.http.response import HttpResponse, Http404
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from obspy.core.utcdatetime import UTCDateTime
-from rest_framework.reverse import reverse
 
 from jane.fdsnws.tasks import query_dataselect
 from jane.fdsnws.views.utils import fdnsws_error
@@ -117,11 +117,6 @@ def query(request, user=None):
     if nodata not in [204, 404]:
         msg = 'Invalid value for nodata: %s' % (nodata)
         return _error(request, msg)
-    # quality
-    quality = params.get('quality') or 'B'
-    if quality not in ['D', 'R', 'Q', 'M', 'B', '?', '*']:
-        msg = 'Unrecognized quality selection [D,R,Q,M,B,?,*]'
-        return _error(request, msg)
     # minimumlength
     minimumlength = params.get('minimumlength') or '0.0'
     try:
@@ -137,38 +132,27 @@ def query(request, user=None):
     longestonly = bool(longestonly)
     username = user.username if user else None
 
-    # process query
-    if settings.BROKER_URL == 'DISABLE_CELERY':
-        # direct
-        status = query_dataselect(networks, stations, locations, channels,
-                                  starttime.timestamp, endtime.timestamp,
-                                  format, nodata, quality, minimumlength,
-                                  longestonly, username)
-        task_id = 'debug'
-    else:
-        # using celery
-        task = query_dataselect.delay(networks, stations, locations, channels,
-                                      starttime.timestamp, endtime.timestamp,
-                                      format, nodata, quality, minimumlength,
-                                      longestonly, username)
-        task_id = task.task_id
-        # check task status for QUERY_TIMEOUT seconds
-        asyncresult = AsyncResult(task_id)
-        try:
-            status = asyncresult.get(timeout=QUERY_TIMEOUT, interval=0.5)
-        except TimeoutError:
-            msg = """Timeout error: request took more than %s seconds
+    with io.BytesIO() as fh:
+        status = query_dataselect(fh=fh, networks=networks, stations=stations,
+                                  locations=locations, channels=channels,
+                                  starttime=starttime, endtime=endtime,
+                                  format=format, nodata=nodata,
+                                  minimumlength=minimumlength,
+                                  longestonly=longestonly, username=username)
+        fh.seek(0, 0)
+        mem_file = FileWrapper(fh)
 
-You may check the current processing status and download your results via
-%s""" % (QUERY_TIMEOUT, reverse('fdsnws_dataselect_1_result', request=request,
-                                kwargs={'task_id': task_id}))
-            return _error(request, msg, 413)
-    # response
-    if status == 200:
-        return result(request, task_id)
-    else:
-        msg = 'Not Found: No data selected'
-        return _error(request, msg, status)
+        # response
+        if status == 200:
+            response = HttpResponse(mem_file,
+                                    content_type='application/octet-stream')
+            response['Content-Disposition'] = \
+                "attachment; filename=fdsnws_dataselect_1_%s.%s" % (
+                    str(uuid4())[:6], format.lower())
+            return response
+        else:
+            msg = 'Not Found: No data selected'
+            return _error(request, msg, status)
 
 
 def queryauth(request):
@@ -188,28 +172,4 @@ def queryauth(request):
     # otherwise
     response = HttpResponse("Auth Required", status=401)
     response['WWW-Authenticate'] = 'Basic realm="restricted area"'
-    return response
-
-
-def result(request, task_id):  # @UnusedVariable
-    """
-    Returns requested waveform file
-    """
-    if task_id != 'debug':
-        asyncresult = AsyncResult(task_id)
-        try:
-            asyncresult.get(timeout=0.5)
-        except TimeoutError:
-            raise Http404()
-        # check if ready
-        if not asyncresult.ready():
-            msg = 'Request %s not ready yet' % (task_id)
-            return _error(request, msg, 413)
-    # generate filename
-    filename = os.path.join(settings.MEDIA_ROOT, 'fdsnws', 'dataselect',
-                            task_id[0:2], task_id)
-    fh = FileWrapper(open(filename, 'rb'))
-    response = HttpResponse(fh, content_type="application/octet-stream")
-    response["Content-Disposition"] = \
-        "attachment; filename=fdsnws_dataselect_1_%s" % (task_id)
     return response

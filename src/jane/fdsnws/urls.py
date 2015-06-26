@@ -21,10 +21,7 @@ dataselect_1_urlpatterns = patterns(
         name='fdsnws_dataselect_1_query'),
     url(r'^queryauth/?$',
         view='queryauth',
-        name='fdsnws_dataselect_1_queryauth'),
-    url(r'^result/(?P<task_id>[-\w]+)/$',
-        view='result',
-        name='fdsnws_dataselect_1_result'),
+        name='fdsnws_dataselect_1_queryauth')
 )
 
 

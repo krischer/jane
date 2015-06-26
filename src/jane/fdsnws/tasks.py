@@ -10,7 +10,6 @@ from obspy.core.util.geodetics import FlinnEngdahl
 import operator
 import os
 
-from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
 from psycopg2.extras import DateTimeTZRange
@@ -46,7 +45,6 @@ def _format_time(value):
     return value.strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
 
-@shared_task
 def query_stations(nodata, level, starttime=None, endtime=None,
                    network=None, station=None, location=None,
                    channel=None, minlatitude=None, maxlatitude=None,
@@ -308,7 +306,6 @@ def get_event_node(buffer, event_id):
     return None
 
 
-@shared_task
 def query_event(nodata, orderby, format, starttime=None, endtime=None,
                 minlatitude=None, maxlatitude=None, minlongitude=None,
                 maxlongitude=None, mindepth_in_km=None, maxdepth_in_km=None,
@@ -437,9 +434,8 @@ def query_event(nodata, orderby, format, starttime=None, endtime=None,
     return 200
 
 
-@shared_task
-def query_dataselect(networks, stations, locations, channels, starttime,
-                     endtime, format, nodata, quality, minimumlength,
+def query_dataselect(fh, networks, stations, locations, channels,
+                     starttime, endtime, format, nodata, minimumlength,
                      longestonly, username=None):
     """
     Process query and generate a combined waveform file
@@ -474,12 +470,6 @@ def query_dataselect(networks, stations, locations, channels, starttime,
                     for v in channels)
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
-    # quality
-    if quality:
-        if quality in ['M', 'B']:
-            query = query.filter(Q(quality='M') | Q(quality='B'))
-        else:
-            query = query.filter(quality=quality)
     # minimumlength
     if minimumlength:
         query = query.filter(duration__gte=minimumlength)
@@ -512,14 +502,6 @@ def query_dataselect(networks, stations, locations, channels, starttime,
         stream.append(tr)
         del st
 
-    # get task_id
-    task_id = query_dataselect.request.id or 'debug'
-    path = os.path.join(settings.MEDIA_ROOT, 'fdsnws', 'dataselect',
-                        task_id[0:2])
-    # create path if not yet exists
-    if not os.path.exists(path):
-        os.makedirs(path)
-    filename = os.path.join(path, task_id)
-    # write file using task_id
-    stream.write(filename, format=format.upper())
+    # Write to file handler which is a BytesIO object.
+    stream.write(fh, format=format.upper())
     return 200
