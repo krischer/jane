@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import optparse
-
 from django.core.management.base import BaseCommand
 
 from jane.waveforms import tasks
@@ -14,7 +12,13 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '--debug', '-d', action='store_true',
-            default=False, help="Debug on")
+            help="Debug on")
+
+        parser.add_argument(
+            '--delete-files', action='store_true',
+            help="Delete all files before indexing new ones. By default "
+                "the indexer will just crawl all files and add new one or "
+                "changed ones. It will not delete anything.")
 
     def handle(self, *args, **kwargs):  # @UnusedVariable
         if len(args) < 1:
@@ -22,4 +26,5 @@ class Command(BaseCommand):
 
         # path(s)
         for path in args:
-            tasks.index_path(path, debug=kwargs['debug'])
+            tasks.index_path(path, debug=kwargs['debug'],
+                             delete_files=kwargs['delete_files'])

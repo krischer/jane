@@ -19,6 +19,8 @@ from obspy.core.preview import createPreview
 from jane.exceptions import JaneException
 from jane.waveforms import models
 
+from .utils import to_datetime
+
 
 class JaneWaveformTaskException(JaneException):
     pass
@@ -29,16 +31,36 @@ def process_file(filename):
     """
     Process a single waveform file.
     """
+    filename = os.path.normpath(os.path.abspath(filename))
+
+    try:
+        file = models.File.objects.get(
+            path__name=os.path.dirname(filename),
+            name=os.path.basename(filename))
+
+        # This path is only reached if the file exists. Check size, mtime,
+        # and ctime and if it all remains the same, return.
+        stats = os.stat(filename)
+        mtime = to_datetime(stats.st_mtime)
+        ctime = to_datetime(stats.st_ctime)
+        size = int(stats.st_size)
+        if file.size == size and file.mtime == mtime and file.ctime == ctime:
+            return
+        else:
+            file.delete()
+    except models.File.DoesNotExist:
+        pass
+
+    # Path object
+    path_obj = models.Path.objects.get_or_create(
+        name=os.path.dirname(os.path.abspath(filename)))[0]
+
     # Will raise a proper exception if not a waveform file.
     stream = read(filename)
 
     if len(stream) == 0:
         msg = "'%s' is a valid waveform file but contains no actual data"
         raise JaneWaveformTaskException(msg % filename)
-
-    # make sure path and file objects exists
-    path_obj = models.Path.objects.get_or_create(
-        name=os.path.dirname(os.path.abspath(filename)))[0]
     models.File.objects.filter(
         path=path_obj, name=os.path.basename(filename)).delete()
     file_obj = models.File.objects.create(
@@ -207,28 +229,29 @@ def filemon_event(event):
 
 
 @shared_task
-def index_path(path, debug=False):
+def index_path(path, debug=False, delete_files=False):
     """
     Index given path
     """
     # convert to absolute path
     path = os.path.abspath(path)
-    # delete all paths and files which start with path
-    models.Path.objects.filter(name__startswith=path).delete()
-    if debug:
-        print("Purging %s ..." % (path))
+    if delete_files:
+        if debug:
+            print("Purging %s ..." % (path))
+        # delete all paths and files which start with path
+        models.Path.objects.filter(name__startswith=path).delete()
     # indexing
     if debug:
         print("Indexing %s ..." % (path))
     for root, _, files in os.walk(path):
         # index each file
         for file in files:
+            # direct
             if debug:
-                # direct
-                print("  %s" % (file))
+                print("\tFile %s..." % (os.path.join(root, file)))
                 process_file(os.path.join(root, file))
+            # use celery
             else:
-                # use celery
                 process_file.delay(os.path.join(root, file))
     # indexing
     if debug:
