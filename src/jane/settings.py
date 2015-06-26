@@ -216,8 +216,6 @@ REST_FRAMEWORK = {
 ###############################################################################
 # Celery (Task Queue)
 ###############################################################################
-# djcelery.setup_loader()
-
 INSTALLED_APPS += ['djcelery', 'corsheaders', 'kombu.transport.django']
 
 # use RabbitMQ server

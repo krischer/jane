@@ -129,11 +129,20 @@ def process_file(filename):
         pos += 1
         # Ease the work for the garbage collector. For some reason this
         # likes to leak when run with celery.
-        del trace
-        del preview_trace
+        try:
+            del trace
+        except:
+            pass
+        try:
+            del preview_trace
+        except:
+            pass
     # Ease the work for the garbage collector. For some reason this
     # likes to leak when run with celery.
-    del stream
+    try:
+        del stream
+    except:
+        pass
     gc.collect()
 
 
