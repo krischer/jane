@@ -2,6 +2,7 @@
 
 import io
 import json
+import gc
 import os
 
 from celery import shared_task
@@ -97,15 +98,20 @@ def process_file(filename):
 
         # preview image
         try:
+            # Always attempt to close figures to get no memory leaks.
             try:
-                plt.close()
+                plt.close("all")
             except:
                 pass
-            plot = io.BytesIO()
-            trace.plot(format="png", outfile=plot)
-            plot.seek(0, 0)
-            trace_obj.preview_image = plot.read()
-            plot.close()
+            with io.BytesIO() as plot:
+                trace.plot(format="png", outfile=plot)
+                plot.seek(0, 0)
+                trace_obj.preview_image = plot.read()
+            # Always attempt to close figures to get no memory leaks.
+            try:
+                plt.close("all")
+            except:
+                pass
         except:
             pass
 
@@ -121,6 +127,14 @@ def process_file(filename):
         trace_obj.pos = pos
         trace_obj.save()
         pos += 1
+        # Ease the work for the garbage collector. For some reason this
+        # likes to leak when run with celery.
+        del trace
+        del preview_trace
+    # Ease the work for the garbage collector. For some reason this
+    # likes to leak when run with celery.
+    del stream
+    gc.collect()
 
 
 def _format_return_value(event, message):
