@@ -10,13 +10,11 @@ from jane.waveforms import tasks
 class Command(BaseCommand):
     args = 'path path path'
     help = "Index waveforms"  # @ReservedAssignment
-    option_list = BaseCommand.option_list + (
-        optparse.make_option('-d', '--debug',
-                             action='store_true',
-                             dest='debug',
-                             default=False,
-                             help='Debug'),
-    )
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--debug', '-d', action='store_true',
+            default=False, help="Debug on")
 
     def handle(self, *args, **kwargs):  # @UnusedVariable
         if len(args) < 1:
