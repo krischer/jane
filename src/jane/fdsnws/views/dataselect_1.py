@@ -13,7 +13,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from obspy.core.utcdatetime import UTCDateTime
 
-from fdsnws.dataselect_query import query_dataselect
+from jane.fdsnws.dataselect_query import query_dataselect
 from jane.fdsnws.views.utils import fdnsws_error
 
 
@@ -142,7 +142,6 @@ def query(request, user=None):
         fh.seek(0, 0)
         mem_file = FileWrapper(fh)
 
-        # response
         if status == 200:
             response = HttpResponse(mem_file,
                                     content_type='application/octet-stream')

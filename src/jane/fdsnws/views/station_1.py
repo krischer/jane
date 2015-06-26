@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+import io
 import os
+from uuid import uuid4
+
 from celery.result import AsyncResult, TimeoutError
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -9,7 +12,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from rest_framework.reverse import reverse
 
-from fdsnws.station_query import query_stations
+from jane.fdsnws.station_query import query_stations
 from jane.fdsnws.views.utils import fdnsws_error, parse_query_parameters
 
 import obspy
@@ -168,35 +171,21 @@ def query(request, debug=False):
         params["location"] = [_i.replace('--', '')
                               for _i in params["location"]]
 
-    # process query
-    if debug:
-        # direct
-        status = query_stations(**params)
-        task_id = 'debug'
-    else:
-        # using celery
-        task = query_stations.delay(**params)
-        task_id = task.task_id
-        # check task status for QUERY_TIMEOUT seconds
-        asyncresult = AsyncResult(task_id)
-        try:
-            status = asyncresult.get(timeout=QUERY_TIMEOUT, interval=0.5)
-        except TimeoutError:
-            msg = """Timeout error: request took more than %s seconds
+    with io.BytesIO() as fh:
+        status = query_stations(fh, **params)
+        fh.seek(0, 0)
+        mem_file = FileWrapper(fh)
 
-You may check the current processing status and download your results via
-%s""" % (QUERY_TIMEOUT, reverse('fdsnws_station_1_result', request=request,
-                                kwargs={'task_id': task_id}))
-            return _error(request, msg, 413)
-
-    print("STATUS:", status)
-
-    # response
-    if status == 200:
-        return result(request, task_id)
-    else:
-        msg = 'Not Found: No data selected'
-        return _error(request, msg, status)
+        if status == 200:
+            response = HttpResponse(mem_file,
+                                    content_type='application/octet-stream')
+            response['Content-Disposition'] = \
+                "attachment; filename=fdsnws_event_1_%s.xml" % (
+                    str(uuid4())[:6])
+            return response
+        else:
+            msg = 'Not Found: No data selected'
+            return _error(request, msg, status)
 
 
 @login_required

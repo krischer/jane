@@ -7,7 +7,7 @@ from obspy import UTCDateTime
 from obspy.core.util.geodetics import FlinnEngdahl
 from lxml import etree
 
-from documents.models import DocumentIndex
+from jane.documents.models import DocumentIndex
 
 
 FG = FlinnEngdahl()
@@ -124,7 +124,8 @@ def query_event(fh, nodata, orderby, format, starttime=None, endtime=None,
                 row.append(FG.get_region(row[3], row[2]))
                 writer.writerow(row)
             csvfile.seek(0, 0)
-            fh.write(csvfile.read().decode())
+            # Encode to a byte buffer.
+            fh.write(csvfile.read().encode())
     else:
         raise NotImplementedError
     return 200

@@ -41,10 +41,7 @@ station_1_urlpatterns = patterns(
         name='fdsnws_station_1_query'),
     url(r'^queryauth/?$',
         view='queryauth',
-        name='fdsnws_station_1_queryauth'),
-    url(r'^result/(?P<task_id>[-\w]+)/$',
-        view='result',
-        name='fdsnws_station_1_result'),
+        name='fdsnws_station_1_queryauth')
     )
 
 
@@ -64,10 +61,7 @@ event_1_urlpatterns = patterns(
         name='fdsnws_event_1_query'),
     url(r'^queryauth/?$',
         view='queryauth',
-        name='fdsnws_event_1_queryauth'),
-    url(r'^result/(?P<task_id>[-\w]+)/$',
-        view='result',
-        name='fdsnws_event_1_result'),
+        name='fdsnws_event_1_queryauth')
     )
 
 

@@ -2,11 +2,11 @@ import collections
 import copy
 import fnmatch
 import io
-import os
-from django.conf import settings
+
 from lxml import etree
 from obspy import UTCDateTime
-from documents.models import DocumentIndex
+
+from jane.documents.models import DocumentIndex
 
 
 def _get_json_query(key, operator, type, value):
@@ -31,11 +31,16 @@ SOFTWARE_URI = "http://www.github.com/krischer/jane"
 SCHEMA_VERSION = "1.0"
 
 
-def query_stations(nodata, level, starttime=None, endtime=None,
+def query_stations(fh, nodata, level, starttime=None, endtime=None,
                    network=None, station=None, location=None,
                    channel=None, minlatitude=None, maxlatitude=None,
                    minlongitude=None, maxlongitude=None):
-
+    """
+    Process query and generate a combined StationXML or station text file.
+    Parameters are interpreted as in the FDSNWS definition. Results are
+    written to fh. A returned numeric status code is interpreted as in the
+    FDSNWS definition.
+    """
     if starttime is not None:
         starttime = UTCDateTime(starttime)
     if endtime is not None:
@@ -101,17 +106,7 @@ def query_stations(nodata, level, starttime=None, endtime=None,
 
     root.extend(networks)
 
-    # get task_id
-    task_id = query_stations.request.id or 'debug'
-    path = os.path.join(settings.MEDIA_ROOT, 'fdsnws', 'stations',
-                        task_id[0:2])
-    # create path if not yet exists
-    if not os.path.exists(path):
-        os.makedirs(path)
-    filename = os.path.join(path, task_id + ".xml")
-    print(filename)
-
-    etree.ElementTree(root).write(filename, pretty_print=True,
+    etree.ElementTree(root).write(fh, pretty_print=True,
                                   encoding="utf-8", xml_declaration=True)
     return 200
 

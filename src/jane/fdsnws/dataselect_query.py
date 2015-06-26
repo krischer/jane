@@ -8,7 +8,7 @@ from django.db.models import Q
 import obspy
 from psycopg2._range import DateTimeTZRange
 
-from waveforms.models import ContinuousTrace, Restriction
+from jane.waveforms.models import ContinuousTrace, Restriction
 
 
 def query_dataselect(fh, networks, stations, locations, channels,
