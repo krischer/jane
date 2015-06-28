@@ -126,7 +126,9 @@ def filemon_event(event):
 
         if event_type in ("created", "modified"):
             # New or modified file.
-            process_file.delay(filename=src_path)
+            process_file.apply_async(
+                kwargs={"filename": src_path},
+                queue="monitor_waveforms")
             return _format_return_value(event, "File sent to processing.")
         # Delete file object if file has been deleted.
         elif event_type == "deleted":
