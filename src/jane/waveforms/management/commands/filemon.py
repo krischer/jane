@@ -3,18 +3,19 @@
 import logging
 import os
 import time
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
+from django.db import transaction
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler
 from watchdog.observers.polling import PollingObserverVFS
 from watchdog.utils import platform
 
-from waveforms import models
-from waveforms.tasks import process_file, _format_return_value, \
-    JaneWaveformTaskException
+from jane.exceptions import JaneWaveformTaskException
+
+from ... import models
+from ...tasks import process_file
 
 # monkey - https://github.com/gorakhargosh/watchdog/issues/123
 if platform.is_windows():
@@ -97,6 +98,12 @@ class Command(BaseCommand):
         except KeyboardInterrupt:
             observer.stop()
         observer.join()
+
+
+def _format_return_value(event, message):
+    return "Filemon event type: {event_type}, Result: {message}, Input: {" \
+           "event}".format(event_type=event["event_type"], message=message,
+                           event=str(event))
 
 
 def filemon_event(event):

@@ -5,25 +5,20 @@ import json
 import gc
 import os
 
-from psycopg2.extras import DateTimeTZRange
-import matplotlib
-
 from celery import shared_task
+import matplotlib
+from obspy.core import read
+from obspy.core.preview import createPreview
+from psycopg2.extras import DateTimeTZRange
+
 
 matplotlib.use("agg")  # NOQA
 import matplotlib.pylab as plt
 
-from obspy.core import read
-from obspy.core.preview import createPreview
+from jane.exceptions import JaneWaveformTaskException
 
-from jane.exceptions import JaneException
-from jane.waveforms import models
-
+from . import models
 from .utils import to_datetime
-
-
-class JaneWaveformTaskException(JaneException):
-    pass
 
 
 @shared_task
@@ -143,12 +138,6 @@ def process_file(filename):
     except:
         pass
     gc.collect()
-
-
-def _format_return_value(event, message):
-    return "Filemon event type: {event_type}, Result: {message}, Input: {" \
-           "event}".format(event_type=event["event_type"], message=message,
-                           event=str(event))
 
 
 @shared_task

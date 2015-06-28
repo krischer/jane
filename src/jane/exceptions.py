@@ -29,3 +29,10 @@ class JaneInvalidRequestException(JaneException):
     Raised when the request is invalid according to some special logic of Jane.
     """
     status_code = status.HTTP_400_BAD_REQUEST
+
+
+class JaneWaveformTaskException(JaneException):
+    """
+    Exception raised during a waveform indexing task.
+    """
+    pass

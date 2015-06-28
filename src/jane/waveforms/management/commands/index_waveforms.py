@@ -2,7 +2,7 @@
 
 from django.core.management.base import BaseCommand
 
-from jane.waveforms import tasks
+from ... import tasks
 
 
 class Command(BaseCommand):
