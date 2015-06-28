@@ -166,15 +166,17 @@ def query(request, debug=False):
 
     with io.BytesIO() as fh:
         status = query_event(fh, **params)
+
+        # Get the size in bytes.
+        fh.seek(0, 2)
+        size = fh.tell()
+
         fh.seek(0, 0)
         mem_file = FileWrapper(fh)
 
         if status == 200:
-            response = HttpResponse(mem_file,
-                                    content_type='application/octet-stream')
-            response['Content-Disposition'] = \
-                "attachment; filename=fdsnws_event_1_%s.xml" % (
-                    str(uuid4())[:6])
+            response = HttpResponse(mem_file, content_type='text/xml')
+            response['Content-Length'] = size
             return response
         else:
             msg = 'Not Found: No data selected'
