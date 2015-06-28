@@ -141,30 +141,26 @@ def process_file(filename):
 
 
 @shared_task
-def index_path(path, debug=False, delete_files=False):
+def index_path(path, delete_files=False, celery_queue=None):
     """
-    Index given path
+    Index the given path.
     """
-    # convert to absolute path
-    path = os.path.abspath(path)
     if delete_files:
-        if debug:
-            print("Purging %s ..." % (path))
+        print("Purging %s ..." % (path))
         # delete all paths and files which start with path
         models.Path.objects.filter(name__startswith=path).delete()
-    # indexing
-    if debug:
-        print("Indexing %s ..." % (path))
+
     for root, _, files in os.walk(path):
+        print("Indexing %s ..." % (root))
         # index each file
         for file in files:
-            # direct
-            if debug:
-                print("\tFile %s..." % (os.path.join(root, file)))
-                process_file(os.path.join(root, file))
-            # use celery
+            filename = os.path.join(root, file)
+            if celery_queue is None:
+                print("\tIndexing file %s..." % filename)
+                try:
+                    process_file(filename)
+                except Exception as e:
+                    print("\tFailed to index files %s due to: %s" % (filename,
+                                                                     str(e)))
             else:
-                process_file.delay(os.path.join(root, file))
-    # indexing
-    if debug:
-        print("Indexing finished")
+                process_file.apply_async(args=[filename], queue=celery_queue)
