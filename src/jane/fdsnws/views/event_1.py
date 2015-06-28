@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 import io
-from uuid import uuid4
 
 
 from django.conf import settings
-from django.core.servers.basehttp import FileWrapper
 from django.contrib.auth.decorators import login_required
-from django.http.response import HttpResponse, Http404
+from django.http.response import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 
@@ -166,17 +164,10 @@ def query(request, debug=False):
 
     with io.BytesIO() as fh:
         status = query_event(fh, **params)
-
-        # Get the size in bytes.
-        fh.seek(0, 2)
-        size = fh.tell()
-
         fh.seek(0, 0)
-        mem_file = FileWrapper(fh)
 
         if status == 200:
-            response = HttpResponse(mem_file, content_type='text/xml')
-            response['Content-Length'] = size
+            response = HttpResponse(fh, content_type='text/xml')
             return response
         else:
             msg = 'Not Found: No data selected'

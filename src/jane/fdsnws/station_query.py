@@ -31,7 +31,7 @@ SOFTWARE_URI = "http://www.github.com/krischer/jane"
 SCHEMA_VERSION = "1.0"
 
 
-def query_stations(fh, nodata, level, starttime=None, endtime=None,
+def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
                    network=None, station=None, location=None,
                    channel=None, minlatitude=None, maxlatitude=None,
                    minlongitude=None, maxlongitude=None):
@@ -101,7 +101,7 @@ def query_stations(fh, nodata, level, starttime=None, endtime=None,
     etree.SubElement(root, "Sender").text = "Some Sender"
 
     etree.SubElement(root, "Module").text = SOFTWARE_MODULE
-    etree.SubElement(root, "ModuleURI").text = SOFTWARE_URI
+    etree.SubElement(root, "ModuleURI").text = url
     etree.SubElement(root, "Created").text = _format_time(UTCDateTime())
 
     root.extend(networks)

@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 import io
-import os
-from uuid import uuid4
 
-from celery.result import AsyncResult, TimeoutError
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.servers.basehttp import FileWrapper
-from django.http.response import HttpResponse, Http404
+from django.http.response import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from rest_framework.reverse import reverse
 
 from jane.fdsnws.station_query import query_stations
 from jane.fdsnws.views.utils import fdnsws_error, parse_query_parameters
@@ -171,17 +166,15 @@ def query(request, debug=False):
         params["location"] = [_i.replace('--', '')
                               for _i in params["location"]]
 
+    # Get the url to put it into the StationXML file.
+    url = request.build_absolute_uri(request.get_full_path())
+
     with io.BytesIO() as fh:
-        status = query_stations(fh, **params)
+        status = query_stations(fh, url=url, **params)
         fh.seek(0, 0)
-        mem_file = FileWrapper(fh)
 
         if status == 200:
-            response = HttpResponse(mem_file,
-                                    content_type='application/octet-stream')
-            response['Content-Disposition'] = \
-                "attachment; filename=fdsnws_event_1_%s.xml" % (
-                    str(uuid4())[:6])
+            response = HttpResponse(fh, content_type='text/xml')
             return response
         else:
             msg = 'Not Found: No data selected'
@@ -194,25 +187,3 @@ def queryauth(request, debug=False):
     Parses and returns data request
     """
     return query(request, debug=debug)
-
-
-def result(request, task_id):  # @UnusedVariable
-    """
-    Returns requested event file
-    """
-    if task_id != "debug":
-        asyncresult = AsyncResult(task_id)
-        try:
-            asyncresult.get(timeout=1.5)
-        except TimeoutError:
-            raise Http404()
-        # check if ready
-        if not asyncresult.ready():
-            msg = 'Request %s not ready yet' % (task_id)
-            return _error(request, msg, 413)
-    # generate filename
-    filename = os.path.join(settings.MEDIA_ROOT, 'fdsnws', 'stations',
-                            task_id[0:2], task_id + ".xml")
-    fh = FileWrapper(open(filename, 'rb'))
-    response = HttpResponse(fh, content_type="text/xml")
-    return response
