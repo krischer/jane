@@ -25,6 +25,12 @@ class Command(BaseCommand):
                 'remove all files at or below the given path from the '
                 'database before reindexing everything.')
 
+        parser.add_argument(
+            '--queue', type=str, default='index_waveforms',
+            help='The name of the celery queue to use for the indexing. Only '
+                 'important if --celery is used. Defaults to '
+                 '"index_waveforms".')
+
         parser.add_argument("path", type=str, help="The path to index.")
 
 
@@ -33,11 +39,12 @@ class Command(BaseCommand):
 
         # Run either in celery or direct.
         if kwargs["celery"]:
-            print("Dispatched indexing path '%s' to celery." % path)
+            print("Dispatched indexing path '%s' to celery using queue '%s'." %
+                  (path, kwargs["queue"]))
             tasks.index_path.apply_async(
                 args=[path],
                 kwargs={'delete_files': kwargs['delete_files'],
                         'celery_queue': 'index_waveforms'},
-                queue='index_waveforms')
+                queue=kwargs["queue"])
         else:
             tasks.index_path(path, delete_files=kwargs['delete_files'])
