@@ -44,7 +44,7 @@ class Command(BaseCommand):
             tasks.index_path.apply_async(
                 args=[path],
                 kwargs={'delete_files': kwargs['delete_files'],
-                        'celery_queue': 'index_waveforms'},
-                queue=kwargs["queue"])
+                        'celery_queue': kwargs['queue']},
+                queue=kwargs['queue'])
         else:
             tasks.index_path(path, delete_files=kwargs['delete_files'])

@@ -55,8 +55,7 @@ class EventHandler(LoggingEventHandler):
 
 
 class Command(BaseCommand):
-    args = 'path'
-    help = "File monitor"  # @ReservedAssignment
+    help = "Monitor files."  # @ReservedAssignment
 
     def add_arguments(self, parser):
         parser.add_argument(
