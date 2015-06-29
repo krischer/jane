@@ -51,7 +51,7 @@ class EventHandler(LoggingEventHandler):
         if event.event_type == 'moved':
             data['dest_path'] = os.path.abspath(event.dest_path)
 
-        filemon_event(data)
+        filemon_event(data, queue=self.queue)
 
 
 class Command(BaseCommand):
@@ -73,6 +73,11 @@ class Command(BaseCommand):
             help="Polling interval if --poll is used in seconds."
         )
 
+        parser.add_argument(
+            '--queue', type=str, default='monitor_waveforms',
+            help='The name of the celery queue to use for the indexing. '
+                 'Defaults to "monitor_waveforms".')
+
         parser.add_argument("path", type=str, help="The path to monitor.")
 
 
@@ -83,13 +88,15 @@ class Command(BaseCommand):
         path = os.path.abspath(kwargs["path"])
         event_handler = EventHandler()
         event_handler.debug = kwargs['debug']
+        event_handler.queue = kwargs['queue']
         if kwargs["poll"]:
             observer = PollingObserverVFS(
                 stat=os.stat, listdir=os.listdir,
                 polling_interval=kwargs["polling_interval"])
         else:
             observer = Observer()
-        print("Monitoring %s" % path)
+        print("Monitoring '%s' ..." % path)
+        print("Dispatching to celery queue '%s'." % kwargs["queue"])
         observer.schedule(event_handler, path, recursive=True)
         observer.start()
         try:
@@ -106,7 +113,7 @@ def _format_return_value(event, message):
                            event=str(event))
 
 
-def filemon_event(event):
+def filemon_event(event, queue):
     """
     Handle file monitor events
     """
@@ -128,23 +135,23 @@ def filemon_event(event):
             # New or modified file.
             process_file.apply_async(
                 kwargs={"filename": src_path},
-                queue="monitor_waveforms")
-            return _format_return_value(event, "File sent to processing.")
+                queue=queue)
+            print(_format_return_value(event, "File sent to processing."))
         # Delete file object if file has been deleted.
         elif event_type == "deleted":
             try:
                 models.File.objects.get(path__name=src_folder,
                                         name=src_file).delete()
-                return _format_return_value(event, "File deleted.")
+                print(_format_return_value(event, "File deleted."))
             except ObjectDoesNotExist:
-                return _format_return_value(event, "File already deleted.")
+                print(_format_return_value(event, "File already deleted."))
         elif event_type == "moved":
             dest_file = os.path.basename(event['dest_path'])
             dest_folder = os.path.dirname(event['dest_path'])
 
             # Nothing happened.
             if src_path == event["dest_path"]:
-                return _format_return_value(event, "File not moved.")
+                print(_format_return_value(event, "File not moved."))
 
             with transaction.atomic():
                 dest_path_obj = models.Path.objects.get_or_create(
@@ -163,18 +170,18 @@ def filemon_event(event):
             try:
                 src_path_obj = models.Path.objects.get(name=src_folder)
             except ObjectDoesNotExist:
-                return _format_return_value(event, "File moved, path already "
-                                                   "deleted.")
+                print(_format_return_value(event, "File moved, path already "
+                                           "deleted."))
 
             if src_path_obj.files.count() == 0:
                 try:
                     src_path_obj.delete()
                 except AssertionError:
-                    return _format_return_value(event, "File moved, deleting "
-                                                       "path failed.")
-                return _format_return_value(event, "File moved, old path "
-                                                   "deleted.")
-            return _format_return_value(event, "File moved, path untouched.")
+                    print(_format_return_value(event, "File moved, deleting "
+                                               "path failed."))
+                print(_format_return_value(event, "File moved, old path "
+                                           "deleted."))
+            print(_format_return_value(event, "File moved, path untouched."))
         # Should not happen.
         else:
             raise JaneWaveformTaskException(
@@ -185,20 +192,20 @@ def filemon_event(event):
         if event_type == "deleted":
             try:
                 models.Path.objects.get(name=src_folder).delete()
-                return _format_return_value(event, "Deleted path.")
+                print(_format_return_value(event, "Deleted path."))
             except ObjectDoesNotExist:
-                return _format_return_value(event, "Failed deleting path.")
+                print(_format_return_value(event, "Failed deleting path."))
         elif event_type == "moved":
             # Only deal with it if the directory actually exists in the
             # database.
             try:
                 path_obj = models.Path.objects.get(name=src_folder)
             except ObjectDoesNotExist:
-                return _format_return_value(event, "File could not be moved.")
+                print(_format_return_value(event, "File could not be moved."))
             # If it does, just update the path.
             path_obj.name = os.path.abspath(event['dest_path'])
             path_obj.save()
-            return _format_return_value(event, "Moved path.")
+            print(_format_return_value(event, "Moved path."))
         # Should not happen. Modified and created directories are not passed
         # to the task queue.
         else:
