@@ -225,7 +225,7 @@ CELERY_RESULT_BACKEND = "djcelery.backends.database:DatabaseBackend"
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = "json"
-
+CELERYD_MAX_TASKS_PER_CHILD = 200
 
 CORS_ORIGIN_ALLOW_ALL = True
 
