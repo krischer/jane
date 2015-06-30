@@ -70,11 +70,11 @@ def process_file(filename):
 
         pos = 0
         for trace in stream:
-            trace_obj = models.ContinuousTrace.objects.get_or_create(
+            trace_obj = models.ContinuousTrace(
                 file=file_obj,
                 timerange=DateTimeTZRange(
                     lower=trace.stats.starttime.datetime,
-                    upper=trace.stats.endtime.datetime))[0]
+                    upper=trace.stats.endtime.datetime))
             trace_obj.network = trace.stats.network.upper()
             trace_obj.station = trace.stats.station.upper()
             trace_obj.location = trace.stats.location.upper()
@@ -84,15 +84,11 @@ def process_file(filename):
             trace_obj.duration = trace.stats.endtime - trace.stats.starttime
             try:
                 trace_obj.quality = trace.stats.mseed.dataquality
-            except:
+            except AttributeError:
                 pass
 
-            # preview trace - replace any masked values with 0
-            if hasattr(trace.data, 'filled'):
-                trace.data.filled(0)
-
             preview_trace = createPreview(trace, 60)
-            trace_obj.preview_trace = preview_trace.data
+            trace_obj.preview_trace = list(map(float, preview_trace.data))
 
             trace_obj.pos = pos
             trace_obj.save()
