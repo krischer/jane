@@ -5,8 +5,7 @@ import os
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.contrib.postgres.fields import DateTimeRangeField
-from jsonfield.fields import JSONField
+from django.contrib.postgres.fields import DateTimeRangeField, ArrayField
 
 from jane.waveforms.utils import to_datetime
 
@@ -80,11 +79,9 @@ class ContinuousTrace(models.Model):
     timerange = DateTimeRangeField(verbose_name="Temporal Range (UTC)",
                                    db_index=True)
     duration = models.FloatField('Duration (s)', db_index=True, default=0)
-    calib = models.FloatField(verbose_name="Calibration factor", default=1)
     sampling_rate = models.FloatField(default=1)
     npts = models.IntegerField(verbose_name="Samples", default=0)
-    preview_trace = JSONField(null=True)
-    preview_image = models.BinaryField(null=True)
+    preview_trace = ArrayField(base_field=models.FloatField())
     quality = models.CharField(max_length=1, null=True, blank=True,
                                db_index=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)

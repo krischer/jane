@@ -6,14 +6,10 @@ import gc
 import os
 
 from celery import shared_task
-import matplotlib
 from obspy.core import read
 from obspy.core.preview import createPreview
 from psycopg2.extras import DateTimeTZRange
 
-
-matplotlib.use("agg")  # NOQA
-import matplotlib.pylab as plt
 
 from jane.exceptions import JaneWaveformTaskException
 
@@ -81,7 +77,6 @@ def process_file(filename):
         trace_obj.station = trace.stats.station.upper()
         trace_obj.location = trace.stats.location.upper()
         trace_obj.channel = trace.stats.channel.upper()
-        trace_obj.calib = trace.stats.calib
         trace_obj.sampling_rate = trace.stats.sampling_rate
         trace_obj.npts = trace.stats.npts
         trace_obj.duration = trace.stats.endtime - trace.stats.starttime
@@ -90,33 +85,12 @@ def process_file(filename):
         except:
             pass
 
-        # preview image
-        try:
-            # Always attempt to close figures to get no memory leaks.
-            try:
-                plt.close("all")
-            except:
-                pass
-            with io.BytesIO() as plot:
-                trace.plot(format="png", outfile=plot)
-                plot.seek(0, 0)
-                trace_obj.preview_image = plot.read()
-            # Always attempt to close figures to get no memory leaks.
-            try:
-                plt.close("all")
-            except:
-                pass
-        except:
-            pass
-
         # preview trace - replace any masked values with 0
         if hasattr(trace.data, 'filled'):
             trace.data.filled(0)
-        try:
-            preview_trace = createPreview(trace, 60)
-            trace_obj.preview_trace = json.dumps(preview_trace.data.tolist())
-        except:
-            pass
+
+        preview_trace = createPreview(trace, 60)
+        trace_obj.preview_trace = preview_trace.data
 
         trace_obj.pos = pos
         trace_obj.save()

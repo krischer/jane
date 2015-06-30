@@ -123,15 +123,15 @@ admin.site.register(models.File, FileAdmin)
 
 class ContinuousTraceAdmin(admin.ModelAdmin):
     list_display = ['format_nslc', 'network', 'station', 'location', 'channel',
-                    'starttime', 'endtime', 'sampling_rate', 'npts', 'quality',
-                    'format_small_preview_image']
+                    'starttime', 'endtime', 'sampling_rate', 'npts',
+                    'quality']
     search_fields = ['network', 'station', 'location', 'channel']
     list_filter = ['network', 'station', 'location', 'channel',
                    'sampling_rate', 'quality']
     readonly_fields = [
         'file', 'format_path', 'pos', 'network', 'station', 'location',
         'channel', 'starttime', 'endtime', 'duration', 'sampling_rate', 'npts',
-        'calib', 'quality', 'preview_trace', 'format_preview_image']
+        'quality', 'preview_trace']
 
     exclude = ["timerange"]
 
@@ -148,24 +148,6 @@ class ContinuousTraceAdmin(admin.ModelAdmin):
         return "%s.%s.%s.%s" % (obj.network, obj.station, obj.location,
                                 obj.channel)
     format_nslc.short_description = 'SEED ID'
-
-    def format_preview_image(self, obj):
-        if not obj.preview_image:
-            return
-        data = base64.b64encode(obj.preview_image)
-        return '<img height="250" src="data:image/png;base64,%s" />' % (
-            data.decode())
-    format_preview_image.allow_tags = True
-    format_preview_image.short_description = 'Plot'
-
-    def format_small_preview_image(self, obj):
-        if not obj.preview_image:
-            return
-        data = base64.b64encode(obj.preview_image)
-        return '<img height="25" src="data:image/png;base64,%s" />' % (
-            data.decode())
-    format_small_preview_image.allow_tags = True
-    format_small_preview_image.short_description = 'Plot'
 
     def format_path(self, obj):
         return obj.file.path
