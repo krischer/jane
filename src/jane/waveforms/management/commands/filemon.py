@@ -72,11 +72,6 @@ class Command(BaseCommand):
             help="Polling interval if --poll is used in seconds."
         )
 
-        parser.add_argument(
-            '--queue', type=str, default='monitor_waveforms',
-            help='The name of the celery queue to use for the indexing. '
-                 'Defaults to "monitor_waveforms".')
-
         parser.add_argument("path", type=str, help="The path to monitor.")
 
 
@@ -95,7 +90,6 @@ class Command(BaseCommand):
         else:
             observer = Observer()
         print("Monitoring '%s' ..." % path)
-        print("Dispatching to celery queue '%s'." % kwargs["queue"])
         observer.schedule(event_handler, path, recursive=True)
         observer.start()
         try:
@@ -112,7 +106,7 @@ def _format_return_value(event, message):
                            event=str(event))
 
 
-def filemon_event(event, queue):
+def filemon_event(event):
     """
     Handle file monitor events
     """

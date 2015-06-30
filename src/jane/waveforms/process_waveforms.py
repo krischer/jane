@@ -2,7 +2,6 @@
 
 import os
 
-from celery import shared_task
 from django.db import transaction
 from obspy.core import read
 from obspy.core.preview import createPreview
@@ -15,7 +14,6 @@ from . import models
 from .utils import to_datetime
 
 
-@shared_task
 def process_file(filename):
     """
     Process a single waveform file.
@@ -94,8 +92,8 @@ def process_file(filename):
             trace_obj.save()
             pos += 1
 
-@shared_task
-def index_path(path, delete_files=False, celery_queue=None):
+
+def index_path(path, delete_files=False):
     """
     Index the given path.
     """
@@ -109,12 +107,9 @@ def index_path(path, delete_files=False, celery_queue=None):
         # index each file
         for file in files:
             filename = os.path.join(root, file)
-            if celery_queue is None:
-                print("\tIndexing file %s..." % filename)
-                try:
-                    process_file(filename)
-                except Exception as e:
-                    print("\tFailed to index files %s due to: %s" % (filename,
-                                                                     str(e)))
-            else:
-                process_file.apply_async(args=[filename], queue=celery_queue)
+            print("\tIndexing file %s..." % filename)
+            try:
+                process_file(filename)
+            except Exception as e:
+                print("\tFailed to index files %s due to: %s" % (
+                    filename, str(e)))
