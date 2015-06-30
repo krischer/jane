@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import gc
 import os
 
 from celery import shared_task
@@ -98,24 +97,6 @@ def process_file(filename):
             trace_obj.pos = pos
             trace_obj.save()
             pos += 1
-            # Ease the work for the garbage collector. For some reason this
-            # likes to leak when run with celery.
-            try:
-                del trace
-            except:
-                pass
-            try:
-                del preview_trace
-            except:
-                pass
-        # Ease the work for the garbage collector. For some reason this
-        # likes to leak when run with celery.
-        try:
-            del stream
-        except:
-            pass
-        gc.collect()
-
 
 @shared_task
 def index_path(path, delete_files=False, celery_queue=None):
