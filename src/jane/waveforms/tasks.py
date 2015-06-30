@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import io
-import json
 import gc
 import os
 
 from celery import shared_task
+from django.db import transaction
 from obspy.core import read
 from obspy.core.preview import createPreview
 from psycopg2.extras import DateTimeTZRange
@@ -38,80 +37,84 @@ def process_file(filename):
         if file.size == size and file.mtime == mtime and file.ctime == ctime:
             return
         else:
+            # Not part of the transaction as we do want to delete if it is
+            # no longer up-to-date even if it cannot be reindexed.
             file.delete()
     except models.File.DoesNotExist:
         pass
 
-    # Path object
-    path_obj = models.Path.objects.get_or_create(
-        name=os.path.dirname(os.path.abspath(filename)))[0]
+    # Make sure it either gets created for a file or not.
+    with transaction.atomic():
+        # Path object
+        path_obj = models.Path.objects.get_or_create(
+            name=os.path.dirname(os.path.abspath(filename)))[0]
 
-    # Will raise a proper exception if not a waveform file.
-    stream = read(filename)
+        # Will raise a proper exception if not a waveform file.
+        stream = read(filename)
 
-    if len(stream) == 0:
-        msg = "'%s' is a valid waveform file but contains no actual data"
-        raise JaneWaveformTaskException(msg % filename)
-    models.File.objects.filter(
-        path=path_obj, name=os.path.basename(filename)).delete()
-    file_obj = models.File.objects.create(
-        path=path_obj, name=os.path.basename(filename))
+        if len(stream) == 0:
+            msg = "'%s' is a valid waveform file but contains no actual data"
+            raise JaneWaveformTaskException(msg % filename)
+        models.File.objects.filter(
+            path=path_obj, name=os.path.basename(filename)).delete()
+        file_obj = models.File.objects.create(
+            path=path_obj, name=os.path.basename(filename))
 
-    # set format
-    file_obj.format = stream[0].stats._format
+        # set format
+        file_obj.format = stream[0].stats._format
 
-    # get number of gaps and overlaps per file
-    gap_list = stream.getGaps()
-    file_obj.gaps = len([g for g in gap_list if g[6] >= 0])
-    file_obj.overlaps = len([g for g in gap_list if g[6] < 0])
-    file_obj.save()
+        # get number of gaps and overlaps per file
+        gap_list = stream.getGaps()
+        file_obj.gaps = len([g for g in gap_list if g[6] >= 0])
+        file_obj.overlaps = len([g for g in gap_list if g[6] < 0])
+        file_obj.save()
 
-    pos = 0
-    for trace in stream:
-        trace_obj = models.ContinuousTrace.objects.get_or_create(
-            file=file_obj,
-            timerange=DateTimeTZRange(
-                lower=trace.stats.starttime.datetime,
-                upper=trace.stats.endtime.datetime))[0]
-        trace_obj.network = trace.stats.network.upper()
-        trace_obj.station = trace.stats.station.upper()
-        trace_obj.location = trace.stats.location.upper()
-        trace_obj.channel = trace.stats.channel.upper()
-        trace_obj.sampling_rate = trace.stats.sampling_rate
-        trace_obj.npts = trace.stats.npts
-        trace_obj.duration = trace.stats.endtime - trace.stats.starttime
-        try:
-            trace_obj.quality = trace.stats.mseed.dataquality
-        except:
-            pass
+        pos = 0
+        for trace in stream:
+            trace_obj = models.ContinuousTrace.objects.get_or_create(
+                file=file_obj,
+                timerange=DateTimeTZRange(
+                    lower=trace.stats.starttime.datetime,
+                    upper=trace.stats.endtime.datetime))[0]
+            trace_obj.network = trace.stats.network.upper()
+            trace_obj.station = trace.stats.station.upper()
+            trace_obj.location = trace.stats.location.upper()
+            trace_obj.channel = trace.stats.channel.upper()
+            trace_obj.sampling_rate = trace.stats.sampling_rate
+            trace_obj.npts = trace.stats.npts
+            trace_obj.duration = trace.stats.endtime - trace.stats.starttime
+            try:
+                trace_obj.quality = trace.stats.mseed.dataquality
+            except:
+                pass
 
-        # preview trace - replace any masked values with 0
-        if hasattr(trace.data, 'filled'):
-            trace.data.filled(0)
+            # preview trace - replace any masked values with 0
+            if hasattr(trace.data, 'filled'):
+                trace.data.filled(0)
 
-        preview_trace = createPreview(trace, 60)
-        trace_obj.preview_trace = preview_trace.data
+            preview_trace = createPreview(trace, 60)
+            trace_obj.preview_trace = preview_trace.data
 
-        trace_obj.pos = pos
-        trace_obj.save()
-        pos += 1
+            trace_obj.pos = pos
+            trace_obj.save()
+            pos += 1
+            # Ease the work for the garbage collector. For some reason this
+            # likes to leak when run with celery.
+            try:
+                del trace
+            except:
+                pass
+            try:
+                del preview_trace
+            except:
+                pass
         # Ease the work for the garbage collector. For some reason this
         # likes to leak when run with celery.
         try:
-            del trace
+            del stream
         except:
             pass
-        try:
-            del preview_trace
-        except:
-            pass
-    # Ease the work for the garbage collector. For some reason this
-    # likes to leak when run with celery.
-    try:
-        del stream
-    except:
-        pass
-    gc.collect()
+        gc.collect()
 
 
 @shared_task
