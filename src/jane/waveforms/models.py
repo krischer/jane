@@ -81,7 +81,8 @@ class ContinuousTrace(models.Model):
     duration = models.FloatField('Duration (s)', db_index=True, default=0)
     sampling_rate = models.FloatField(default=1)
     npts = models.IntegerField(verbose_name="Samples", default=0)
-    preview_trace = ArrayField(base_field=models.FloatField())
+    preview_trace = ArrayField(base_field=models.FloatField(), blank=True,
+                               null=True)
     quality = models.CharField(max_length=1, null=True, blank=True,
                                db_index=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
