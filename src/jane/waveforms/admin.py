@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import base64
-
 from django.contrib import admin
 from django.contrib.admin.filters import SimpleListFilter
 from django.db.models.aggregates import Count
 
-from jane.waveforms import models, tasks
+from jane.waveforms import models
 
 
 class PathAdmin(admin.ModelAdmin):
@@ -14,16 +12,9 @@ class PathAdmin(admin.ModelAdmin):
     search_fields = ['name']
     date_hierarchy = 'mtime'
     readonly_fields = ['name', 'mtime', 'ctime']
-    actions = ['action_reindex']
 
     def get_queryset(self, request):  # @UnusedVariable
         return models.Path.objects.annotate(file_count=Count('files'))
-
-    def action_reindex(self, request, queryset):  # @UnusedVariable
-        for path in queryset.all():
-            tasks.index_path.delay(path.name)  # @UndefinedVariable
-        self.message_user(request, "Re-indexing has been started ...")
-    action_reindex.short_description = "Re-index"
 
     def format_file_count(self, obj):
         return obj.file_count
@@ -90,7 +81,6 @@ class FileAdmin(admin.ModelAdmin):
             'fields': ['format', 'format_traces', 'gaps', 'overlaps'],
         }),
     )
-    actions = ['action_reindex']
 
     def get_queryset(self, request):  # @UnusedVariable
         return models.File.objects.\
@@ -98,12 +88,6 @@ class FileAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
         return False
-
-    def action_reindex(self, request, queryset):  # @UnusedVariable
-        for file in queryset.all():
-            tasks.process_file.delay(file.absolute_path)  # @UndefinedVariable
-        self.message_user(request, "Re-indexing has been started ...")
-    action_reindex.short_description = "Re-index"
 
     def format_trace_count(self, obj):
         return obj.trace_count

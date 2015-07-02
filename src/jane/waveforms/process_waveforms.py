@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import time
 
 from django.db import transaction
 from obspy.core import read
@@ -107,9 +108,11 @@ def index_path(path, delete_files=False):
         # index each file
         for file in files:
             filename = os.path.join(root, file)
-            print("\tIndexing file %s..." % filename)
+            print("Indexing file %s ..." % filename, end="")
             try:
+                a = time.time()
                 process_file(filename)
+                b = time.time()
+                print("SUCCESS in %.3f s." % (b - a))
             except Exception as e:
-                print("\tFailed to index files %s due to: %s" % (
-                    filename, str(e)))
+                print("FAILED due to: %s" % str(e))
