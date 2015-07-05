@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import os
-import time
 
 from django.db import transaction
 from obspy.core import read
 from obspy.core.preview import createPreview
 from psycopg2.extras import DateTimeTZRange
-
 
 from jane.exceptions import JaneWaveformTaskException
 
@@ -86,33 +84,15 @@ def process_file(filename):
             except AttributeError:
                 pass
 
-            preview_trace = createPreview(trace, 60)
-            trace_obj.preview_trace = list(map(float, preview_trace.data))
+            # Preview is optional. For some traces, e.g. LOG channels it
+            # does not work.
+            try:
+                preview_trace = createPreview(trace, 60)
+            except:
+                pass
+            else:
+                trace_obj.preview_trace = list(map(float, preview_trace.data))
 
             trace_obj.pos = pos
             trace_obj.save()
             pos += 1
-
-
-def index_path(path, delete_files=False):
-    """
-    Index the given path.
-    """
-    if delete_files:
-        print("Purging %s ..." % (path))
-        # delete all paths and files which start with path
-        models.Path.objects.filter(name__startswith=path).delete()
-
-    for root, _, files in os.walk(path):
-        print("Indexing %s ..." % (root))
-        # index each file
-        for file in files:
-            filename = os.path.join(root, file)
-            print("Indexing file %s ..." % filename, end="")
-            try:
-                a = time.time()
-                process_file(filename)
-                b = time.time()
-                print("SUCCESS in %.3f s." % (b - a))
-            except Exception as e:
-                print("FAILED due to: %s" % str(e))
