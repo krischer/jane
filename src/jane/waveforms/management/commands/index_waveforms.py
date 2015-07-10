@@ -8,6 +8,7 @@ import http
 import logging
 import multiprocessing
 import os
+import pprint
 import select
 import sys
 import time
@@ -508,5 +509,7 @@ Usage Examples
         formatter = logging.Formatter(FORMAT)
         ch.setFormatter(formatter)
         logger.addHandler(ch)
+
+        logger.info("Started with parameters:\n%s" % pprint.pformat(kwargs))
 
         _run_indexer(kwargs)
