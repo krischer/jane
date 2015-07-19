@@ -3,6 +3,7 @@
 Waveform indexer adapted from obspy.db.
 """
 
+import datetime
 import fnmatch
 import http
 import logging
@@ -14,6 +15,7 @@ import sys
 import time
 
 from django.core.management.base import BaseCommand
+from django.db import connection
 
 from ... import process_waveforms
 from ... import models
@@ -273,10 +275,9 @@ class WaveformFileCrawler(object):
         except:
             return
         # -> compare modification times of current file with database entry
-        if mtime == db_file_mtime:
+        if datetime.datetime.fromtimestamp(mtime) == db_file_mtime:
             return
         # modification time differs -> update file
-        print("NEVE HERE!")
         self.input_queue[filepath] = (path, file)
 
 
@@ -386,6 +387,7 @@ def _run_indexer(options):
         log_queue = manager.list()
 
         # spawn processes
+        connection.close()
         for i in range(options["number_of_cpus"]):
             args = (i, in_queue, work_queue, log_queue)
             p = multiprocessing.Process(target=worker, args=args)
@@ -450,8 +452,8 @@ Usage Examples
             help="Number of CPUs used for the indexer.",
             default=multiprocessing.cpu_count())
         parser.add_argument(
-            '-i', '--poll-interval', type=float, default=0.1,
-            help="Poll interval for file crawler in seconds (default is 0.1).")
+            '-i', '--poll-interval', type=float, default=0,
+            help="Poll interval for file crawler in seconds (default is 0).")
         parser.add_argument(
             '-r', '--recent', type=int, default=0,
             help="Index only recent files modified within the given "
