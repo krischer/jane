@@ -78,7 +78,7 @@ def process_file(filename):
                 file=file_obj,
                 timerange=DateTimeTZRange(
                     lower=starttime.timestamp,
-                    upper=endtime.starttime))
+                    upper=endtime.timestamp))
             trace_obj.network = stream[0].stats.network.upper()
             trace_obj.station = stream[0].stats.station.upper()
             trace_obj.location = stream[0].stats.location.upper()
