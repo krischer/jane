@@ -69,16 +69,19 @@ def process_file(filename):
                                  "and more then one different id.")
 
             starttime = min(tr.stats.starttime for tr in stream)
-            endtime = min(tr.stats.endtime for tr in stream)
+            endtime = max(tr.stats.endtime for tr in stream)
             if starttime == endtime:
                 starttime += 0.001
 
+            file_obj.gaps = 0
+            file_obj.overlaps = 0
             file_obj.save()
+
             trace_obj = models.ContinuousTrace(
                 file=file_obj,
                 timerange=DateTimeTZRange(
-                    lower=starttime.timestamp,
-                    upper=endtime.timestamp))
+                    lower=starttime.datetime,
+                    upper=endtime.datetime))
             trace_obj.network = stream[0].stats.network.upper()
             trace_obj.station = stream[0].stats.station.upper()
             trace_obj.location = stream[0].stats.location.upper()
