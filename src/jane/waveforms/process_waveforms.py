@@ -59,6 +59,42 @@ def process_file(filename):
         # set format
         file_obj.format = stream[0].stats._format
 
+        # Log channels for example are special as they have no sampling rate.
+        if any(tr.stats.sampling_rate == 0 for tr in stream):
+            # Now make sure there is only one set of network, station,
+            # location, and channel.
+            ids = set(tr.id for tr in stream)
+            if len(ids) != 1:
+                raise ValueError("File has a trace with sampling rate zero "
+                                 "and more then one different id.")
+
+            starttime = min(tr.stats.starttime for tr in stream)
+            endtime = min(tr.stats.endtime for tr in stream)
+            if starttime == endtime:
+                starttime += 0.001
+
+            file_obj.save()
+            trace_obj = models.ContinuousTrace(
+                file=file_obj,
+                timerange=DateTimeTZRange(
+                    lower=starttime.timestamp,
+                    upper=endtime.starttime))
+            trace_obj.network = stream[0].stats.network.upper()
+            trace_obj.station = stream[0].stats.station.upper()
+            trace_obj.location = stream[0].stats.location.upper()
+            trace_obj.channel = stream[0].stats.channel.upper()
+            trace_obj.sampling_rate = stream[0].stats.sampling_rate
+            trace_obj.npts = sum(tr.stats.npts for tr in stream)
+            trace_obj.duration = endtime - starttime
+            try:
+                trace_obj.quality = stream[0].stats.mseed.dataquality
+            except AttributeError:
+                pass
+
+            trace_obj.pos = 0
+            trace_obj.save()
+            return
+
         # get number of gaps and overlaps per file
         gap_list = stream.getGaps()
         file_obj.gaps = len([g for g in gap_list if g[6] >= 0])
