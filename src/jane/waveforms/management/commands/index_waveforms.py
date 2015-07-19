@@ -299,7 +299,7 @@ def worker(_i, input_queue, work_queue, log_queue):
             try:
                 process_waveforms.process_file(filepath)
             except Exception as e:
-                log_queue.append("Error reading '%s': '%s' - %s" % (
+                log_queue.append("Error indexing '%s': '%s' - %s" % (
                     filepath, str(type(e)), str(e)))
             # ALways attempt to remove it from the worker queue.
             try:
