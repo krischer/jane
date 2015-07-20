@@ -48,7 +48,8 @@ A simple way to install an up-to-date version of the dependencies is to use the 
 
 ```bash
 $ conda install -c obspy obspy django==1.8 psycopg2 markdown flake8 gdal pyyaml
-$ pip install jsonfield django-plugins djangorestframework==3.1 djangorestframework-gis==0.8 defusedxml geojson django-cors-headers django_like django-debug-toolbar django-debug-toolbar-template-timings
+$ pip install https://github.com/krischer/django-plugins/archive/master.zip
+$ pip install jsonfield djangorestframework==3.1 djangorestframework-gis==0.8 defusedxml geojson django-cors-headers django_like django-debug-toolbar django-debug-toolbar-template-timings
 ```
 
 
