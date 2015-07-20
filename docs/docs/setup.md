@@ -11,7 +11,6 @@ maintain a stable installation.
 
 * `PostgreSQL 9.4`
 * `PostGIS 2.1`
-* `RabbitMQ 3.5`
 
 and furthermore on
 
@@ -21,9 +20,6 @@ with the following Python modules
 
 * `obspy==0.10`
 * `django==1.8`
-* `celery`
-* `django-celery`
-* `watchdog`
 * `psycopg2`
 * `jsonfield`
 * `django-plugins`
@@ -52,7 +48,7 @@ A simple way to install an up-to-date version of the dependencies is to use the 
 
 ```bash
 $ conda install -c obspy obspy django==1.8 psycopg2 markdown flake8 gdal pyyaml
-$ pip install celery django-celery watchdog jsonfield django-plugins djangorestframework==3.1 djangorestframework-gis==0.8 defusedxml geojson django-cors-headers django_like django-debug-toolbar django-debug-toolbar-template-timings
+$ pip install jsonfield django-plugins djangorestframework==3.1 djangorestframework-gis==0.8 defusedxml geojson django-cors-headers django_like django-debug-toolbar django-debug-toolbar-template-timings
 ```
 
 
@@ -88,15 +84,6 @@ psql --command="CREATE EXTENSION postgis;" jane
 ```
 
 
-## Start RabbitMQ for the job queue
-
-RabbitMQ is the job queing system of choice for `Jane`. Again this is better run as a service.
-
-```bash
-$ rabbitmq-server
-```
-
-
 ## Initialize Django Database
 
 This command will setup all necessary tables and what not.
@@ -104,28 +91,4 @@ This command will setup all necessary tables and what not.
 ```bash
 $ python manage.py migrate
 $ python manage.py createsupseruser
-```
-
-## Start Celery workers
-
-```bash
-$ python manage.py celery worker -E -l info
-```
-
-This will launch as many workers as the machine has cores. The `-E` flags causes events to be sent so that tools celerymon and flower can work. The `-l info` flags sets the log level.
-
-## Index a folder of waveform files
-
-This can be used to initially add waveforms or to index a certain folder once.
-
-```bash
-$ python manage.py index_waveforms /path/to/waveforms
-```
-
-## Monitor folder of waveform files
-
-This will continuously monitor a directory of waveform files for changes. All changes will be reflected in the database.
-
-```bash
-$ python manage.py filemon /path/to/waveforms
 ```
