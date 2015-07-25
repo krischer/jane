@@ -164,6 +164,11 @@ class DocumentIndexAdmin(admin.ModelAdmin):
 
     inlines = [DocumentIndexAttachmentInline]
 
+    def get_queryset(self, request):
+        # speed up by prefetching document.document_type
+        queryset = super(DocumentIndexAdmin, self).get_queryset(request)
+        return queryset.prefetch_related('document__document_type')
+
     def format_document_type(self, obj):
         return obj.document.document_type.name
 
