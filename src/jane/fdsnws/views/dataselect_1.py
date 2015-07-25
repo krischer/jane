@@ -164,9 +164,13 @@ def queryauth(request):
             auth = base64.b64decode(auth[1])
             username, password = auth.decode("utf-8").split(':')
             # authenticate
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                return query(request, user)
+            if username == 'anonymous' and password == 'anonymous':
+                # use default query
+                return query(request, user=None)
+            else:
+                user = authenticate(username=username, password=password)
+                if user is not None:
+                    return query(request, user)
     # otherwise
     response = HttpResponse("Auth Required", status=401)
     response['WWW-Authenticate'] = 'Basic realm="restricted area"'
