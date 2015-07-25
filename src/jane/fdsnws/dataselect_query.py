@@ -27,26 +27,22 @@ def query_dataselect(fh, networks, stations, locations, channels,
     query = query.filter(timerange__overlap=daterange)
     # networks
     if '*' not in networks:
-        iterator = (Q(network__like=v.replace('?', '_').replace('*', '%'))
-                    for v in networks)
+        iterator = (Q(network__like=v.replace('*', '.*')) for v in networks)
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
     # stations
     if '*' not in stations:
-        iterator = (Q(station__like=v.replace('?', '_').replace('*', '%'))
-                    for v in stations)
+        iterator = (Q(station__like=v.replace('*', '.*')) for v in stations)
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
     # locations
     if '*' not in locations:
-        iterator = (Q(location__like=v.replace('?', '_').replace('*', '%'))
-                    for v in locations)
+        iterator = (Q(location__like=v.replace('*', '.*')) for v in locations)
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
     # channels
     if '*' not in channels:
-        iterator = (Q(channel__like=v.replace('?', '_').replace('*', '%'))
-                    for v in channels)
+        iterator = (Q(channel__regex=v.replace('*', '.*')) for v in channels)
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
     # minimumlength

@@ -5,7 +5,7 @@ import sys
 
 
 DEBUG = True
-SQL_DEBUG = False
+SQL_DEBUG = True
 
 # ensure PIL is working in virtualenv
 try:

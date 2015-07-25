@@ -17,18 +17,16 @@ django.setup()
 
 PATH = os.path.join(os.path.dirname(__file__), 'data')
 FILES = [
-    os.path.join(PATH, 'RJOB_061005_072159.ehz.new')
+    os.path.join(PATH, 'RJOB_061005_072159.ehz.new'),
+    os.path.join(PATH, 'TA.A25A.mseed')
 ]
 
 
 class DataSelect1TestCase(TestCase):
 
-    @classmethod
-    def setUpClass(cls):
+    def setUp(self):
         # prepare database
-        super(DataSelect1TestCase, cls).setUpClass()
-        for file in FILES:
-            process_file(file)
+        [process_file(f) for f in FILES]
 
     def test_version(self):
         # 1 - HTTP OK
@@ -134,6 +132,14 @@ class DataSelect1TestCase(TestCase):
         numpy.testing.assert_equal(got[0].data, expected[0].data)
         self.assertEqual(got, expected)
 
+    def test_query_data_wildcards(self):
+        # query using wildcards
+        param = '?endtime=2010-03-25T00:00:30&network=TA&channel=BH%2A' + \
+            '&starttime=2010-03-25&station=A25A'
+        response = self.client.get('/fdsnws/dataselect/1/query' + param)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+
 
 class DataSelect1LiveServerTestCase(LiveServerTestCase):
     """
@@ -142,12 +148,9 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
     Django dummy client such as obspy.fdns.client.Client.
     """
 
-    @classmethod
-    def setUpClass(cls):
+    def setUp(self):
         # prepare database
-        super(DataSelect1LiveServerTestCase, cls).setUpClass()
-        for file in FILES:
-            process_file(file)
+        [process_file(f) for f in FILES]
 
     def test_query_data(self):
         # query using ObsPy
@@ -164,3 +167,25 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
         del expected[0].meta.calib
         numpy.testing.assert_equal(got[0].data, expected[0].data)
         self.assertEqual(got, expected)
+
+    def test_query_data_wildcards(self):
+        # query using wildcards
+        t = UTCDateTime(2010, 3, 25, 0, 0)
+        client = Client(self.live_server_url)
+        # 1
+        st = client.get_waveforms("TA", "A25A", "", "BHZ", t, t + 30)
+        self.assertEqual(len(st), 1)
+        self.assertEqual(len(st[0].data), 1201)
+        self.assertEqual(st[0].id, 'TA.A25A..BHZ')
+        # 2
+        st = client.get_waveforms("TA", "A25A", "", "BHZ,BHN,BHE", t, t + 30)
+        self.assertEqual(len(st), 3)
+        # 3
+        st = client.get_waveforms("TA", "A25A", "", "BH*", t, t + 30)
+        self.assertEqual(len(st), 3)
+        # 4
+        st = client.get_waveforms("TA", "A25A", "", "BH?", t, t + 30)
+        self.assertEqual(len(st), 3)
+        # 5
+        st = client.get_waveforms("TA", "A25A", "", "BH?,VCO", t, t + 30)
+        self.assertEqual(len(st), 4)
