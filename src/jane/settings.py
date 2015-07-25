@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-# import djcelery
 
 
 DEBUG = True
@@ -214,22 +213,12 @@ REST_FRAMEWORK = {
 
 
 ###############################################################################
-# Celery (Task Queue)
+# corsheader
 ###############################################################################
-INSTALLED_APPS += ['djcelery', 'corsheaders', 'kombu.transport.django']
-
-# use RabbitMQ server
-BROKER_URL = 'amqp://jane:jane@127.0.0.1:5672/jane'
-
-CELERY_RESULT_BACKEND = "djcelery.backends.database:DatabaseBackend"
-
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = "json"
-CELERYD_MAX_TASKS_PER_CHILD = 200
+INSTALLED_APPS += ['corsheaders']
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
 ###############################################################################
 # django-debug-toolbar

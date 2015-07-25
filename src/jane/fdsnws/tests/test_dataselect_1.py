@@ -93,7 +93,6 @@ class DataSelect1TestCase(TestCase):
         self.assertEqual(response.status_code, 413)
         self.assertTrue('No channels specified' in response.reason_phrase)
 
-    @override_settings(BROKER_URL='DISABLE_CELERY')
     def test_query_data(self):
         # not existing - error 500
         param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE&cha=EHE'
