@@ -308,3 +308,5 @@ if 'test' in sys.argv:
     TEMPLATE_DEBUG = False
     import logging
     logging.disable(logging.CRITICAL)
+    # set live test server
+    os.environ['DJANGO_LIVE_TEST_SERVER_ADDRESS'] = 'localhost:8082'
