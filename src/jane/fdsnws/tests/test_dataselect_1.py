@@ -16,9 +16,19 @@ django.setup()
 
 
 PATH = os.path.join(os.path.dirname(__file__), 'data')
+FILES = [
+    os.path.join(PATH, 'RJOB_061005_072159.ehz.new')
+]
 
 
 class DataSelect1TestCase(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        # prepare database
+        super(DataSelect1TestCase, cls).setUpClass()
+        for file in FILES:
+            process_file(file)
 
     def test_version(self):
         # 1 - HTTP OK
@@ -106,9 +116,6 @@ class DataSelect1TestCase(TestCase):
         self.assertTrue('Not Found: No data' in response.reason_phrase)
 
     def test_query_data(self):
-        # prepare database by indexing test file
-        path = os.path.join(PATH, 'RJOB_061005_072159.ehz.new')
-        process_file(path)
         # query using HTTP client
         param = '?station=RJOB&cha=Z&start=2005-10-06T07:21:59.850000&' + \
             'end=2005-10-06T07:24:59.845000'
@@ -116,16 +123,16 @@ class DataSelect1TestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('OK' in response.reason_phrase)
         # compare streams
-        st1 = read(io.BytesIO(response.getvalue()))
-        del st1[0].meta.mseed
-        del st1[0].meta._format
-        del st1[0].meta.calib
-        st2 = read(path)
-        del st2[0].meta.gse2
-        del st2[0].meta._format
-        del st2[0].meta.calib
-        numpy.testing.assert_equal(st1[0].data, st2[0].data)
-        self.assertEqual(st1, st2)
+        got = read(io.BytesIO(response.getvalue()))
+        del got[0].meta.mseed
+        del got[0].meta._format
+        del got[0].meta.calib
+        expected = read(FILES[0])
+        del expected[0].meta.gse2
+        del expected[0].meta._format
+        del expected[0].meta.calib
+        numpy.testing.assert_equal(got[0].data, expected[0].data)
+        self.assertEqual(got, expected)
 
 
 class DataSelect1LiveServerTestCase(LiveServerTestCase):
@@ -135,21 +142,25 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
     Django dummy client such as obspy.fdns.client.Client.
     """
 
+    @classmethod
+    def setUpClass(cls):
+        # prepare database
+        super(DataSelect1LiveServerTestCase, cls).setUpClass()
+        for file in FILES:
+            process_file(file)
+
     def test_query_data(self):
-        # prepare database by indexing test file
-        path = os.path.join(PATH, 'RJOB_061005_072159.ehz.new')
-        process_file(path)
         # query using ObsPy
         t1 = UTCDateTime("2005-10-06T07:21:59.850000")
         t2 = UTCDateTime("2005-10-06T07:24:59.845000")
         client = Client(self.live_server_url)
-        st1 = client.get_waveforms("", "RJOB", "", "Z", t1, t2)
-        del st1[0].meta.mseed
-        del st1[0].meta._format
-        del st1[0].meta.calib
-        st2 = read(path)
-        del st2[0].meta.gse2
-        del st2[0].meta._format
-        del st2[0].meta.calib
-        numpy.testing.assert_equal(st1[0].data, st2[0].data)
-        self.assertEqual(st1, st2)
+        got = client.get_waveforms("", "RJOB", "", "Z", t1, t2)
+        del got[0].meta.mseed
+        del got[0].meta._format
+        del got[0].meta.calib
+        expected = read(FILES[0])
+        del expected[0].meta.gse2
+        del expected[0].meta._format
+        del expected[0].meta.calib
+        numpy.testing.assert_equal(got[0].data, expected[0].data)
+        self.assertEqual(got, expected)
