@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from rest_framework import serializers
-from rest_framework_gis.serializers import GeoModelSerializer
 
 from jane.documents import models
 
@@ -76,7 +75,7 @@ class DocumentIndexAttachmentSerializer(serializers.ModelSerializer):
         )
 
 
-class DocumentIndexSerializer(GeoModelSerializer):
+class DocumentIndexSerializer(serializers.ModelSerializer):
     url = DocumentTypeHyperlinkedIdentifyField(
         view_name='rest_document_indices-detail',
         lookup_field="pk",

@@ -175,6 +175,7 @@ INSTALLED_APPS += [
 ###############################################################################
 INSTALLED_APPS += [
     'rest_framework',
+    'rest_framework_gis',
 ]
 REST_FRAMEWORK = {
     # Use hyperlinked styles by default.
