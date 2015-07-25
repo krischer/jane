@@ -51,10 +51,11 @@ def process_file(filename):
         if len(stream) == 0:
             msg = "'%s' is a valid waveform file but contains no actual data"
             raise JaneWaveformTaskException(msg % filename)
-        models.File.objects.filter(
-            path=path_obj, name=os.path.basename(filename)).delete()
-        file_obj = models.File.objects.create(
-            path=path_obj, name=os.path.basename(filename))
+        models.File.objects.\
+            filter(path=path_obj, name=os.path.basename(filename)).\
+            delete()
+        file_obj = models.File.objects.\
+            create(path=path_obj, name=os.path.basename(filename))
 
         # set format
         file_obj.format = stream[0].stats._format

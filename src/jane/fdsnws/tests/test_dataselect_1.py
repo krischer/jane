@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
 
+import io
 import os
-from unittest import mock
 
 import django
 from django.test import TestCase
-import obspy
+from obspy import read
+import numpy
+
+from jane.waveforms.process_waveforms import process_file
 
 
 django.setup()
 
 
-PATH = os.path.join(os.path.dirname(__file__), 'fixtures')
+PATH = os.path.join(os.path.dirname(__file__), 'data')
 
 
 class DataSelect1TestCase(TestCase):
-
-    fixtures = [os.path.join(PATH, 'dataselect.json')]
 
     def test_version(self):
         # 1 - HTTP OK
@@ -91,8 +92,8 @@ class DataSelect1TestCase(TestCase):
         self.assertEqual(response.status_code, 413)
         self.assertTrue('No channels specified' in response.reason_phrase)
 
-    def test_query_data(self):
-        # not existing - error 500
+    def test_query_nodata(self):
+        # not existing - error 204
         param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE&cha=EHE'
         response = self.client.get('/fdsnws/dataselect/1/query' + param)
         self.assertEqual(response.status_code, 204)
@@ -102,14 +103,25 @@ class DataSelect1TestCase(TestCase):
         response = self.client.get('/fdsnws/dataselect/1/query' + param)
         self.assertEqual(response.status_code, 404)
         self.assertTrue('Not Found: No data' in response.reason_phrase)
-        # existing using fixture
-        param = '?start=2013-05-24T06:00:00&end=2013-05-24T06:01:00&' + \
-                'net=TA&station=X60A&cha=BHE'
 
-        st = obspy.read()
-        with mock.patch("obspy.read") as p:
-            p.return_value = st
-            response = self.client.get('/fdsnws/dataselect/1/query' + param)
-
+    def test_query_data(self):
+        # prepare database by indexing test file
+        path = os.path.join(PATH, 'RJOB_061005_072159.ehz.new')
+        process_file(path)
+        # query
+        param = '?station=RJOB&cha=Z&start=2005-10-06T07:21:59.850000&' + \
+            'end=2005-10-06T07:24:59.845000'
+        response = self.client.get('/fdsnws/dataselect/1/query' + param)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('OK' in response.reason_phrase)
+        # compare streams
+        st1 = read(io.BytesIO(response.getvalue()))
+        del st1[0].meta.mseed
+        del st1[0].meta._format
+        del st1[0].meta.calib
+        st2 = read(path)
+        del st2[0].meta.gse2
+        del st2[0].meta._format
+        del st2[0].meta.calib
+        numpy.testing.assert_equal(st1[0].data, st2[0].data)
+        self.assertEqual(st1, st2)

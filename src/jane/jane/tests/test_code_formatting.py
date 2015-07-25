@@ -4,12 +4,13 @@
 Tests all Python files of the project with flake8. This ensure PEP8 conformance
 and some other sanity checks as well.
 """
-import flake8
-import flake8.engine
-import flake8.main
+
 import inspect
 import os
 import unittest
+
+import flake8.engine
+import flake8.main
 
 
 class TestCodeFormatting(unittest.TestCase):
