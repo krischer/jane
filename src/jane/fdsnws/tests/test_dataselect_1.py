@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import base64
 import io
 import os
 
 import django
+from django.contrib.auth.models import User
 from django.test import TestCase, LiveServerTestCase
 import numpy
 from obspy import read, UTCDateTime
@@ -17,7 +19,7 @@ django.setup()
 
 PATH = os.path.join(os.path.dirname(__file__), 'data')
 FILES = [
-    os.path.join(PATH, 'RJOB_061005_072159.ehz.new'),
+    os.path.join(PATH, 'RJOB_061005_072159.ehz.new.mseed'),
     os.path.join(PATH, 'TA.A25A.mseed')
 ]
 
@@ -25,8 +27,14 @@ FILES = [
 class DataSelect1TestCase(TestCase):
 
     def setUp(self):
-        # prepare database
+        # index waveform files
         [process_file(f) for f in FILES]
+        # create anonymous user
+        User.objects.get_or_create(username='anonymous', password='anonymous')
+        credentials = base64.b64encode(b'anonymous:anonymous')
+        self.auth_headers = {
+            'HTTP_AUTHORIZATION': 'Basic ' + credentials.decode("ISO-8859-1"),
+        }
 
     def test_version(self):
         # 1 - HTTP OK
@@ -115,9 +123,6 @@ class DataSelect1TestCase(TestCase):
 
     def test_query_data(self):
         expected = read(FILES[0])[0]
-        del expected.meta.gse2
-        del expected.meta._format
-        del expected.meta.calib
         params = {
             'station': expected.meta.station,
             'cha': expected.meta.channel,
@@ -130,9 +135,6 @@ class DataSelect1TestCase(TestCase):
         self.assertTrue('OK' in response.reason_phrase)
         # compare streams
         got = read(io.BytesIO(response.getvalue()))[0]
-        del got.meta.mseed
-        del got.meta._format
-        del got.meta.calib
         numpy.testing.assert_equal(got.data, expected.data)
         self.assertEqual(got, expected)
         # 2 - query using HTTP POST
@@ -141,9 +143,48 @@ class DataSelect1TestCase(TestCase):
         self.assertTrue('OK' in response.reason_phrase)
         # compare streams
         got = read(io.BytesIO(response.getvalue()))[0]
-        del got.meta.mseed
-        del got.meta._format
-        del got.meta.calib
+        numpy.testing.assert_equal(got.data, expected.data)
+        self.assertEqual(got, expected)
+
+    def test_queryauth_nodata(self):
+        param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE&cha=EHE'
+        # 1 - no credentials - error 401
+        response = self.client.get('/fdsnws/dataselect/1/queryauth' + param)
+        self.assertEqual(response.status_code, 401)
+        # 2 - anonymous, not existing - error 204
+        response = self.client.get('/fdsnws/dataselect/1/queryauth' + param,
+                                   **self.auth_headers)
+        self.assertEqual(response.status_code, 204)
+        self.assertTrue('Not Found: No data' in response.reason_phrase)
+        # 3 - anonymous, not existing - error 404
+        param += '&nodata=404'
+        response = self.client.get('/fdsnws/dataselect/1/queryauth' + param,
+                                   **self.auth_headers)
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue('Not Found: No data' in response.reason_phrase)
+
+    def test_queryauth_data(self):
+        expected = read(FILES[0])[0]
+        params = {
+            'station': expected.meta.station,
+            'cha': expected.meta.channel,
+            'start': expected.meta.starttime,
+            'end': expected.meta.endtime,
+        }
+        # 1 - query using HTTP GET
+        response = self.client.get('/fdsnws/dataselect/1/queryauth', params)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        # compare streams
+        got = read(io.BytesIO(response.getvalue()))[0]
+        numpy.testing.assert_equal(got.data, expected.data)
+        self.assertEqual(got, expected)
+        # 2 - query using HTTP POST
+        response = self.client.post('/fdsnws/dataselect/1/queryauth', params)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        # compare streams
+        got = read(io.BytesIO(response.getvalue()))[0]
         numpy.testing.assert_equal(got.data, expected.data)
         self.assertEqual(got, expected)
 
@@ -164,7 +205,7 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
     """
 
     def setUp(self):
-        # prepare database
+        # index waveform files
         [process_file(f) for f in FILES]
 
     def test_query_data(self):
@@ -173,13 +214,7 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
         t2 = UTCDateTime("2005-10-06T07:24:59.845000")
         client = FDSNClient(self.live_server_url)
         got = client.get_waveforms("", "RJOB", "", "Z", t1, t2)[0]
-        del got.meta.mseed
-        del got.meta._format
-        del got.meta.calib
         expected = read(FILES[0])[0]
-        del expected.meta.gse2
-        del expected.meta._format
-        del expected.meta.calib
         numpy.testing.assert_equal(got.data, expected.data)
         self.assertEqual(got, expected)
 

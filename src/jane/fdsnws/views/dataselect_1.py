@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import base64
 import io
 from uuid import uuid4
 
 from django.conf import settings
-from django.contrib.auth import authenticate
 from django.core.servers.basehttp import FileWrapper
 from django.http.response import HttpResponse
 from django.shortcuts import render_to_response
@@ -14,6 +12,8 @@ from obspy.core.utcdatetime import UTCDateTime
 
 from jane.fdsnws.dataselect_query import query_dataselect
 from jane.fdsnws.views.utils import fdnsws_error
+from jane.jane.decorators import logged_in_or_basicauth
+from jane.settings import JANE_INSTANCE_NAME
 
 
 VERSION = '1.1.1'
@@ -57,7 +57,7 @@ def wadl(request):  # @UnusedVariable
         RequestContext(request), content_type="application/xml; charset=utf-8")
 
 
-def query(request, user=None):
+def query(request):
     """
     Parses and returns data request
     """
@@ -129,7 +129,11 @@ def query(request, user=None):
         msg = 'Bad boolean value for longestonly: %s' % (longestonly)
         return _error(request, msg)
     longestonly = bool(longestonly)
-    username = user.username if user else None
+    # user
+    if request.user.is_authenticated():
+        user = request.user
+    else:
+        user = None
 
     with io.BytesIO() as fh:
         status = query_dataselect(fh=fh, networks=networks, stations=stations,
@@ -137,7 +141,7 @@ def query(request, user=None):
                                   starttime=starttime, endtime=endtime,
                                   format=format, nodata=nodata,
                                   minimumlength=minimumlength,
-                                  longestonly=longestonly, username=username)
+                                  longestonly=longestonly, user=user)
         fh.seek(0, 0)
         mem_file = FileWrapper(fh)
 
@@ -153,25 +157,9 @@ def query(request, user=None):
             return _error(request, msg, status)
 
 
+@logged_in_or_basicauth(JANE_INSTANCE_NAME)
 def queryauth(request):
     """
     Parses and returns data request
     """
-    if request.META.get('HTTP_AUTHORIZATION', False):
-        auth = request.META['HTTP_AUTHORIZATION'].split()
-        if len(auth) == 2 and auth[0].lower() == 'basic':
-            # basic auth
-            auth = base64.b64decode(auth[1])
-            username, password = auth.decode("utf-8").split(':')
-            # authenticate
-            if username == 'anonymous' and password == 'anonymous':
-                # use default query
-                return query(request, user=None)
-            else:
-                user = authenticate(username=username, password=password)
-                if user is not None:
-                    return query(request, user)
-    # otherwise
-    response = HttpResponse("Auth Required", status=401)
-    response['WWW-Authenticate'] = 'Basic realm="restricted area"'
-    return response
+    return query(request)

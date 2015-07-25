@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-import base64
 import io
 
 from django.conf import settings
-from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-import obspy
 
 from jane.fdsnws.station_query import query_stations
 from jane.fdsnws.views.utils import fdnsws_error, parse_query_parameters
+
+import obspy
 
 
 VERSION = '1.1.1'
@@ -181,25 +181,9 @@ def query(request):
             return _error(request, msg, status)
 
 
+@login_required
 def queryauth(request):
     """
     Parses and returns data request
     """
-    if request.META.get('HTTP_AUTHORIZATION', False):
-        auth = request.META['HTTP_AUTHORIZATION'].split()
-        if len(auth) == 2 and auth[0].lower() == 'basic':
-            # basic auth
-            auth = base64.b64decode(auth[1])
-            username, password = auth.decode("utf-8").split(':')
-            # authenticate
-            if username == 'anonymous' and password == 'anonymous':
-                # use default query
-                return query(request, user=None)
-            else:
-                user = authenticate(username=username, password=password)
-                if user is not None:
-                    return query(request, user)
-    # otherwise
-    response = HttpResponse("Auth Required", status=401)
-    response['WWW-Authenticate'] = 'Basic realm="restricted area"'
-    return response
+    return query(request)

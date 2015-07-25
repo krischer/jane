@@ -3,7 +3,6 @@
 from functools import reduce
 import operator
 
-from django.conf import settings
 from django.db.models import Q
 import obspy
 from psycopg2._range import DateTimeTZRange
@@ -13,7 +12,7 @@ from jane.waveforms.models import ContinuousTrace, Restriction
 
 def query_dataselect(fh, networks, stations, locations, channels,
                      starttime, endtime, format, nodata, minimumlength,
-                     longestonly, username=None):
+                     longestonly, user=None):
     """
     Process query and generate a combined waveform file. Parameters are
     interpreted as in the FDSNWS definition. Results are written to fh. A
@@ -50,10 +49,9 @@ def query_dataselect(fh, networks, stations, locations, channels,
         query = query.filter(duration__gte=minimumlength)
 
     # restrictions
-    if not username:
+    if not user:
         restrictions = Restriction.objects.all()
     else:
-        user = settings.AUTH_USER_MODEL.objects.get(username=username)
         restrictions = Restriction.objects.exclude(users=user)
     for restriction in restrictions:
         query = query.exclude(network=restriction.network,
