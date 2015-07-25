@@ -3,9 +3,9 @@
 import csv
 import io
 
+from lxml import etree
 from obspy import UTCDateTime
 from obspy.core.util.geodetics import FlinnEngdahl
-from lxml import etree
 
 from jane.documents.models import DocumentIndex
 

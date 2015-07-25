@@ -2,13 +2,12 @@
 
 import base64
 import io
-import os
 from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.core.servers.basehttp import FileWrapper
-from django.http.response import HttpResponse, Http404
+from django.http.response import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from obspy.core.utcdatetime import UTCDateTime

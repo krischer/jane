@@ -34,7 +34,7 @@ class PostgreSQLJSONBField(JSONField):
     """
     Make the JSONField use JSONB as a datatype, a typed JSON variant.
     """
-    def db_type(self, connection):
+    def db_type(self, connection):  # @UnusedVariable
         return "jsonb"
 
 

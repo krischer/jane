@@ -61,10 +61,10 @@ class WaveformFileCrawler(object):
         """
         if path:
             # check database for file entries in specific path
-            return {_i[0]: _i[1] for _i in
-                    models.File.objects
-                        .filter(path__name=path)
-                        .values_list("name", "mtime")}
+            files = models.File.objects.\
+                filter(path__name=path).\
+                values_list("name", "mtime")
+            return {i[0]: i[1] for i in files}
         else:
             return models.Path.objects.values_list("name", flat=True)
 
@@ -410,7 +410,7 @@ def _run_indexer(options):
 
 
 class Command(BaseCommand):
-    help =  """Crawl directories and index waveforms contents to Jane.
+    help = """Crawl directories and index waveforms contents to Jane.
 
 
 Usage Examples
@@ -435,17 +435,17 @@ Usage Examples
     def add_arguments(self, parser):
         parser.add_argument(
             '-d', '--data', default='data=*.*',
-            help="""Path, search patterns and feature plug-ins of waveform files.
-    The indexer will crawl recursively through all sub-directories within each
-    given path. Multiple paths have to be separated with a comma, e.g.
-    '/first/path=*.*,/second/path,/third/path=*.gse'.
+            help="""Path, search patterns and feature plug-ins of waveform
+    files. The indexer will crawl recursively through all sub-directories
+    within each given path. Multiple paths have to be separated with a comma,
+    e.g. '/first/path=*.*,/second/path,/third/path=*.gse'.
     File patterns are given as space-separated list of wildcards after a equal
     sign, e.g.
     '/path=*.gse2 *.mseed,/second/path=*.*'.
     Feature plug-ins may be added using the hash (#) character, e.g.
     '/path=*.mseed#feature1#feature2,/second/path#feature2'.
-    Be aware that features must be provided behind file patterns (if any)! There is
-    no default feature enabled.
+    Be aware that features must be provided behind file patterns (if any)!
+    There is no default feature enabled.
     Default path option is 'data=*.*'.""")
         parser.add_argument(
             '-n', type=int, dest='number_of_cpus',
@@ -460,7 +460,8 @@ Usage Examples
                  "number of hours. This option is deactivated by default.")
         parser.add_argument(
             '-l', '--log', default='',
-            help="Log file name. If no log file is given, stdout will be used.")
+            help="Log file name. If no log file is given, stdout will be "
+                 "used.")
         parser.add_argument(
             '-a', '--all-files', action='store_false', dest='skip_dots',
             help="The indexer will automatically skip paths or "
@@ -488,7 +489,6 @@ Usage Examples
         parser.add_argument(
             '-p', '--port', type=int, default=0,
             help="Port number. If not given a free port will be picked.")
-
 
     def handle(self, *args, **kwargs):
         # set level of verbosity

@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import os
+from unittest import mock
 
 import django
 from django.test import TestCase
-from django.test.utils import override_settings
-
 import obspy
-from unittest import mock
 
 
 django.setup()
