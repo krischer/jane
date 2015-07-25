@@ -7,7 +7,7 @@ import django
 from django.test import TestCase, LiveServerTestCase
 import numpy
 from obspy import read, UTCDateTime
-from obspy.fdsn.client import Client
+from obspy.fdsn.client import Client as FDSNClient
 
 from jane.waveforms.process_waveforms import process_file
 
@@ -156,7 +156,7 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
         # query using ObsPy
         t1 = UTCDateTime("2005-10-06T07:21:59.850000")
         t2 = UTCDateTime("2005-10-06T07:24:59.845000")
-        client = Client(self.live_server_url)
+        client = FDSNClient(self.live_server_url)
         got = client.get_waveforms("", "RJOB", "", "Z", t1, t2)
         del got[0].meta.mseed
         del got[0].meta._format
@@ -171,7 +171,7 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
     def test_query_data_wildcards(self):
         # query using wildcards
         t = UTCDateTime(2010, 3, 25, 0, 0)
-        client = Client(self.live_server_url)
+        client = FDSNClient(self.live_server_url)
         # 1
         st = client.get_waveforms("TA", "A25A", "", "BHZ", t, t + 30)
         self.assertEqual(len(st), 1)
