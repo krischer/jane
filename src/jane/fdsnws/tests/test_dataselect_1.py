@@ -114,22 +114,37 @@ class DataSelect1TestCase(TestCase):
         self.assertTrue('Not Found: No data' in response.reason_phrase)
 
     def test_query_data(self):
-        # query using HTTP client
-        param = '?station=RJOB&cha=Z&start=2005-10-06T07:21:59.850000&' + \
-            'end=2005-10-06T07:24:59.845000'
-        response = self.client.get('/fdsnws/dataselect/1/query' + param)
+        expected = read(FILES[0])[0]
+        del expected.meta.gse2
+        del expected.meta._format
+        del expected.meta.calib
+        params = {
+            'station': expected.meta.station,
+            'cha': expected.meta.channel,
+            'start': expected.meta.starttime,
+            'end': expected.meta.endtime
+        }
+        # 1 - query using HTTP GET
+        response = self.client.get('/fdsnws/dataselect/1/query', params)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('OK' in response.reason_phrase)
         # compare streams
-        got = read(io.BytesIO(response.getvalue()))
-        del got[0].meta.mseed
-        del got[0].meta._format
-        del got[0].meta.calib
-        expected = read(FILES[0])
-        del expected[0].meta.gse2
-        del expected[0].meta._format
-        del expected[0].meta.calib
-        numpy.testing.assert_equal(got[0].data, expected[0].data)
+        got = read(io.BytesIO(response.getvalue()))[0]
+        del got.meta.mseed
+        del got.meta._format
+        del got.meta.calib
+        numpy.testing.assert_equal(got.data, expected.data)
+        self.assertEqual(got, expected)
+        # 2 - query using HTTP POST
+        response = self.client.post('/fdsnws/dataselect/1/query', params)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        # compare streams
+        got = read(io.BytesIO(response.getvalue()))[0]
+        del got.meta.mseed
+        del got.meta._format
+        del got.meta.calib
+        numpy.testing.assert_equal(got.data, expected.data)
         self.assertEqual(got, expected)
 
     def test_query_data_wildcards(self):
@@ -157,15 +172,15 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
         t1 = UTCDateTime("2005-10-06T07:21:59.850000")
         t2 = UTCDateTime("2005-10-06T07:24:59.845000")
         client = FDSNClient(self.live_server_url)
-        got = client.get_waveforms("", "RJOB", "", "Z", t1, t2)
-        del got[0].meta.mseed
-        del got[0].meta._format
-        del got[0].meta.calib
-        expected = read(FILES[0])
-        del expected[0].meta.gse2
-        del expected[0].meta._format
-        del expected[0].meta.calib
-        numpy.testing.assert_equal(got[0].data, expected[0].data)
+        got = client.get_waveforms("", "RJOB", "", "Z", t1, t2)[0]
+        del got.meta.mseed
+        del got.meta._format
+        del got.meta.calib
+        expected = read(FILES[0])[0]
+        del expected.meta.gse2
+        del expected.meta._format
+        del expected.meta.calib
+        numpy.testing.assert_equal(got.data, expected.data)
         self.assertEqual(got, expected)
 
     def test_query_data_wildcards(self):
