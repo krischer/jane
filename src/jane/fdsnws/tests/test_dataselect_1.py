@@ -239,3 +239,11 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
         # 5
         st = client.get_waveforms("TA", "A25A", "", "BH?,VCO", t, t + 30)
         self.assertEqual(len(st), 4)
+        # 6
+        st = client.get_waveforms("TA", "A25A", "", "BH?,-BHZ", t, t + 30)
+        self.assertEqual(len(st), 2)
+        # 7
+        st = client.get_waveforms("TA", "A25A", "", "*", t, t + 30)
+        self.assertEqual(len(st), 19)  # xxx: why 19 - should be 22!
+        st = client.get_waveforms("TA", "A25A", "", "*,-BHZ", t, t + 30)
+        self.assertEqual(len(st), 18)

@@ -24,26 +24,47 @@ def query_dataselect(fh, networks, stations, locations, channels,
     endtime = obspy.UTCDateTime(endtime)
     daterange = DateTimeTZRange(starttime.datetime, endtime.datetime)
     query = query.filter(timerange__overlap=daterange)
-    # networks
+    # include networks
     if '*' not in networks:
-        iterator = (Q(network__like=v.replace('*', '.*')) for v in networks)
+        iterator = (Q(network__regex=v.replace('*', '.*'))
+                    for v in networks if not v.startswith('-'))
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
-    # stations
+    # exclude networks
+    for network in networks:
+        if network.startswith('-'):
+            query = query.exclude(network=network[1:])
+    # include stations
     if '*' not in stations:
-        iterator = (Q(station__like=v.replace('*', '.*')) for v in stations)
+        iterator = (Q(station__regex=v.replace('*', '.*'))
+                    for v in stations if not v.startswith('-'))
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
-    # locations
+    # exclude stations
+    for station in stations:
+        if station.startswith('-'):
+            query = query.exclude(station=station[1:])
+    # include locations
     if '*' not in locations:
-        iterator = (Q(location__like=v.replace('*', '.*')) for v in locations)
+        iterator = (Q(location__regex=v.replace('*', '.*'))
+                    for v in locations if not v.startswith('-'))
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
-    # channels
+    # exclude locations
+    for location in locations:
+        if location.startswith('-'):
+            query = query.exclude(location=location[1:])
+    # include channels
     if '*' not in channels:
-        iterator = (Q(channel__regex=v.replace('*', '.*')) for v in channels)
+        # include
+        iterator = (Q(channel__regex=v.replace('*', '.*'))
+                    for v in channels if not v.startswith('-'))
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
+    # exclude channels
+    for channel in channels:
+        if channel.startswith('-'):
+            query = query.exclude(channel=channel[1:])
     # minimumlength
     if minimumlength:
         query = query.filter(duration__gte=minimumlength)
