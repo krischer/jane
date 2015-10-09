@@ -57,16 +57,7 @@ class StationIndexerPlugin(IndexerPluginPoint):
         for network in inv:
             for station in network:
                 for channel in station:
-                    try:
-                        plt.close()
-                    except:
-                        pass
-                    # Plot response.
-                    plot = io.BytesIO()
-                    channel.plot(min_freq=1E-3, outfile=plot)
-                    plot.seek(0)
-
-                    indices.append({
+                    index = {
                         "network": network.code,
                         "network_name": network.description,
                         "station": station.code,
@@ -85,10 +76,25 @@ class StationIndexerPlugin(IndexerPluginPoint):
                         "end_date": str(channel.end_date),
                         "geometry": [Point(channel.longitude,
                                            channel.latitude)],
-                        "attachments": {
-                            "response": {"content-type": "image/png",
-                                         "data": plot.read()}
-                        },
-                    })
+                    }
+
+                    try:
+                        plt.close()
+                    except:
+                        pass
+
+                    # Sometimes fails. Wrap in try/except.
+                    try:
+                        # Plot response.
+                        with io.BytesIO() as plot:
+                            channel.plot(min_freq=1E-3, outfile=plot)
+                            plot.seek(0)
+                            index["attachments"] = {
+                                "response": {"content-type": "image/png",
+                                             "data": plot.read()}}
+                    except (AttributeError, TypeError):
+                        pass
+
+                    indices.append(index)
 
         return indices
