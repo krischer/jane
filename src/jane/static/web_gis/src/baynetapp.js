@@ -28,7 +28,7 @@ module.constant('station_colors', [
     '#1f78b4',
     '#a6cee3',
     '#33a02c',
-    '#b2df8a',
+    '#ff0000',
     '#e31a1c',
     '#fb9a99',
     '#fdbf6f']);
