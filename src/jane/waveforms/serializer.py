@@ -14,8 +14,12 @@ class WaveformSerializer(serializers.HyperlinkedModelSerializer):
         lookup_field='pk'
     )
 
-    starttime = serializers.DateTimeField(source="timerange.lower")
-    endtime = serializers.DateTimeField(source="timerange.upper")
+    starttime = serializers.DateTimeField(
+        source="timerange.lower",
+        format="%Y-%m-%dT%H:%M:%S.%fZ")
+    endtime = serializers.DateTimeField(
+        source="timerange.upper",
+        format="%Y-%m-%dT%H:%M:%S.%fZ")
 
     class Meta:
         model = models.ContinuousTrace
