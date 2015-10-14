@@ -123,7 +123,8 @@ def process_file(filename):
                 "npts": sum(tr.stats.npts for tr in stream),
                 "duration": endtime - starttime,
                 "quality": quality,
-                "preview_trace": None}
+                "preview_trace": None,
+                "pos": 0}
         else:
             # get number of gaps and overlaps per file
             gap_list = stream.getGaps()
