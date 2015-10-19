@@ -207,6 +207,3 @@ def process_file(filename):
             tr_db.preview_trace = tr["preview_trace"]
             tr_db.pos = tr["pos"]
             tr_db.save()
-
-        import time
-        time.sleep(10)
