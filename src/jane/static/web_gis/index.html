@@ -80,11 +80,11 @@
                        style="position:absolute; margin-top:5px; margin-left: 5px">
         </toggle-switch>
         <span class="input-group-addon">
-            <i class="fa fa-dot-circle-o"></i> Erdbeben
+            <i class="fa fa-dot-circle-o"></i> Earthquakes
             <!--NEEDS DIFFERENT WAY TO LAYOUT!-->
             <toggle-switch model="event_layer_show_points"
                            class="switch-mini switch-default"
-                           on-label="Punkte" off-label="Heatmap"
+                           on-label="Points" off-label="Heatmap"
                            style="position:absolute;
                            margin-top: -2px; margin-left: 50px">
             </toggle-switch>
@@ -97,7 +97,7 @@
             <div class="col-md-4">
                 <label>
                     <i class="fa fa-calendar"></i>
-                    <small>Zeitrahmen</small>
+                    <small>Time Range</small>
                 </label>
             </div>
             <div class="col-md-4 event-timepicker">
@@ -233,7 +233,7 @@
                        style="position:absolute; margin-top:5px; margin-left: 5px">
         </toggle-switch>
         <span class="input-group-addon">
-            <i class="fa fa-th"></i> Stationen
+            <i class="fa fa-th"></i> Stations
         </span>
     </div>
 
@@ -293,7 +293,7 @@
 
     <div class="sidebar-header">
         <span class="input-group-addon">
-            <i class="fa fa-th"></i> Karteneinstellungen
+            <i class="fa fa-th"></i> Map Settings
         </span>
     </div>
 
@@ -301,7 +301,7 @@
         <div class="row">
 
             <div class="col-md-4">
-                <small>Grundschicht</small>
+                <small>Base Layer</small>
             </div>
 
             <div class="col-md-8">
@@ -341,7 +341,7 @@
         <div class="row">
 
             <div class="col-md-4">
-                <small>Opazität: {{ base_layer_opacity }}%</small>
+                <small>Opacity: {{ base_layer_opacity }}%</small>
             </div>
 
             <div class="col-md-8">
@@ -357,7 +357,7 @@
         </div>
         <div class="row">
             <div class="col-md-4">
-                <small>Bayern Overlay</small>
+                <small>Bavaria Overlay</small>
             </div>
             <div class="col-md-8">
                 <toggle-switch model="show_bavaria_outline"
