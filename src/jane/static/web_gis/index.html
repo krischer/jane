@@ -61,11 +61,11 @@
     <span ng-show="current_user">Logged in as <b>{{ current_user }}</b>
         <span class="pull-right">
         <a style="padding-top: 5px"
-                href="http://localhost:8000/rest/api-auth/logout/?next=/static/web_gis/index.html">Logout</a>
+                href="/rest/api-auth/logout/?next=/static/web_gis/index.html">Logout</a>
         </span>
     </span>
             <a ng-hide="current_user"
-               href="http://localhost:8000/rest/api-auth/login/?next=/static/web_gis/index.html">Login</a>
+               href="/rest/api-auth/login/?next=/static/web_gis/index.html">Login</a>
     </div>
 
     <div class="container-fluid">
