@@ -34,6 +34,11 @@ module.constant('station_colors', [
     '#fdbf6f']);
 
 
+module.factory('current_user', function ($http) {
+    return $http.get('/rest/current_user');
+});
+
+
 // Factory dealing with events.
 module.factory('events', function($http, $log, jane_server) {
     return {
@@ -189,7 +194,12 @@ module.factory('stations', function($http, $log, jane_server) {
 
 
 module.controller("BayNetController", function($scope, $log, stations, station_colors,
-                                               events, event_agency_colors) {
+                                               events, event_agency_colors, current_user) {
+
+    current_user.success(function (data) {
+        $scope.current_user = data.username;
+    })
+
     $scope.center = {
         latitude: 48.505,
         longitude: 12.09,

@@ -56,17 +56,29 @@
 <body ng-controller="BayNetController">
 
 <div id="sidebar">
-<div class="container-fluid">
-    <h4>BayNet Expert View</h4>
-</div>
+    <div class="container-fluid"
+         ng-class="{green_background: current_user, orange_background: !current_user}">
+    <span ng-show="current_user">Logged in as <b>{{ current_user }}</b>
+        <span class="pull-right">
+        <a style="padding-top: 5px"
+                href="http://localhost:8000/rest/api-auth/logout/?next=/static/web_gis/index.html">Logout</a>
+        </span>
+    </span>
+            <a ng-hide="current_user"
+               href="http://localhost:8000/rest/api-auth/login/?next=/static/web_gis/index.html">Login</a>
+    </div>
+
+    <div class="container-fluid">
+        <h4>BayNet Expert View</h4>
+    </div>
 
 
-<div class="sidebar-header">
+    <div class="sidebar-header">
 
-    <toggle-switch model="show_event_layer" class="switch-mini"
-                   on-label="Show" off-label="hide"
-                   style="position:absolute; margin-top:5px; margin-left: 5px">
-    </toggle-switch>
+        <toggle-switch model="show_event_layer" class="switch-mini"
+                       on-label="Show" off-label="hide"
+                       style="position:absolute; margin-top:5px; margin-left: 5px">
+        </toggle-switch>
         <span class="input-group-addon">
             <i class="fa fa-dot-circle-o"></i> Erdbeben
             <!--NEEDS DIFFERENT WAY TO LAYOUT!-->
@@ -77,301 +89,303 @@
                            margin-top: -2px; margin-left: 50px">
             </toggle-switch>
         </span>
-    </toggle-switch>
-</div>
-
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-4">
-            <label>
-                <i class="fa fa-calendar"></i>
-                <small>Zeitrahmen</small>
-            </label>
-        </div>
-        <div class="col-md-4 event-timepicker">
-            <input type="text" class="form-control"
-                   ng-model="event_settings.min_date"
-                   data-max-date="{{untilDate}}" placeholder="Von"
-                   data-date-format="dd.MM.yyyy"
-                   bs-datepicker>
-        </div>
-        <div class="col-md-4 event-timepicker">
-            <input type="text" class="form-control"
-                   ng-model="event_settings.max_date"
-                   data-min-date="{{fromDate}}" placeholder="Bis"
-                   data-date-format="dd.MM.yyyy"
-                   bs-datepicker>
-        </div>
+        </toggle-switch>
     </div>
 
-    <div class="row">
-        <div class="col-md-4">
-            <label>
-                <i class="fa fa-arrows-h"></i>
-                <small>Magnitude</small>
-            </label>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <label>
+                    <i class="fa fa-calendar"></i>
+                    <small>Zeitrahmen</small>
+                </label>
+            </div>
+            <div class="col-md-4 event-timepicker">
+                <input type="text" class="form-control"
+                       ng-model="event_settings.min_date"
+                       data-max-date="{{ untilDate }}" placeholder="Von"
+                       data-date-format="dd.MM.yyyy"
+                       bs-datepicker>
+            </div>
+            <div class="col-md-4 event-timepicker">
+                <input type="text" class="form-control"
+                       ng-model="event_settings.max_date"
+                       data-min-date="{{ fromDate }}" placeholder="Bis"
+                       data-date-format="dd.MM.yyyy"
+                       bs-datepicker>
+            </div>
         </div>
-        <div class="col-md-1 magnitude-label" style="text-align: right">
-            {{event_settings.magnitude_range[0]}}
-        </div>
-        <div class="col-md-6">
-            <slider
-                    ng-model="event_settings.magnitude_range"
-                    min="-5"
-                    step="0.5"
-                    precision="0.1"
-                    max="10"
-                    data-slider-tooltip="hide"
-                    value="{{event_settings.magnitude_range}}">
-            </slider>
-        </div>
-        <div class="col-md-1 magnitude-label" style="text-align: left">
-            {{event_settings.magnitude_range[1]}}
-        </div>
-    </div>
 
-    <div class="row" style="padding-top:10px">
-        <div class="col-md-6">
-            <label>
-                <i class="fa fa-institution"></i>
-                <small>Agencies</small>
-            </label>
+        <div class="row">
+            <div class="col-md-4">
+                <label>
+                    <i class="fa fa-arrows-h"></i>
+                    <small>Magnitude</small>
+                </label>
+            </div>
+            <div class="col-md-1 magnitude-label" style="text-align: right">
+                {{ event_settings.magnitude_range[0]}}
+            </div>
+            <div class="col-md-6">
+                <slider
+                        ng-model="event_settings.magnitude_range"
+                        min="-5"
+                        step="0.5"
+                        precision="0.1"
+                        max="10"
+                        data-slider-tooltip="hide"
+                        value="{{ event_settings.magnitude_range }}">
+                </slider>
+            </div>
+            <div class="col-md-1 magnitude-label" style="text-align: left">
+                {{ event_settings.magnitude_range[1]}}
+            </div>
         </div>
-    </div>
-    <div class="row" style="padding-bottom: 10px">
-        <div class="col-md-10 col-md-offset-1">
-            <button type="button" class="btn btn-default btn-xs"
-                    ng-model="event_settings.selected_agencies"
-                    data-html="1" data-multiple="1"
-                    data-animation="am-flip-x"
-                    ng-options="icon.value as icon.label for icon in event_settings.agency_icons"
+
+        <div class="row" style="padding-top:10px">
+            <div class="col-md-6">
+                <label>
+                    <i class="fa fa-institution"></i>
+                    <small>Agencies</small>
+                </label>
+            </div>
+        </div>
+        <div class="row" style="padding-bottom: 10px">
+            <div class="col-md-10 col-md-offset-1">
+                <button type="button" class="btn btn-default btn-xs"
+                        ng-model="event_settings.selected_agencies"
+                        data-html="1" data-multiple="1"
+                        data-animation="am-flip-x"
+                        ng-options="icon.value as icon.label for icon in event_settings.agency_icons"
+                        bs-select>
+                    Action <span class="caret"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="row" style="padding-top:10px">
+            <div class="col-md-6">
+                <label>
+                    <i class="fa fa-users"></i>
+                    <small>Authors</small>
+                </label>
+            </div>
+        </div>
+        <div class="row" style="padding-bottom: 10px">
+            <div class="col-md-10 col-md-offset-1">
+                <button type="button" class="btn btn-default btn-xs"
+                        ng-model="event_settings.selected_authors"
+                        data-html="1" data-multiple="1"
+                        data-animation="am-flip-x"
+                        ng-options="icon.value as icon.label for icon in event_settings.available_authors"
+                        bs-select>
                     bs-select>
-                Action <span class="caret"></span>
-            </button>
+                    Action <span class="caret"></span>
+                </button>
+            </div>
         </div>
-    </div>
 
-    <div class="row" style="padding-top:10px">
-        <div class="col-md-6">
-            <label>
-                <i class="fa fa-users"></i>
-                <small>Authors</small>
-            </label>
+        <div class="row">
+            <div class="col-md-2">
+                <label>
+                    <small>
+                        Status
+                    </small>
+                </label>
+            </div>
+            <div class="col-md-4">
+                <toggle-switch model="event_settings.show_public_and_private"
+                               class="switch-mini switch-default"
+                               on-label="all" off-label="public"
+                               style="width:100%">
+                </toggle-switch>
+            </div>
+            <div class="col-md-2">
+                <label>
+                    <small>
+                        Methode
+                    </small>
+                </label>
+            </div>
+            <div class="col-md-4">
+                <toggle-switch model="event_settings.show_automatic_and_manual"
+                               class="switch-mini switch-default"
+                               on-label="all" off-label="manual"
+                               style="width:100%">
+                </toggle-switch>
+            </div>
         </div>
-    </div>
-    <div class="row" style="padding-bottom: 10px">
-        <div class="col-md-10 col-md-offset-1">
-            <button type="button" class="btn btn-default btn-xs"
-                    ng-model="event_settings.selected_authors"
-                    data-html="1" data-multiple="1"
-                    data-animation="am-flip-x"
-                    ng-options="icon.value as icon.label for icon in event_settings.available_authors"
-                    bs-select>
-                    bs-select>
-                Action <span class="caret"></span>
-            </button>
-        </div>
-    </div>
 
-    <div class="row">
-        <div class="col-md-2">
-            <label>
-                <small>
-                    Status
+        <div class="row">
+            <div class="col-md-12">
+                <small>Total Available Events:
+                    {{ geojson_events.features.length }}
                 </small>
-            </label>
+            </div>
         </div>
-        <div class="col-md-4">
-            <toggle-switch model="event_settings.show_public_and_private"
-                           class="switch-mini switch-default"
-                           on-label="all" off-label="public"
-                           style="width:100%">
-            </toggle-switch>
-        </div>
-        <div class="col-md-2">
-            <label>
-                <small>
-                    Methode
-                </small>
-            </label>
-        </div>
-        <div class="col-md-4">
-            <toggle-switch model="event_settings.show_automatic_and_manual"
-                           class="switch-mini switch-default"
-                           on-label="all" off-label="manual"
-                           style="width:100%">
-            </toggle-switch>
-        </div>
+
+
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <small>Total Available Events:
-                {{geojson_events.features.length}}
-            </small>
-        </div>
-    </div>
-
-
-</div>
-
-<div class="sidebar-header">
-    <toggle-switch model="show_station_layer" class="switch-mini"
-                   on-label="Show" off-label="hide"
-                   style="position:absolute; margin-top:5px; margin-left: 5px">
-    </toggle-switch>
+    <div class="sidebar-header">
+        <toggle-switch model="show_station_layer" class="switch-mini"
+                       on-label="Show" off-label="hide"
+                       style="position:absolute; margin-top:5px; margin-left: 5px">
+        </toggle-switch>
         <span class="input-group-addon">
             <i class="fa fa-th"></i> Stationen
         </span>
-</div>
-
-
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-4">
-            <label>
-                <i class="fa fa-calendar"></i>
-                <small>Time Range</small>
-            </label>
-        </div>
-        <div class="col-md-4 event-timepicker">
-            <input type="text" class="form-control"
-                   ng-model="station_settings.min_date"
-                   data-max-date="{{untilDate}}" placeholder="Von"
-                   data-date-format="dd.MM.yyyy"
-                   bs-datepicker>
-        </div>
-        <div class="col-md-4 event-timepicker">
-            <input type="text" class="form-control"
-                   ng-model="station_settings.max_date"
-                   data-min-date="{{fromDate}}" placeholder="Bis"
-                   data-date-format="dd.MM.yyyy"
-                   bs-datepicker>
-        </div>
-    </div>
-
-    <div class="row" style="padding-top: 10px">
-        <div class="col-md-2" ng-repeat="(network, color) in station_colors">
-            <span style="color:{{color}}">▼</span>
-            <small><label>{{network}}</label></small>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-8">
-            <label>
-                <small>
-                    Grey Out Currently Inactive Stations
-                </small>
-            </label>
-        </div>
-        <div class="col-md-4">
-            <toggle-switch model="station_settings.grey_out_inactive_stations"
-                           class="switch-mini"
-                           style="width:100%">
-            </toggle-switch>
-        </div>
     </div>
 
 
-</div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <label>
+                    <i class="fa fa-calendar"></i>
+                    <small>Time Range</small>
+                </label>
+            </div>
+            <div class="col-md-4 event-timepicker">
+                <input type="text" class="form-control"
+                       ng-model="station_settings.min_date"
+                       data-max-date="{{ untilDate }}" placeholder="Von"
+                       data-date-format="dd.MM.yyyy"
+                       bs-datepicker>
+            </div>
+            <div class="col-md-4 event-timepicker">
+                <input type="text" class="form-control"
+                       ng-model="station_settings.max_date"
+                       data-min-date="{{ fromDate }}" placeholder="Bis"
+                       data-date-format="dd.MM.yyyy"
+                       bs-datepicker>
+            </div>
+        </div>
+
+        <div class="row" style="padding-top: 10px">
+            <div class="col-md-2"
+                 ng-repeat="(network, color) in station_colors">
+                <span style="color:{{ color }}">▼</span>
+                <small><label>{{ network }}</label></small>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <label>
+                    <small>
+                        Grey Out Currently Inactive Stations
+                    </small>
+                </label>
+            </div>
+            <div class="col-md-4">
+                <toggle-switch
+                        model="station_settings.grey_out_inactive_stations"
+                        class="switch-mini"
+                        style="width:100%">
+                </toggle-switch>
+            </div>
+        </div>
 
 
-<div class="sidebar-header">
+    </div>
+
+
+    <div class="sidebar-header">
         <span class="input-group-addon">
             <i class="fa fa-th"></i> Karteneinstellungen
         </span>
-</div>
+    </div>
 
-<div class="container-fluid">
-    <div class="row">
+    <div class="container-fluid">
+        <div class="row">
 
-        <div class="col-md-4">
-            <small>Grundschicht</small>
+            <div class="col-md-4">
+                <small>Grundschicht</small>
+            </div>
+
+            <div class="col-md-8">
+                <div class="dropdown">
+                    <button class="btn btn-default btn-xs dropdown-toggle"
+                            style="width:100%"
+                            type="button"
+                            data-animation="am-flip-x"
+                            bs-dropdown="base_layer_names_dropdown">
+                        {{ current_base_layer }}
+                        <span class="caret"></span>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <div class="col-md-8">
-            <div class="dropdown">
-                <button class="btn btn-default btn-xs dropdown-toggle"
-                        style="width:100%"
-                        type="button"
-                        data-animation="am-flip-x"
-                        bs-dropdown="base_layer_names_dropdown">
-                    {{current_base_layer}}
-                    <span class="caret"></span>
-                </button>
+        <div class="row">
+
+            <div class="col-md-4">
+                <small>Rotation: {{ rotation }}°</small>
+            </div>
+
+            <div class="col-md-8">
+                <slider
+                        ng-model="rotation"
+                        data-slider-tooltip="hide"
+                        min="0"
+                        step="1"
+                        max="360"
+                        value="0">
+                </slider>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <div class="container-fluid">
+        <div class="row">
 
-        <div class="col-md-4">
-            <small>Rotation: {{rotation}}°</small>
+            <div class="col-md-4">
+                <small>Opazität: {{ base_layer_opacity }}%</small>
+            </div>
+
+            <div class="col-md-8">
+                <slider
+                        ng-model="base_layer_opacity"
+                        data-slider-tooltip="hide"
+                        min="0"
+                        step="1"
+                        max="100"
+                        value="100">
+                </slider>
+            </div>
         </div>
-
-        <div class="col-md-8">
-            <slider
-                    ng-model="rotation"
-                    data-slider-tooltip="hide"
-                    min="0"
-                    step="1"
-                    max="360"
-                    value="0">
-            </slider>
+        <div class="row">
+            <div class="col-md-4">
+                <small>Bayern Overlay</small>
+            </div>
+            <div class="col-md-8">
+                <toggle-switch model="show_bavaria_outline"
+                               class="switch-mini"
+                               on-label="on" off-label="off">
+                </toggle-switch>
+            </div>
+        </div>
+        <div class="row" style="padding-top: 5px">
+            <div class="col-md-3">
+                <small>Zoom to</small>
+            </div>
+            <div class="col-md-9">
+                <a type="button"
+                   class="btn btn-default btn-xs"
+                   ng-click="panTo(12, 49, 7)">Bayern</a>
+                <a type="button"
+                   class="btn btn-default btn-xs"
+                   ng-click="panTo(12.9, 47.7, 11)">Hochstaufen</a>
+                <a type="button"
+                   class="btn btn-default btn-xs"
+                   ng-click="panTo(11.63, 48.05, 11)">Unterhaching</a>
+                <a type="button"
+                   class="btn btn-default btn-xs"
+                   ng-click="panTo(12.1, 50.0, 10)">Marktredwitz</a>
+            </div>
         </div>
     </div>
-</div>
-
-<div class="container-fluid">
-    <div class="row">
-
-        <div class="col-md-4">
-            <small>Opazität: {{base_layer_opacity}}%</small>
-        </div>
-
-        <div class="col-md-8">
-            <slider
-                    ng-model="base_layer_opacity"
-                    data-slider-tooltip="hide"
-                    min="0"
-                    step="1"
-                    max="100"
-                    value="100">
-            </slider>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-4">
-            <small>Bayern Overlay</small>
-        </div>
-        <div class="col-md-8">
-            <toggle-switch model="show_bavaria_outline"
-                           class="switch-mini"
-                           on-label="on" off-label="off">
-            </toggle-switch>
-        </div>
-    </div>
-    <div class="row" style="padding-top: 5px">
-        <div class="col-md-3">
-            <small>Zoom to</small>
-        </div>
-        <div class="col-md-9">
-            <a type="button"
-               class="btn btn-default btn-xs"
-               ng-click="panTo(12, 49, 7)">Bayern</a>
-            <a type="button"
-               class="btn btn-default btn-xs"
-               ng-click="panTo(12.9, 47.7, 11)">Hochstaufen</a>
-            <a type="button"
-               class="btn btn-default btn-xs"
-               ng-click="panTo(11.63, 48.05, 11)">Unterhaching</a>
-            <a type="button"
-               class="btn btn-default btn-xs"
-               ng-click="panTo(12.1, 50.0, 10)">Marktredwitz</a>
-        </div>
-    </div>
-</div>
 
 </div>
 

@@ -13,6 +13,8 @@ import jane
 from jane.documents import models, views
 from jane.waveforms.models import ContinuousTrace
 
+from .serializer import UserSerializer
+
 
 @api_view(['GET'])
 def rest_root(request, format=None):
@@ -74,6 +76,12 @@ def rest_root(request, format=None):
             models.DocumentIndex.objects.count()
 
         return Response([waveforms, documents, document_indices])
+
+
+@api_view(['GET'])
+def current_user(request):
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
 
 
 def index(request):

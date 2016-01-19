@@ -67,3 +67,13 @@ body .modal-dialog {
     /* new custom width */
     width: 90%;
 }
+
+
+.orange_background {
+    background-color: orange;
+}
+
+
+.green_background {
+    background-color: #c6ff5b;
+}
