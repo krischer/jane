@@ -36,6 +36,13 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
             // The base layers are treated as a group. Only one can be active
             // at any given time and they share their opacity setting.
             $scope.baseLayers = {
+                "OpenTopoMap": new ol.layer.Tile({
+                    visible: true,
+                    source: new ol.source.OSM({
+                        url: '//{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png',
+                        crossOrigin: null
+                    })
+                }),
                 "Stamen Toner-Lite": new ol.layer.Tile({
                     visible: false,
                     source: new ol.source.Stamen({layer: 'toner-lite'})
@@ -71,13 +78,6 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                     visible: false,
                     source: new ol.source.OSM({
                         url: '//4umaps.eu/{z}/{x}/{y}.png',
-                        crossOrigin: null
-                    })
-                }),
-                "opentopomap": new ol.layer.Tile({
-                    visible: true,
-                    source: new ol.source.OSM({
-                        url: '//{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png',
                         crossOrigin: null
                     })
                 }),
