@@ -49,6 +49,14 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
         starttime = UTCDateTime(starttime)
     if endtime is not None:
         endtime = UTCDateTime(endtime)
+    if startbefore is not None:
+        startbefore = UTCDateTime(startbefore)
+    if startafter is not None:
+        startafter = UTCDateTime(startafter)
+    if endbefore is not None:
+        endbefore = UTCDateTime(endbefore)
+    if endafter is not None:
+        endafter = UTCDateTime(endafter)
 
     query = DocumentIndex.objects.filter(
         document__document_type="stationxml")
@@ -110,8 +118,18 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
         return nodata
 
     networks = assemble_network_elements(
-        results, network, station, location, channel, starttime, endtime,
-        level)
+        results=results,
+        network=network,
+        station=station,
+        location=location,
+        channel=channel,
+        starttime=starttime,
+        endtime=endtime,
+        startbefore=startbefore,
+        endbefore=endbefore,
+        startafter=startafter,
+        endafter=endafter,
+        level=level)
 
     nsmap = {None: "http://www.fdsn.org/xml/station/1"}
     root = etree.Element(
@@ -135,7 +153,8 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
 
 
 def assemble_network_elements(results, network, station, location, channel,
-                              starttime, endtime, level):
+                              starttime, endtime, startbefore, endbefore,
+                              startafter, endafter, level):
     # Now the challenge is to find everything that is required and assemble
     # it in one new StationXML file.
 
@@ -152,9 +171,17 @@ def assemble_network_elements(results, network, station, location, channel,
         n, s, l, c, st, et = ids
 
         # Filter out channels not in the time range.
-        if starttime and starttime > et:
+        if starttime and et < starttime:
             continue
-        if endtime and endtime > st:
+        if endtime and st > endtime:
+            continue
+        if startbefore and st >= startbefore:
+            continue
+        if endbefore and et >= endbefore:
+            continue
+        if startafter and st <= startafter:
+            continue
+        if endafter and et <= endafter:
             continue
 
         if network and "*" not in network:
