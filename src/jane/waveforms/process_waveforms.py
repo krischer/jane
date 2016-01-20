@@ -21,7 +21,8 @@ def process_file(filename):
     objects and cannot just always create new ones. Otherwise the
     identifiers quickly reach very high numbers.
     """
-    filename = os.path.normpath(os.path.abspath(filename))
+    # Resolve symlinks and make a canonical simple path.
+    filename = os.path.realpath(os.path.normpath(os.path.abspath(filename)))
 
     # ------------------------------------------------------------------------
     # Step 1: Get the file if it exists.
