@@ -347,7 +347,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(out)
+        self.wfile.write(out.encode())
 
 
 class WaveformIndexer(http.server.HTTPServer, WaveformFileCrawler):
