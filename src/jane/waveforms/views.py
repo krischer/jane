@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 
-from rest_framework import viewsets, renderers
+from rest_framework import viewsets, renderers, filters
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 
@@ -45,6 +45,8 @@ class WaveformView(viewsets.ReadOnlyModelViewSet):
         return query.all()
 
     serializer_class = serializer.WaveformSerializer
+    filter_backends = (filters.OrderingFilter,)
+    ordering_fields = '__all__'
 
     @detail_route(renderer_classes=[PNGRenderer])
     def plot(self, request, *args, **kwargs):
