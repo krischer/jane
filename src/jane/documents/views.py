@@ -80,7 +80,7 @@ class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         # Get the query dictionary.
-        query = dict(self.request.QUERY_PARAMS)
+        query = dict(self.request.query_params)
         # Remove some that might be due to the API.
         if "offset" in query:
             del query["offset"]
