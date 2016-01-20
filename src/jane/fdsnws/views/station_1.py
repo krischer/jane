@@ -106,6 +106,30 @@ QUERY_PARAMETERS = {
         "required": False,
         "default": None
     },
+    "latitude": {
+        "aliases": ["latitude", "lat"],
+        "type": float,
+        "required": False,
+        "default": None
+    },
+    "longitude": {
+        "aliases": ["longitude", "lon"],
+        "type": float,
+        "required": False,
+        "default": None
+    },
+    "minradius": {
+        "aliases": ["minradius"],
+        "type": float,
+        "required": False,
+        "default": 0.0
+    },
+    "maxradius": {
+        "aliases": ["maxradius"],
+        "type": float,
+        "required": False,
+        "default": None
+    },
     "level": {
         "aliases": ["level"],
         "type": str,
@@ -171,6 +195,19 @@ def query(request):
     if params.get("starttime") and params.get("endtime") and (
             params.get("endtime") <= params.get("starttime")):
         return _error(request, 'Start time must be before end time')
+
+    if params.get("latitude") is not None or \
+            params.get("longitude") is not None or \
+            params.get("maxradius") is not None:
+        if params.get("longitude") is None:
+            return _error(request, "'longitude' must also be given for "
+                                   "radial queries.", status_code=400)
+        if params.get("latitude") is None:
+            return _error(request, "'latitude' must also be given for "
+                                   "radial queries.", status_code=400)
+        if params.get("maxradius") is None:
+            return _error(request, "'maxradius' must also be given for "
+                                   "radial queries.", status_code=400)
 
     if params.get("nodata") not in [204, 404]:
         return _error(request, "nodata must be '204' or '404'.",

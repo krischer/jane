@@ -37,7 +37,8 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
                    startbefore=None, startafter=None, endbefore=None,
                    endafter=None, network=None, station=None, location=None,
                    channel=None, minlatitude=None, maxlatitude=None,
-                   minlongitude=None, maxlongitude=None):
+                   minlongitude=None, maxlongitude=None, latitude=None,
+                   longitude=None, minradius=None, maxradius=None):
     """
     Process query and generate a combined StationXML or station text file.
     Parameters are interpreted as in the FDSNWS definition. Results are
@@ -96,6 +97,13 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
 
     if where:
         query = query.extra(where=where)
+
+    # Radial queries.
+    if latitude:
+        query = DocumentIndex.objects.get_filtered_queryset_radial_distance(
+            document_type="stationxml", queryset=query,
+            central_latitude=latitude, central_longitude=longitude,
+            min_radius=minradius, max_radius=maxradius)
 
     results = query.all()
     if not results:
