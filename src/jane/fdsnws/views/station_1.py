@@ -34,6 +34,30 @@ QUERY_PARAMETERS = {
         "required": False,
         "default": None
     },
+    "startbefore": {
+        "aliases": ["startbefore"],
+        "type": utc_to_timestamp,
+        "required": False,
+        "default": None
+    },
+    "startafter": {
+        "aliases": ["startafter"],
+        "type": utc_to_timestamp,
+        "required": False,
+        "default": None
+    },
+    "endbefore": {
+        "aliases": ["endbefore"],
+        "type": utc_to_timestamp,
+        "required": False,
+        "default": None
+    },
+    "endafter": {
+        "aliases": ["endafter"],
+        "type": utc_to_timestamp,
+        "required": False,
+        "default": None
+    },
     "network": {
         "aliases": ["network", "net"],
         "type": str,

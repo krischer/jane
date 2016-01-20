@@ -34,7 +34,8 @@ SCHEMA_VERSION = "1.0"
 
 
 def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
-                   network=None, station=None, location=None,
+                   startbefore=None, startafter=None, endbefore=None,
+                   endafter=None, network=None, station=None, location=None,
                    channel=None, minlatitude=None, maxlatitude=None,
                    minlongitude=None, maxlongitude=None):
     """
@@ -59,6 +60,18 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
     if endtime:
         where.append(
             _get_json_query("start_date", "<=", UTCDateTime, endtime))
+    if startbefore:
+        where.append(
+                _get_json_query("start_date", "<", UTCDateTime, startbefore))
+    if startafter:
+        where.append(
+                _get_json_query("start_date", ">", UTCDateTime, startafter))
+    if endbefore:
+        where.append(
+                _get_json_query("end_date", "<", UTCDateTime, endbefore))
+    if endafter:
+        where.append(
+                _get_json_query("end_date", ">", UTCDateTime, endafter))
     if minlatitude:
         where.append(
             _get_json_query("latitude", ">=", float, minlatitude))
