@@ -17,6 +17,7 @@ New document types can be defined by adding new plug-ins.
 """
 from django.conf import settings
 from django.contrib.gis.db import models
+from django.db.models.expressions import OrderBy, RawSQL
 from django.shortcuts import get_object_or_404
 from djangoplugins.fields import PluginField, ManyPluginField
 from jsonfield.fields import JSONField
@@ -210,6 +211,14 @@ class _DocumentIndexManager(models.GeoManager):
         "UTCDateTime": "CAST(json->>'%s' AS TIMESTAMP) %s TIMESTAMP '%s'"
     }
 
+    JSON_ORDERING_TEMPLATE = {
+        "int": "CAST(json->>'%s' AS INTEGER)",
+        "float": "CAST(json->>'%s' AS REAL)",
+        "str": "json->>'%s'",
+        "bool": "CAST(json->>'%s' AS BOOL)",
+        "UTCDateTime": "CAST(json->>'%s' AS TIMESTAMP)"
+    }
+
     def _get_json_query(self, key, operator, type, value):
         return self.JSON_QUERY_TEMPLATE_MAP[type] % (key, operator, str(value))
 
@@ -352,6 +361,12 @@ class _DocumentIndexManager(models.GeoManager):
                 raise NotImplementedError
 
         queryset = queryset.extra(where=where)
+
+        if "ordering" in kwargs and kwargs["ordering"] in meta:
+            ord = kwargs["ordering"]
+            queryset = queryset.order_by(
+                OrderBy(
+                    RawSQL(self.JSON_ORDERING_TEMPLATE[meta[ord]] % ord, [])))
         return queryset
 
 
