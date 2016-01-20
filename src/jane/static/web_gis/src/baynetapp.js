@@ -259,6 +259,7 @@ module.controller("BayNetController", function($scope, $log, stations, station_c
         var agencies = _.uniq(_.map(f, function(i) {
             return i.properties.agency;
         }));
+        agencies.sort();
 
         // Distribute colors to the agencies..
         $scope.event_settings.agency_colors = {};
