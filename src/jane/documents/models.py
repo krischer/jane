@@ -16,6 +16,7 @@ The hierarchy is fairly simple:
 New document types can be defined by adding new plug-ins.
 """
 from django.conf import settings
+from django.contrib.gis.measure import Distance
 from django.contrib.gis.db import models
 from django.db.models.expressions import OrderBy, RawSQL
 from django.shortcuts import get_object_or_404
@@ -25,10 +26,19 @@ from jsonfield.fields import JSONField
 from rest_framework import status
 
 import hashlib
+import math
 
 from jane.documents import plugins
 from jane.exceptions import (JaneDocumentAlreadyExists,
                              JaneNotAuthorizedException)
+
+
+def _deg2km(degrees):
+    """
+    Utility function converting degrees to kilometers.
+    """
+    radius = 6371.0
+    return degrees * (2.0 * radius * math.pi / 360.0)
 
 
 class PostgreSQLJSONBField(JSONField):
@@ -221,6 +231,42 @@ class _DocumentIndexManager(models.GeoManager):
 
     def _get_json_query(self, key, operator, type, value):
         return self.JSON_QUERY_TEMPLATE_MAP[type] % (key, operator, str(value))
+
+    def get_filtered_queryset_radial_distance(
+            self, document_type, central_latitude, central_longitude,
+            min_radius=None, max_radius=None, queryset=None):
+        """
+        Filter a dataset to get all indices within a certain distance to a
+        point.
+
+        Useful for the radial queries at the FDSN station and event service.
+
+        :param document_type: The document type to query. Will be ignored if a
+            queryset is passed.
+        :param central_latitude: The latitude of the central point.
+        :param central_longitude: The longitude of the central point.
+        :param min_radius: The minimum radius from the central point in degree.
+        :param max_radius: The maximum radius from the central point in degree.
+        :param queryset: If no queryset is passed, a new one will be
+            created, otherwise an existing one will be used and filtered.
+        """
+        # Only create if necessary.
+        if queryset is None:
+            res_type = get_object_or_404(DocumentType, name=document_type)
+            queryset = DocumentIndex.objects. \
+                filter(document__document_type=res_type)
+
+        central_point = 'POINT({lng} {lat})'.format(lng=central_longitude,
+                                                    lat=central_latitude)
+        if min_radius is not None:
+            queryset = queryset.filter(
+                geometry__distance_gt=(central_point,
+                                       Distance(km=_deg2km(min_radius))))
+        if max_radius is not None:
+            queryset = queryset.filter(
+                geometry__distance_lt=(central_point,
+                                       Distance(km=_deg2km(max_radius))))
+        return queryset
 
     def get_filtered_queryset(self, document_type, queryset=None,
                               **kwargs):
