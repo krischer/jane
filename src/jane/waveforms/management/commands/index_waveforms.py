@@ -340,8 +340,6 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                (self.server._current_path)
         out += "<tr><th>patterns</th><td><pre>%s</pre></td></tr>" % \
                ('\n'.join(self.server.patterns))
-        out += "<tr><th>features</th><td><pre>%s</pre></td></tr>" % \
-               ('\n'.join(self.server.features))
         out += "<tr><th>file queue</th><td><pre>%s</pre></td></tr>" % \
                ('\n'.join(self.server._current_files))
         out += '</table>'
