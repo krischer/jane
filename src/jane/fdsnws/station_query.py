@@ -214,20 +214,32 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
             networks = assemble_network_elements(results=results, level=level,
                                                  stats=stats)
             root.extend(networks)
-        elif level == "network":
+        elif level in ("station", "network"):
             # Find unique networks - keep one element per network.
-            networks = collections.OrderedDict()
+            networks = {}
             for _i in results:
                 network = _i.json["network"]
-                if network in networks:
-                    continue
-                networks[network] = _i.json
+                station = _i.json["station"]
 
-            for key, value in networks.items():
-                t = stats.temporal_extent_of_network(key)
+                if network not in networks:
+                    networks[network] = {}
+
+                if station in networks[network]:
+                    continue
+
+                networks[network][station] = _i.json
+
+            # Sort alphabetically to be more predictable.
+            all_networks = sorted(networks.keys())
+            for net_code in all_networks:
+                # Get information about the very first channel is used to
+                # derive the rest of the station information.
+                value = next(iter(networks[net_code].values()))
+
+                t = stats.temporal_extent_of_network(net_code)
 
                 attrib = {}
-                attrib["code"] = key
+                attrib["code"] = net_code
                 attrib["startDate"] = t[0]
                 if t[1] is not None:
                     attrib["endDate"] = t[1]
@@ -236,11 +248,51 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
 
                 etree.SubElement(net_elem, "Description").text = \
                     value["network_name"]
-                etree.SubElement(net_elem, "SelectedNumberStations").text = "0"
+                if level == "network":
+                    _c = "0"
+                elif level == "station":
+                    _c = str(len(networks[net_code]))
+                etree.SubElement(net_elem, "SelectedNumberStations").text = _c
+
                 etree.SubElement(net_elem, "TotalNumberStations").text = \
-                    str(stats.stations_for_network(key))
-        elif level == "station":
-            pass
+                    str(stats.stations_for_network(net_code))
+
+                # Also add station information if required.
+                if level != "station":
+                    continue
+
+                all_stations = sorted(networks[net_code].keys())
+                for sta_code in all_stations:
+                    value = networks[net_code][sta_code]
+
+                    t = stats.temporal_extent_of_station(net_code, sta_code)
+
+                    attrib = {}
+                    attrib["code"] = sta_code
+                    attrib["startDate"] = t[0]
+                    if t[1] is not None:
+                        attrib["endDate"] = t[1]
+
+                    sta_elem = etree.SubElement(net_elem, "Network",
+                                                attrib=attrib)
+
+                    etree.SubElement(sta_elem, "Latitude").text = \
+                        str(value["latitude"])
+                    etree.SubElement(sta_elem, "Longitude").text = \
+                        str(value["longitude"])
+                    etree.SubElement(sta_elem, "Elevation").text = \
+                        str(value["elevation_in_m"])
+
+                    site = etree.SubElement(sta_elem, "Site")
+                    etree.SubElement(site, "Name").text = value["station_name"]
+
+                    etree.SubElement(sta_elem, "CreationDate").text = \
+                        str(value["station_creation_date"])
+                    etree.SubElement(sta_elem, "SelectedNumberChannels").text \
+                        = "0"
+                    etree.SubElement(sta_elem, "TotalNumberChannels").text = \
+                        str(stats.channels_for_station(net_code, sta_code))
+
         else:
             raise NotImplementedError
 

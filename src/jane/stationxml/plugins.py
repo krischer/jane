@@ -49,6 +49,7 @@ class StationIndexerPlugin(IndexerPluginPoint):
         "dip": "float",
         "start_date": "UTCDateTime",
         "end_date": "UTCDateTime",
+        "station_creation_date": "UTCDateTime",
         "sample_rate": "float",
         "sensor_type": "str",
         "total_sensitivity": "float",
@@ -98,7 +99,12 @@ class StationIndexerPlugin(IndexerPluginPoint):
                         # Dates.
                         "start_date": str(channel.start_date),
                         "end_date": str(channel.end_date)
-                        if channel.end_date else None,
+                        if channel.end_date is not None else None,
+                        # This is strictly speaking not channel level
+                        # information but needed to for a fast generation of
+                        # the station level fdsnws responses.
+                        "station_creation_date": str(station.creation_date)
+                        if station.creation_date is not None else None,
 
                         # Characteristics.
                         "sample_rate": float(channel.sample_rate),
