@@ -75,15 +75,15 @@
 
     <p>where</p>
 
-<pre>channel-options 	        ::  [network=&lt;network&gt;] [station=&lt;station&gt;] [location=&lt;location&gt;] [channel=&lt;channel&gt;]
-geographic-constraints 	::  [boundaries-rect] OR [boundaries-circular]
-boundaries-rect 	        ::  [minlatitude=&lt;degrees&gt;][maxlatitude=&lt;degrees&gt;] [minlongitude=&lt;degrees&gt;] [maxlongitude=&lt;degrees&gt;]
-boundaries-circular 	::  [latitude=&lt;latitude&gt;&amp;longitude=&lt;longitude&gt;&amp;maxradius=&lt;degrees&gt;] [minradius=&lt;degrees&gt;]
-time-constraints 	::  [starttime=&lt;date&gt;] [endtime=&lt;date&gt;] [startbefore=&lt;date&gt;] [startafter=&lt;date&gt;]
-  			    [endbefore=&lt;date&gt;] [endafter=&lt;date&gt;]
-misc-parameters 	        ::  [level=&lt;station|network|channel|response&gt;] [format=&lt;xml|text&gt;] [includeavailability=&lt;false|true&gt;]
-			    [updatedafter=&lt;date&gt;] [matchtimeseries=&lt;false|true&gt;] [includerestricted=&lt;true|false&gt;]
-                            [includecomments=&lt;false|true&gt;] </pre>
+<pre>
+channel-options         ::  [network=&lt;network&gt;] [station=&lt; station&gt;] [location=&lt;location&gt;] [channel=&lt;channel&gt;]
+geographic-constraints  ::  [boundaries-rect] OR [boundaries-circular]
+boundaries-rect         ::  [minlatitude=&lt;degrees&gt;][maxlatitude=&lt; degrees&gt;] [minlongitude=&lt;degrees&gt;] [maxlongitude=&lt;degrees&gt;]
+boundaries-circular     ::  [latitude=&lt;latitude&gt;&amp;longitude=&lt; longitude&gt;&amp;maxradius=&lt;degrees&gt;] [minradius=&lt;degrees&gt;]
+time-constraints        ::  [starttime=&lt;date&gt;] [endtime=&lt; date&gt;] [startbefore=&lt;date&gt;] [startafter=&lt;date&gt;]
+                            [endbefore=&lt;date&gt;] [endafter=&lt; date&gt;]
+misc-parameters         ::  [level=&lt; station|network|channel|response&gt;] [format=&lt;xml|text&gt;]
+</pre>
 
     <p>Each parameter-value pair should be separated by an ampersand <code>
         &amp;</code>, and with no space.</p>
@@ -98,15 +98,16 @@ misc-parameters 	        ::  [level=&lt;station|network|channel|response&gt;] [f
         <span class="caps">URL</span>, a file containing a selection list can
         be <span class="caps">POST</span>ed to this service. </p>
 
-<pre>level=&lt;network | station | channel | response&gt;
+<pre>
+level=&lt;network | station | channel | response&gt;
 format=&lt;xml | text&gt;
-updatedafter=&lt;date&gt;
 minlatitude=&lt;degrees&gt;
 maxlatitude=&lt;degrees&gt;
 minlongitude=&lt;degrees&gt;
 maxlongitude=&lt;degrees&gt;
 &lt;network&gt; &lt;station&gt; &lt;location&gt; &lt;channel&gt; &lt;starttime&gt; &lt;endtime&gt;
-...</pre>
+...
+</pre>
 
     <p>The parameters <strong>network</strong>, <strong>station</strong>,
         <strong>location</strong>, <strong>channel</strong>,
@@ -134,28 +135,29 @@ maxlongitude=&lt;degrees&gt;
     <h3>Sample Queries</h3>
     <ul>
         <li>radial geographic<br/>
-            <a href="{% url 'fdsnws_station_1_query' %}?latitude=-56.1&amp;longitude=-26.7&amp;maxradius=15&amp;nodata=404">{{ host }}{% url 'fdsnws_station_1_query' %}?latitude=-56.1&longitude=-26.7&maxradius=15&nodata=404</a>
+            <a href="{% url 'fdsnws_station_1_query' %}?latitude=47.1&amp;longitude=12.7&amp;maxradius=15&amp;nodata=404">{{ host }}{% url 'fdsnws_station_1_query' %}?latitude=47.1&longitude=12.7&maxradius=15&nodata=404</a>
         </li>
     </ul>
 
     <ul>
         <li>rectangular geographic with time windows<br/>
-            <a href="{% url 'fdsnws_station_1_query' %}?startafter=2003-01-07&amp;endbefore=2011-02-07&amp;minlatitude=15&amp;maxlatitude=55&amp;minlongitude=170&amp;maxlongitude=-170">
-                {{ host }}{% url 'fdsnws_station_1_query' %}?startafter=2003-01-07&endbefore=2011-02-07&minlatitude=15&maxlatitude=55&minlongitude=170&maxlongitude=-170</a>
+            <a href="{% url 'fdsnws_station_1_query' %}?startafter=2003-01-07&amp;endbefore=2011-02-07&amp;minlatitude=15&amp;maxlatitude=55&amp;minlongitude=0&amp;maxlongitude=20">
+                {% url 'fdsnws_station_1_query' %}?startafter=2003-01-07&amp;endbefore=2011-02-07&amp;minlatitude=15&amp;maxlatitude=55&amp;minlongitude=0&amp;maxlongitude=20
+            </a>
         </li>
     </ul>
 
     <ul>
         <li>text output, with network level exclusion<br/>
-            <a href="{% url 'fdsnws_station_1_query' %}?network=S*,-SY&amp;level=network&amp;format=text">
-                {{ host }}{% url 'fdsnws_station_1_query' %}?network=S*,-SY&level=network&format=text</a></li>
+            <a href="{% url 'fdsnws_station_1_query' %}?network=BW,-SY&amp;level=network&amp;format=text">
+                {{ host }}{% url 'fdsnws_station_1_query' %}?network=BW,-SY&level=network&format=text</a></li>
     </ul>
 
     <ul>
-        <li>horizontal channels for subsetted TA data<br/>
-            <a href="{% url 'fdsnws_station_1_query' %}?network=TA&amp;station=A*&amp;channel=BH?,-BHZ&amp;level=channel&amp;format=text">
-                {{ host }}{% url 'fdsnws_station_1_query' %}?network=TA&station=A*&channel=BH?,-<span
-                    class="caps">BHZ</span>&level=channel&format=text</a></li>
+        <li>horizontal channels for subsetted BW data<br/>
+            <a href="{% url 'fdsnws_station_1_query' %}?network=BW&amp;station=R*&amp;channel=EH?,-EHZ&amp;level=channel&amp;format=text">
+                {{ host }}{% url 'fdsnws_station_1_query' %}?network=BW&station=R*&channel=EH?,-<span
+                    class="caps">EHZ</span>&level=channel&format=text</a></li>
     </ul>
 
     <h3>Detailed Descriptions of each Query Parameter</h3>
