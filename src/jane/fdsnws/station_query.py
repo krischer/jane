@@ -290,7 +290,41 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
                 fh.write(buf.read().encode())
 
         elif level == "channel":
-            raise NotImplementedError
+            field_names = ["Network", "Station", "Location", "Channel",
+                           "Latitude", "Longitude", "Elevation", "Depth",
+                           "Azimuth", "Dip", "SensorDescription", "Scale",
+                           "ScaleFreq", "ScaleUnits", "SampleRate",
+                           "StartTime", "EndTime"]
+
+            with io.StringIO() as buf:
+                buf.write("#")
+                writer = csv.DictWriter(buf, fieldnames=field_names,
+                                        restval="", dialect=FDSNDialiect)
+                writer.writeheader()
+
+                for _i in results:
+                    value = _i.json
+                    writer.writerow({
+                        "Network": value["network"],
+                        "Station" : value["station"],
+                        "Location" : value["location"],
+                        "Channel": value["channel"],
+                        "Latitude": value["latitude"],
+                        "Longitude": value["longitude"],
+                        "Elevation": value["elevation_in_m"],
+                        "Depth": value["depth_in_m"],
+                        "Azimuth": value["azimuth"],
+                        "Dip": value["dip"],
+                        "SensorDescription": value["sensor_type"],
+                        "Scale": value["total_sensitivity"],
+                        "ScaleFreq": value["sensitivity_frequency"],
+                        "ScaleUnits": value["units_after_sensitivity"],
+                        "SampleRate": value["sample_rate"],
+                        "StartTime": value["start_date"],
+                        "EndTime": value["end_date"]})
+
+                buf.seek(0, 0)
+                fh.write(buf.read().encode())
         else:
             raise NotImplementedError
     else:
