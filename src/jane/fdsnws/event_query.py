@@ -16,7 +16,8 @@ FG = FlinnEngdahl()
 def query_event(fh, nodata, orderby, format, starttime=None, endtime=None,
                 minlatitude=None, maxlatitude=None, minlongitude=None,
                 maxlongitude=None, mindepth_in_km=None, maxdepth_in_km=None,
-                minmagnitude=None, maxmagnitude=None):
+                minmagnitude=None, maxmagnitude=None, latitude=None,
+                longitude=None, minradius=None, maxradius=None):
     """
     Process query and generate a combined QuakeML or event text file.
     Parameters are interpreted as in the FDSNWS definition. Results are
@@ -75,6 +76,13 @@ def query_event(fh, nodata, orderby, format, starttime=None, endtime=None,
         query = query \
             .extra(select={"magnitude": "json->>'magnitude'"}) \
             .extra(order_by=["magnitude"])
+
+    # Radial queries.
+    if latitude is not None:
+        query = DocumentIndex.objects.get_filtered_queryset_radial_distance(
+            document_type="quakeml", queryset=query,
+            central_latitude=latitude, central_longitude=longitude,
+            min_radius=minradius, max_radius=maxradius)
 
     results = query.all()
     if not results:
