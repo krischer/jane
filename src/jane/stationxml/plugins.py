@@ -4,15 +4,15 @@ import io
 from django.contrib.gis.geos.point import Point
 
 import matplotlib
-# Use antigrain interface which also does not require an open display.
+# Use anti-grain geometry interface which does not require an open display.
 matplotlib.use('agg')
-import matplotlib.pylab as plt  # NOQA
+import matplotlib.pylab as plt
 
-from obspy.station.stationxml import validate_StationXML  # NOQA
-import obspy  # NOQA
+from obspy.station.stationxml import validate_StationXML
+import obspy
 
 from jane.documents.plugins import (ValidatorPluginPoint, IndexerPluginPoint,
-                                    DocumentPluginPoint)  # NOQA
+                                    DocumentPluginPoint)
 
 
 class StationXMLPlugin(DocumentPluginPoint):
@@ -71,9 +71,10 @@ class StationIndexerPlugin(IndexerPluginPoint):
                         "depth_in_m": channel.depth,
                         "start_date": str(channel.start_date),
                         "sample_rate": float(channel.sample_rate),
-                        "sensor_type": channel.sensor.type if channel.sensor
-                        else None,
-                        "end_date": str(channel.end_date),
+                        "sensor_type": channel.sensor.type
+                        if channel.sensor else None,
+                        "end_date": str(channel.end_date)
+                        if channel.end_date else None,
                         "geometry": [Point(channel.longitude,
                                            channel.latitude)],
                     }
