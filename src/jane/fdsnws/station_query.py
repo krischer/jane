@@ -51,8 +51,8 @@ class StationStats(object):
         self.data = [_i.json for _i in queryset]
 
     def stations_for_network(self, network):
-        return len(set([_i["station"] for _i in self.data if _i["network"] == \
-                network]))
+        return len(set([_i["station"] for _i in self.data
+                        if _i["network"] == network]))
 
     def channels_for_station(self, network, station):
         """
@@ -63,6 +63,25 @@ class StationStats(object):
         return len([_i["channel"] for _i in self.data
                     if _i["network"] == network and
                     _i["station"] == station])
+
+    def _get_temp_extend(self, times):
+        start_date = min([_i[0] for _i in times])
+        _ed = [_i[1] for _i in times]
+        if None in _ed:
+            end_date = None
+        else:
+            end_date = max(_ed)
+        return start_date, end_date
+
+    def temporal_extent_of_network(self, network):
+        times = [(_i["start_date"], _i["end_date"]) for _i in self.data if
+                 _i["network"] == network]
+        return self._get_temp_extend(times)
+
+    def temporal_extent_of_station(self, network, station):
+        times = [(_i["start_date"], _i["end_date"]) for _i in self.data if
+                 _i["network"] == network and _i["station"] == station]
+        return self._get_temp_extend(times)
 
 
 def query_station_stats():
@@ -230,6 +249,17 @@ def assemble_network_elements(results, level):
             not _i.tag.endswith("}Station") and not _i.tag.endswith(
                 "SelectedNumberStations"))]
         attrib = copy.deepcopy(network.attrib)
+
+        # Derive start and end-dates from the channels.
+        if "startDate" in attrib:
+            del attrib["startDate"]
+        if "endDate" in attrib:
+            del attrib["endDate"]
+        sd, ed = stats.temporal_extent_of_network(code)
+        attrib["startDate"] = sd
+        if ed is not None:
+            attrib["endDate"] = ed
+
         network.clear()
         network.extend(children)
         network.attrib.update(attrib)
@@ -248,6 +278,17 @@ def assemble_network_elements(results, level):
             not _i.tag.endswith("}Channel") and not _i.tag.endswith(
                 "SelectedNumberChannels"))]
         attrib = copy.deepcopy(station.attrib)
+
+        # Derive start and end-dates from the channels.
+        if "startDate" in attrib:
+            del attrib["startDate"]
+        if "endDate" in attrib:
+            del attrib["endDate"]
+        sd, ed = stats.temporal_extent_of_station(code[0], code[1])
+        attrib["startDate"] = sd
+        if ed is not None:
+            attrib["endDate"] = ed
+
         station.clear()
         station.extend(children)
         station.attrib.update(attrib)
