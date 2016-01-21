@@ -408,45 +408,6 @@ maxlongitude=&lt;degrees&gt;
             <td><a href="#leveltype">level</a></td>
         </tr>
         <tr>
-            <td>includerestricted</td>
-            <td><span class="caps">TRUE</span></td>
-            <td>Specify whether results should include information relating to
-                restricted channels.
-            </td>
-            <td>true</td>
-            <td>Boolean</td>
-        </tr>
-        <tr>
-            <td>includeavailability</td>
-            <td><span class="caps">TRUE</span></td>
-            <td>Specify if results should include information about time series
-                data availability at the channel level.
-            </td>
-            <td>false</td>
-            <td>Boolean</td>
-        </tr>
-        <tr>
-            <td>includecomments</td>
-            <td><span class="caps">FALSE</span></td>
-            <td>Specify if results should include station and channel
-                comments.
-            </td>
-            <td>true</td>
-            <td>Boolean</td>
-        </tr>
-        <tr>
-            <td>updatedafter</td>
-            <td>
-                <a href="{% url 'fdsnws_station_1_query' %}?sta=ANMO&amp;channel=BH1&amp;updatedafter=2012-01-01"
-                   title="...&amp;updatedafter=2012-01-01T00:00:00">2012-01-01</a>
-            </td>
-            <td>Limit to metadata updated after specified <span class="caps">UTC</span>
-                date; updates are data center specific.
-            </td>
-            <th><em>any</em></th>
-            <td><a href="#time">day/time</a></td>
-        </tr>
-        <tr>
             <td>format</td>
             <td><a href="{% url 'fdsnws_station_1_query' %}?station=ANMO&amp;format=text"
                    title="...&amp;format=text">text</a></td>
@@ -455,15 +416,6 @@ maxlongitude=&lt;degrees&gt;
             </td>
             <td>xml</td>
             <td><a href="#formattype" title="xml,txt">format</a></td>
-        </tr>
-        <tr>
-            <td>matchtimeseries</td>
-            <td><span class="caps">TRUE</span></td>
-            <td>Retrieve only metadata that is likely to match available time
-                series data
-            </td>
-            <td>false</td>
-            <td>Boolean</td>
         </tr>
         <tr>
             <td>nodata</td>
