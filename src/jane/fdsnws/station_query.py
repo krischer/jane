@@ -62,10 +62,12 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
         document__document_type="stationxml")
 
     where = []
-    # XXX: Deal with non-existing start and end-dates!
+    # XXX: Deal with non-existing end dates.
     if starttime:
         where.append(
-            _get_json_query("end_date", ">=", UTCDateTime, starttime))
+            "((json->>'end_date') is null) OR (" +
+            _get_json_query("end_date", ">=", UTCDateTime, starttime) + ")")
+        print(where[-1])
     if endtime:
         where.append(
             _get_json_query("start_date", "<=", UTCDateTime, endtime))
@@ -117,19 +119,7 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
     if not results:
         return nodata
 
-    networks = assemble_network_elements(
-        results=results,
-        network=network,
-        station=station,
-        location=location,
-        channel=channel,
-        starttime=starttime,
-        endtime=endtime,
-        startbefore=startbefore,
-        endbefore=endbefore,
-        startafter=startafter,
-        endafter=endafter,
-        level=level)
+    networks = assemble_network_elements(results=results, level=level)
 
     nsmap = {None: "http://www.fdsn.org/xml/station/1"}
     root = etree.Element(
@@ -152,9 +142,7 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
     return 200
 
 
-def assemble_network_elements(results, network, station, location, channel,
-                              starttime, endtime, startbefore, endbefore,
-                              startafter, endafter, level):
+def assemble_network_elements(results, level):
     # Now the challenge is to find everything that is required and assemble
     # it in one new StationXML file.
 
@@ -162,61 +150,29 @@ def assemble_network_elements(results, network, station, location, channel,
     # created. This is probably faster in the average case where many
     # channels from only a few files are created. Memory usage should not
     # be an issue for the database size Jane is designed for.
-    results = parse_stationxml_files(results)
+    files = parse_stationxml_files(results)
 
+    # All the required channel_ids
+    channel_ids = set([(
+        _i.json["network"], _i.json["station"], _i.json["location"],
+        _i.json["channel"], _i.json["start_date"], _i.json["end_date"])
+        for _i in results])
+
+    print(channel_ids)
     # Now filter once again based on the channels.
     chans = collections.OrderedDict()
-    for ids, elem in results["channels"].items():
-        # Check if any of the given condititions fail.
-        n, s, l, c, st, et = ids
-
-        # Filter out channels not in the time range.
-        if starttime and et < starttime:
+    for id, elem in files["channels"].items():
+        print(id)
+        if id not in channel_ids:
             continue
-        if endtime and st > endtime:
-            continue
-        if startbefore and st >= startbefore:
-            continue
-        if endbefore and et >= endbefore:
-            continue
-        if startafter and st <= startafter:
-            continue
-        if endafter and et <= endafter:
-            continue
+        chans[id] = elem
 
-        if network and "*" not in network:
-            for net in network:
-                if fnmatch.fnmatch(n, net):
-                    break
-            else:
-                continue
-
-        if station and "*" not in station:
-            for sta in station:
-                if fnmatch.fnmatch(s, sta):
-                    break
-            else:
-                continue
-
-        if location and "*" not in location:
-            for loc in location:
-                if fnmatch.fnmatch(l, loc):
-                    break
-            else:
-                continue
-
-        if channel and "*" not in channel:
-            for cha in channel:
-                if fnmatch.fnmatch(c, cha):
-                    break
-            else:
-                continue
-        chans[ids] = elem
-
+    # Remove no longer required networks and stations - should not happen
+    # but better safe than sorry.
     needed_networks = list(set([_i[0] for _i in chans.keys()]))
     needed_stations = list(set([(_i[0], _i[1]) for _i in chans.keys()]))
 
-    final_networks = {_i: results["networks"][_i] for _i in needed_networks}
+    final_networks = {_i: files["networks"][_i] for _i in needed_networks}
     # Remove all stations from the networks and the SelectedNumberStations
     # children.
     for code, network in final_networks.items():
@@ -234,7 +190,7 @@ def assemble_network_elements(results, network, station, location, channel,
         return list(final_networks.values())
 
     # Clean the stations.
-    final_stations = {_i: results["stations"][_i] for _i in needed_stations}
+    final_stations = {_i: files["stations"][_i] for _i in needed_stations}
     for code, station in final_stations.items():
         children = [_i for _i in station.getchildren() if (
             not _i.tag.endswith("}Channel") and not _i.tag.endswith(
@@ -299,10 +255,10 @@ def parse_stationxml_files(results):
             if elem.tag == channel_tag:
                 channel = elem.get('code')
                 location = elem.get('locationCode').strip()
-                starttime = UTCDateTime(elem.get('startDate')).timestamp
+                starttime = str(UTCDateTime(elem.get('startDate')))
                 endtime = elem.get('endDate')
                 if endtime:
-                    endtime = UTCDateTime(endtime).timestamp
+                    endtime = str(UTCDateTime(endtime))
                 final_results["channels"][(
                     net_state, sta_state, location, channel, starttime,
                     endtime)] = elem
