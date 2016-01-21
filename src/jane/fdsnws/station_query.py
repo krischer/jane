@@ -188,21 +188,17 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
     stats = StationStats()
 
     if format == "xml":
-        networks = assemble_network_elements(results=results, level=level,
-                                             stats=stats)
-
         # XML headers are modelled after the IRIS headers.
         nsmap = {None: "http://www.fdsn.org/xml/station/1",
                  "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 
         root = etree.Element(
-            "FDSNStationXML",
-            attrib={
+            "FDSNStationXML", attrib={
                 "schemaVersion": SCHEMA_VERSION,
                 "{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": (
                     "http://www.fdsn.org/xml/station/1 "
                     "http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd")},
-            nsmap=nsmap)
+                nsmap=nsmap)
 
         etree.SubElement(root, "Source").text = SOURCE
         etree.SubElement(root, "Sender").text = SENDER
@@ -211,7 +207,42 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
         etree.SubElement(root, "ModuleURI").text = url
         etree.SubElement(root, "Created").text = _format_time(UTCDateTime())
 
-        root.extend(networks)
+        # Channel or response levels require parsing all XML files. This is
+        # slow but most people will probably only request a limited number
+        # of files in this fashion.
+        if level in ["channel", "response"]:
+            networks = assemble_network_elements(results=results, level=level,
+                                                 stats=stats)
+            root.extend(networks)
+        elif level == "network":
+            # Find unique networks - keep one element per network.
+            networks = collections.OrderedDict()
+            for _i in results:
+                network = _i.json["network"]
+                if network in networks:
+                    continue
+                networks[network] = _i.json
+
+            for key, value in networks.items():
+                t = stats.temporal_extent_of_network(key)
+
+                attrib = {}
+                attrib["code"] = key
+                attrib["startDate"] = t[0]
+                if t[1] is not None:
+                    attrib["endDate"] = t[1]
+
+                net_elem = etree.SubElement(root, "Network", attrib=attrib)
+
+                etree.SubElement(net_elem, "Description").text = \
+                    value["network_name"]
+                etree.SubElement(net_elem, "SelectedNumberStations").text = "0"
+                etree.SubElement(net_elem, "TotalNumberStations").text = \
+                    str(stats.stations_for_network(key))
+        elif level == "station":
+            pass
+        else:
+            raise NotImplementedError
 
         etree.ElementTree(root).write(fh, pretty_print=True,
                                       encoding="utf-8", xml_declaration=True)
