@@ -39,6 +39,11 @@ SCHEMA_VERSION = "1.0"
 
 
 class StationStats(object):
+    """
+    Class to retrieve global station statistics.
+
+    Might be worthwhile to use a cache here.
+    """
     def __init__(self):
         res_type = get_object_or_404(DocumentType, name="stationxml")
         queryset = DocumentIndex.objects. \
@@ -48,6 +53,16 @@ class StationStats(object):
     def stations_for_network(self, network):
         return len(set([_i["station"] for _i in self.data if _i["network"] == \
                 network]))
+
+    def channels_for_station(self, network, station):
+        """
+        Returns the number of channel epochs for a station.
+
+        Iris also defines one channel as one channel epoch.
+        """
+        return len([_i["channel"] for _i in self.data
+                    if _i["network"] == network and
+                    _i["station"] == station])
 
 
 def query_station_stats():
@@ -238,6 +253,8 @@ def assemble_network_elements(results, level):
         station.attrib.update(attrib)
         etree.SubElement(station, "SelectedNumberChannels").text = \
             str(len([_i for _i in chans if (_i[0], _i[1]) == code]))
+        etree.SubElement(station, "TotalNumberChannels").text = \
+            str(stats.channels_for_station(code[0], code[1]))
         # Assign to correct network.
         final_networks[code[0]].append(station)
 
