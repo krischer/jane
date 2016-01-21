@@ -2,6 +2,7 @@
 
 import collections
 import copy
+import csv
 import io
 
 from lxml import etree
@@ -92,12 +93,13 @@ def query_station_stats():
     """
 
 
-def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
-                   startbefore=None, startafter=None, endbefore=None,
-                   endafter=None, network=None, station=None, location=None,
-                   channel=None, minlatitude=None, maxlatitude=None,
-                   minlongitude=None, maxlongitude=None, latitude=None,
-                   longitude=None, minradius=None, maxradius=None):
+def query_stations(fh, url, nodata, level, format, starttime=None,
+                   endtime=None, startbefore=None, startafter=None,
+                   endbefore=None, endafter=None, network=None, station=None,
+                   location=None, channel=None, minlatitude=None,
+                   maxlatitude=None, minlongitude=None, maxlongitude=None,
+                   latitude=None, longitude=None, minradius=None,
+                   maxradius=None):
     """
     Process query and generate a combined StationXML or station text file.
     Parameters are interpreted as in the FDSNWS definition. Results are
@@ -182,40 +184,90 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
     if not results:
         return nodata
 
-    networks = assemble_network_elements(results=results, level=level)
+    # Some things require global statistics.
+    stats = StationStats()
 
-    # XML headers are modelled after the IRIS headers.
-    nsmap = {None: "http://www.fdsn.org/xml/station/1",
-             "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
+    if format == "xml":
+        networks = assemble_network_elements(results=results, level=level,
+                                             stats=stats)
 
-    root = etree.Element(
-        "FDSNStationXML",
-        attrib={"schemaVersion": SCHEMA_VERSION,
+        # XML headers are modelled after the IRIS headers.
+        nsmap = {None: "http://www.fdsn.org/xml/station/1",
+                 "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
+
+        root = etree.Element(
+            "FDSNStationXML",
+            attrib={
+                "schemaVersion": SCHEMA_VERSION,
                 "{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": (
                     "http://www.fdsn.org/xml/station/1 "
                     "http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd")},
-        nsmap=nsmap)
+            nsmap=nsmap)
 
-    etree.SubElement(root, "Source").text = SOURCE
-    etree.SubElement(root, "Sender").text = SENDER
+        etree.SubElement(root, "Source").text = SOURCE
+        etree.SubElement(root, "Sender").text = SENDER
 
-    etree.SubElement(root, "Module").text = MODULE
-    etree.SubElement(root, "ModuleURI").text = url
-    etree.SubElement(root, "Created").text = _format_time(UTCDateTime())
+        etree.SubElement(root, "Module").text = MODULE
+        etree.SubElement(root, "ModuleURI").text = url
+        etree.SubElement(root, "Created").text = _format_time(UTCDateTime())
 
-    root.extend(networks)
+        root.extend(networks)
 
-    etree.ElementTree(root).write(fh, pretty_print=True,
-                                  encoding="utf-8", xml_declaration=True)
+        etree.ElementTree(root).write(fh, pretty_print=True,
+                                      encoding="utf-8", xml_declaration=True)
+    elif format == "text":
+        class FDSNDialiect(csv.Dialect):
+            delimiter = "|"
+            quoting = csv.QUOTE_MINIMAL
+            quotechar = '"'
+            doublequote = True
+            skipinitialspace = True
+            lineterminator = "\r\n"
+
+        if level == "network":
+            # Find unique networks - keep one element per network.
+            networks = collections.OrderedDict()
+            for _i in results:
+                network = _i.json["network"]
+                if network in networks:
+                    continue
+                networks[network] = _i.json
+
+            field_names = ["Network", "Description", "StartTime", "EndTime",
+                           "TotalStations"]
+
+            with io.StringIO() as buf:
+                buf.write("#")
+                writer = csv.DictWriter(buf, fieldnames=field_names,
+                                        restval="", dialect=FDSNDialiect)
+                writer.writeheader()
+
+                for key, value in networks.items():
+                    t = stats.temporal_extent_of_network(key)
+                    writer.writerow({
+                        "Network": value["network"],
+                        "Description": value["network_name"],
+                        "StartTime": t[0],
+                        "EndTime": t[1],
+                        "TotalStations": stats.stations_for_network(key)})
+
+                buf.seek(0, 0)
+                fh.write(buf.read().encode())
+
+        elif level == "station":
+            raise NotImplementedError
+        elif level == "channel":
+            raise NotImplementedError
+        else:
+            raise NotImplementedError
+    else:
+        raise NotImplementedError
     return 200
 
 
-def assemble_network_elements(results, level):
+def assemble_network_elements(results, level, stats):
     # Now the challenge is to find everything that is required and assemble
     # it in one new StationXML file.
-
-    # Some things require global statistics.
-    stats = StationStats()
 
     # First all files will be opened, an a hierarchical structure will be
     # created. This is probably faster in the average case where many

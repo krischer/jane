@@ -130,6 +130,12 @@ QUERY_PARAMETERS = {
         "required": False,
         "default": None
     },
+    "format": {
+        "aliases": ["format"],
+        "type": str,
+        "required": False,
+        "default": "xml"
+    },
     "level": {
         "aliases": ["level"],
         "type": str,
@@ -213,6 +219,23 @@ def query(request):
         return _error(request, "nodata must be '204' or '404'.",
                       status_code=400)
 
+    format = params.get("format").lower()
+    if format not in ("xml", "text"):
+        return _error(request, "format must be 'xml' or 'text'.",
+                      status_code=400)
+    params["format"] = format
+
+    if params["format"] == "text" and params.get("level") == "response":
+        return _error(request, "format='text' is not compatible with "
+                               "level='response'", status_code=400)
+
+    if params["format"] == "xml":
+        content_type = "text/xml"
+    elif params["format"] == "text":
+        content_type = "text"
+    else:
+        raise NotImplementedError
+
     if params.get("level") not in ["network", "station", "channel",
                                    "response"]:
         return _error(request, "level must be 'network', 'station', "
@@ -235,7 +258,7 @@ def query(request):
         fh.seek(0, 0)
 
         if status == 200:
-            response = HttpResponse(fh, content_type='text/xml')
+            response = HttpResponse(fh, content_type=content_type)
             return response
         else:
             msg = 'Not Found: No data selected'
