@@ -141,7 +141,6 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
                     "http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd")},
         nsmap=nsmap)
 
-    # XXX: These things should be configurable.
     etree.SubElement(root, "Source").text = SOURCE
     etree.SubElement(root, "Sender").text = SENDER
 

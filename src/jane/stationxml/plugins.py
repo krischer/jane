@@ -6,13 +6,13 @@ from django.contrib.gis.geos.point import Point
 import matplotlib
 # Use anti-grain geometry interface which does not require an open display.
 matplotlib.use('agg')
-import matplotlib.pylab as plt
+import matplotlib.pylab as plt  # noqa
 
-from obspy.station.stationxml import validate_StationXML
-import obspy
+from obspy.station.stationxml import validate_StationXML  # noqa
+import obspy  # noqa
 
 from jane.documents.plugins import (ValidatorPluginPoint, IndexerPluginPoint,
-                                    DocumentPluginPoint)
+                                    DocumentPluginPoint)  # noqa
 
 
 class StationXMLPlugin(DocumentPluginPoint):
