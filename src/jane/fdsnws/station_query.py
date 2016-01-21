@@ -129,10 +129,16 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
 
     networks = assemble_network_elements(results=results, level=level)
 
-    nsmap = {None: "http://www.fdsn.org/xml/station/1"}
+    # XML headers are modelled after the IRIS headers.
+    nsmap = {None: "http://www.fdsn.org/xml/station/1",
+             "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
+
     root = etree.Element(
         "FDSNStationXML",
-        attrib={"schemaVersion": SCHEMA_VERSION},
+        attrib={"schemaVersion": SCHEMA_VERSION,
+                "{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": (
+                    "http://www.fdsn.org/xml/station/1 "
+                    "http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd")},
         nsmap=nsmap)
 
     # XXX: These things should be configurable.
