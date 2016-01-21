@@ -146,22 +146,22 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
         where.append(
             "((json->>'end_date') is null) OR (" +
             _get_json_query("end_date", ">", UTCDateTime, endafter) + ")")
-    if minlatitude:
+    if minlatitude is not None:
         where.append(
             _get_json_query("latitude", ">=", float, minlatitude))
-    if maxlatitude:
+    if maxlatitude is not None:
         where.append(
             _get_json_query("latitude", "<=", float, maxlatitude))
-    if minlongitude:
+    if minlongitude is not None:
         where.append(
             _get_json_query("longitude", ">=", float, minlongitude))
-    if maxlongitude:
+    if maxlongitude is not None:
         where.append(
             _get_json_query("longitude", "<=", float, maxlongitude))
 
     for key in ["network", "station", "location", "channel"]:
         argument = locals()[key]
-        if argument and '*' not in argument:
+        if argument is not None and '*' not in argument:
             # Two percentage signs are needed (for escaping?)
             argument = [_i.replace("?", "_").replace("*", r"%%")
                         for _i in argument]
@@ -172,7 +172,7 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
         query = query.extra(where=where)
 
     # Radial queries.
-    if latitude:
+    if latitude is not None:
         query = DocumentIndex.objects.get_filtered_queryset_radial_distance(
             document_type="stationxml", queryset=query,
             central_latitude=latitude, central_longitude=longitude,
