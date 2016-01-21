@@ -134,8 +134,13 @@ class StationIndexerPlugin(IndexerPluginPoint):
                             index["attachments"] = {
                                 "response": {"content-type": "image/png",
                                              "data": plot.read()}}
-                    except (AttributeError, TypeError):
+                    except Exception:
                         pass
+                    finally:
+                        try:
+                            plt.close()
+                        except:
+                            pass
 
                     indices.append(index)
 
