@@ -42,15 +42,15 @@ def query_event(fh, nodata, orderby, format, starttime=None, endtime=None,
         kwargs["max_latitude"] = maxlatitude
     if minlongitude is not None:
         kwargs["min_longitude"] = minlongitude
-    if maxlongitude:
+    if maxlongitude is not None:
         kwargs["max_longitude"] = maxlongitude
-    if mindepth_in_km:
+    if mindepth_in_km is not None:
         kwargs["min_depth_in_m"] = mindepth_in_km * 1000
-    if maxdepth_in_km:
+    if maxdepth_in_km is not None:
         kwargs["max_depth_in_m"] = maxdepth_in_km * 1000
-    if minmagnitude:
+    if minmagnitude is not None:
         kwargs["min_magnitude"] = minmagnitude
-    if maxmagnitude:
+    if maxmagnitude is not None:
         kwargs["max_magnitude"] = minmagnitude
 
     query = DocumentIndex.objects.get_filtered_queryset(
