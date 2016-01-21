@@ -177,8 +177,18 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
             # Two percentage signs are needed (for escaping?)
             argument = [_i.replace("?", "_").replace("*", r"%%")
                         for _i in argument]
-            n = ["json->>'%s' LIKE '%s'" % (key, _i) for _i in argument]
-            where.append(" OR ".join(n))
+            # A minus sign negates the query.
+            n = []
+            y = []
+            for _i in argument:
+                if _i.startswith("-"):
+                    n.append("json->>'%s' NOT LIKE '%s'" % (key, _i[1:]))
+                else:
+                    y.append("json->>'%s' LIKE '%s'" % (key, _i))
+            if y:
+                where.append(" OR ".join(y))
+            if n:
+                where.append(" AND ".join(n))
 
     if where:
         query = query.extra(where=where)
