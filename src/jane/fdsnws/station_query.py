@@ -8,9 +8,10 @@ from lxml import etree
 from obspy import UTCDateTime
 
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 import jane
-from jane.documents.models import DocumentIndex
+from jane.documents.models import DocumentIndex, DocumentType
 
 
 def _get_json_query(key, operator, type, value):
@@ -35,6 +36,26 @@ SENDER = settings.JANE_FDSN_STATIONXML_SENDER
 MODULE = "JANE WEB SERVICE: fdsnws-station | Jane version: %s" % \
     jane.__version__
 SCHEMA_VERSION = "1.0"
+
+
+class StationStats(object):
+    def __init__(self):
+        res_type = get_object_or_404(DocumentType, name="stationxml")
+        queryset = DocumentIndex.objects. \
+            filter(document__document_type=res_type)
+        self.data = [_i.json for _i in queryset]
+
+    def stations_for_network(self, network):
+        return len(set([_i["station"] for _i in self.data if _i["network"] == \
+                network]))
+
+
+def query_station_stats():
+    """
+    Query statistics about all stations. This needed to for example
+    determine the start- and end dates and the total number of stations and
+    channels.
+    """
 
 
 def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
@@ -159,6 +180,9 @@ def assemble_network_elements(results, level):
     # Now the challenge is to find everything that is required and assemble
     # it in one new StationXML file.
 
+    # Some things require global statistics.
+    stats = StationStats()
+
     # First all files will be opened, an a hierarchical structure will be
     # created. This is probably faster in the average case where many
     # channels from only a few files are created. Memory usage should not
@@ -196,6 +220,8 @@ def assemble_network_elements(results, level):
         network.attrib.update(attrib)
         etree.SubElement(network, "SelectedNumberStations").text = \
             str(len([_i for _i in needed_stations if _i[0] == code]))
+        etree.SubElement(network, "TotalNumberStations").text = \
+            str(stats.stations_for_network(code))
 
     if level == "network":
         return list(final_networks.values())
