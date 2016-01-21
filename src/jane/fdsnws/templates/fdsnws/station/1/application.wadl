@@ -33,8 +33,6 @@
                         <option value="channel"/>
                         <option value="response"/>
                     </param>
-                    <param name="includerestricted" style="query"
-                           type="xsd:boolean" default="false"/>
                     <param name="nodata" style="query" type="xsd:int"
                            default="204">
                         <option value="204"/>
@@ -45,8 +43,6 @@
                         <option value="xml"/>
                         <option value="text"/>
                     </param>
-                    <!-- not implemented -->
-                    <!--param name="updateafter" style="query" type="xsd:dateTime"/-->
                 </request>
                 <response status="200">
                     <representation mediaType="application/xml"/>
