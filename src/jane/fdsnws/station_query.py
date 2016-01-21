@@ -216,6 +216,7 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
         etree.ElementTree(root).write(fh, pretty_print=True,
                                       encoding="utf-8", xml_declaration=True)
     elif format == "text":
+
         class FDSNDialiect(csv.Dialect):
             delimiter = "|"
             quoting = csv.QUOTE_MINIMAL
@@ -255,7 +256,39 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
                 fh.write(buf.read().encode())
 
         elif level == "station":
-            raise NotImplementedError
+            # Find unique networks - keep one element per network.
+            stations = collections.OrderedDict()
+            for _i in results:
+                network = _i.json["network"]
+                station = _i.json["station"]
+                if (network, station) in stations:
+                    continue
+                stations[(network, station)] = _i.json
+
+            field_names = ["Network", "Station", "Latitude", "Longitude",
+                           "Elevation", "SiteName", "StartTime", "EndTime"]
+
+            with io.StringIO() as buf:
+                buf.write("#")
+                writer = csv.DictWriter(buf, fieldnames=field_names,
+                                        restval="", dialect=FDSNDialiect)
+                writer.writeheader()
+
+                for key, value in stations.items():
+                    t = stats.temporal_extent_of_station(key[0], key[1])
+                    writer.writerow({
+                        "Network": value["network"],
+                        "Station": value["station"],
+                        "Latitude": value["latitude"],
+                        "Longitude": value["longitude"],
+                        "Elevation": value["elevation_in_m"],
+                        "SiteName": value["station_name"],
+                        "StartTime": t[0],
+                        "EndTime": t[1]})
+
+                buf.seek(0, 0)
+                fh.write(buf.read().encode())
+
         elif level == "channel":
             raise NotImplementedError
         else:
