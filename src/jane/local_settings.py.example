@@ -53,3 +53,17 @@ BROKER_URL = 'amqp://jane:jane@127.0.0.1:5672/jane'
 # import osgeo
 # import os
 # GEOS_LIBRARY_PATH = os.path.join(osgeo.__path__[0], 'geos_c.dll')
+
+
+###############################################################################
+# Jane Config
+###############################################################################
+
+# Name of the instance used in parts of the web interface.
+JANE_INSTANCE_NAME = "Jane"
+# Color used in certain parts of the web interface. Useful to distinguish
+# separate Jane installations.
+JANE_ACCENT_COLOR = "#D9230F"
+# Constants written to StationXML files created by Jane.
+JANE_FDSN_STATIONXML_SENDER = "Jane"
+JANE_FDSN_STATIONXML_SOURCE = "Jane"

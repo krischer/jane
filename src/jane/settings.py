@@ -284,7 +284,9 @@ JANE_INSTANCE_NAME = "Jane"
 # Color used in certain parts of the web interface. Useful to distinguish
 # separate Jane installations.
 JANE_ACCENT_COLOR = "#D9230F"
-
+# Constants written to StationXML files created by Jane.
+JANE_FDSN_STATIONXML_SENDER = "Jane"
+JANE_FDSN_STATIONXML_SOURCE = "Jane"
 
 ###############################################################################
 # Import local settings

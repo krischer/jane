@@ -2,12 +2,14 @@
 
 import collections
 import copy
-import fnmatch
 import io
 
 from lxml import etree
 from obspy import UTCDateTime
 
+from django.conf import settings
+
+import jane
 from jane.documents.models import DocumentIndex
 
 
@@ -28,8 +30,10 @@ JSON_QUERY_TEMPLATE_MAP = {
 
 
 # Define some constants for writing StationXML files.
-SOFTWARE_MODULE = "Jane Alpha"
-SOFTWARE_URI = "http://www.github.com/krischer/jane"
+SOURCE = settings.JANE_FDSN_STATIONXML_SOURCE
+SENDER = settings.JANE_FDSN_STATIONXML_SENDER
+MODULE = "JANE WEB SERVICE: fdsnws-station | Jane version: %s" % \
+    jane.__version__
 SCHEMA_VERSION = "1.0"
 
 
@@ -132,10 +136,10 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
         nsmap=nsmap)
 
     # XXX: These things should be configurable.
-    etree.SubElement(root, "Source").text = "Some Source"
-    etree.SubElement(root, "Sender").text = "Some Sender"
+    etree.SubElement(root, "Source").text = SOURCE
+    etree.SubElement(root, "Sender").text = SENDER
 
-    etree.SubElement(root, "Module").text = SOFTWARE_MODULE
+    etree.SubElement(root, "Module").text = MODULE
     etree.SubElement(root, "ModuleURI").text = url
     etree.SubElement(root, "Created").text = _format_time(UTCDateTime())
 
