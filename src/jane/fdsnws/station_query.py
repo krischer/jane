@@ -62,12 +62,11 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
         document__document_type="stationxml")
 
     where = []
-    # XXX: Deal with non-existing end dates.
     if starttime:
+        # If end_date is null it is assumed to be bigger.
         where.append(
             "((json->>'end_date') is null) OR (" +
             _get_json_query("end_date", ">=", UTCDateTime, starttime) + ")")
-        print(where[-1])
     if endtime:
         where.append(
             _get_json_query("start_date", "<=", UTCDateTime, endtime))
@@ -78,11 +77,16 @@ def query_stations(fh, url, nodata, level, starttime=None, endtime=None,
         where.append(
                 _get_json_query("start_date", ">", UTCDateTime, startafter))
     if endbefore:
+        # If end_date is null it is assumed to be bigger. We don't want that
+        # here.
         where.append(
-                _get_json_query("end_date", "<", UTCDateTime, endbefore))
+            "((json->>'end_date') is not null) AND (" +
+            _get_json_query("end_date", "<", UTCDateTime, endbefore) + ")")
     if endafter:
+        # If end_date is null it is assumed to be bigger.
         where.append(
-                _get_json_query("end_date", ">", UTCDateTime, endafter))
+            "((json->>'end_date') is null) OR (" +
+            _get_json_query("end_date", ">", UTCDateTime, endafter) + ")")
     if minlatitude:
         where.append(
             _get_json_query("latitude", ">=", float, minlatitude))
@@ -158,11 +162,9 @@ def assemble_network_elements(results, level):
         _i.json["channel"], _i.json["start_date"], _i.json["end_date"])
         for _i in results])
 
-    print(channel_ids)
     # Now filter once again based on the channels.
     chans = collections.OrderedDict()
     for id, elem in files["channels"].items():
-        print(id)
         if id not in channel_ids:
             continue
         chans[id] = elem
