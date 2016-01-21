@@ -84,6 +84,16 @@ class StationStats(object):
                  _i["network"] == network and _i["station"] == station]
         return self._get_temp_extend(times)
 
+    def creation_date_for_station(self, network, station):
+        """
+        Get the earliest creation date for a station.
+        """
+        times = [_i["station_creation_date"] for _i in self.data
+                 if _i["station_creation_date"] is not None]
+        if times:
+            return min(times)
+        return None
+
 
 def query_station_stats():
     """
@@ -287,7 +297,8 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
                     etree.SubElement(site, "Name").text = value["station_name"]
 
                     etree.SubElement(sta_elem, "CreationDate").text = \
-                        str(value["station_creation_date"])
+                        stats.creation_date_for_station(net_code, sta_code)
+
                     etree.SubElement(sta_elem, "SelectedNumberChannels").text \
                         = "0"
                     etree.SubElement(sta_elem, "TotalNumberChannels").text = \
