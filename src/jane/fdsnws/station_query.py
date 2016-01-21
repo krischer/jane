@@ -263,8 +263,14 @@ def assemble_network_elements(results, level):
         network.clear()
         network.extend(children)
         network.attrib.update(attrib)
-        etree.SubElement(network, "SelectedNumberStations").text = \
-            str(len([_i for _i in needed_stations if _i[0] == code]))
+
+        # No stations selected for level == 'network'
+        if level != "network":
+            etree.SubElement(network, "SelectedNumberStations").text = \
+                str(len([_i for _i in needed_stations if _i[0] == code]))
+        else:
+            etree.SubElement(network, "SelectedNumberStations").text = "0"
+
         etree.SubElement(network, "TotalNumberStations").text = \
             str(stats.stations_for_network(code))
 
@@ -292,8 +298,14 @@ def assemble_network_elements(results, level):
         station.clear()
         station.extend(children)
         station.attrib.update(attrib)
-        etree.SubElement(station, "SelectedNumberChannels").text = \
-            str(len([_i for _i in chans if (_i[0], _i[1]) == code]))
+
+        # No channels selected for levels 'network' and 'station'
+        if level not in ("network", "station"):
+            etree.SubElement(station, "SelectedNumberChannels").text = \
+                str(len([_i for _i in chans if (_i[0], _i[1]) == code]))
+        else:
+            etree.SubElement(station, "SelectedNumberChannels").text = "0"
+
         etree.SubElement(station, "TotalNumberChannels").text = \
             str(stats.channels_for_station(code[0], code[1]))
         # Assign to correct network.
