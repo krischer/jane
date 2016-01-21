@@ -306,8 +306,8 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
                     value = _i.json
                     writer.writerow({
                         "Network": value["network"],
-                        "Station" : value["station"],
-                        "Location" : value["location"],
+                        "Station": value["station"],
+                        "Location": value["location"],
                         "Channel": value["channel"],
                         "Latitude": value["latitude"],
                         "Longitude": value["longitude"],
