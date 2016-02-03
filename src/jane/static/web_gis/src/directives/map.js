@@ -219,6 +219,9 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                                 radius: radius,
                                 fill: new ol.style.Fill({
                                     color: c
+                                }),
+                                stroke: new ol.style.Stroke({
+                                    color: "black"
                                 })
                             })
                         })];
