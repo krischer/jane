@@ -209,11 +209,31 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
             var get_style_function = function(colors) {
                 var styleCache = {};
                 var styleFunction = function(feature, resolution) {
-                    var magnitude = parseFloat(feature.get('magnitude'));
-                    // Scale events from -3 to 8 from 1 to 30.0 pixel.
-                    // Smallest possible value is 0.5.
-                    var radius = Math.max(((magnitude + 3.0) / 11) * 29.0 + 1, 0.5);
-                    var style = styleCache[radius];
+
+                    var stroke_color = "black";
+                    var stroke_width = 1.0;
+                    var magnitude;
+                    var radius;
+                    var tag;
+
+                    // Events without a magnitude have a big red stroke
+                    // around them so they are very visible.
+                    if (feature.get('has_no_magnitude') === true) {
+                        $log.info(feature.get('has_no_magnitude'));
+                        stroke_color = "red";
+                        stroke_width = 3;
+                        radius = 11.545454545;
+                        tag = "undefined";
+                    }
+                    else  {
+                        // Scale events from -3 to 8 from 1 to 30.0 pixel.
+                        // Smallest possible value is 0.5.
+                        magnitude = parseFloat(feature.get('magnitude'));
+                        radius = Math.max(((magnitude + 3.0) / 11) * 29.0 + 1, 0.5);
+                        tag = radius;
+                    }
+
+                    var style = styleCache[tag];
                     if (!style) {
                         c = colors[feature.get('agency')];
                         style = [new ol.style.Style({
@@ -223,7 +243,8 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                                     color: c
                                 }),
                                 stroke: new ol.style.Stroke({
-                                    color: "black"
+                                    color: stroke_color,
+                                    width: stroke_width
                                 })
                             })
                         })];
