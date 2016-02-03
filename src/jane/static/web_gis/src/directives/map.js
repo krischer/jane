@@ -209,8 +209,10 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
             var get_style_function = function(colors) {
                 var styleCache = {};
                 var styleFunction = function(feature, resolution) {
-                    var magnitude = parseFloat(feature.get('magnitude')) + 5;
-                    var radius = 1.5 * magnitude;
+                    var magnitude = parseFloat(feature.get('magnitude'));
+                    // Scale events from -3 to 8 from 1 to 30.0 pixel.
+                    // Smallest possible value is 0.5.
+                    var radius = Math.max(((magnitude + 3.0) / 11) * 29.0 + 1, 0.5);
                     var style = styleCache[radius];
                     if (!style) {
                         c = colors[feature.get('agency')];
