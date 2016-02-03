@@ -452,7 +452,13 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                             " | Public: " + public;
 
                         if (feature.get('magnitude')) {
-                            tooltip_title += '\nMagnitude: ' + feature.get('magnitude').toFixed(1);
+
+                            if (feature.get('has_no_magnitude')) {
+                                tooltip_title += '\nMagnitude: not available';
+                            }
+                            else {
+                                tooltip_title += '\nMagnitude: ' + feature.get('magnitude').toFixed(1);
+                            }
 
                             if (feature.get('magnitude_type')) {
                                 tooltip_title += " " + feature.get('magnitude_type');
