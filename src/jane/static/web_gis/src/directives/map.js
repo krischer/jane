@@ -20,7 +20,7 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
 
         link: function($scope, element, attrs) {
             var view = new ol.View({
-                projection: "EPSG:3857",
+                projection: 'EPSG:3857',
                 center: __toMapCoods([$scope.center.longitude, $scope.center.latitude]),
                 zoom: $scope.center.zoom,
                 rotation: $scope.rotation
@@ -134,9 +134,9 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
             // Layer showing the outline of bavaria.
             var bavaria = new ol.layer.Vector({
                 visible: $scope.show_bavaria_outline,
-                source: new ol.source.TopoJSON({
-                    projection: 'EPSG:3857',
-                    url: 'bayern_topo.json'
+                source: new ol.source.Vector({
+                    url: 'bayern_topo.json',
+                    format: new ol.format.TopoJSON()
                 }),
                 style: function() {
                     return [new ol.style.Style({
@@ -286,9 +286,13 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                 };
 
                 $scope.station_layer = new ol.layer.Vector({
-                    source: new ol.source.GeoJSON({
-                        projection: "EPSG:3857",
-                        object: stations
+                    source: new ol.source.Vector({
+                        features: (new ol.format.GeoJSON()).readFeatures(stations, {
+                            // Data is in WGS84.
+                            dataProjection: "EPSG:4326",
+                            // Map has a spherical mercator projection.
+                            featureProjection: "EPSG:3857"
+                        })
                     }),
                     style: get_style_function_stations(colors)
                 });
@@ -351,20 +355,23 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                     return;
                 }
 
+                var event_source = new ol.source.Vector({
+                    features: (new ol.format.GeoJSON()).readFeatures(events, {
+                        // Data is in WGS84.
+                        dataProjection: "EPSG:4326",
+                        // Map has a spherical mercator projection.
+                        featureProjection: "EPSG:3857"
+                    })
+                });
+
                 if (show_points === false) {
                     $scope.event_layer = new ol.layer.Heatmap({
-                        source: new ol.source.GeoJSON({
-                            projection: "EPSG:3857",
-                            object: events
-                        })
+                        source: event_source
                     });
                 }
                 else {
                     $scope.event_layer = new ol.layer.Vector({
-                        source: new ol.source.GeoJSON({
-                            projection: "EPSG:3857",
-                            object: events
-                        }),
+                        source: event_source,
                         style: get_style_function(event_settings.agency_colors)
                     });
                 }
