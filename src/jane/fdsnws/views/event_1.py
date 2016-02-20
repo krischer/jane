@@ -110,6 +110,11 @@ QUERY_PARAMETERS = {
         "required": False,
         "default": None
     },
+    "contributor": {
+        "aliases": ["contributor"],
+        "type": str,
+        "required": False,
+        "default": None},
     "orderby": {
         "aliases": ["orderby"],
         "type": str,
