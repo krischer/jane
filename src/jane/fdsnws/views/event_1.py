@@ -222,6 +222,18 @@ def queryauth(request):
     return query(request)
 
 
+def catalogs(request):  # @UnusedVariable
+    """
+    Returns a list of catalogs.
+
+    This does not do anything as Jane has no concept of catalogs. The event
+    agencies are mapped to the contributors.
+    """
+    # Jane has no concept of catalogs.
+    return HttpResponse("<Catalogs><total>0</total></Catalogs>",
+                        content_type="text/xml")
+
+
 def contributors(request):  # @UnusedVariable
     """
     Returns a list of contributors as an XML string.
