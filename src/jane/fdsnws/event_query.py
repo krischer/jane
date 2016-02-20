@@ -24,17 +24,12 @@ def query_event(fh, nodata, orderby, format, starttime=None, endtime=None,
     written to fh. A returned numeric status code is interpreted as in the
     FDSNWS definition.
     """
-    if starttime is not None:
-        starttime = UTCDateTime(starttime)
-    if endtime is not None:
-        endtime = UTCDateTime(endtime)
-
     kwargs = {}
 
     if starttime is not None:
-        kwargs["min_end_date"] = starttime
+        kwargs["min_origin_time"] = UTCDateTime(starttime)
     if endtime is not None:
-        kwargs["max_start_date"] = endtime
+        kwargs["max_origin_time"] = UTCDateTime(endtime)
 
     # Spatial constraints.
     if minlatitude is not None:
