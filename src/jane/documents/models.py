@@ -18,7 +18,9 @@ New document types can be defined by adding new plug-ins.
 from django.conf import settings
 from django.contrib.gis.measure import Distance
 from django.contrib.gis.db import models
+from django.db import connection
 from django.db.models.expressions import OrderBy, RawSQL
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from djangoplugins.fields import PluginField, ManyPluginField
 from jsonfield.fields import JSONField
@@ -231,6 +233,36 @@ class _DocumentIndexManager(models.GeoManager):
 
     def _get_json_query(self, key, operator, type, value):
         return self.JSON_QUERY_TEMPLATE_MAP[type] % (key, operator, str(value))
+
+    def get_distinct_values(self, document_type, json_key):
+        """
+        Get distinct values for a certain field in the JSON document.
+        """
+        res_type = get_object_or_404(DocumentType, name=document_type)
+        meta = res_type.indexer.get_plugin().meta
+        if json_key not in meta:
+            raise Http404("Key '%s' not in the meta attribute of the '%s' "
+                          "resource type." % (json_key, document_type))
+
+        if meta[json_key] != "str":
+            raise Http404("Currently only implemented for string index keys")
+
+        # XXX: I am not sure how to formulate this within Django's ORM...
+        # Should be a safe enough query especially with the checks above but
+        # one might still want to change it.
+
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT DISTINCT
+            documents_documentindex.json->>%s
+            FROM documents_documentindex
+            INNER JOIN "documents_document"
+            ON ( "documents_documentindex"."document_id" =
+                 "documents_document"."id" )
+            WHERE ("documents_document"."document_type_id" = %s)
+        """, [json_key, document_type])
+
+        return [_i[0] for _i in cursor.fetchall()]
 
     def get_filtered_queryset_radial_distance(
             self, document_type, central_latitude, central_longitude,

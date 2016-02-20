@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 import io
 
-
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 
+from lxml import etree
+from lxml.builder import E
+
+from jane.documents.models import DocumentIndex
 from jane.fdsnws.event_query import query_event
 from jane.fdsnws.views.utils import fdnsws_error, parse_query_parameters
 
@@ -217,3 +220,25 @@ def queryauth(request):
     Parses and returns data request
     """
     return query(request)
+
+
+def contributors(request):  # @UnusedVariable
+    """
+    Returns a list of contributors as an XML string.
+    """
+    values = DocumentIndex.objects.get_distinct_values(
+        document_type="quakeml",
+        json_key="agency")
+
+    xml = E.Contributors(
+        E.total(str(len(values))),
+        *[E.Contributor(_i) for _i in values]
+    )
+
+    with io.BytesIO() as fh:
+        etree.ElementTree(xml).write(fh, pretty_print=True,
+                                     encoding="utf-8",
+                                     xml_declaration=True)
+        fh.seek(0, 0)
+
+        return HttpResponse(fh, content_type="text/xml")
