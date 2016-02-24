@@ -4,17 +4,32 @@
             <div class="modal-header" ng-show="title">
                 <button type="button" class="close"
                         ng-click="$hide()">&times;</button>
-                <h4 class="modal-title">{{title}}</h4>
+                <h4 class="modal-title">{{ title }}</h4>
             </div>
 
 
             <div class="modal-body" ng-controller="eventDownloadController">
                 <div class="container-fluid">
                     <div class="row">
-                        <a class="pull-right" target="_blank" href="{{ containing_document_data_url }}">
-                            <i class="glyphicon glyphicon-download-alt" aria-hidden="true"></i>
-                            Download Zip file with all the events.
-                        </a>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-default"
+                                    ng-click="download()">
+                                <i class="glyphicon glyphicon-download-alt"
+                                   aria-hidden="true"></i>
+                                Start Download
+                            </button>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped active"
+                                     ng-style="{'width': width + '%'}">
+                                    <span class="sr-only"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            {{ progress }} of {{ total_count }}
+                        </div>
                     </div>
                 </div>
             </div>

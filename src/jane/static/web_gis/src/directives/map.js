@@ -219,7 +219,6 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                     // Events without a magnitude have a big red stroke
                     // around them so they are very visible.
                     if (feature.get('has_no_magnitude') === true) {
-                        $log.info(feature.get('has_no_magnitude'));
                         stroke_color = "red";
                         stroke_width = 3;
                         radius = 11.545454545;
@@ -418,7 +417,6 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                 var extent = dragBox.getGeometry().getExtent();
 
                 var events_to_download = [];
-                $log.info(extent);
                 $scope.event_layer.getSource().forEachFeatureIntersectingExtent(extent, function(feature) {
                     events_to_download.push(feature.get("containing_document_data_url"));
                 });
@@ -428,7 +426,7 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
 
                     // Open modal to show events.
                     var modal = $modal({
-                        title: "Download " + events_to_download.length + " events",
+                        title: "Downloading " + events_to_download.length + " events ...",
                         template: "./templates/download_events_modal.tpl.html",
                         persist: false,
                         show: true});
