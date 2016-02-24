@@ -22,8 +22,6 @@ baynetApp.controller('eventDownloadController', function($scope, $log) {
                 $scope.$apply();
 
                 if ($scope.progress == $scope.total_count) {
-                    $log.info("What is going on?????");
-
                     var blob = zip.generate({type: "blob"});
                     // see FileSaver.js
                     saveAs(blob, "event_collection.zip");
