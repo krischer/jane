@@ -422,9 +422,7 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                 });
 
                 if (events_to_download.length > 0) {
-                    $log.info("Got ", events_to_download.length + " events.");
-
-                    // Open modal to show events.
+                    // Open modal to show download dialog.
                     var modal = $modal({
                         title: "Downloading " + events_to_download.length + " events ...",
                         template: "./templates/download_events_modal.tpl.html",

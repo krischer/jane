@@ -17,13 +17,10 @@ baynetApp.controller('eventDownloadController', function($scope, $log) {
                 zip.file(filename, new XMLSerializer().serializeToString(data));
                 $scope.progress += 1;
                 $scope.width = $scope.progress/ $scope.total_count * 100.0;
-                $log.info($scope.width)
-
                 $scope.$apply();
 
                 if ($scope.progress == $scope.total_count) {
                     var blob = zip.generate({type: "blob"});
-                    // see FileSaver.js
                     saveAs(blob, "event_collection.zip");
                 }
             }
