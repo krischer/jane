@@ -8,7 +8,7 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pylab as plt  # noqa
 
-from obspy.station.stationxml import validate_StationXML  # noqa
+from obspy.io.stationxml.core import validate_stationxml  # noqa
 import obspy  # noqa
 
 from jane.documents.plugins import (ValidatorPluginPoint, IndexerPluginPoint,
@@ -26,7 +26,7 @@ class StationValidatorPlugin(ValidatorPluginPoint):
     title = 'StationXML XMLSchema Validator'
 
     def validate(self, document):
-        is_stationxml, error = validate_StationXML(document)
+        is_stationxml, error = validate_stationxml(document)
         if not is_stationxml:
             raise ValueError(error)
         return True
