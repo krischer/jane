@@ -1,0 +1,47 @@
+{% extends 'admin/change_form.html' %}
+
+{% block extrahead %}
+{{ block.super }}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', {packages: ['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+      // get HTML p tag which contains our data
+      var tag = document.getElementsByClassName("field-preview_trace")[0];
+      tag = tag.children[0].children[1];
+      tag.innerHTML = '';
+
+      var data = new google.visualization.DataTable();
+      data.addColumn('datetime');
+      data.addColumn('number');
+      data.addColumn('number');
+
+      data.addRows([
+{% for item in original.timed_preview_trace %}
+        [new Date('{{ item.0 }}'), {{ item.1 }}, -{{ item.1 }}],
+{% endfor %}
+      ]);
+
+      var options = {
+        chartArea:{left:0,top:0,width:'50%',height:'75%'},
+        vAxis:{
+          textPosition: 'none'
+        },
+        isStacked: true,
+        colors: ['#3366cc','#3366cc'],
+        bar: {groupWidth: "95%"},
+        legend: { position: "none" },
+        enableInteractivity: false,
+      };
+
+
+      // Instantiate and draw the chart.
+      var node = document.createElement("div");
+      tag.appendChild(node);
+      var chart = new google.visualization.ColumnChart(node);
+      chart.draw(data, options);
+    }
+</script>
+{% endblock %}
