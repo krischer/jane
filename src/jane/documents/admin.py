@@ -122,7 +122,8 @@ class DocumentAdmin(admin.ModelAdmin):
         document = models.Document.objects.filter(pk=pk).first()
         response = HttpResponse(document.data,
                                 content_type=document.content_type)
-        response['Content-Disposition'] = 'attachment; filename="%s"' % (document.name)
+        response['Content-Disposition'] = \
+            'attachment; filename="%s"' % (document.name)
         return response
 
     def format_data(self, obj):
