@@ -41,7 +41,7 @@ class QuakeMLValidatorPlugin(ValidatorPluginPoint):
     title = 'QuakeML XMLSchema Validator'
 
     def validate(self, document):
-        from obspy.core.quakeml import _validate as validate_quakeml  # NOQA
+        from obspy.io.quakeml.core import _validate as validate_quakeml  # NOQA
         try:
             is_valid = validate_quakeml(document)
         except:
@@ -124,12 +124,12 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
         :param document: The document as a memory file.
         """
         from django.contrib.gis.geos.point import Point  # NOQA
-        from obspy.core.event import readEvents  # NOQA
+        from obspy import read_events
 
         # Collect all indices in a list. Each index has to be a dictionary.
         indices = []
 
-        inv = readEvents(document, format="quakeml")
+        inv = read_events(document, format="quakeml")
 
         for event in inv:
             if event.origins:
