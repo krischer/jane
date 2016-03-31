@@ -4,7 +4,7 @@ import os
 
 from django.db import transaction
 from obspy.core import read
-from obspy.core.preview import createPreview
+from obspy.core.preview import create_preview
 from psycopg2.extras import DateTimeTZRange
 
 from jane.exceptions import JaneWaveformTaskException
@@ -128,7 +128,7 @@ def process_file(filename):
                 "pos": 0}
         else:
             # get number of gaps and overlaps per file
-            gap_list = stream.getGaps()
+            gap_list = stream.get_gaps()
             file.gaps = len([g for g in gap_list if g[6] >= 0])
             file.overlaps = len([g for g in gap_list if g[6] < 0])
             file.save()
@@ -142,7 +142,7 @@ def process_file(filename):
                 # Preview is optional. For some traces, e.g. LOG channels it
                 # does not work.
                 try:
-                    preview_trace = createPreview(trace, 60)
+                    preview_trace = create_preview(trace, 60)
                 except:
                     preview_trace = None
                 else:
