@@ -293,7 +293,7 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
                     if t[1] is not None:
                         attrib["endDate"] = t[1]
 
-                    sta_elem = etree.SubElement(net_elem, "Network",
+                    sta_elem = etree.SubElement(net_elem, "Station",
                                                 attrib=attrib)
 
                     etree.SubElement(sta_elem, "Latitude").text = \
