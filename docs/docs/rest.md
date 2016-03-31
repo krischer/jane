@@ -147,7 +147,7 @@ Endpoint | Available Methods | Description
 ------------ | ------------- | -----------
 `JANE_ROOT/rest/documents` | `GET` | List of all document types.
 `JANE_ROOT/rest/documents/DOCTYPE` | `GET` | List of all documents of that type.
-`JANE_ROOT/rest/documents/DOCTYPE/FILENAME` | `GET`, `PUT`, `DELETE` | Get, create, modify, or delete a document.
+`JANE_ROOT/rest/documents/DOCTYPE/FILENAME` | `GET`, `PUT`, `DELETE` | Get, create, or delete a document.
 `JANE_ROOT/rest/documents/DOCTYPE/FILENAME/data` | `GET` | Get the data behind a certain document.
 
 #### Document Index Endpoints
@@ -205,18 +205,13 @@ The REST API shows some information for each file, to download the actual file, 
 GET JANE_ROOT/rest/documents/stationxml/BW.FURT.xml/data
 ```
 
-#### Add New or Modify Existing Document
+#### Add New Document
 
-To create a new or modify an existing document, send a `PUT` request to a
-certain document URL, e.g.
+To create a new document, send a `PUT` request to a certain document URL, e.g.
 
 ```
 PUT JANE_ROOT/rest/documents/stationxml/BW.FURT.xml
 ```
-
-If it does not exist, it will be created, otherwise it will be modified. Please
-be aware that modifying a document will delete all existing indices and
-attachments for that document and new ones might be created.
 
 Let's say you want to upload the file `BW.FURT.xml`.
 
@@ -276,6 +271,12 @@ $ http -a user:pw DELETE "JANE_ROOT/rest/documents/stationxml/BF.FURT.xml"
 $ curl --user user:pw \
   -X DELETE "JANE_ROOT/rest/documents/stationxml/BF.FURT.xml"
 ```
+
+#### Modify Existing Document
+
+To modify an existing document, first delete it and then create a new one with
+the same name. This is to safe-guard against accidentally overwriting exiting
+documents including attachments.
 
 ## Document Indices
 
