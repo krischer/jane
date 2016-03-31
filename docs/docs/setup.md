@@ -35,7 +35,6 @@ with the following Python modules
 * `gdal`  On Windows: http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal
 * `geojson`
 * `django-cors-headers`
-* `django_like`
 * `flake8`
 * `django-debug-toolbar`
 * `django-debug-toolbar-template-timings`
@@ -49,7 +48,6 @@ A simple way to install an up-to-date version of the dependencies is to use the 
 ```bash
 $ conda install -c obspy obspy django==1.8 psycopg2 markdown flake8 gdal pyyaml
 $ pip install https://github.com/krischer/django-plugins/archive/master.zip
-$ pip install https://github.com/krischer/django-like/archive/master.zip
 $ pip install jsonfield djangorestframework djangorestframework-gis defusedxml geojson django-cors-headers django-debug-toolbar django-debug-toolbar-template-timings djangorestframework-jsonp djangorestframework-xml djangorestframework-yaml
 ```
 
