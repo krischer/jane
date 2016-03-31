@@ -201,7 +201,7 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
     """
     Launches a live Django server in the background on setup, and shuts it down
     on teardown. This allows the use of automated test clients other than the
-    Django dummy client such as obspy.fdns.client.Client.
+    Django dummy client such as obspy.clients.fdsn.Client.
     """
 
     def setUp(self):
