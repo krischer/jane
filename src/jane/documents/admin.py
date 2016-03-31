@@ -171,6 +171,10 @@ class DocumentIndexAdmin(admin.ModelAdmin):
         'format_document_type',
         'format_document']
     list_filter = ['document__document_type']
+    # document needs to be readonly or raw_id to prevent performance issues
+    readonly_fields = ['document']
+    # force order of fields - readonly fields are usually displayed last
+    fields = ['document', 'json', 'geometry']
 
     inlines = [DocumentIndexAttachmentInline]
 
