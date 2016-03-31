@@ -119,7 +119,7 @@ class DocumentAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def data_view(self, request, pk):
-        document = models.Document.objects.filter(pk=pk).first()
+        document = self.get_object(request, pk)
         response = HttpResponse(document.data,
                                 content_type=document.content_type)
         response['Content-Disposition'] = \
