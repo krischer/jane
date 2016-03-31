@@ -97,6 +97,12 @@ class ContinuousTrace(models.Model):
         unique_together = ['file', 'network', 'station', 'location', 'channel',
                            'timerange']
 
+    def timed_preview_trace(self):
+        num_samples = (len(self.preview_trace) - 1)
+        delta = (self.timerange.upper - self.timerange.lower) / num_samples
+        return [((self.timerange.lower + (delta * i)).isoformat(), v / 2)
+                for i, v in enumerate(self.preview_trace)]
+
 
 class Mapping(models.Model):
     timerange = DateTimeRangeField(verbose_name="Temporal Range (UTC)",

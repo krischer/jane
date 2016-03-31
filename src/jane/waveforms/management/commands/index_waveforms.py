@@ -5,7 +5,7 @@ Waveform indexer adapted from obspy.db.
 
 import datetime
 import fnmatch
-import http
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import logging
 import multiprocessing
 import os
@@ -14,16 +14,19 @@ import select
 import sys
 import time
 
+import django
 from django.core.management.base import BaseCommand
 from django.db import connection
 
-from ... import process_waveforms
 from ... import models
+from ... import process_waveforms
+
+
+django.setup()
 
 
 # Available in Python 3.4+. Works with all BLAS implementations.
 # multiprocessing.set_start_method("forkserver")
-
 logger = logging.getLogger("jane-waveform-indexer")
 
 
@@ -310,7 +313,7 @@ def worker(_i, input_queue, work_queue, log_queue):
         return
 
 
-class MyHandler(http.server.BaseHTTPRequestHandler):
+class MyHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         """
         Respond to a GET request.
@@ -350,7 +353,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(out.encode())
 
 
-class WaveformIndexer(http.server.HTTPServer, WaveformFileCrawler):
+class WaveformIndexer(HTTPServer, WaveformFileCrawler):
     """
     A waveform indexer server.
     """
