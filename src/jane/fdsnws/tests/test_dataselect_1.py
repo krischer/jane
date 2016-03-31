@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase, LiveServerTestCase
 import numpy
 from obspy import read, UTCDateTime
-from obspy.fdsn.client import Client as FDSNClient
+from obspy.clients.fdsn import Client as FDSNClient
 
 from jane.waveforms.process_waveforms import process_file
 
