@@ -113,19 +113,23 @@ class DocumentAdmin(admin.ModelAdmin):
         my_urls = [
             # Wrap in admin_view() to enforce permissions.
             url(r'^data/(?P<pk>[0-9]+)/$',
-                self.admin_site.admin_view(self.data_view)),
+                view=self.admin_site.admin_view(self.data_view),
+                name='documents_document_data'),
         ]
         return my_urls + urls
 
     def data_view(self, request, pk):
         document = models.Document.objects.filter(pk=pk).first()
-        return HttpResponse(document.data, document.content_type)
+        response = HttpResponse(document.data,
+                                content_type=document.content_type)
+        response['Content-Disposition'] = 'attachment; filename="%s"' % (document.name)
+        return response
 
     def format_data(self, obj):
-        # XXX: Figure out how to do it by properly reversing the URL.
-        url = "../data/%i" % obj.id
-        return '<a href="%s">Download</a>' % url
+        url = reverse('admin:documents_document_data', kwargs={'pk': obj.pk})
+        return '<a href="%s">Download</a>' % (url)
     format_data.short_description = 'Data'
+    format_data.allow_tags = True
 
 admin.site.register(models.Document, DocumentAdmin)
 
