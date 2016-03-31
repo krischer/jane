@@ -95,10 +95,7 @@ def query(request):
     locations = [i.strip().upper() for i in locations]
     # replace empty locations
     locations = [l.replace('--', '') for l in locations]
-    channels = params.get('channel') or params.get('cha')
-    if not channels:
-        msg = 'No channels specified, too much data selected'
-        return _error(request, msg, 413)
+    channels = params.get('channel') or params.get('cha') or '*'
     channels = channels.replace(' ', '').split(',')
     channels = [i.strip().upper() for i in channels]
     # output format
@@ -152,6 +149,9 @@ def query(request):
                 "attachment; filename=fdsnws_dataselect_1_%s.%s" % (
                     str(uuid4())[:6], format.lower())
             return response
+        elif status == 413:
+            msg = 'Too much data requested.'
+            return _error(request, msg, 413)
         else:
             msg = 'Not Found: No data selected'
             return _error(request, msg, status)

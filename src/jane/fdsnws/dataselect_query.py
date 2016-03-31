@@ -84,6 +84,11 @@ def query_dataselect(fh, networks, stations, locations, channels,
         # return nodata status code
         return nodata
 
+    # XXX: Move to streaming approach! Currently caps when it has to open
+    # more than 20 files.
+    if len(results) > 20:
+        return 413
+
     # build Stream object
     stream = obspy.Stream()
     for result in results:
