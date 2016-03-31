@@ -92,6 +92,11 @@ class DocumentAdmin(admin.ModelAdmin):
     exclude = ['filesize']
     inlines = [DocumentIndexInline]
 
+    def get_queryset(self, request):
+        # speed up
+        qs = super(DocumentAdmin, self).get_queryset(request)
+        return qs.select_related('document_type', 'created_by', 'modified_by')
+
     def format_document_type(self, obj):
         return obj.document_type.name
 
@@ -166,8 +171,8 @@ class DocumentIndexAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         # speed up by prefetching document.document_type
-        queryset = super(DocumentIndexAdmin, self).get_queryset(request)
-        return queryset.prefetch_related('document__document_type')
+        qs = super(DocumentIndexAdmin, self).get_queryset(request)
+        return qs.prefetch_related('document__document_type')
 
     def format_document_type(self, obj):
         return obj.document.document_type.name
