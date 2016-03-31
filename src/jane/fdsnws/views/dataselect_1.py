@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import io
 from uuid import uuid4
 
 from django.conf import settings
-from django.core.servers.basehttp import FileWrapper
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, StreamingHttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from obspy.core.utcdatetime import UTCDateTime
@@ -132,29 +130,24 @@ def query(request):
     else:
         user = None
 
-    with io.BytesIO() as fh:
-        status = query_dataselect(fh=fh, networks=networks, stations=stations,
-                                  locations=locations, channels=channels,
-                                  starttime=starttime, endtime=endtime,
-                                  format=format, nodata=nodata,
-                                  minimumlength=minimumlength,
-                                  longestonly=longestonly, user=user)
-        fh.seek(0, 0)
-        mem_file = FileWrapper(fh)
+    content = query_dataselect(networks=networks, stations=stations,
+                               locations=locations, channels=channels,
+                               starttime=starttime, endtime=endtime,
+                               format=format, nodata=nodata,
+                               minimumlength=minimumlength,
+                               longestonly=longestonly, user=user)
 
-        if status == 200:
-            response = HttpResponse(mem_file,
-                                    content_type='application/octet-stream')
-            response['Content-Disposition'] = \
-                "attachment; filename=fdsnws_dataselect_1_%s.%s" % (
-                    str(uuid4())[:6], format.lower())
-            return response
-        elif status == 413:
-            msg = 'Too much data requested.'
-            return _error(request, msg, 413)
-        else:
-            msg = 'Not Found: No data selected'
-            return _error(request, msg, status)
+    if isinstance(content, int):
+        msg = 'Not Found: No data selected'
+        return _error(request, msg, content)
+
+    response = StreamingHttpResponse(
+        content(),
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = \
+        "attachment; filename=fdsnws_dataselect_1_%s.%s" % (
+            str(uuid4())[:6], format.lower())
+    return response
 
 
 @logged_in_or_basicauth(JANE_INSTANCE_NAME)

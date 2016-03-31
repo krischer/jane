@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from functools import reduce
+import io
 import operator
 
 from django.db.models import Q
@@ -10,7 +11,7 @@ from psycopg2._range import DateTimeTZRange
 from jane.waveforms.models import ContinuousTrace, Restriction
 
 
-def query_dataselect(fh, networks, stations, locations, channels,
+def query_dataselect(networks, stations, locations, channels,
                      starttime, endtime, format, nodata, minimumlength,
                      longestonly, user=None):
     """
@@ -78,29 +79,29 @@ def query_dataselect(fh, networks, stations, locations, channels,
         query = query.exclude(network=restriction.network,
                               station=restriction.station)
 
-    # query
     results = query.all()
+
     if not results:
-        # return nodata status code
         return nodata
 
-    # XXX: Move to streaming approach! Currently caps when it has to open
-    # more than 20 files.
-    if len(results) > 20:
-        return 413
+    return data_streamer(results, starttime, endtime, format)
 
-    # build Stream object
-    stream = obspy.Stream()
-    for result in results:
-        st = obspy.read(result.file.absolute_path, starttime=starttime,
-                        endtime=endtime)
-        tr = st[result.pos]
-        # trim
-        tr.trim(starttime, endtime)
-        # append
-        stream.append(tr)
-        del st
 
-    # Write to file handler which is a BytesIO object.
-    stream.write(fh, format=format.upper())
-    return 200
+def data_streamer(results, starttime, endtime, format):
+    """
+    Returns a iterator that will successively yield the requested data.
+
+    It will yield once after each source file.
+    """
+    def iterator():
+        for result in results:
+            st = obspy.read(result.file.absolute_path, starttime=starttime,
+                            endtime=endtime)
+            tr = st[result.pos]
+            tr.trim(starttime, endtime)
+            with io.BytesIO() as fh:
+                st.write(fh, format=format.upper())
+                fh.seek(0, 0)
+                yield fh.read()
+            del st
+    return iterator
