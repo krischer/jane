@@ -103,7 +103,9 @@ class DocumentIndexSerializer(serializers.ModelSerializer):
         lookup_url_kwarg="idx",
         read_only=True)
 
-    attachments = DocumentIndexAttachmentSerializer(many=True)
+    attachments = DocumentIndexAttachmentSerializer(
+        models.DocumentIndexAttachment.objects.defer('data'),
+        many=True)
 
     class Meta:
         model = models.DocumentIndex
