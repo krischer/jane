@@ -22,7 +22,6 @@ from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.measure import Distance
 from django.db import connection
-from django.db.models.aggregates import Count
 from django.db.models.expressions import OrderBy, RawSQL
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -237,9 +236,6 @@ class _DocumentIndexManager(models.GeoManager):
         # improve query performance for foreignkeys
         queryset = queryset.\
             select_related('document', 'document__document_type')
-        # annotate number of attachments
-        queryset = queryset.\
-            annotate(attachments_count=Count('attachments'))
         return queryset
 
     def _get_json_query(self, key, operator, type, value):

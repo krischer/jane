@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 import collections
 
+from django.db.models.aggregates import Count
 from django.http import HttpResponse
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework import viewsets, generics, mixins
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from jane.exceptions import JaneInvalidRequestException
 from jane.documents import models, serializer, DOCUMENT_FILENAME_REGEX
-
-from rest_framework import viewsets, generics, mixins
+from jane.exceptions import JaneInvalidRequestException
 
 
 CACHE_TIMEOUT = 60 * 60 * 24
@@ -91,6 +91,10 @@ class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
 
         queryset = models.DocumentIndex.objects.get_filtered_queryset(
             document_type=self.kwargs["document_type"], **params)
+
+        # annotate number of attachments
+        queryset = queryset.\
+            annotate(attachments_count=Count('attachments'))
 
         # Apply potential additional restrictions based on the permissions.
         doctype = models.DocumentType.objects.get(

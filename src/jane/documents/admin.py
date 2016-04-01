@@ -73,13 +73,14 @@ class DocumentAdmin(admin.ModelAdmin):
         'modified_at',
         'created_by',
         'modified_by'
-        ]
+    ]
     list_filter = [
         'document_type',
         'created_at',
         'modified_at',
         'created_by',
-        'modified_by']
+        'modified_by'
+    ]
     readonly_fields = [
         'document_type',
         'format_filesize',
@@ -88,14 +89,19 @@ class DocumentAdmin(admin.ModelAdmin):
         'created_by',
         'modified_at',
         'modified_by',
-        'format_data']
+        'format_data'
+    ]
     exclude = ['filesize']
     inlines = [DocumentIndexInline]
 
     def get_queryset(self, request):
-        # speed up
-        qs = super(DocumentAdmin, self).get_queryset(request)
-        return qs.select_related('document_type', 'created_by', 'modified_by')
+        queryset = super().get_queryset(request)
+        # defer data
+        queryset = queryset.defer('data')
+        # improve query performance for foreignkeys
+        queryset = queryset.select_related('document_type', 'created_by',
+                                           'modified_by')
+        return queryset
 
     def format_document_type(self, obj):
         return obj.document_type.name
@@ -179,9 +185,12 @@ class DocumentIndexAdmin(admin.ModelAdmin):
     inlines = [DocumentIndexAttachmentInline]
 
     def get_queryset(self, request):
-        # speed up by prefetching document.document_type
-        qs = super(DocumentIndexAdmin, self).get_queryset(request)
-        return qs.prefetch_related('document__document_type')
+        queryset = super().get_queryset(request)
+        # defer document data
+        queryset = queryset.defer('document__data')
+        # improve query performance for foreignkeys
+        queryset = queryset.prefetch_related('document__document_type')
+        return queryset
 
     def format_document_type(self, obj):
         return obj.document.document_type.name
