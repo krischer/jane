@@ -79,19 +79,22 @@ class DocumentIndexSerializer(serializers.ModelSerializer):
     url = DocumentTypeHyperlinkedIdentifyField(
         view_name='rest_document_indices-detail',
         lookup_field="pk",
-        read_only=True)
+        read_only=True
+    )
 
     containing_document_url = DocumentTypeHyperlinkedIdentifyField(
         view_name='rest_documents-detail',
         lookup_field="document__name",
         lookup_url_kwarg="name",
-        read_only=True)
+        read_only=True
+    )
 
     containing_document_data_url = DocumentTypeHyperlinkedIdentifyField(
         view_name='document_data',
         lookup_field="document__name",
         lookup_url_kwarg="name",
-        read_only=True)
+        read_only=True
+    )
 
     data_content_type = serializers.CharField(source="document.content_type")
 
@@ -101,11 +104,10 @@ class DocumentIndexSerializer(serializers.ModelSerializer):
         view_name='rest_document_index_attachments-list',
         lookup_field="pk",
         lookup_url_kwarg="idx",
-        read_only=True)
+        read_only=True
+    )
 
-    attachments = DocumentIndexAttachmentSerializer(
-        models.DocumentIndexAttachment.objects.defer('data'),
-        many=True)
+    attachments_count = serializers.IntegerField()
 
     class Meta:
         model = models.DocumentIndex
@@ -118,7 +120,7 @@ class DocumentIndexSerializer(serializers.ModelSerializer):
             'indexed_data',
             'geometry',
             'attachments_url',
-            'attachments'
+            'attachments_count',
         ]
 
 

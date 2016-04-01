@@ -15,20 +15,21 @@ The hierarchy is fairly simple:
 
 New document types can be defined by adding new plug-ins.
 """
+import hashlib
+import math
+
 from django.conf import settings
-from django.contrib.gis.measure import Distance
 from django.contrib.gis.db import models
+from django.contrib.gis.measure import Distance
 from django.db import connection
+from django.db.models.aggregates import Count
 from django.db.models.expressions import OrderBy, RawSQL
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from djangoplugins.fields import PluginField, ManyPluginField
 from jsonfield.fields import JSONField
-
+from obspy.core.utcdatetime import UTCDateTime
 from rest_framework import status
-
-import hashlib
-import math
 
 from jane.documents import plugins
 from jane.exceptions import (JaneDocumentAlreadyExists,
@@ -231,6 +232,16 @@ class _DocumentIndexManager(models.GeoManager):
         "UTCDateTime": "CAST(json->>'%s' AS TIMESTAMP)"
     }
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # improve query performance for foreignkeys
+        queryset = queryset.\
+            select_related('document', 'document__document_type')
+        # annotate number of attachments
+        queryset = queryset.\
+            annotate(attachments_count=Count('attachments'))
+        return queryset
+
     def _get_json_query(self, key, operator, type, value):
         return self.JSON_QUERY_TEMPLATE_MAP[type] % (key, operator, str(value))
 
@@ -284,9 +295,11 @@ class _DocumentIndexManager(models.GeoManager):
         """
         # Only create if necessary.
         if queryset is None:
-            res_type = get_object_or_404(DocumentType, name=document_type)
-            queryset = DocumentIndex.objects. \
-                filter(document__document_type=res_type)
+            queryset = DocumentIndex.objects
+
+        # filter by document type
+        res_type = get_object_or_404(DocumentType, name=document_type)
+        queryset = queryset.filter(document__document_type=res_type)
 
         central_point = 'POINT({lng} {lat})'.format(lng=central_longitude,
                                                     lat=central_latitude)
@@ -346,23 +359,13 @@ class _DocumentIndexManager(models.GeoManager):
         are null will be discarded from the queryset (even if you search for
         !=)! This might be changed in the future.
         """
-        from obspy import UTCDateTime
-
-        res_type = get_object_or_404(DocumentType, name=document_type)
-
         # Only create if necessary.
         if queryset is None:
-            queryset = DocumentIndex.objects.\
-                filter(document__document_type=res_type)
+            queryset = DocumentIndex.objects
 
-        # The REST API is fairly excessive with nested lookups. Prefetch
-        # most of them which greatly speeds up everything.
-        # prefetch_related() does the join in Python which is slower but
-        # works with many-to-many fields. Select related is faster but only
-        # works with foreign keys.
-        queryset = queryset\
-            .prefetch_related('attachments')\
-            .select_related('document', 'document__document_type')
+        # filter by document type
+        res_type = get_object_or_404(DocumentType, name=document_type)
+        queryset = queryset.filter(document__document_type=res_type)
 
         # Nothing to do.
         if not kwargs:
