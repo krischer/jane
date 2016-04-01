@@ -256,6 +256,7 @@ class DocumentIndexAttachmentAdmin(admin.ModelAdmin):
         'modified_at',
         'modified_by',
         'format_data',
+        'format_filesize',
     ]
     fieldsets = (
         ('', {
@@ -263,6 +264,7 @@ class DocumentIndexAttachmentAdmin(admin.ModelAdmin):
                 'id',
                 'category',
                 'content_type',
+                'format_filesize',
                 'format_data',
             ]
         }),

@@ -633,3 +633,8 @@ class DocumentIndexAttachment(models.Model):
         return "<a href='%s'>%d</a>" % (url, self.id)
     format_attachment_id.allow_tags = True
     format_attachment_id.short_description = 'Attachment ID'
+
+    def format_filesize(self):
+        return filesizeformat(len(self.data))
+    format_filesize.short_description = 'File size'
+    format_filesize.admin_order_field = 'filesize'
