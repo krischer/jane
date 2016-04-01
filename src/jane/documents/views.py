@@ -80,20 +80,17 @@ class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         # Get the query dictionary.
-        query = dict(self.request.query_params)
+        params = dict(self.request.query_params)
         # Remove some that might be due to the API.
-        if "offset" in query:
-            del query["offset"]
-        if "format" in query:
-            del query["format"]
+        if "offset" in params:
+            del params["offset"]
+        if "format" in params:
+            del params["format"]
         # Flatten the rest.
-        query = {key: value[0] for key, value in query.items()}
+        params = {key: value[0] for key, value in params.items()}
 
         queryset = models.DocumentIndex.objects.get_filtered_queryset(
-            document_type=self.kwargs["document_type"], **query)
-
-        # don't query document data object to speed up query
-        queryset = queryset.defer('document__data')
+            document_type=self.kwargs["document_type"], **params)
 
         # Apply potential additional restrictions based on the permissions.
         doctype = models.DocumentType.objects.get(
@@ -112,6 +109,25 @@ class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
                         perm.filter_queryset_user_does_not_have_permission(
                             queryset=queryset, model_type="index")
         return queryset
+
+    def list(self, request, *args, **kwargs):
+        """
+        Called upon "GET" multiple indices.
+        """
+        queryset = self.get_queryset()
+
+        # don't query document data to speed up query
+        queryset = queryset.defer('document__data')
+
+        queryset = self.filter_queryset(queryset)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class DocumentIndexAttachmentsView(mixins.RetrieveModelMixin,
