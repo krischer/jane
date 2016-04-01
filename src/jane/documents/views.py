@@ -92,6 +92,9 @@ class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
         queryset = models.DocumentIndex.objects.get_filtered_queryset(
             document_type=self.kwargs["document_type"], **query)
 
+        # don't query document data object to speed up query
+        queryset = queryset.defer('document__data')
+
         # Apply potential additional restrictions based on the permissions.
         doctype = models.DocumentType.objects.get(
             name=self.kwargs["document_type"])
