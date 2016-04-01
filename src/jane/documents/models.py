@@ -16,39 +16,24 @@ The hierarchy is fairly simple:
 New document types can be defined by adding new plug-ins.
 """
 import hashlib
-import math
 
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.measure import Distance
+from django.core.urlresolvers import reverse
 from django.db import connection
 from django.db.models.expressions import OrderBy, RawSQL
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.template.defaultfilters import filesizeformat
 from djangoplugins.fields import PluginField, ManyPluginField
-from jsonfield.fields import JSONField
 from obspy.core.utcdatetime import UTCDateTime
 from rest_framework import status
 
 from jane.documents import plugins
+from jane.documents.utils import PostgreSQLJSONBField, deg2km
 from jane.exceptions import (JaneDocumentAlreadyExists,
                              JaneNotAuthorizedException)
-
-
-def _deg2km(degrees):
-    """
-    Utility function converting degrees to kilometers.
-    """
-    radius = 6371.0
-    return degrees * (2.0 * radius * math.pi / 360.0)
-
-
-class PostgreSQLJSONBField(JSONField):
-    """
-    Make the JSONField use JSONB as a datatype, a typed JSON variant.
-    """
-    def db_type(self, connection):  # @UnusedVariable
-        return "jsonb"
 
 
 class DocumentType(models.Model):
@@ -83,7 +68,7 @@ class DocumentType(models.Model):
         verbose_name_plural = 'Document Types'
 
 
-class _DocumentManager(models.Manager):
+class DocumentManager(models.Manager):
     def delete_document(self, document_type, name, user):
         """
         For convenience reasons, offer that method here, including
@@ -198,20 +183,33 @@ class Document(models.Model):
                                    related_name='documents_created')
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL,
                                     related_name='documents_modified')
-    objects = _DocumentManager()
-
-    def __str__(self):
-        return "Document of type '%s', name: %s" % (self.document_type,
-                                                    self.name)
+    objects = DocumentManager()
 
     class Meta:
-        ordering = ['pk']
+        ordering = ['id']
         verbose_name = 'Document'
         verbose_name_plural = 'Documents'
         unique_together = ['document_type', 'name']
 
+    def __str__(self):
+        return str(self.id)
 
-class _DocumentIndexManager(models.GeoManager):
+    def verbose_name(self):
+        return "Document of type '%s', name: %s" % (self.document_type,
+                                                    self.name)
+
+    def format_document_type(self):
+        return self.document_type.name
+    format_document_type.short_description = 'Document type'
+    format_document_type.admin_order_field = 'document_type__name'
+
+    def format_filesize(self):
+        return filesizeformat(self.filesize)
+    format_filesize.short_description = 'File size'
+    format_filesize.admin_order_field = 'filesize'
+
+
+class DocumentIndexManager(models.GeoManager):
     """
     Custom queryset manager for the document indices.
     """
@@ -302,11 +300,11 @@ class _DocumentIndexManager(models.GeoManager):
         if min_radius is not None:
             queryset = queryset.filter(
                 geometry__distance_gt=(central_point,
-                                       Distance(km=_deg2km(min_radius))))
+                                       Distance(km=deg2km(min_radius))))
         if max_radius is not None:
             queryset = queryset.filter(
                 geometry__distance_lt=(central_point,
-                                       Distance(km=_deg2km(max_radius))))
+                                       Distance(km=deg2km(max_radius))))
         return queryset
 
     def get_filtered_queryset(self, document_type, queryset=None,
@@ -456,7 +454,7 @@ class DocumentIndex(models.Model):
     geometry = models.GeometryCollectionField(blank=True, null=True,
                                               geography=True)
 
-    objects = _DocumentIndexManager()
+    objects = DocumentIndexManager()
 
     class Meta:
         ordering = ['pk']
@@ -464,16 +462,44 @@ class DocumentIndex(models.Model):
         verbose_name_plural = 'Indices'
 
     def __str__(self):
+        return str(self.id)
+
+    def verbose_name(self):
         return str(self.json)
 
+    def format_document_type(self):
+        return self.document.document_type.name
+    format_document_type.short_description = 'Document type'
+    format_document_type.admin_order_field = 'document__document_type__name'
 
-class _DocumentIndexAttachmentManager(models.Manager):
-    def get_queryset(self, *args, **kwargs):
-        # Usernames are always looked up for the REST API. This is much
-        # quicker.
-        queryset = super()\
-            .get_queryset(*args, **kwargs)\
-            .select_related("created_by", "modified_by")
+    def format_document_id(self):
+        if self.document.id is None:
+            return
+        url = reverse('admin:%s_%s_change' % (self._meta.app_label,
+                                              self._meta.object_name.lower()),
+                      args=[self.document.id])
+        return "<a href='%s'>%d</a>" % (url, self.document.id)
+    format_document_id.allow_tags = True
+    format_document_id.short_description = 'Document ID'
+    format_document_id.admin_order_field = 'document__id'
+
+    def format_index_id(self):
+        if self.id is None:
+            return
+        url = reverse('admin:%s_%s_change' % (self._meta.app_label,
+                                              self._meta.object_name.lower()),
+                      args=[self.id])
+        return "<a href='%s'>%d</a>" % (url, self.id)
+    format_index_id.allow_tags = True
+    format_index_id.short_description = 'Index ID'
+
+
+class DocumentIndexAttachmentManager(models.Manager):
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # improve query performance for foreignkeys
+        queryset = queryset.\
+            select_related("created_by", "modified_by")
         return queryset
 
     def delete_attachment(self, document_type, pk, user):
@@ -585,7 +611,7 @@ class DocumentIndexAttachment(models.Model):
                                    related_name='attachments_created')
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL,
                                     related_name='attachments_modified')
-    objects = _DocumentIndexAttachmentManager()
+    objects = DocumentIndexAttachmentManager()
 
     class Meta:
         ordering = ['pk']
@@ -593,4 +619,17 @@ class DocumentIndexAttachment(models.Model):
         verbose_name_plural = 'Attachments'
 
     def __str__(self):
+        return str(self.id)
+
+    def verbose_name(self):
         return str(self.data)
+
+    def format_attachment_id(self):
+        if self.id is None:
+            return
+        url = reverse('admin:%s_%s_change' % (self._meta.app_label,
+                                              self._meta.object_name.lower()),
+                      args=[self.id])
+        return "<a href='%s'>%d</a>" % (url, self.id)
+    format_attachment_id.allow_tags = True
+    format_attachment_id.short_description = 'Attachment ID'

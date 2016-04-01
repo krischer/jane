@@ -6,7 +6,6 @@ from django.conf.urls import url
 from django.contrib.gis import admin
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.template.defaultfilters import filesizeformat
 
 from jane.documents import models
 
@@ -21,10 +20,12 @@ class DocumentTypeAdmin(admin.ModelAdmin):
     readonly_fields = ["name", "definition", "indexer", "validators",
                        "retrieve_permissions", "upload_permissions"]
 
-    def has_add_permission(self, request, obj=None):
+    def has_add_permission(self, request, obj=None):  # @UnusedVariable
+        # disable ability to add rows
         return False
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, request, obj=None):  # @UnusedVariable
+        # disable ability to delete rows
         return False
 
     def format_validators(self, obj):
@@ -45,43 +46,39 @@ admin.site.register(models.DocumentType, DocumentTypeAdmin)
 class DocumentIndexInline(admin.TabularInline):
     model = models.DocumentIndex
     extra = 0
-    readonly_fields = ["index", "json", "geometry"]
+    readonly_fields = ["format_index_id", "json", "geometry"]
 
-    edit_label = "View"
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        # defer data
+        queryset = queryset.defer('document__data')
+        return queryset
 
-    def index(self, obj):
-        if obj.id:
-            opts = self.model._meta
-            return "<a href='%s'>%s</a>" % (reverse(
-                'admin:%s_%s_change' % (opts.app_label,
-                                        opts.object_name.lower()),
-                args=[obj.id]
-            ), self.edit_label)
-        else:
-            return "(save to edit details)"
-    index.allow_tags = True
+    def has_add_permission(self, request, obj=None):  # @UnusedVariable
+        # disable ability to add rows
+        return False
 
 
 class DocumentAdmin(admin.ModelAdmin):
     list_display = [
-        'pk',
+        'id',
         'format_document_type',
         'name',
         'content_type',
         'format_filesize',
         'created_at',
-        'modified_at',
         'created_by',
+        'modified_at',
         'modified_by'
     ]
     list_filter = [
         'document_type',
         'created_at',
         'modified_at',
-        'created_by',
-        'modified_by'
+        'created_by__username',
     ]
     readonly_fields = [
+        'id',
         'document_type',
         'format_filesize',
         'sha1',
@@ -91,8 +88,30 @@ class DocumentAdmin(admin.ModelAdmin):
         'modified_by',
         'format_data'
     ]
-    exclude = ['filesize']
+    fieldsets = (
+        ('', {
+            'fields': [
+                'id',
+                'document_type',
+                'name',
+                'content_type',
+                'sha1',
+                'format_filesize',
+                'format_data'
+            ]
+        }),
+        ('History', {
+            'fields': [
+                'created_at',
+                'created_by',
+                'modified_at',
+                'modified_by',
+            ]
+        }),
+    )
     inlines = [DocumentIndexInline]
+    search_fields = ['id', 'name']
+    date_hierarchy = 'created_at'
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -103,28 +122,20 @@ class DocumentAdmin(admin.ModelAdmin):
                                            'modified_by')
         return queryset
 
-    def format_document_type(self, obj):
-        return obj.document_type.name
-
-    format_document_type.short_description = 'Document type'
-    format_document_type.admin_order_field = 'document_type__name'
-
-    def format_filesize(self, obj):
-        return filesizeformat(obj.filesize)
-    format_filesize.short_description = 'File size'
-    format_filesize.admin_order_field = 'filesize'
+    def has_add_permission(self, request, obj=None):  # @UnusedVariable
+        # disable ability to add rows
+        return False
 
     def get_urls(self):
-        urls = super(DocumentAdmin, self).get_urls()
-        my_urls = [
+        urls = [
             # Wrap in admin_view() to enforce permissions.
             url(r'^data/(?P<pk>[0-9]+)/$',
-                view=self.admin_site.admin_view(self.data_view),
-                name='documents_document_data'),
+                view=self.admin_site.admin_view(self.download_view),
+                name='documents_document_download'),
         ]
-        return my_urls + urls
+        return urls + super().get_urls()
 
-    def data_view(self, request, pk):
+    def download_view(self, request, pk):
         document = self.get_object(request, pk)
         response = HttpResponse(document.data,
                                 content_type=document.content_type)
@@ -133,8 +144,12 @@ class DocumentAdmin(admin.ModelAdmin):
         return response
 
     def format_data(self, obj):
-        url = reverse('admin:documents_document_data', kwargs={'pk': obj.pk})
-        return '<a href="%s">Download</a>' % (url)
+        if obj.id is None:
+            return
+        url = reverse('admin:documents_document_download',
+                      kwargs={'pk': obj.id})
+        html = '<span class="object-tools"><a href="%s">Download</a></span>'
+        return html % (url)
     format_data.short_description = 'Data'
     format_data.allow_tags = True
 
@@ -144,22 +159,32 @@ admin.site.register(models.Document, DocumentAdmin)
 class DocumentIndexAttachmentInline(admin.TabularInline):
     model = models.DocumentIndexAttachment
     extra = 0
-    readonly_fields = ["attachment", "category", "content_type",
-                       "created_at", "format_small_preview_image"]
+    list_display = [
+        "format_attachment_id",
+        "category",
+        "content_type",
+        "created_at",
+        "created_by",
+        "modified_by",
+        "format_small_preview_image"
+    ]
+    readonly_fields = [
+        "format_attachment_id",
+        "category",
+        "content_type",
+        "created_at",
+        "created_by",
+        "modified_by",
+        "format_small_preview_image"
+    ]
 
-    edit_label = "View"
+    def has_add_permission(self, request, obj=None):  # @UnusedVariable
+        # disable ability to add rows
+        return False
 
-    def attachment(self, obj):
-        if obj.id:
-            opts = self.model._meta
-            return "<a href='%s'>%s</a>" % (reverse(
-                'admin:%s_%s_change' % (opts.app_label,
-                                        opts.object_name.lower()),
-                args=[obj.id]
-            ), self.edit_label)
-        else:
-            return "(save to edit details)"
-    attachment.allow_tags = True
+    def has_delete_permission(self, request, obj=None):  # @UnusedVariable
+        # disable ability to delete rows
+        return False
 
     def format_small_preview_image(self, obj):
         if obj.content_type != "image/png":
@@ -173,46 +198,90 @@ class DocumentIndexAttachmentInline(admin.TabularInline):
 
 class DocumentIndexAdmin(admin.ModelAdmin):
     list_display = [
-        'pk',
+        'id',
         'format_document_type',
-        'format_document']
+        'format_document_id',
+        'json'
+    ]
     list_filter = ['document__document_type']
-    # document needs to be readonly or raw_id to prevent performance issues
-    readonly_fields = ['document']
-    # force order of fields - readonly fields are usually displayed last
-    fields = ['document', 'json', 'geometry']
-
+    # id needs to be readonly or raw_id to prevent performance issues
+    readonly_fields = ['id']
+    fieldsets = (
+        ('', {
+            'fields': [
+                'id',
+                'json',
+                'geometry',
+            ]
+        }),
+    )
     inlines = [DocumentIndexAttachmentInline]
+    search_fields = ['id', 'document__name', 'json']
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
+        # improve query performance for foreignkeys
+        queryset = queryset.select_related('document')
         # defer document data
         queryset = queryset.defer('document__data')
         # improve query performance for foreignkeys
         queryset = queryset.prefetch_related('document__document_type')
         return queryset
 
-    def format_document_type(self, obj):
-        return obj.document.document_type.name
-
-    format_document_type.short_description = 'Document type'
-    format_document_type.admin_order_field = \
-        'document__document_type__name'
-
-    def format_document(self, obj):
-        return obj.document
-
-    format_document.short_description = 'Document'
-    format_document.admin_order_field = 'document'
-
 admin.site.register(models.DocumentIndex, DocumentIndexAdmin)
 
 
 class DocumentIndexAttachmentAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'category', 'content_type',
-                    'created_at', 'format_small_preview_image']
-    list_filter = ['category']
-    readonly_fields = ['pk', 'index', 'format_preview_image']
+    list_display = [
+        'id',
+        'category',
+        'content_type',
+        'created_at',
+        'created_by',
+        'modified_at',
+        'modified_by',
+        'format_small_preview_image'
+    ]
+    list_filter = [
+        'category',
+        'created_at',
+        'modified_at',
+        'created_by',
+    ]
+    readonly_fields = [
+        'id',
+        'format_preview_image',
+        'created_at',
+        'created_by',
+        'modified_at',
+        'modified_by',
+        'format_data',
+    ]
+    fieldsets = (
+        ('', {
+            'fields': [
+                'id',
+                'category',
+                'content_type',
+                'format_data',
+            ]
+        }),
+        ('Preview', {
+            'fields': [
+                'format_preview_image',
+            ]
+        }),
+        ('History', {
+            'fields': [
+                'created_at',
+                'created_by',
+                'modified_at',
+                'modified_by',
+            ]
+        }),
+    )
+    search_fields = ['id']
+    date_hierarchy = 'created_at'
 
     def format_preview_image(self, obj):
         if obj.content_type != "image/png":
@@ -231,6 +300,33 @@ class DocumentIndexAttachmentAdmin(admin.ModelAdmin):
             data.decode())
     format_small_preview_image.allow_tags = True
     format_small_preview_image.short_description = 'Preview'
+
+    def get_urls(self):
+        urls = [
+            # Wrap in admin_view() to enforce permissions.
+            url(r'^data/(?P<pk>[0-9]+)/$',
+                view=self.admin_site.admin_view(self.download_view),
+                name='documents_documentindexattachment_download'),
+        ]
+        return urls + super().get_urls()
+
+    def download_view(self, request, pk):
+        attachment = self.get_object(request, pk)
+        response = HttpResponse(attachment.data,
+                                content_type=attachment.content_type)
+        response['Content-Disposition'] = \
+            'attachment; filename="%d"' % (attachment.id)
+        return response
+
+    def format_data(self, obj):
+        if obj.id is None:
+            return
+        url = reverse('admin:documents_documentindexattachment_download',
+                      kwargs={'pk': obj.id})
+        html = '<span class="object-tools"><a href="%s">Download</a></span>'
+        return html % (url)
+    format_data.short_description = 'Data'
+    format_data.allow_tags = True
 
 admin.site.register(models.DocumentIndexAttachment,
                     DocumentIndexAttachmentAdmin)
