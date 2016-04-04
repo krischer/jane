@@ -22,6 +22,7 @@ from django.contrib.gis.db import models
 from django.contrib.gis.measure import Distance
 from django.core.urlresolvers import reverse
 from django.db import connection
+from django.db.models.aggregates import Count
 from django.db.models.expressions import OrderBy, RawSQL
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -31,7 +32,7 @@ from obspy.core.utcdatetime import UTCDateTime
 from rest_framework import status
 
 from jane.documents import plugins
-from jane.documents.utils import PostgreSQLJSONBField, deg2km
+from jane.documents.utils import deg2km, PostgreSQLJSONBField
 from jane.exceptions import (JaneDocumentAlreadyExists,
                              JaneNotAuthorizedException)
 
@@ -69,6 +70,12 @@ class DocumentType(models.Model):
 
 
 class DocumentManager(models.Manager):
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # defer data
+        queryset = queryset.defer('data')
+        return queryset
+
     def delete_document(self, document_type, name, user):
         """
         For convenience reasons, offer that method here, including
@@ -234,6 +241,11 @@ class DocumentIndexManager(models.GeoManager):
         # improve query performance for foreignkeys
         queryset = queryset.\
             select_related('document', 'document__document_type')
+        # defer data
+        queryset = queryset.defer('document__data')
+        # annotate number of attachments
+        queryset = queryset.\
+            annotate(attachments_count=Count('attachments'))
         return queryset
 
     def _get_json_query(self, key, operator, type, value):

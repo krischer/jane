@@ -76,6 +76,7 @@ class DocumentIndexAttachmentSerializer(serializers.ModelSerializer):
 
 
 class DocumentIndexSerializer(serializers.ModelSerializer):
+
     url = DocumentTypeHyperlinkedIdentifyField(
         view_name='rest_document_indices-detail',
         lookup_field="pk",

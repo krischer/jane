@@ -114,25 +114,6 @@ class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
                             queryset=queryset, model_type="index")
         return queryset
 
-    def list(self, request, *args, **kwargs):
-        """
-        Called upon "GET" multiple indices.
-        """
-        queryset = self.get_queryset()
-
-        # don't query document data to speed up query
-        queryset = queryset.defer('document__data')
-
-        queryset = self.filter_queryset(queryset)
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
 
 class DocumentIndexAttachmentsView(mixins.RetrieveModelMixin,
                                    mixins.ListModelMixin,
