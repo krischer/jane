@@ -79,7 +79,7 @@ class CanSeePrivateEventsRetrievePermissionPlugin(
             queryset = queryset.model.objects.get_filtered_queryset(
                 document_type="quakeml", queryset=queryset, public=True)
         else:
-            raise NotImplementedError
+            raise NotImplementedError()
         return queryset
 
 
@@ -145,24 +145,21 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
             # Parse attributes in the baynet namespace.
             # The public attribute defaults to True, it can only be set to
             # False by utilizing the baynet namespace as of now.
-            if hasattr(event, "extra"):
-                if "public" in event.extra:
-                    public = event.extra["public"]["value"]
-                    if public.lower() in ["false", "f"]:
-                        public = False
-                    elif public.lower() in ["true", "t"]:
-                        public = True
-                    else:
-                        raise NotImplementedError
-                else:
+            extra = event.get("extra", {})
+            if "public" in extra:
+                public = extra["public"]["value"]
+                if public.lower() in ["false", "f"]:
+                    public = False
+                elif public.lower() in ["true", "t"]:
                     public = True
-                if "evaluationMode" in event.extra:
-                    evaluationMode = event.extra["evaluationMode"]["value"]
                 else:
                     evaluationMode = None
             else:
                 public = True
-                evaluationMode = None
+            if "evaluationMode" in extra:
+                evaluation_mode = extra["evaluationMode"]["value"]
+            else:
+                evaluation_mode = None
 
             indices.append({
                 "quakeml_id": str(event.resource_id),
@@ -176,7 +173,7 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 event.creation_info and event.creation_info.agency_id,
                 "author": event.creation_info and event.creation_info.author,
                 "public": public,
-                "evaluation_mode": evaluationMode,
+                "evaluation_mode": evaluation_mode,
                 "event_type": event.event_type,
                 # The special key geometry can be used to store geographic
                 # information about the indexes geometry. Useful for very

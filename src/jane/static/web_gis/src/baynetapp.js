@@ -236,7 +236,7 @@ module.controller("BayNetController", function($scope, $log, stations, station_c
     $scope.event_layer_show_points = true;
 
     $scope.event_settings = {
-        "min_date": new Date("2014-06-01"),
+        "min_date": new Date("1900-01-01"),
         "max_date": new Date(),
         "magnitude_range": [-5, 10],
         "selected_agencies": [],

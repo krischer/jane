@@ -3,8 +3,8 @@
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'jane',
-        'USER': 'jane',
+        'NAME': 'jane1A',
+        'USER': 'jane1',
         'PASSWORD': 'CHANGEME!',
         'HOST': '127.0.0.1',
         'PORT': 5432,
@@ -54,6 +54,15 @@ BROKER_URL = 'amqp://jane:jane@127.0.0.1:5672/jane'
 # import os
 # GEOS_LIBRARY_PATH = os.path.join(osgeo.__path__[0], 'geos_c.dll')
 
+# python's ctypes seems to always try to load 'libgdal.so.1' (gdal 1.x) even if
+# gdal 2.x is installed, so if the Jane fails to run because GDAL can not be
+# imported it is a good idea to provide the location of the gdal library:
+# dynamically, or..
+#import sys
+#import os
+#GDAL_LIBRARY_PATH = os.path.join(sys.prefix, 'lib', 'libgdal.so')
+# ..manually
+#GDAL_LIBRARY_PATH = '/home/user/anaconda/envs/jane/lib/libgdal.so'
 
 ###############################################################################
 # Jane Config
