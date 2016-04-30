@@ -482,9 +482,14 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                             public = "not specified"
                         }
 
+                        var site = feature.get("site");
+                        if (site == null) {
+                            site = "not specified"
+                        }
+
                         tooltip_title += "\nAgency: " + feature.get("agency") +
                             " | Author: " + author + " | Evaluation mode: " + evaluation_mode +
-                            " | Public: " + public;
+                            " | Public: " + public + " | Site: " + site;
 
                         if (feature.get('magnitude')) {
 
@@ -561,6 +566,7 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                         modal.$scope.magnitude_type = feature.get("magnitude_type");
                         modal.$scope.origin_time = feature.get("origin_time");
                         modal.$scope.public = feature.get("public");
+                        modal.$scope.site = feature.get("site");
                         modal.$scope.quakeml_id = feature.get("quakeml_id");
 
 

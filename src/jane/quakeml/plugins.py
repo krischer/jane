@@ -83,6 +83,94 @@ class CanSeePrivateEventsRetrievePermissionPlugin(
         return queryset
 
 
+def _site_magnitude_threshold_retrieve_permission(
+        class_name, magnitude_threshold, site=None):
+    """
+    Class factory that returns a quakeml retrieve permission based on a
+    magnitude threshold, optionally only working on a specific site.
+    If multiple of these restrictions are defined, all of them apply separately
+    and the user must have all of them set, down to the lowest threshold
+    restriction that is supposed to apply.
+    """
+    class _SiteMagnitudeThresholdRetrievePermissionPlugin(
+            RetrievePermissionPluginPoint):
+        """
+        If user does not have this permission, any events below given magnitude
+        threshold are filtered out (optionally only for a specific site).
+        """
+        name = 'quakeml'
+        title = 'Can See Magnitude <{} Events {}Permission'.format(
+            magnitude_threshold, site and "At site='{}' ".format(site) or "")
+
+        # Permission codename and name according to Django's nomenclature.
+        # XXX no idea if dots are allowed in codename, so replace them
+        permission_codename = 'can_see_mag_lessthan_{}_site_{}_events'.format(
+            magnitude_threshold, site or "any").replace(".", "_")
+        permission_name = 'Can See Magnitude <{} Events{}'.format(
+            magnitude_threshold, site and " At site='{}'".format(site) or "")
+
+        def filter_queryset_user_has_permission(self, queryset, model_type):
+            # If the user has the permission: don't restrict queryset.
+            return queryset
+
+        def filter_queryset_user_does_not_have_permission(self, queryset,
+                                                          model_type):
+            # model_type can be document or document index.
+            if model_type == "document":
+                # XXX: Find a good way to do this.
+                raise NotImplementedError()
+            elif model_type == "index":
+                # Modify the queryset to only contain indices that are above
+                # given magnitude threshold.
+                # XXX check what happens with events that have null for
+                # XXX magnitude..
+                kwargs = {}
+                # if no site is specified, just do a normal filter by magnitude
+                # threshold
+                if site is None:
+                    kwargs["min_magnitude"] = magnitude_threshold
+                    negate = False
+                # if site is specified, we need to search for events matching
+                # both criteria and then invert the resulting queryset
+                else:
+                    kwargs['site'] = site
+                    kwargs["max_magnitude"] = magnitude_threshold - 0.01
+                    negate = True
+                queryset = queryset.model.objects.get_filtered_queryset(
+                    document_type="quakeml", queryset=queryset, negate=negate,
+                    **kwargs)
+            else:
+                raise NotImplementedError()
+            return queryset
+
+    new_class = _SiteMagnitudeThresholdRetrievePermissionPlugin
+    # Set the class type name.
+    setattr(new_class, "__name__", class_name)
+    return new_class
+
+
+# Retrieve permissions for small events, if users don't have these permissions
+# small events are not accessible to them
+MagnitudeLessThan1RetrievePermissionPlugin = \
+    _site_magnitude_threshold_retrieve_permission(
+        "MagnitudeLessThan1RetrievePermissionPlugin", magnitude_threshold=1.0)
+MagnitudeLessThan2RetrievePermissionPlugin = \
+    _site_magnitude_threshold_retrieve_permission(
+        "MagnitudeLessThan2RetrievePermissionPlugin", magnitude_threshold=2.0)
+
+# Retrieve permissions for small events attributed to a specific site (e.g. a
+# specific deep geothermal project), if users don't have these permissions
+# small events that are attributed to that site are not accessible to them
+UnterhachingLessThan1RetrievePermissionPlugin = \
+    _site_magnitude_threshold_retrieve_permission(
+        "UnterhachingLessThan1RetrievePermissionPlugin",
+        magnitude_threshold=1.0, site="geothermie_unterhaching")
+UnterhachingLessThan2RetrievePermissionPlugin = \
+    _site_magnitude_threshold_retrieve_permission(
+        "UnterhachingLessThan2RetrievePermissionPlugin",
+        magnitude_threshold=2.0, site="geothermie_unterhaching")
+
+
 class QuakeMLIndexerPlugin(IndexerPluginPoint):
     """
     Each document type can have one indexer.
@@ -114,7 +202,8 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
         "author": "str",
         "public": "bool",
         "evaluation_mode": "str",
-        "event_type": "str"
+        "event_type": "str",
+        "site": "str",
     }
 
     def index(self, document):
@@ -160,6 +249,10 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 evaluation_mode = extra["evaluationMode"]["value"]
             else:
                 evaluation_mode = None
+            if "site" in extra:
+                site = extra["site"]["value"]
+            else:
+                site = None
 
             indices.append({
                 "quakeml_id": str(event.resource_id),
@@ -181,6 +274,7 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 # fast queries using PostGIS.
                 "geometry":
                     [Point(org.longitude, org.latitude)] if org else None,
+                "site": site,
             })
 
         return indices
