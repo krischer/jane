@@ -18,9 +18,9 @@
                         <dl class="dl-horizontal">
                           <dt>Coordinates</dt>
                           <dd>Lat: {{ latitude }}, Lng: {{ longitude }},
-                              Depth: {{ depth_in_m }} m</dd>
+                              Depth: {{ depth_in_m / 1000.0 | number:1 }} km</dd>
                           <dt>Magnitude</dt>
-                          <dd>{{ magnitude }} {{ magnitude_type }}</dd>
+                          <dd>{{ magnitude_type }} {{ magnitude | number:1 }}</dd>
                           <dt>Origin Time</dt>
                           <dd>{{ origin_time | date:medium}}</dd>
                           <dt>Event Type</dt>

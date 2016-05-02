@@ -504,7 +504,7 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
 
                         tooltip_title += "\nLat: " + feature.get('latitude').toFixed(4) +
                             " | Lng: " + feature.get('longitude').toFixed(4) +
-                            " | Depth: " + feature.get('depth_in_m').toFixed(1) + " m";
+                            " | Depth: " + (feature.get('depth_in_m') / 1000).toFixed(1) + " km";
                     }
                     else {
                         tooltip_title = 'Station ' + feature.get('network') +
