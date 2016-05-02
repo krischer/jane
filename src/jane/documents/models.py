@@ -320,7 +320,7 @@ class DocumentIndexManager(models.GeoManager):
                                        Distance(km=deg2km(max_radius))))
         return queryset
 
-    def get_filtered_queryset(self, document_type, queryset=None,
+    def get_filtered_queryset(self, document_type, queryset=None, negate=False,
                               **kwargs):
         """
         Returns a queryset filtered on the items in the JSON document.
@@ -329,6 +329,12 @@ class DocumentIndexManager(models.GeoManager):
             queryset is passed.
         :param queryset: If no queryset is passed, a new one will be
             created, otherwise an existing one will be used and filtered.
+        :type negate: bool
+        :param negate: When ``negate=True`` then the resulting queryset is
+            inverted, i.e. the resulting queryset returns all events that do
+            not match all given criteria. For example, ``.., negate=True,
+            max_magnitude=1, site="unterhaching")`` returns all events except
+            events at site Unterhaching that are below magnitude 1.
         :param kwargs: Any additional query parameters.
 
         Assuming a key named ``"example"`` in the JSON file you can search
@@ -361,6 +367,12 @@ class DocumentIndexManager(models.GeoManager):
         * Booleans can only be searched for (in)equality.
             ``public=True``
             ``kwargs={"!public": True}``
+
+        The resulting query set can be inverted with ``negate=True``::
+
+        * For example, using ``.., negate=True, max_magnitude=1,
+          site="unterhaching")`` returns all events except for events that are
+          both declared at site Unterhaching and below magnitude 1.
 
         Please note that as soon as you search for a value, all values that
         are null will be discarded from the queryset (even if you search for
@@ -447,6 +459,11 @@ class DocumentIndexManager(models.GeoManager):
                         key, operator, value_type, value))
             else:
                 raise NotImplementedError()
+
+        # if "negate" option is selected: instead of filtering to given
+        # criteria, filter out all items that match given criteria
+        if where != [] and negate:
+            where = ["NOT ({})".format(" AND ".join(where))]
 
         queryset = queryset.extra(where=where)
 
