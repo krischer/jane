@@ -1,26 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Jane - FDSNWS DataSelect Web Service</title>
-  <link rel="stylesheet" href="{{ host }}/static/css/bootstrap-custom.min.css">
-  <style>
-      a, a:hover, a:active, a:focus {
-          color: {{ accent_color }}
-      }
+{% extends "fdsnws/base.html" %}
 
-      .navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus, .navbar-inverse .navbar-nav > li > a:hover, .navbar-inverse .navbar-nav > li > a:focus {
-          color: rgba(255, 255, 255, 0.4)
-      }
 
-      code {
-          color: {{ accent_color }};
-          background-color: #eeeeee
-      }
-  </style>
-</head>
-<body style="padding-top: 50px">
+{% block title %}{{ block.super }} - FDSNWS DataSelect Web Service{% endblock %}
+
+
+{% block nav %}
   <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation"
        style="background-color: {{ accent_color }}; border-color: {{ accent_color }}; border-radius: 0px">
     <div class="container">
@@ -42,9 +26,15 @@
       </div><!--/.nav-collapse -->
     </div>
   </nav>
+{% endblock %}
 
-  <div class="container">
-    <h1>FDSNWS DataSelect Web Service</h1>
+
+{% block header %}
+  <h1>FDSNWS DataSelect Web Service</h1>
+{% endblock %}
+
+
+{% block content %}
     <div class="alert alert-warning">
       <p>
         The <strong>fdsdws-dataselect</strong> service provides access to time
@@ -280,11 +270,5 @@ ssssss  ::  one to six digits representing decimal fractions of a second, down t
       may be used. This credential has identical data access permission as the
       regular submit path's:</p>
     <p><a href="{% url 'fdsnws_dataselect_1_query' %}">{{ host }}{% url 'fdsnws_dataselect_1_query' %}</a></p>
-  </div>
 
-
-  <script src="{{ host }}/static/js/jquery-1.10.2.min.js"></script>
-  <script src="{{ host }}/static/js/bootstrap-3.0.3.min.js"></script>
-
-</body>
-</html>
+{% endblock %}

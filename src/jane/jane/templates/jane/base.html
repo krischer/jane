@@ -1,11 +1,10 @@
-<!DOCTYPE html>
+{% load staticfiles %}<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Jane</title>
-    <link rel="stylesheet"
-          href="{{ host }}/static/css/bootstrap-custom.min.css">
+    <title>{% block title %}Jane{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap-custom.min.css' %}">
 
     <style>
         a, a:hover, a:active, a:focus {
@@ -18,9 +17,13 @@
         }
     </style>
 
+{% block extrahead %}{% endblock %}
+{% block extrastyle %}{% endblock %}
 </head>
-<body style="padding-top: 30px">
 
+<body style="padding-top: 50px">
+
+{% block nav %}
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation"
      style="background-color: {{ accent_color }}; border-color: {{ accent_color }}; border-radius: 0px">
     <div class="container">
@@ -30,21 +33,25 @@
         <p class="navbar-text navbar-right">
             Version {{ version }}
             <a style="padding-left: 15px" href="https://github.com/krischer/jane">
-                <img height="18px" alt="Brand" src="/static/images/GitHub-Mark-Light-120px-plus.png">
+                <img height="18px" alt="Brand" src="{% static 'images/GitHub-Mark-Light-120px-plus.png' %}">
             </a>
        </p>
     </div>
 </nav>
+{% endblock %}
 
+{% block main %}
 <div class="container">
 
     <div class="page-header">
+{% block header %}
         <h1>Jane
             <small>Document Database for Seismology</small>
         </h1>
+{% endblock %}
     </div>
 
-
+{% block content %}
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Admin Interface</h3>
@@ -133,7 +140,7 @@
             <div class="container-fluid">
                 <dl>
                     <dt>
-                        <a href="{{ host }}/static/web_gis/index.html">GIS</a>
+                        <a href="{% static 'web_gis/index.html' %}">GIS</a>
                     </dt>
                     <dd style="padding-left: 30px">
                         Interactively explore the data on a map.
@@ -151,7 +158,7 @@
             <div class="container-fluid">
                 <dl>
                     <dt>
-                        <a href="{{ host }}/static/docs/index.html">Documentation</a>
+                        <a href="{% static 'docs/index.html' %}">Documentation</a>
                     </dt>
                     <dd style="padding-left: 30px">
                         Browse Jane's documentation. If it is not available,
@@ -162,11 +169,13 @@
             </div>
         </div>
     </div>
-
+{% endblock %}
 </div>
+{% endblock %}
 
-<script src="{{ host }}/static/js/jquery-1.10.2.min.js"></script>
-<script src="{{ host }}/static/js/bootstrap-3.0.3.min.js"></script>
+<script src="{% static 'js/jquery-1.10.2.min.js' %}"></script>
+<script src="{% static 'js/bootstrap-3.0.3.min.js' %}"></script>
+{% block extrajs %}{% endblock %}
 
 </body>
 </html>

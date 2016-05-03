@@ -85,11 +85,10 @@ def current_user(request):
 
 
 def index(request):
-    options = {
-        'host': request.build_absolute_uri('/')[:-1],
+    context = {
         'instance_name': settings.JANE_INSTANCE_NAME,
         'accent_color': settings.JANE_ACCENT_COLOR,
         'version': jane.__version__
-        }
-    return render_to_response("index.html", options,
+    }
+    return render_to_response("jane/index.html", context,
                               RequestContext(request))
