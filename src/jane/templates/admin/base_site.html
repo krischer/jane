@@ -9,8 +9,8 @@
 
 {% block nav-global %}
     {% if user.is_staff %}
-    <a href="/admin/" class="ml">Administration</a>
-    <a href="/" class="ml">Start Page</a>
+    <a href="{% url 'admin:index' %}" class="ml">Administration</a>
+    <a href="{% url 'jane_index' %}" class="ml">Start Page</a>
     {% endif %}
 {% endblock %}
 

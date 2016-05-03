@@ -60,7 +60,7 @@
             <div class="container-fluid">
                 <dl>
                     <dt>
-                        <a href="{{ host }}/admin">Admin</a>
+                        <a href="{% url 'admin:index' %}">Admin</a>
                     </dt>
                     <dd style="padding-left: 30px">
                         Requires permissions
@@ -84,7 +84,7 @@
                 </div>
                 <dl>
                     <dt>
-                        <a href="{{ host }}/fdsnws/station/1">fdsnws-station</a>
+                        <a href="{% url 'fdsnws_station_1_index' %}">fdsnws-station</a>
                     </dt>
                     <dd style="padding-left: 30px">
                         For access to station metadata in the FDSN StationXML
@@ -93,7 +93,7 @@
                 </dl>
                 <dl>
                     <dt>
-                        <a href="{{ host }}/fdsnws/dataselect/1">fdsnws-dataselect</a>
+                        <a href="{% url 'fdsnws_dataselect_1_index' %}">fdsnws-dataselect</a>
                     </dt>
                     <dd style="padding-left: 30px">
                         For access to time series data in the MiniSEED format.
@@ -101,7 +101,7 @@
                 </dl>
                 <dl>
                     <dt>
-                        <a href="{{ host }}/fdsnws/event/1">fdsnws-event</a>
+                        <a href="{% url 'fdsnws_event_1_index' %}">fdsnws-event</a>
                     </dt>
                     <dd style="padding-left: 30px">
                         For access to event parameters in the QuakeML format.
@@ -120,7 +120,7 @@
             <div class="container-fluid">
                 <dl>
                     <dt>
-                        <a href="{{ host }}/rest">REST</a>
+                        <a href="{% url 'rest_root' %}">REST</a>
                     </dt>
                     <dd style="padding-left: 30px">
                         RESTful access to the underlying Documents and
