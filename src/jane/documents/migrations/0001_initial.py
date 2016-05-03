@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
+import django.contrib.gis.db.models.fields
+from django.contrib.postgres.fields import jsonb
 from django.db import models, migrations
 import djangoplugins.fields
-import django.contrib.gis.db.models.fields
-from django.conf import settings
-import jane.documents.models
 
 
 class Migration(migrations.Migration):
@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
             name='DocumentIndex',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', auto_created=True, primary_key=True, serialize=False)),
-                ('json', jane.documents.models.PostgreSQLJSONBField(verbose_name='JSON')),
+                ('json', jsonb.JSONField(verbose_name='JSON')),
                 ('geometry', django.contrib.gis.db.models.fields.GeometryCollectionField(srid=4326, geography=True, blank=True, null=True)),
                 ('document', models.ForeignKey(related_name='indices', to='documents.Document')),
             ],

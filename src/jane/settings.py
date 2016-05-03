@@ -10,14 +10,13 @@ SQL_DEBUG = False
 
 if DEBUG is True:
     DEPLOYED = False
-    TEMPLATE_DEBUG = True
+    _TEMPLATE_DEBUG = True
 else:
     DEPLOYED = True
-    TEMPLATE_DEBUG = False
+    _TEMPLATE_DEBUG = False
 
 
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
-TEMPLATE_DIRS = (os.path.join(PROJECT_DIR, 'templates'),)
 
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
@@ -59,10 +58,30 @@ STATICFILES_DIRS = (
 )
 
 # List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader'
-)
+TEMPLATES = [{
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [
+        os.path.join(PROJECT_DIR, "templates"),
+    ],
+    'OPTIONS': {
+        'debug': _TEMPLATE_DEBUG,
+        'context_processors': (
+            'django.contrib.auth.context_processors.auth',
+            'django.template.context_processors.debug',
+            'django.template.context_processors.i18n',
+            'django.template.context_processors.media',
+            'django.template.context_processors.static',
+            'django.template.context_processors.tz',
+            'django.contrib.messages.context_processors.messages',
+            'django.template.context_processors.request',
+        ),
+        'loaders': (
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader'
+        )
+    }
+}]
+
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.gzip.GZipMiddleware',
@@ -99,8 +118,9 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d ' +
-            '%(thread)d %(message)s'
+            'format':
+                '%(levelname)s %(asctime)s %(module)s %(process)d '
+                '%(thread)d %(message)s'
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -114,7 +134,7 @@ LOGGING = {
     'handlers': {
         'null': {
             'level': 'DEBUG',
-            'class': 'django.utils.log.NullHandler',
+            'class': 'logging.NullHandler',
         },
         'console': {
             'level': 'DEBUG',
@@ -144,9 +164,13 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
+        'egu.copernicus.soap.client': {
+            'handlers': ['console'],
+            'level': 'WARN',
+            'propagate': True,
+        },
     }
 }
-
 
 if not DEPLOYED and SQL_DEBUG:
     LOGGING['loggers']['django.db.backends']['level'] = 'DEBUG'

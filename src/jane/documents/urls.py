@@ -6,22 +6,28 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from jane.documents import views, DOCUMENT_FILENAME_REGEX
 from jane.jane.utils import OptionalTrailingSlashSimpleRouter
 
+from .plugins import initialize_plugins  # NOQA
+
 
 urlpatterns = [
     # Root url for the documents.
-    url(r'^rest/documents/?$', views.documents_rest_root),
+    url(r'^rest/documents/?$',
+        view=views.documents_rest_root,
+        name='rest_documents'),
     # Root url for the indices.
-    url(r'^rest/document_indices/?$', views.documents_indices_rest_root),
+    url(r'^rest/document_indices/?$',
+        view=views.documents_indices_rest_root,
+        name='rest_documents_indices'),
     # Document data
     url(r'^rest/documents/(?P<document_type>[a-zA-Z0-9]+)'
         r'/(?P<name>' + DOCUMENT_FILENAME_REGEX + ')/data$',
-        views.document_data,
-        name="document_data"),
+        view=views.document_data,
+        name='document_data'),
     # Attachment data
     url(r'^rest/document_indices/(?P<document_type>[a-zA-Z0-9]+)'
         r'/(?P<idx>[0-9]+)/attachments/(?P<pk>[0-9]+)/data$',
-        views.attachment_data,
-        name="attachment_data")
+        view=views.attachment_data,
+        name='attachment_data')
 
 ]
 urlpatterns = format_suffix_patterns(urlpatterns)
@@ -43,5 +49,4 @@ router.register(
 urlpatterns.append(url(r'^rest/', include(router.urls)))
 
 
-from .plugins import initialize_plugins  # NOQA
 available_plugins = initialize_plugins()

@@ -2,16 +2,6 @@
 
 import math
 
-from jsonfield.fields import JSONField
-
-
-class PostgreSQLJSONBField(JSONField):
-    """
-    Make the JSONField use JSONB as a datatype, a typed JSON variant.
-    """
-    def db_type(self, connection):  # @UnusedVariable
-        return "jsonb"
-
 
 def deg2km(degrees):
     """

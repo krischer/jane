@@ -1,79 +1,73 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+from django.conf.urls import url, include
 
-from django.conf.urls import patterns, url, include
+from jane.fdsnws.views import dataselect_1, station_1, event_1
 
 
-dataselect_1_urlpatterns = patterns(
-    'jane.fdsnws.views.dataselect_1',
+dataselect_1_urlpatterns = [
     url(r'^$',
-        view='index',
+        view=dataselect_1.index,
         name='fdsnws_dataselect_1_index'),
     url(r'^version/?$',
-        view='version',
+        view=dataselect_1.version,
         name='fdsnws_dataselect_1_version'),
     url(r'^application.wadl/?$',
-        view='wadl',
+        view=dataselect_1.wadl,
         name='fdsnws_dataselect_1_wadl'),
     url(r'^query/?$',
-        view='query',
+        view=dataselect_1.query,
         name='fdsnws_dataselect_1_query'),
     url(r'^queryauth/?$',
-        view='queryauth',
+        view=dataselect_1.queryauth,
         name='fdsnws_dataselect_1_queryauth')
-)
+]
 
-
-station_1_urlpatterns = patterns(
-    'jane.fdsnws.views.station_1',
+station_1_urlpatterns = [
     url(r'^$',
-        view='index',
+        view=station_1.index,
         name='fdsnws_station_1_index'),
     url(r'^version/?$',
-        view='version',
+        view=station_1.version,
         name='fdsnws_station_1_version'),
     url(r'^application.wadl/?$',
-        view='wadl',
+        view=station_1.wadl,
         name='fdsnws_station_1_wadl'),
     url(r'^query/?$',
-        view='query',
+        view=station_1.query,
         name='fdsnws_station_1_query'),
     url(r'^queryauth/?$',
-        view='queryauth',
+        view=station_1.queryauth,
         name='fdsnws_station_1_queryauth')
-    )
+]
 
-
-event_1_urlpatterns = patterns(
-    'jane.fdsnws.views.event_1',
+event_1_urlpatterns = [
     url(r'^$',
-        view='index',
+        view=event_1.index,
         name='fdsnws_event_1_index'),
     url(r'^version/?$',
-        view='version',
+        view=event_1.version,
         name='fdsnws_event_1_version'),
     url(r'^contributors/?$',
-        view='contributors',
+        view=event_1.contributors,
         name='fdsnws_event_1_contributors'),
     url(r'^catalogs/?$',
-        view='catalogs',
+        view=event_1.catalogs,
         name='fdsnws_event_1_catalogs'),
     url(r'^application.wadl/?$',
-        view='wadl',
+        view=event_1.wadl,
         name='fdsnws_event_1_wadl'),
     url(r'^query/?$',
-        view='query',
+        view=event_1.query,
         name='fdsnws_event_1_query'),
     url(r'^queryauth/?$',
-        view='queryauth',
+        view=event_1.queryauth,
         name='fdsnws_event_1_queryauth')
-    )
+]
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^dataselect/1/', include(dataselect_1_urlpatterns)),
     url(r'^station/1/', include(station_1_urlpatterns)),
     url(r'^event/1/', include(event_1_urlpatterns)),
-)
+]

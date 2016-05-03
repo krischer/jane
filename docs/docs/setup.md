@@ -18,13 +18,13 @@ and furthermore on
 
 with the following Python modules
 
-* `obspy==1.0`
-* `django==1.8`
+* `obspy`
+* `django`
 * `psycopg2`
 * `jsonfield`
-* `django-plugins`
-* `djangorestframework==3.1`
-* `djangorestframework-gis==0.8`
+* `django-plugins` (https://github.com/krischer/django-plugins/archive/django1.9.zip)
+* `djangorestframework`
+* `djangorestframework-gis`
 * `djangorestframework-jsonp`
 * `djangorestframework-xml`
 * `djangorestframework-yaml`
@@ -37,7 +37,6 @@ with the following Python modules
 * `django-cors-headers`
 * `flake8`
 * `django-debug-toolbar`
-* `django-debug-toolbar-template-timings`
 * `mkdocs`
 
 
@@ -61,11 +60,11 @@ Alternatively, the following Anaconda environment description file..
 ```
 name: jane
 dependencies:
-- django=1.8
+- django
 - flake8
 - gdal
 - markdown
-- obspy=1.0
+- obspy
 - psycopg2
 - python=3.4
 - pyyaml
@@ -74,8 +73,7 @@ dependencies:
   - defusedxml
   - django-cors-headers
   - django-debug-toolbar
-  - django-debug-toolbar-template-timings
-  - https://github.com/krischer/django-plugins/archive/master.zip
+  - https://github.com/krischer/django-plugins/archive/django1.9.zip
   - djangorestframework
   - djangorestframework-gis
   - djangorestframework-jsonp
@@ -94,7 +92,7 @@ $ conda config --add channels obspy
 $ conda env create -n jane -f jane_anaconda_env.txt
 ```
 
-The following exact version setup has been run successfuly:
+The following exact version setup has been run successfully:
 
 ```
 name: jane_exact_versions

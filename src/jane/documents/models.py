@@ -20,6 +20,7 @@ import hashlib
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.measure import Distance
+from django.contrib.postgres.fields import jsonb
 from django.core.urlresolvers import reverse
 from django.db import connection
 from django.db.models.aggregates import Count
@@ -32,7 +33,7 @@ from obspy.core.utcdatetime import UTCDateTime
 from rest_framework import status
 
 from jane.documents import plugins
-from jane.documents.utils import deg2km, PostgreSQLJSONBField
+from jane.documents.utils import deg2km
 from jane.exceptions import (JaneDocumentAlreadyExists,
                              JaneNotAuthorizedException)
 
@@ -462,7 +463,7 @@ class DocumentIndex(models.Model):
     Indexed values for a specific document.
     """
     document = models.ForeignKey(Document, related_name='indices')
-    json = PostgreSQLJSONBField(verbose_name="JSON")
+    json = jsonb.JSONField(verbose_name="JSON")
     geometry = models.GeometryCollectionField(blank=True, null=True,
                                               geography=True)
 
