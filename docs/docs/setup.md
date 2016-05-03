@@ -90,5 +90,5 @@ This command will setup all necessary tables and what not.
 
 ```bash
 $ python manage.py migrate
-$ python manage.py createsupseruser
+$ python manage.py createsuperuser
 ```
