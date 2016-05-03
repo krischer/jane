@@ -7,13 +7,6 @@ import sys
 DEBUG = True
 SQL_DEBUG = False
 
-# ensure PIL is working in virtualenv
-try:
-    import PIL.Image
-    sys.modules['Image'] = PIL.Image
-except ImportError:
-    pass
-
 
 if DEBUG is True:
     DEPLOYED = False
