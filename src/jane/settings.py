@@ -164,11 +164,6 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
-        'egu.copernicus.soap.client': {
-            'handlers': ['console'],
-            'level': 'WARN',
-            'propagate': True,
-        },
     }
 }
 
