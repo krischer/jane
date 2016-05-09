@@ -98,11 +98,17 @@
                             <doc xml:lang="english"
                                  title="Specify minimum distance from the geographic point defined by latitude and longitude"/>
                         </param>
+                        <param xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                               name="eventid" style="query" type="xs:string">
+                            <doc xml:lang="english"
+                                title="Retrieve events based on their unique ID. Only events that contain the specified string in their ID will be returned."/>
+                        </param>
                         <!-- <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="output" style="query" type="xs:string" default="xml"/> -->
                         <param xmlns:xs="http://www.w3.org/2001/XMLSchema"
                                name="format" style="query" type="xs:string"
                                default="xml">
-                            <doc xml:lang="english" title=""/>
+                            <doc xml:lang="english"
+                                 title="Specify output format."/>
                             <option value="xml" mediaType="application/xml"/>
                             <option value="text" mediaType="text/plain"/>
                         </param>
@@ -232,14 +238,14 @@
                         <param xmlns:xs="http://www.w3.org/2001/XMLSchema"
                                name="eventid" style="query" type="xs:string">
                             <doc xml:lang="english"
-                                 title="Retrieve an event based on the unique ID numbers assigned by the IRIS DMC"/>
+                                title="Retrieve events based on their unique ID. Only events that contain the specified string in their ID will be returned."/>
                         </param>
                         <!-- <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="output" style="query" type="xs:string" default="xml"/> -->
                         <param xmlns:xs="http://www.w3.org/2001/XMLSchema"
                                name="format" style="query" type="xs:string"
                                default="xml">
                             <doc xml:lang="english"
-                                 title="Specify output format. This is an IRIS extension to the FDSN specification"/>
+                                 title="Specify output format."/>
                             <option value="xml" mediaType="application/xml"/>
                             <option value="text" mediaType="text/plain"/>
                         </param>

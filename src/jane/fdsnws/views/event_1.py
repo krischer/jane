@@ -130,6 +130,11 @@ QUERY_PARAMETERS = {
         "type": str,
         "required": False,
         "default": "xml"},
+    "eventid": {
+        "aliases": ["eventid"],
+        "type": str,
+        "required": False,
+        "default": None},
     "author": {
         "aliases": ["author"],
         "type": str,
