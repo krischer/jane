@@ -18,7 +18,7 @@ def query_event(fh, nodata, orderby, format, starttime=None, endtime=None,
                 maxlongitude=None, mindepth_in_km=None, maxdepth_in_km=None,
                 minmagnitude=None, maxmagnitude=None, latitude=None,
                 longitude=None, minradius=None, maxradius=None,
-                contributor=None):
+                contributor=None, author=None):
     """
     Process query and generate a combined QuakeML or event text file.
     Parameters are interpreted as in the FDSNWS definition. Results are
@@ -53,6 +53,9 @@ def query_event(fh, nodata, orderby, format, starttime=None, endtime=None,
     # Jane maps the contributor to the agency.
     if contributor is not None:
         kwargs["agency"] = contributor
+
+    if author is not None:
+        kwargs["author"] = author
 
     query = DocumentIndex.objects.get_filtered_queryset(
         document_type="quakeml", **kwargs)

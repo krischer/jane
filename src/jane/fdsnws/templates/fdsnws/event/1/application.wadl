@@ -126,6 +126,11 @@
                             <option value="xml" mediaType="application/xml"/>
                             <option value="text" mediaType="text/plain"/>
                         </param>
+                        <param xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                               name="author" style="query" type="xs:string">
+                            <doc xml:lang="english"
+                                title="Limit to events by given author."/>
+                        </param>
                     </request>
                     <response>
                         <representation mediaType="text/plain"/>
@@ -319,6 +324,11 @@
                                  title="Specify which HTML Status code is returned when no data is found. This is an IRIS extension to the FDSN specification"/>
                             <option value="204"/>
                             <option value="404"/>
+                        </param>
+                        <param xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                               name="author" style="query" type="xs:string">
+                            <doc xml:lang="english"
+                                title="Limit to events by given author."/>
                         </param>
                     </request>
                     <response>

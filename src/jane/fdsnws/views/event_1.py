@@ -130,6 +130,11 @@ QUERY_PARAMETERS = {
         "type": str,
         "required": False,
         "default": "xml"},
+    "author": {
+        "aliases": ["author"],
+        "type": str,
+        "required": False,
+        "default": None},
 }
 
 
