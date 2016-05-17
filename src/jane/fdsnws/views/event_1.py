@@ -4,8 +4,7 @@ import io
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse
-from django.shortcuts import render_to_response
-from django.template.context import RequestContext
+from django.shortcuts import render
 
 from lxml import etree
 from lxml.builder import E
@@ -152,13 +151,12 @@ def index(request):
     """
     FDSNWS event Web Service HTML index page.
     """
-    options = {
+    context = {
         'host': request.build_absolute_uri('/')[:-1],
         'instance_name': settings.JANE_INSTANCE_NAME,
         'accent_color': settings.JANE_ACCENT_COLOR
     }
-    return render_to_response("fdsnws/event/1/index.html", options,
-                              RequestContext(request))
+    return render(request, "fdsnws/event/1/index.html", context)
 
 
 def version(request):  # @UnusedVariable
@@ -172,12 +170,11 @@ def wadl(request):  # @UnusedVariable
     """
     Return WADL document for this application.
     """
-    options = {
+    context = {
         'host': request.build_absolute_uri('/')
     }
-    return render_to_response("fdsnws/event/1/application.wadl", options,
-                              RequestContext(request),
-                              content_type="application/xml; charset=utf-8")
+    return render(request, "fdsnws/event/1/application.wadl", context,
+                  content_type="application/xml; charset=utf-8")
 
 
 def query(request):

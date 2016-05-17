@@ -2,15 +2,14 @@
 
 import datetime
 
-from django.shortcuts import render_to_response
-from django.template.context import RequestContext
+from django.shortcuts import render
 
 
 def fdnsws_error(request, status_code, service, message, version):
     """
     Standard error page for the FDSN Web Service.
     """
-    options = {
+    context = {
         'status_code': status_code,
         'message': message,
         'service': service,
@@ -18,9 +17,8 @@ def fdnsws_error(request, status_code, service, message, version):
         'url': request.build_absolute_uri(request.get_full_path()),
         'utcnow': datetime.datetime.utcnow(),
     }
-    response = render_to_response("fdsnws/error.txt", options,
-                                  RequestContext(request),
-                                  content_type="text/plain; charset=utf-8")
+    response = render(request, "fdsnws/error.txt", context,
+                      content_type="text/plain; charset=utf-8")
     response.status_code = status_code
     response.reason_phrase = message.splitlines()[0]
     return response

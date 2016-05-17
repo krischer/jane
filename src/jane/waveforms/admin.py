@@ -7,6 +7,7 @@ from django.db.models.aggregates import Count
 from jane.waveforms import models
 
 
+@admin.register(models.Path)
 class PathAdmin(admin.ModelAdmin):
     list_display = ['name', 'format_file_count', 'mtime', 'ctime']
     search_fields = ['name']
@@ -23,8 +24,6 @@ class PathAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable
         return False
-
-admin.site.register(models.Path, PathAdmin)
 
 
 class HasGapsFilter(SimpleListFilter):
@@ -65,6 +64,7 @@ class HasOverlapsFilter(SimpleListFilter):
         return queryset
 
 
+@admin.register(models.File)
 class FileAdmin(admin.ModelAdmin):
     list_display = ['name', 'path', 'format', 'format_trace_count', 'gaps',
                     'overlaps', 'created_at']
@@ -102,9 +102,8 @@ class FileAdmin(admin.ModelAdmin):
     format_traces.allow_tags = True
     format_traces.short_description = 'Traces'
 
-admin.site.register(models.File, FileAdmin)
 
-
+@admin.register(models.ContinuousTrace)
 class ContinuousTraceAdmin(admin.ModelAdmin):
     list_display = ['format_nslc', 'network', 'station', 'location', 'channel',
                     'starttime', 'endtime', 'sampling_rate', 'npts',
@@ -137,17 +136,13 @@ class ContinuousTraceAdmin(admin.ModelAdmin):
         return obj.file.path
     format_path.short_description = 'Path'
 
-admin.site.register(models.ContinuousTrace, ContinuousTraceAdmin)
 
-
+@admin.register(models.Mapping)
 class MappingAdmin(admin.ModelAdmin):
     list_filter = ['network', 'station', 'location', 'channel']
 
-admin.site.register(models.Mapping, MappingAdmin)
 
-
+@admin.register(models.Restriction)
 class RestrictionAdmin(admin.ModelAdmin):
     list_filter = ['network', 'station']
     list_display = ['network', 'station']
-
-admin.site.register(models.Restriction, RestrictionAdmin)

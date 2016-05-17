@@ -4,14 +4,12 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.http.response import HttpResponse, StreamingHttpResponse
-from django.shortcuts import render_to_response
-from django.template.context import RequestContext
+from django.shortcuts import render
 from obspy.core.utcdatetime import UTCDateTime
 
 from jane.fdsnws.dataselect_query import query_dataselect
 from jane.fdsnws.views.utils import fdnsws_error
 from jane.jane.decorators import logged_in_or_basicauth
-from jane.settings import JANE_INSTANCE_NAME
 
 
 VERSION = '1.1.1'
@@ -27,13 +25,12 @@ def index(request):
     """
     FDSNWS dataselect Web Service HTML index page.
     """
-    options = {
+    context = {
         'host': request.build_absolute_uri('/')[:-1],
         'instance_name': settings.JANE_INSTANCE_NAME,
         'accent_color': settings.JANE_ACCENT_COLOR
     }
-    return render_to_response("fdsnws/dataselect/1/index.html", options,
-                              RequestContext(request))
+    return render(request, "fdsnws/dataselect/1/index.html", context)
 
 
 def version(request):  # @UnusedVariable
@@ -47,12 +44,11 @@ def wadl(request):  # @UnusedVariable
     """
     Return WADL document for this application.
     """
-    options = {
+    context = {
         'host': request.build_absolute_uri('/')
     }
-    return render_to_response(
-        "fdsnws/dataselect/1/application.wadl", options,
-        RequestContext(request), content_type="application/xml; charset=utf-8")
+    return render(request, "fdsnws/dataselect/1/application.wadl", context,
+                  content_type="application/xml; charset=utf-8")
 
 
 def query(request):
@@ -150,7 +146,7 @@ def query(request):
     return response
 
 
-@logged_in_or_basicauth(JANE_INSTANCE_NAME)
+@logged_in_or_basicauth(settings.JANE_INSTANCE_NAME)
 def queryauth(request):
     """
     Parses and returns data request

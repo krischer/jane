@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from jane.documents import models
 
 
+@admin.register(models.DocumentType)
 class DocumentTypeAdmin(admin.ModelAdmin):
     """
     Everything is readonly as these models are filled with installed
@@ -40,8 +41,6 @@ class DocumentTypeAdmin(admin.ModelAdmin):
         length = len(obj.upload_permissions.values())
         return "%i registered Upload Permission(s)" % length
 
-admin.site.register(models.DocumentType, DocumentTypeAdmin)
-
 
 class DocumentIndexInline(admin.TabularInline):
     model = models.DocumentIndex
@@ -59,6 +58,7 @@ class DocumentIndexInline(admin.TabularInline):
         return False
 
 
+@admin.register(models.Document)
 class DocumentAdmin(admin.ModelAdmin):
     list_display = [
         'id',
@@ -153,8 +153,6 @@ class DocumentAdmin(admin.ModelAdmin):
     format_data.short_description = 'Data'
     format_data.allow_tags = True
 
-admin.site.register(models.Document, DocumentAdmin)
-
 
 class DocumentIndexAttachmentInline(admin.TabularInline):
     model = models.DocumentIndexAttachment
@@ -196,6 +194,7 @@ class DocumentIndexAttachmentInline(admin.TabularInline):
     format_small_preview_image.short_description = 'Preview'
 
 
+@admin.register(models.DocumentIndex)
 class DocumentIndexAdmin(admin.ModelAdmin):
     list_display = [
         'id',
@@ -228,9 +227,8 @@ class DocumentIndexAdmin(admin.ModelAdmin):
         queryset = queryset.prefetch_related('document__document_type')
         return queryset
 
-admin.site.register(models.DocumentIndex, DocumentIndexAdmin)
 
-
+@admin.register(models.DocumentIndexAttachment)
 class DocumentIndexAttachmentAdmin(admin.ModelAdmin):
     list_display = [
         'id',
@@ -329,6 +327,3 @@ class DocumentIndexAttachmentAdmin(admin.ModelAdmin):
         return html % (url)
     format_data.short_description = 'Data'
     format_data.allow_tags = True
-
-admin.site.register(models.DocumentIndexAttachment,
-                    DocumentIndexAttachmentAdmin)

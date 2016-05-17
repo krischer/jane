@@ -2,8 +2,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
-from django.shortcuts import render_to_response
-from django.template.context import RequestContext
+from django.shortcuts import render
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -90,5 +89,4 @@ def index(request):
         'accent_color': settings.JANE_ACCENT_COLOR,
         'version': jane.__version__
     }
-    return render_to_response("jane/index.html", context,
-                              RequestContext(request))
+    return render(request, "jane/index.html", context)
