@@ -103,11 +103,6 @@ class DataSelect1TestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertTrue('Start time must be before end time' in
                         response.reason_phrase)
-        # 6 - channel is required
-        param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE'
-        response = self.client.get('/fdsnws/dataselect/1/query' + param)
-        self.assertEqual(response.status_code, 413)
-        self.assertTrue('No channels specified' in response.reason_phrase)
 
     def test_query_nodata(self):
         # not existing - error 204
