@@ -6,6 +6,7 @@ import os
 
 import django
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 from django.test import TestCase, LiveServerTestCase
 import numpy
 from obspy import read, UTCDateTime
@@ -30,10 +31,11 @@ class DataSelect1TestCase(TestCase):
         # index waveform files
         [process_file(f) for f in FILES]
         # create anonymous user
-        User.objects.get_or_create(username='anonymous', password='anonymous')
-        credentials = base64.b64encode(b'anonymous:anonymous')
+        User.objects.get_or_create(username='random',
+                                   password=make_password('random'))
+        credentials = base64.b64encode(b'random:random')
         self.auth_headers = {
-            'HTTP_AUTHORIZATION': 'Basic ' + credentials.decode("ISO-8859-1"),
+            'HTTP_AUTHORIZATION': 'Basic ' + credentials.decode("ISO-8859-1")
         }
 
     def test_version(self):
