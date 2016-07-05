@@ -132,8 +132,7 @@ def process_file(filename):
             file.gaps = len([g for g in gap_list if g[6] >= 0])
             file.overlaps = len([g for g in gap_list if g[6] < 0])
             file.save()
-            pos = 0
-            for trace in stream:
+            for pos, trace in enumerate(stream):
                 try:
                     quality = trace.stats.mseed.dataquality
                 except AttributeError:
