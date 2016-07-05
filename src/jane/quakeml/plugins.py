@@ -153,7 +153,7 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 elif public.lower() in ["true", "t"]:
                     public = True
                 else:
-                    evaluationMode = None
+                    public = None
             else:
                 public = True
             if "evaluationMode" in extra:
