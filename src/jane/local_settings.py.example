@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 
 DATABASES = {
     'default': {
@@ -7,13 +8,7 @@ DATABASES = {
         'USER': 'jane1',
         'PASSWORD': 'CHANGEME!',
         'HOST': '127.0.0.1',
-        'PORT': 5432,
-        'test_ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'test_NAME': 'test_jane',
-        'test_USER': 'test_jane',
-        'test_PASSWORD': 'test_jane',
-        'test_HOST': '127.0.0.1',
-        'test_PORT': 5432,
+        'PORT': 5432
     }
 }
 
@@ -72,3 +67,22 @@ JANE_ACCENT_COLOR = "#D9230F"
 # Constants written to StationXML files created by Jane.
 JANE_FDSN_STATIONXML_SENDER = "Jane"
 JANE_FDSN_STATIONXML_SOURCE = "Jane"
+
+
+# Change the settings for the test database here!
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'test_jane',
+            'USER': 'test_jane',
+            'PASSWORD': 'test_jane',
+            'HOST': '127.0.0.1',
+            'PORT': 5432,
+            'TEST': {
+                # Important! Otherwise the DB name will be `test_test_jane`
+                # and we want control.
+                'NAME': 'test_jane'
+            }
+        }
+    }
