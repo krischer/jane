@@ -168,18 +168,24 @@ class DataSelect1TestCase(TestCase):
             'start': expected.meta.starttime,
             'end': expected.meta.endtime,
         }
+
         # 1 - query using HTTP GET
-        response = self.client.get('/fdsnws/dataselect/1/queryauth', params)
+        response = self.client.get('/fdsnws/dataselect/1/queryauth', params,
+                                   **self.auth_headers)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('OK' in response.reason_phrase)
+
         # compare streams
         got = read(io.BytesIO(response.getvalue()))[0]
         numpy.testing.assert_equal(got.data, expected.data)
         self.assertEqual(got, expected)
+
         # 2 - query using HTTP POST
-        response = self.client.post('/fdsnws/dataselect/1/queryauth', params)
+        response = self.client.post('/fdsnws/dataselect/1/queryauth', params,
+                                    **self.auth_headers)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('OK' in response.reason_phrase)
+
         # compare streams
         got = read(io.BytesIO(response.getvalue()))[0]
         numpy.testing.assert_equal(got.data, expected.data)
