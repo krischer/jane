@@ -33,8 +33,14 @@ class DataSelect1TestCase(TestCase):
         # create anonymous user
         User.objects.get_or_create(username='random',
                                    password=make_password('random'))
+
         credentials = base64.b64encode(b'random:random')
-        self.auth_headers = {
+        self.valid_auth_headers = {
+            'HTTP_AUTHORIZATION': 'Basic ' + credentials.decode("ISO-8859-1")
+        }
+
+        credentials = base64.b64encode(b'random:random2')
+        self.invalid_auth_headers = {
             'HTTP_AUTHORIZATION': 'Basic ' + credentials.decode("ISO-8859-1")
         }
 
@@ -145,18 +151,26 @@ class DataSelect1TestCase(TestCase):
 
     def test_queryauth_nodata(self):
         param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE&cha=EHE'
+
         # 1 - no credentials - error 401
         response = self.client.get('/fdsnws/dataselect/1/queryauth' + param)
         self.assertEqual(response.status_code, 401)
-        # 2 - anonymous, not existing - error 204
+
+        # 2 - invalid credentials - error 401
         response = self.client.get('/fdsnws/dataselect/1/queryauth' + param,
-                                   **self.auth_headers)
+                                   **self.invalid_auth_headers)
+        self.assertEqual(response.status_code, 401)
+
+        # 3 - valid credentials - not existing - error 204
+        response = self.client.get('/fdsnws/dataselect/1/queryauth' + param,
+                                   **self.valid_auth_headers)
         self.assertEqual(response.status_code, 204)
         self.assertTrue('Not Found: No data' in response.reason_phrase)
-        # 3 - anonymous, not existing - error 404
+
+        # 4 - valid credentials - not existing - error 404
         param += '&nodata=404'
         response = self.client.get('/fdsnws/dataselect/1/queryauth' + param,
-                                   **self.auth_headers)
+                                   **self.valid_auth_headers)
         self.assertEqual(response.status_code, 404)
         self.assertTrue('Not Found: No data' in response.reason_phrase)
 
@@ -169,9 +183,27 @@ class DataSelect1TestCase(TestCase):
             'end': expected.meta.endtime,
         }
 
-        # 1 - query using HTTP GET
+        # 1 - no credentials GET - error 401
+        response = self.client.get('/fdsnws/dataselect/1/queryauth', params)
+        self.assertEqual(response.status_code, 401)
+
+        # 2 - invalid credentials GET - error 401
         response = self.client.get('/fdsnws/dataselect/1/queryauth', params,
-                                   **self.auth_headers)
+                                   **self.invalid_auth_headers)
+        self.assertEqual(response.status_code, 401)
+
+        # 3 - no credentials POST - error 401
+        response = self.client.post('/fdsnws/dataselect/1/queryauth', params)
+        self.assertEqual(response.status_code, 401)
+
+        # 4 - invalid credentials POST - error 401
+        response = self.client.post('/fdsnws/dataselect/1/queryauth', params,
+                                    **self.invalid_auth_headers)
+        self.assertEqual(response.status_code, 401)
+
+        # 5 - query using HTTP GET
+        response = self.client.get('/fdsnws/dataselect/1/queryauth', params,
+                                   **self.valid_auth_headers)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('OK' in response.reason_phrase)
 
@@ -180,9 +212,9 @@ class DataSelect1TestCase(TestCase):
         numpy.testing.assert_equal(got.data, expected.data)
         self.assertEqual(got, expected)
 
-        # 2 - query using HTTP POST
+        # 6 - query using HTTP POST
         response = self.client.post('/fdsnws/dataselect/1/queryauth', params,
-                                    **self.auth_headers)
+                                    **self.valid_auth_headers)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('OK' in response.reason_phrase)
 
