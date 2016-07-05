@@ -95,12 +95,19 @@ def data_streamer(results, starttime, endtime, format):
     """
     def iterator():
         for result in results:
+            # It would be more efficient to pass the sourcename to the read
+            # function but then it would be impossible to match the exact
+            # position in the trace from the database query with an actual
+            # trace in the file. Also files with multiple traces are rare
+            # and the time to actually seek to the start of the file so the
+            # is potentially more significant than the time to read a couple
+            # of extra bytes.
             st = obspy.read(result.file.absolute_path, starttime=starttime,
                             endtime=endtime)
             tr = st[result.pos]
             tr.trim(starttime, endtime)
             with io.BytesIO() as fh:
-                st.write(fh, format=format.upper())
+                tr.write(fh, format=format.upper())
                 fh.seek(0, 0)
                 yield fh.read()
             del st
