@@ -132,9 +132,17 @@ def query_event(fh, nodata, orderby, format, starttime=None, endtime=None,
             for result in results:
                 row = [result.json[_i] if _i is not None else ""
                        for _i in json_keys]
-                # Convert depth to km.
-                row[4] /= 1000.0
-                row.append(FG.get_region(row[3], row[2]))
+
+                # Guard against events with no location.
+                if row[4] is not None:
+                    # Convert depth to km.
+                    row[4] /= 1000.0
+
+                if row[2] is not None and row[3] is not None:
+                    row.append(FG.get_region(row[3], row[2]))
+                else:
+                    row.append("")
+
                 writer.writerow(row)
             csvfile.seek(0, 0)
             # Encode to a byte buffer.
