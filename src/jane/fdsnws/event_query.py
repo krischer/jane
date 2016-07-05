@@ -121,8 +121,8 @@ def query_event(fh, nodata, orderby, format, starttime=None, endtime=None,
                   "Author", "Catalog", "Contributor", "ContributorID",
                   "MagType", "Magnitude", "MagAuthor", "EventLocationName"]
         json_keys = ["quakeml_id", "origin_time", "latitude", "longitude",
-                     "depth_in_m", None, None, None, None, "magnitude_type",
-                     "magnitude", None]
+                     "depth_in_m", "author", None, None, None,
+                     "magnitude_type", "magnitude", None]
 
         # Must be written to text buffer.
         with io.StringIO(newline='') as csvfile:
