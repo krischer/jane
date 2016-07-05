@@ -214,12 +214,19 @@ def query(request):
         return _error(request, "format must be 'xml' or 'text'.",
                       status_code=400)
 
+    if params["format"] == "xml":
+        content_type = "text/xml"
+    elif params["format"] == "text":
+        content_type = "text"
+    else:
+        raise NotImplementedError
+
     with io.BytesIO() as fh:
         status = query_event(fh, **params)
         fh.seek(0, 0)
 
         if status == 200:
-            response = HttpResponse(fh, content_type='text/xml')
+            response = HttpResponse(fh, content_type=content_type)
             return response
         else:
             msg = 'Not Found: No data selected'

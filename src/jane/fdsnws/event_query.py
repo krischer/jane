@@ -125,7 +125,7 @@ def query_event(fh, nodata, orderby, format, starttime=None, endtime=None,
                      "magnitude", None]
 
         # Must be written to text buffer.
-        with io.String(newline='') as csvfile:
+        with io.StringIO(newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter='|',
                                 quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(header)
