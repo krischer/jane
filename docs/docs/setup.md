@@ -21,7 +21,6 @@ with the following Python modules
 * `obspy`
 * `django`
 * `psycopg2`
-* `jsonfield`
 * `django-plugins` (https://github.com/krischer/django-plugins/archive/django1.9.zip)
 * `djangorestframework`
 * `djangorestframework-gis`
@@ -29,8 +28,7 @@ with the following Python modules
 * `djangorestframework-xml`
 * `djangorestframework-yaml`
 * `markdown`
-* `django-filter`
-* `pyyaml`
+* `django-filters`
 * `defusedxml`
 * `gdal`  On Windows: http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal
 * `geojson`
@@ -50,8 +48,9 @@ used to setup a new dedicated and separate environment to run `Jane`:
 $ conda config --add channels obspy
 $ conda create -n jane python=3.4
 $ source activate jane
-(jane)$ conda install obspy=1.0 django==1.8 psycopg2 markdown flake8 gdal pyyaml
-(jane)$ pip install https://github.com/krischer/django-plugins/archive/master.zip
+(jane)$ conda install obspy psycopg2 markdown flake8 gdal pyyaml
+(jane)$ pip install django==1.9
+(jane)$ pip install https://github.com/krischer/django-plugins/archive/django1.9.zip
 (jane)$ pip install jsonfield djangorestframework djangorestframework-gis defusedxml geojson django-cors-headers django-debug-toolbar django-debug-toolbar-template-timings djangorestframework-jsonp djangorestframework-xml djangorestframework-yaml
 ```
 
