@@ -103,6 +103,18 @@
 </li>
 
                     
+                        
+<li >
+    <a href="../documents/index.html">Document Database</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../management_commands/index.html">Management Commands</a>
+</li>
+
+                    
                     </ul>
                 </li>
             
@@ -121,8 +133,8 @@
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
-                <li class="disabled">
-                    <a rel="prev" >
+                <li >
+                    <a rel="prev" href="../documents/index.html">
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -310,6 +322,9 @@ The default value simply matches all paths. Be careful to not define
 overlapping mappings - it will cause errors during the waveform indexing
 process. <code>Jane</code> has some checks in place to prevent that but in cases
 involving different regular expressions for the paths it cannot tell.</p>
+<p>If you have a large number of mappings to apply, consider using the 
+<code>add_documents</code> management command as documented 
+<a href="../management_commands/index.html">here</a>.</p>
 <p>Any freshly added mapping will be automatically applied to newly indexed
 data. To also apply it to existing data, press the <code>UPDATE WAVEFORM INDICES
 WITH MAPPINGS (SLOW!)</code> button in the mappings panel in the admin interface:</p>

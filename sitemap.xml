@@ -55,6 +55,18 @@
      <changefreq>daily</changefreq>
     </url>
         
+    <url>
+     <loc>None/documents/index.html</loc>
+     <lastmod>2016-07-06</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/management_commands/index.html</loc>
+     <lastmod>2016-07-06</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
     
 
 </urlset>

@@ -21,3 +21,11 @@ footer {
     margin-top: 20px;
     color: rgba(255, 255, 255, 0.6);
 }
+
+a, a:hover {
+    color: #3D5611;
+}
+
+.dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {
+    background-color: #3D5611;
+}

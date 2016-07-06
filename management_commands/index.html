@@ -9,7 +9,7 @@
         
         <link rel="shortcut icon" href="../img/favicon.ico">
 
-	<title>Internals - Jane</title>
+	<title>Management Commands - Jane</title>
 
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
@@ -86,8 +86,8 @@
 
                     
                         
-<li class="active">
-    <a href="index.html">Internals</a>
+<li >
+    <a href="../internals/index.html">Internals</a>
 </li>
 
                     
@@ -110,8 +110,8 @@
 
                     
                         
-<li >
-    <a href="../management_commands/index.html">Management Commands</a>
+<li class="active">
+    <a href="index.html">Management Commands</a>
 </li>
 
                     
@@ -129,12 +129,12 @@
                     </a>
                 </li>
                 <li >
-                    <a rel="next" href="../settings/index.html">
+                    <a rel="next" href="../documents/index.html">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
-                <li >
-                    <a rel="prev" href="../rest/index.html">
+                <li class="disabled">
+                    <a rel="prev" >
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -157,24 +157,52 @@
             <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#jane-internals">Jane Internals</a></li>
+        <li class="main active"><a href="#management-command">Management Command</a></li>
         
-            <li><a href="#document-data-model">Document Data Model</a></li>
+            <li><a href="#available-management-commands">Available Management Commands</a></li>
+        
+            <li><a href="#details">Details</a></li>
         
     
     </ul>
 </div></div>
             <div class="col-md-9" role="main">
 
-<h1 id="jane-internals">Jane Internals</h1>
-<h2 id="document-data-model">Document Data Model</h2>
-<p><code>Jane</code> stores data from plugins in a document database. The hierarchical data model is as follows:</p>
+<h1 id="management-command">Management Command</h1>
+<p><code>Jane</code> has a couple of custom management commands. This page documents these. 
+All of them have to be execute within the <code>jane/src</code> directory or use 
+absolute paths.</p>
+<h2 id="available-management-commands">Available Management Commands</h2>
+<p>List of all available management commands.</p>
 <ul>
-<li><code>DocumentType</code>: The document category. Determined from the installed plugins.</li>
-<li><code>Document</code>: One document of a certain type. Can have multiple indices.</li>
-<li><code>DocumentIndex</code>: The indices of a certain document.</li>
-<li><code>DocumentIndexAttachments</code>: The attachments for one index.</li>
-</ul></div>
+<li><code>add_mappings</code></li>
+<li><code>index_waveforms</code></li>
+<li><code>upload_documents</code></li>
+</ul>
+<h2 id="details">Details</h2>
+<p>Please also view the <code>--help</code> output of each command for the most up-to-date
+information.</p>
+<hr />
+<p><code>$ python manage.py add_mappings</code></p>
+<p>Use this command to add a large number of waveform mappings. Smaller amounts
+of mappings can also conveniently be added via the admin interface. See the 
+<a href="../waveforms/index.html">Waveforms page</a> for more details about how mappings work.</p>
+<p>The command takes a single argument, the path to a file which specifies a 
+mapping in each line. Each line has <code>ID</code> <code>NEW_ID</code>, <code>STARTTIME</code>, and 
+<code>ENDTIME</code>. Example file:</p>
+<pre><code>ZZ.e6008..E XY.A00..HHE 2008-08-18T14:00:00.000000Z 2008-09-30T12:00:00.000000Z
+ZZ.e6008..N XY.A00..HHN 2008-08-18T14:00:00.000000Z 2008-09-30T12:00:00.000000Z
+</code></pre>
+
+<hr />
+<p><code>$ python manage.py index_waveforms</code></p>
+<p>Used to index waveforms. Fairly powerful and flexible and documented in more
+detail on the <a href="../waveforms/index.html">Waveforms page</a>.</p>
+<hr />
+<p><code>$ python manage.py upload_documents</code></p>
+<p>The command line can be used as an alternative to the REST interface to 
+upload documents. See the <a href="../documents/index.html">Document Database page</a> for more 
+details.</p></div>
         </div>
 
         <footer class="col-md-12">

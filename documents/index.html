@@ -9,7 +9,7 @@
         
         <link rel="shortcut icon" href="../img/favicon.ico">
 
-	<title>Internals - Jane</title>
+	<title>Document Database - Jane</title>
 
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
@@ -86,8 +86,8 @@
 
                     
                         
-<li class="active">
-    <a href="index.html">Internals</a>
+<li >
+    <a href="../internals/index.html">Internals</a>
 </li>
 
                     
@@ -104,8 +104,8 @@
 
                     
                         
-<li >
-    <a href="../documents/index.html">Document Database</a>
+<li class="active">
+    <a href="index.html">Document Database</a>
 </li>
 
                     
@@ -129,12 +129,12 @@
                     </a>
                 </li>
                 <li >
-                    <a rel="next" href="../settings/index.html">
+                    <a rel="next" href="../waveforms/index.html">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
                 <li >
-                    <a rel="prev" href="../rest/index.html">
+                    <a rel="prev" href="../management_commands/index.html">
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -157,24 +157,16 @@
             <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#jane-internals">Jane Internals</a></li>
-        
-            <li><a href="#document-data-model">Document Data Model</a></li>
+        <li class="main active"><a href="#document-database">Document Database</a></li>
         
     
     </ul>
 </div></div>
             <div class="col-md-9" role="main">
 
-<h1 id="jane-internals">Jane Internals</h1>
-<h2 id="document-data-model">Document Data Model</h2>
-<p><code>Jane</code> stores data from plugins in a document database. The hierarchical data model is as follows:</p>
-<ul>
-<li><code>DocumentType</code>: The document category. Determined from the installed plugins.</li>
-<li><code>Document</code>: One document of a certain type. Can have multiple indices.</li>
-<li><code>DocumentIndex</code>: The indices of a certain document.</li>
-<li><code>DocumentIndexAttachments</code>: The attachments for one index.</li>
-</ul></div>
+<h1 id="document-database">Document Database</h1>
+<p>To be written - should include information about the <code>upload_documents</code> 
+command.</p></div>
         </div>
 
         <footer class="col-md-12">
