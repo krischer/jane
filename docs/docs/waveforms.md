@@ -104,3 +104,60 @@ optional arguments:
   -H HOST, --host HOST  Server host name. Default is 'localhost'.
   -p PORT, --port PORT  Port number. If not given a free port will be picked.
 ```
+
+## FDSN dataselect service
+
+The most common way to retrieve waveforms from `Jane` will be via its fdsnws
+`dataselect` service implementation. All indexed waveforms can be queried 
+with it. It can be found at `JANE_ROOT/fdsnws/dataselect/1/` and used with 
+any of the common tools.
+
+A very convenient tool it the FDSN web service client of the
+[ObsPy](http://obspy.org) library 
+([documentation](http://docs.obspy.org/packages/obspy.clients.fdsn.html)), 
+usage example with `Jane`:
+
+```python
+>>> import obspy
+>>> from obspy.clients.fdsn import Client
+>>> c = Client("http://JANE_ROOT")
+>>> st = c.get.get_waveforms(
+...     network="BW", station="RJOB", location="", channel="BHZ", 
+...     starttime=obspy.UTCDateTime(2016, 1, 1, 3, 0, 5),
+...     endtime=obspy.UTCDateTime(2016, 1, 1, 5, 0, 5))
+```
+
+## Waveform REST Interface
+
+Waveforms can also be retrieved via the REST interface, found at 
+`JANE_ROOT/rest/waveforms`. In most cases the fdsnws service will be more 
+convenient but the REST interface exists if somebody needs it. It should be 
+fairly self-explanatory.
+
+![Waveform REST Interface](./images/waveforms_rest_interface.png)
+
+
+## Restrictions/Protected Stations
+
+By default all waveform data is public, i.e. anybody with access to the `Jane`
+HTTP server can query all data. It is possible to limit access at a 
+per-station granularity. To do that, add a new restriction in the admin 
+interface. As soon as a restriction has been added it will be considered 
+protected and only users that are part of the restriction will still be able
+to access them.
+
+![Add waveform restriction](./images/add_waveform_restriction.png)
+
+To access the data, users will have to use the `queryauth` route of the 
+fdsnws `dataselect` service. Usage example with `ObsPy`:
+
+
+```python
+>>> import obspy
+>>> from obspy.clients.fdsn import Client
+>>> c = Client("http://JANE_ROOT", user="lion", password="myfavoritepw")
+>>> st = c.get.get_waveforms(
+...     network="BW", station="RJOB", location="", channel="BHZ", 
+...     starttime=obspy.UTCDateTime(2016, 1, 1, 3, 0, 5),
+...     endtime=obspy.UTCDateTime(2016, 1, 1, 5, 0, 5))
+```
