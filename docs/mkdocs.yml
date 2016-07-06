@@ -1,4 +1,4 @@
-site_name: Jane Docs
+site_name: Jane
 repo_url: https://github.com/krischer/jane/
 use_directory_urls: false
 theme: united

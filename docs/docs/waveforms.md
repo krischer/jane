@@ -1,90 +1,106 @@
 # Waveforms
 
-Jane's second pillar besides its plugin-based document database is the ability
-to deal with seismic waveforms. There is no reason to store that into a
-document database as it is very well structured; something a relational
-database is made for. Therefore waveform data is stored in a coupe of tables in
-the underlying PostgreSQL database.
+`Jane`'s second pillar besides its plugin-based document database is the 
+ability to deal with seismic waveforms. There is no reason to store that 
+information in a document database as it is very well structured; something a 
+relational database is made for.  Thus waveform data is stored in a couple of 
+tables in the underlying PostgreSQL database.
 
-## Getting Waveforms Into the Database
+## Indexing Waveforms
 
-The first step is always to get data into the database. For this purpose, Jane offers two complementary ways:
+`Jane` does not store the waveform in the database but only indexes some 
+information about it - thus **you must not move data after it has been 
+indexed**, otherwise `Jane` will no longer be able to find it.
 
-1. A command to index a certain path. Use this to index old data or campaign data.
-2. A command to monitor a certain directory. Any detected changes will be
-   picked up and reflected in the database.
+To index waveforms, use the `index_waveform` `manage.py` command. As all
+`manage.py` commands, this has to be run from the `jane/src` directory. It 
+is quite a powerful command and can recursively index a whole directory in a
+single shot as well as continuously monitor a directory and automatically 
+index all changed files.
 
-All commands are implemented as Django management commands. Run these in the
-`jane/src` directory.
 
-### Index A Certain Path
+#### Usage Examples
 
-The `index_waveforms` command can be used to recursively find and index all
-waveforms files in a certain folder. It has the following options.
+(1.) Run only once and remove duplicates::
 
 ```bash
+DATA=/path/to/archive/2015,/path/to/archive/2016
+LOG=/path/to/indexer.log
+python manage.py index_waveforms --verbose -i0.0 --run-once \
+    --check-duplicates -n1 -d$DATA
+```
+
+(2.) Run indexer as a daemon continuously crawling the given paths but index 
+     only the last 24 hours (-r24) of a waveform archive::
+
+```bash
+DATA=/path/to/archive/2015,/path/to/archive/2016
+LOG=/path/to/indexer.log
+python manage.py index_waveforms --verbose -i0.0 -n1 -d$DATA -r24 -l$LOG &
+```   
+
+
+There are a lot more options, please refer to the `--help` output for the 
+most up-to-date information.
+
+```
 $ python manage.py index_waveforms --help
 
-usage: manage.py index_waveforms [--celery] [--delete-files] [--queue QUEUE] path
+usage: manage.py index_waveforms [-h] [--version] [-v {0,1,2,3}]
+                                 [--settings SETTINGS]
+                                 [--pythonpath PYTHONPATH] [--traceback]
+                                 [--no-color] [-d DATA] [-n NUMBER_OF_CPUS]
+                                 [-i POLL_INTERVAL] [-r RECENT] [-l LOG] [-a]
+                                 [-1] [--check-duplicates] [--cleanup] [-f]
+                                 [-H HOST] [-p PORT]
 
-Index waveforms
-
-positional arguments:
-  path                  The path to index.
-
-optional arguments:
-  --celery              Distribute jobs to Celery`s 'index_waveforms' queue.
-                        By default all jobs will be run directly. Remember to
-                        have celery workers with that queue running!
-  --delete-files        Delete all files before indexing new ones. By default
-                        the indexer will just crawl all files and add new or
-                        changed ones. It will not delete anything. If true it
-                        will remove all files at or below the given path from
-                        the database before reindexing everything.
-  --queue QUEUE         The name of the celery queue to use for the indexing.
-                        Only important if --celery is used. Defaults to
-                        "index_waveforms".
-
-```
-
-The `--celery` settings warrants a bit more explanation. If you only have
-relatively little files to index, just run the command without it; all
-waveforms will then be indexed one after another. If you run it with
-`--celery`, the tasks will be sent to the queue specified by the `--queue`
-argument. An instance with that queue thus has to be running. This scales much
-better as you can run celery with a larger number of workers.
-
-### Monitor a Directory
-
-Directories can also continuously be monitored for any changes; the main use
-for this is incoming waveform data that should be indexed fairly rapidly.
-
-```bash
-$ python manage.py filemon --help
-
-usage: manage.py filemon [--debug] [--poll]
-                         [--polling-interval POLLING_INTERVAL] [--queue QUEUE]
-                         path
-
-Monitor files.
-
-positional arguments:
-  path                  The path to monitor.
+Crawl directories and index waveforms to Jane.
 
 optional arguments:
-  --debug, -d           Debug on
-  --poll                Don`t use the OS filesystem monitors, but poll the
-                        filesystem in intervals.
-  --polling-interval POLLING_INTERVAL
-                        Polling interval if --poll is used in seconds.
-  --queue QUEUE         The name of the celery queue to use for the indexing.
-                        Defaults to "monitor_waveforms".
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  -v {0,1,2,3}, --verbosity {0,1,2,3}
+                        Verbosity level; 0=minimal output, 1=normal output,
+                        2=verbose output, 3=very verbose output
+  --settings SETTINGS   The Python path to a settings module, e.g.
+                        "myproject.settings.main". If this isn't provided, the
+                        DJANGO_SETTINGS_MODULE environment variable will be
+                        used.
+  --pythonpath PYTHONPATH
+                        A directory to add to the Python path, e.g.
+                        "/home/djangoprojects/myproject".
+  --traceback           Raise on CommandError exceptions
+  --no-color            Don't colorize the command output.
+  -d DATA, --data DATA  Path, search patterns and feature plug-ins of waveform
+                        files. The indexer will crawl recursively through all
+                        sub-directories within each given path. Multiple paths
+                        have to be separated with a comma, e.g.
+                        '/first/path=*.*,/second/path,/third/path=*.gse'. File
+                        patterns are given as space-separated list of
+                        wildcards after a equal sign, e.g. '/path=*.gse2
+                        *.mseed,/second/path=*.*'. Default path option is
+                        'data=*.*'.
+  -n NUMBER_OF_CPUS     Number of CPUs used for the indexer.
+  -i POLL_INTERVAL, --poll-interval POLL_INTERVAL
+                        Poll interval for file crawler in seconds (default is
+                        0).
+  -r RECENT, --recent RECENT
+                        Index only recent files modified within the given
+                        number of hours. This option is deactivated by
+                        default.
+  -l LOG, --log LOG     Log file name. If no log file is given, stdout will be
+                        used.
+  -a, --all-files       The indexer will automatically skip paths or files
+                        starting with a dot. This option forces parsing of all
+                        paths and files.
+  -1, --run-once        The indexer will parse through all given directories
+                        only once and quit afterwards.
+  --check-duplicates    Checks for duplicate entries within database. This
+                        feature will slow down the indexer progress.
+  --cleanup             Clean database from non-existing files or paths if
+                        activated, but will skip all paths marked as archived
+                        in the database.
+  -f, --force-reindex   Reindex existing index entry for every crawled file.
+  -H HOST, --host HOST  Server host name. Default is 'localhost'.
+  -p PORT, --port PORT  Port number. If not given a free port will be picked.
 ```
-
-This always requires active celery workers, working on the queue specified with
-the `--queue` argument. By default this command will use the operating system's
-capability to monitor file system changes. In some cases this does not work
-(mainly if the kernel is not responsible for the storage, e.g. on a network
- drive). In these cases, please use the `--poll` argument which will result in
-the file system being periodically scanned for changes; the scanning interval
-is determined by the `--polling_interval` argument.

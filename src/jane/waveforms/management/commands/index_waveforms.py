@@ -25,8 +25,6 @@ from ... import process_waveforms
 django.setup()
 
 
-# Available in Python 3.4+. Works with all BLAS implementations.
-# multiprocessing.set_start_method("forkserver")
 logger = logging.getLogger("jane-waveform-indexer")
 
 
@@ -411,28 +409,7 @@ def _run_indexer(options):
 
 
 class Command(BaseCommand):
-    help = """Crawl directories and index waveforms contents to Jane.
-
-
-Usage Examples
---------------
-    orint("processing", filename)
-
-(1) Run indexer as daemon continuously crawling the given paths but index only
-    the last 24 hours (-r24) of a waveform archive::
-
-       #!/bin/bash
-       DATA=/path/to/archive/2010,/path/to/archive/2011,/path/to/arclink
-       LOG=/path/to/indexer.log
-       python manage.py index_waveforms --verbose -i0.0 -n1 -d$DATA \
-           -r24 -l$LOG &
-
-(2) Run only once and remove duplicates::
-
-       python manage.py index_waveforms --verbose -i0.0 --run-once \
-           --check-duplicates -n1 -d$DATA
-"""
-
+    help = "Crawl directories and index waveforms to Jane."
     def add_arguments(self, parser):
         parser.add_argument(
             '-d', '--data', default='data=*.*',
@@ -443,10 +420,6 @@ Usage Examples
     File patterns are given as space-separated list of wildcards after a equal
     sign, e.g.
     '/path=*.gse2 *.mseed,/second/path=*.*'.
-    Feature plug-ins may be added using the hash (#) character, e.g.
-    '/path=*.mseed#feature1#feature2,/second/path#feature2'.
-    Be aware that features must be provided behind file patterns (if any)!
-    There is no default feature enabled.
     Default path option is 'data=*.*'.""")
         parser.add_argument(
             '-n', type=int, dest='number_of_cpus',
