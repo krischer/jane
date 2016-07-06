@@ -32,7 +32,7 @@ GIS system. It supports fast, client-side event display and filtering,
 various map background and other settings, the plotting of stations, 
 instrument responses, event heatmaps and many other things.
 
-![web gis](./images/web_gis.jpg)
+![web gis](./images/web_gis.png)
 
 ### Plugin System
 
