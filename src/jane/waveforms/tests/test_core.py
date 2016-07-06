@@ -3,6 +3,7 @@
 import datetime
 import os
 
+from django.core.exceptions import ValidationError
 from django.test.testcases import TestCase
 from psycopg2._range import DateTimeTZRange
 import obspy
@@ -75,7 +76,7 @@ class CoreTestCase(TestCase):
         # Now create a mapping that does something.
         models.Mapping(
             timerange=DateTimeTZRange(
-                obspy.UTCDateTime(2000, 1, 1).datetime,
+                obspy.UTCDateTime(2002, 1, 1).datetime,
                 obspy.UTCDateTime(2016, 1, 2).datetime),
             network="TA", station="A25A", location="", channel="BHE",
             new_network="XX", new_station="YY", new_location="00",
@@ -105,3 +106,30 @@ class CoreTestCase(TestCase):
                       models.ContinuousTrace.objects.all()])
         self.assertEqual(expected_ids, ids)
         delete_indexed_waveforms()
+
+    def test_creation_of_mappings(self):
+        # First create two compatible ones.
+        models.Mapping(
+            timerange=DateTimeTZRange(
+                obspy.UTCDateTime(2000, 1, 1).datetime,
+                obspy.UTCDateTime(2001, 1, 2).datetime),
+            network="TA", station="A25A", location="", channel="BHE",
+            new_network="XX", new_station="YY", new_location="00",
+            new_channel="ZZZ").save()
+        models.Mapping(
+            timerange=DateTimeTZRange(
+                obspy.UTCDateTime(2005, 1, 1).datetime,
+                obspy.UTCDateTime(2006, 1, 2).datetime),
+            network="TA", station="A25A", location="", channel="BHE",
+            new_network="XX", new_station="YY", new_location="00",
+            new_channel="ZZZ").save()
+
+        # Add another one with an overlapping mapping - should raise.
+        with self.assertRaises(ValidationError):
+            models.Mapping(
+                timerange=DateTimeTZRange(
+                    obspy.UTCDateTime(2000, 1, 1).datetime,
+                    obspy.UTCDateTime(2012, 1, 2).datetime),
+                network="TA", station="A25A", location="",
+                channel="BHE", new_network="XX", new_station="YY",
+                new_location="00", new_channel="ZZZ").save()

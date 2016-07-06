@@ -209,6 +209,11 @@ class Mapping(models.Model):
             raise ValidationError("This mapping is not compatible with an "
                                   "existing mapping. Check the time range?")
 
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+
 class Restriction(models.Model):
     """
     Station/network restrictions of waveforms
