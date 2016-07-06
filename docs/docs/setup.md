@@ -138,6 +138,14 @@ The last step is to enable the PostGIS extension for the just created database.
 $ psql --command="CREATE EXTENSION postgis;" jane
 ```
 
+## Installing Jane
+
+```bash
+cd /path/where/jane/should/live
+git clone https://github.com/krischer/jane.git
+cd jane
+```
+
 ## Adapt Local Settings
 
 Copy `jane/src/local_settings.py.example` to `jane/src/local_settings.py` and 
@@ -165,3 +173,158 @@ $ python manage.py runserver
 ```
 
 ... which will launch a local web server.
+
+## Building the Documentation
+
+Assuming `mkdocs` has been installed as above:
+
+```
+cd /path/to/jane/docs
+./build_docs.sh
+```
+
+this will build and copy the build files to the correct directory.
+
+
+
+## Installing on a Production Server
+
+Things are very similar on a production server but you want to run most 
+things as services and of course the availability of all these service must be 
+monitored and security critical updates have to be applied to maintain a stable 
+installation. Make sure to speak about this with your admin! We take no 
+responsibilities for any security problems.
+
+Properly deploying a Django application is well documented in the 
+[official Django documentation](https://docs.djangoproject.com/en/1.9/howto/deployment/).
+
+The fellowing is a shortened introduction on how to deploy it on a Debian 
+server with an Apache webserver. Please note that `mod-wsgi-py3` for the 
+Apache web server has to be the same Python with which `Jane` is run, so 
+using the Anaconda Python is likely quite hard to do.
+
+### PostgreSQL
+
+Install with
+
+```bash
+sudo apt-get install postgresql postgresql-contrib
+```
+
+make sure to get at least version 9.4. Then perform the basic setup (you 
+must run this as the `postgres` user or whatever user PostgreSQL has been 
+configured with):
+
+```bash
+createuser --encrypted --pwprompt jane
+createdb --owner=jane jane
+psql --command="CREATE EXTENSION postgis;" jane
+```
+
+### Python and Dependencies
+
+We (as much as possible) rely on Debian packages. Sometimes we have to use 
+`pip` if the Python module is not packaged. Make sure to install Python 3.4!
+
+First, add the ObsPy sources as written 
+[here](https://github.com/obspy/obspy/wiki/Installation-on-Linux-via-Apt-Repository).
+
+Then install as much as possible with `apt-get`:
+ 
+```bash
+# AS ROOT!
+apt-get install python3-psycopg2 \
+    python3-markdown \
+    python3-yaml \
+    python3-defusedxml \
+    python3-gdal \
+    python3-flake8 \
+    python3-pip \
+    python3-obspy \
+    ipython3 \
+    git
+```
+
+And finally some things as a local user. You will likely want to create a 
+separate user to run `Jane`. With that user, run (note that you might have 
+to use `pip3` instead of `pip`):
+ 
+```bash
+# AS USER!
+pip3 install --user \
+    "django>=1.9,<1.10" \
+    djangorestframework \
+    djangorestframework-gis \
+    djangorestframework-jsonp \
+    djangorestframework-xml \
+    djangorestframework-yaml \
+    django-cors-headers \
+    django-debug-toolbar \
+    django-plugins \
+    geojson \
+    mkdocs \
+    mkdocs-bootswatch
+```
+
+Then follow the instructions above to get `Jane` from Github, adapt the 
+`local_settings.py` file, and build the documentation.
+
+Finally also run a couple of `manage.py` commands (you might have to use 
+`python3`). The `collectstatic` command will copy all static files to a 
+common directory that is then served directly by Apache making it much faster:
+
+```bash
+cd jane/src
+python3 manage.py migrate
+python3 manage.py createsuperuser
+python3 manage.py collectstatic
+```
+
+### Configuring Apache
+
+The last thing to do is to configure Apache to run `Jane` over the `WSGI`.
+
+Install it with
+
+```bash
+sudo apt-get install apache2 libapache2-mod-wsgi-py3
+sudo a2enmod wsgi
+```
+
+make sure its running
+
+```bash
+/etc/init.d/apache2 status
+```
+
+The `VirtualHost` configuration has to look approximately like this (details 
+will of course differ per installation):
+
+```apache
+<VirtualHost *:80>
+        WSGIDaemonProcess jane user=jane 
+        python-path=/path/to/jane/jane/src:/path/to/site-packages processes=4 threads=8
+        WSGIProcessGroup jane
+        WSGIScriptAlias / /path/to/jane/jane/src/jane/wsgi.py
+        WSGIPassAuthorization On
+        WSGIApplicationGroup %{GLOBAL}
+
+        <Directory /path/to/jane/jane/src/jane>
+                <Files wsgi.py>
+                Require all granted
+                </Files>
+        </Directory>
+
+        # Prevent django from serving static files
+        DocumentRoot /path/to/jane/jane/static
+        Alias /static /path/to/jane/jane/static
+        <Directory /path/to/jane/jane/static>
+                Require all granted
+        </Directory>
+        
+        ...
+
+</VirtualHost>
+```
+
+Make sure to choose sensible `processes` and `threads` options.
