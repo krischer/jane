@@ -165,5 +165,24 @@ fdsnws `dataselect` service. Usage example with `ObsPy`:
 
 ## Waveform Mappings
 
-Some data, especially temporary deployments, might have different network, 
-station, location, and/or channel codes 
+Some data, especially temporary deployments, might have different network,
+station, location, and/or channel codes than you would like them to have.
+Waveform mappings to the rescue! Add a mapping by using the admin interface:
+
+![Add mapping](./images/add_mapping.png)
+
+As can be seen it maps a network, station, location, channel tuple to a new
+one, valid across a certain time range. Additionally, to solve the tricky
+cases, each mapping takes a regular expression for its path on the filesystem.
+The default value simply matches all paths. Be careful to not define
+overlapping mappings - it will cause errors during the waveform indexing
+process. `Jane` has some checks in place to prevent that but in cases
+involving different regular expressions for the paths it cannot tell.
+
+Any freshly added mapping will be automatically applied to newly indexed
+data. To also apply it to existing data, press the `UPDATE WAVEFORM INDICES
+WITH MAPPINGS (SLOW!)` button in the mappings panel in the admin interface:
+
+![Add mapping](./images/update_mappings_button.png)
+
+This might take a while for big databases.
