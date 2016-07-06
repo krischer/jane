@@ -12,6 +12,7 @@ import numpy
 from obspy import read, UTCDateTime
 from obspy.clients.fdsn import Client as FDSNClient
 
+from jane.waveforms.models import Restriction
 from jane.waveforms.process_waveforms import process_file
 
 
@@ -230,6 +231,47 @@ class DataSelect1TestCase(TestCase):
         response = self.client.get('/fdsnws/dataselect/1/query' + param)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('OK' in response.reason_phrase)
+
+    def test_restrictions(self):
+        """
+        Tests if the waveform restrictions actually work as expected.
+        """
+        params = {
+            'station': 'A25A',
+            'cha': 'BHE',
+            'start': '2010-03-25T00:00:00',
+            'end': '2010-03-26T00:00:00'
+        }
+
+        # No restrictions currently apply - we should get something.
+        response = self.client.get('/fdsnws/dataselect/1/query', params)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        st = read(io.BytesIO(response.getvalue()))
+        self.assertEqual(len(st), 1)
+        self.assertEqual(st[0].id, "TA.A25A..BHE")
+
+        # Now add restrictions to this one station.
+        # create anonymous user
+        r = Restriction.objects.get_or_create(network="TA", station="A25A")[0]
+        r.users.add(User.objects.filter(username='random')[0])
+        r.save()
+
+        # Now the same query should no longer return something as the
+        # station has been restricted.
+        response = self.client.get('/fdsnws/dataselect/1/query', params)
+        self.assertEqual(response.status_code, 204)
+
+        # RJOB data can still be retrieved.
+        params["station"] = "RJOB"
+        params["cha"] = "Z"
+        params["start"] = "2005-01-01T00:00:00"
+        response = self.client.get('/fdsnws/dataselect/1/query', params)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        st = read(io.BytesIO(response.getvalue()))
+        self.assertEqual(len(st), 1)
+        self.assertEqual(st[0].id, ".RJOB..Z")
 
 
 class DataSelect1LiveServerTestCase(LiveServerTestCase):
