@@ -26,6 +26,10 @@ class TestCodeFormatting(unittest.TestCase):
             os.path.join(jane_dir, "jane", "documents", "migrations"),
             os.path.join(jane_dir, "jane", "waveforms", "migrations")
             ]
+
+        ignore_files = [
+            os.path.join(jane_dir, "jane", "local_settings.py")
+            ]
         files = []
         for dirpath, _, filenames in os.walk(jane_dir):
             ignore = False
@@ -41,6 +45,8 @@ class TestCodeFormatting(unittest.TestCase):
                 continue
             for py_file in filenames:
                 full_path = os.path.join(dirpath, py_file)
+                if full_path in ignore_files:
+                    continue
                 files.append(full_path)
 
         # Get the style checker with the default style.
