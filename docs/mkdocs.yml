@@ -1,11 +1,15 @@
 site_name: Jane Docs
 repo_url: https://github.com/krischer/jane/
 use_directory_urls: false
+theme: united
+copyright: Jane Developers, 2014-2016
 pages:
 - 'Home': 'index.md'
+- 'Introduction': 'introduction.md'
 - 'Details':
     - 'Setup': 'setup.md'
     - 'Internals': 'internals.md'
     - 'REST Interface': 'rest.md'
     - 'Waveforms': 'waveforms.md'
     - 'Settings': 'settings.md'
+    - 'Testing': 'testing.md'
