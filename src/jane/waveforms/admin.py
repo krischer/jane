@@ -106,6 +106,8 @@ class FileAdmin(admin.ModelAdmin):
 @admin.register(models.ContinuousTrace)
 class ContinuousTraceAdmin(admin.ModelAdmin):
     list_display = ['format_nslc', 'network', 'station', 'location', 'channel',
+                    'original_network', 'original_station',
+                    'original_location', 'original_channel',
                     'starttime', 'endtime', 'sampling_rate', 'npts',
                     'quality']
     search_fields = ['network', 'station', 'location', 'channel']
@@ -119,9 +121,13 @@ class ContinuousTraceAdmin(admin.ModelAdmin):
     exclude = ["timerange"]
 
     def starttime(self, obj):
+        if obj.timerange.isempty:
+            return "None"
         return obj.timerange.lower.isoformat() + "Z"
 
     def endtime(self, obj):
+        if obj.timerange.isempty:
+            return "None"
         return obj.timerange.upper.isoformat() + "Z"
 
     def has_add_permission(self, request, obj=None):  # @UnusedVariable

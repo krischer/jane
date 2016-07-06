@@ -3,7 +3,7 @@
 import os
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.db import models
 from django.contrib.postgres.fields import DateTimeRangeField, ArrayField
 
@@ -76,6 +76,13 @@ class ContinuousTrace(models.Model):
     station = models.CharField(max_length=5, db_index=True, blank=True)
     location = models.CharField(max_length=2, db_index=True, blank=True)
     channel = models.CharField(max_length=3, db_index=True, blank=True)
+
+    # Original codes for mapped ids.
+    original_network = models.CharField(max_length=2, blank=True)
+    original_station = models.CharField(max_length=5, blank=True)
+    original_location = models.CharField(max_length=2, blank=True)
+    original_channel = models.CharField(max_length=3, blank=True)
+
     timerange = DateTimeRangeField(verbose_name="Temporal Range (UTC)",
                                    db_index=True)
     duration = models.FloatField('Duration (s)', db_index=True, default=0)
@@ -103,20 +110,59 @@ class ContinuousTrace(models.Model):
         return [((self.timerange.lower + (delta * i)).isoformat(), v / 2)
                 for i, v in enumerate(self.preview_trace)]
 
+    def save(self, *args, **kwargs):
+        # Save/update the mappings upon saving to database.
+        net, sta, loc, cha = self.network, self.station, self.location, \
+                             self.channel
+
+        # Find the mapping
+        query = Mapping.objects.filter(timerange__overlap=self.timerange)
+        query = query.filter(network__exact=net,
+                             station__exact=sta,
+                             channel__exact=cha,
+                             location__exact=loc)
+
+        # Raise exception if more than one mapping matches.
+        count = query.count()
+
+        if count > 1:
+            raise ImproperlyConfigured(
+                "More than one mapping found for %s.%s.%s.%s (%s-%s)." % (
+                    net, sta, cha, loc,
+                    self.timerange.lower, self.timerange.upper))
+        elif count == 0:
+            new_net, new_sta, new_loc, new_cha = net, sta, loc, cha
+        else:
+            m = query.first()
+            new_net, new_sta, new_loc, new_cha = \
+                m.new_network, m.new_station, m.new_location, m.new_channel
+
+        self.network = new_net
+        self.station = new_sta
+        self.location = new_loc
+        self.channel = new_cha
+
+        self.original_network = net
+        self.original_station = sta
+        self.original_location = loc
+        self.original_channel = cha
+
+        super().save(*args, **kwargs)
+
 
 class Mapping(models.Model):
     timerange = DateTimeRangeField(verbose_name="Temporal Range (UTC)",
                                    db_index=True)
-    network = models.CharField(max_length=2, blank=True)
-    station = models.CharField(max_length=5, blank=True)
-    location = models.CharField(max_length=2, blank=True)
-    channel = models.CharField(max_length=3, blank=True)
+    network = models.CharField(max_length=2, db_index=True, blank=True)
+    station = models.CharField(max_length=5, db_index=True, blank=True)
+    location = models.CharField(max_length=2, db_index=True, blank=True)
+    channel = models.CharField(max_length=3, db_index=True, blank=True)
     new_network = models.CharField(max_length=2, blank=True)
     new_station = models.CharField(max_length=5, blank=True)
     new_location = models.CharField(max_length=2, blank=True)
     new_channel = models.CharField(max_length=3, blank=True)
-    path_regex = models.CharField(max_length=255, blank=True)
-    file_regex = models.CharField(max_length=255, blank=True)
+    full_path_regex = models.CharField(
+        max_length=255, blank=False, default=r".*")
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     created_by = models.ForeignKey(User, null=True, editable=False,
                                    related_name='mappings_created')
