@@ -12,7 +12,7 @@ database!
 $ createuser --superuser --encrypted --pwprompt test_jane
 ```
 
-Finally running the tests is then a matter of calling
+Finally, running the tests is then a matter of calling:
 
 ```bash
 $ python manage.py test
