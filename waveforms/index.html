@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+	<title>Waveforms - Jane</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+        <link href="../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../index.html">Jane</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="../index.html">Home</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../introduction/index.html">Introduction</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        
+<li >
+    <a href="../setup/index.html">Setup</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../testing/index.html">Testing</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../settings/index.html">Settings</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../internals/index.html">Internals</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../rest/index.html">REST Interface</a>
+</li>
+
+                    
+                        
+<li class="active">
+    <a href="index.html">Waveforms</a>
+</li>
+
+                    
+                    </ul>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                <li >
+                    <a rel="next" href="../rest/index.html">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li class="disabled">
+                    <a rel="prev" >
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/krischer/jane/">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#waveforms">Waveforms</a></li>
+        
+            <li><a href="#indexing-waveforms">Indexing Waveforms</a></li>
+        
+            <li><a href="#fdsn-dataselect-service">FDSN dataselect service</a></li>
+        
+            <li><a href="#waveform-rest-interface">Waveform REST Interface</a></li>
+        
+            <li><a href="#restrictionsprotected-stations">Restrictions/Protected Stations</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="waveforms">Waveforms</h1>
+<p><code>Jane</code>'s second pillar besides its plugin-based document database is the 
+ability to deal with seismic waveforms. There is no reason to store that 
+information in a document database as it is very well structured; something a 
+relational database is made for.  Thus waveform data is stored in a couple of 
+tables in the underlying PostgreSQL database.</p>
+<h2 id="indexing-waveforms">Indexing Waveforms</h2>
+<p><code>Jane</code> does not store the waveform in the database but only indexes some 
+information about it - thus <strong>you must not move data after it has been 
+indexed</strong>, otherwise <code>Jane</code> will no longer be able to find it.</p>
+<p>To index waveforms, use the <code>index_waveform</code> <code>manage.py</code> command. As all
+<code>manage.py</code> commands, this has to be run from the <code>jane/src</code> directory. It 
+is quite a powerful command and can recursively index a whole directory in a
+single shot as well as continuously monitor a directory and automatically 
+index all changed files.</p>
+<h4 id="usage-examples">Usage Examples</h4>
+<p>(1.) Run only once and remove duplicates::</p>
+<pre><code class="bash">DATA=/path/to/archive/2015,/path/to/archive/2016
+LOG=/path/to/indexer.log
+python manage.py index_waveforms --verbose -i0.0 --run-once \
+    --check-duplicates -n1 -d$DATA
+</code></pre>
+
+<p>(2.) Run indexer as a daemon continuously crawling the given paths but index 
+     only the last 24 hours (-r24) of a waveform archive::</p>
+<pre><code class="bash">DATA=/path/to/archive/2015,/path/to/archive/2016
+LOG=/path/to/indexer.log
+python manage.py index_waveforms --verbose -i0.0 -n1 -d$DATA -r24 -l$LOG &amp;
+</code></pre>
+
+<p>There are a lot more options, please refer to the <code>--help</code> output for the 
+most up-to-date information.</p>
+<pre><code>$ python manage.py index_waveforms --help
+
+usage: manage.py index_waveforms [-h] [--version] [-v {0,1,2,3}]
+                                 [--settings SETTINGS]
+                                 [--pythonpath PYTHONPATH] [--traceback]
+                                 [--no-color] [-d DATA] [-n NUMBER_OF_CPUS]
+                                 [-i POLL_INTERVAL] [-r RECENT] [-l LOG] [-a]
+                                 [-1] [--check-duplicates] [--cleanup] [-f]
+                                 [-H HOST] [-p PORT]
+
+Crawl directories and index waveforms to Jane.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  -v {0,1,2,3}, --verbosity {0,1,2,3}
+                        Verbosity level; 0=minimal output, 1=normal output,
+                        2=verbose output, 3=very verbose output
+  --settings SETTINGS   The Python path to a settings module, e.g.
+                        &quot;myproject.settings.main&quot;. If this isn't provided, the
+                        DJANGO_SETTINGS_MODULE environment variable will be
+                        used.
+  --pythonpath PYTHONPATH
+                        A directory to add to the Python path, e.g.
+                        &quot;/home/djangoprojects/myproject&quot;.
+  --traceback           Raise on CommandError exceptions
+  --no-color            Don't colorize the command output.
+  -d DATA, --data DATA  Path, search patterns and feature plug-ins of waveform
+                        files. The indexer will crawl recursively through all
+                        sub-directories within each given path. Multiple paths
+                        have to be separated with a comma, e.g.
+                        '/first/path=*.*,/second/path,/third/path=*.gse'. File
+                        patterns are given as space-separated list of
+                        wildcards after a equal sign, e.g. '/path=*.gse2
+                        *.mseed,/second/path=*.*'. Default path option is
+                        'data=*.*'.
+  -n NUMBER_OF_CPUS     Number of CPUs used for the indexer.
+  -i POLL_INTERVAL, --poll-interval POLL_INTERVAL
+                        Poll interval for file crawler in seconds (default is
+                        0).
+  -r RECENT, --recent RECENT
+                        Index only recent files modified within the given
+                        number of hours. This option is deactivated by
+                        default.
+  -l LOG, --log LOG     Log file name. If no log file is given, stdout will be
+                        used.
+  -a, --all-files       The indexer will automatically skip paths or files
+                        starting with a dot. This option forces parsing of all
+                        paths and files.
+  -1, --run-once        The indexer will parse through all given directories
+                        only once and quit afterwards.
+  --check-duplicates    Checks for duplicate entries within database. This
+                        feature will slow down the indexer progress.
+  --cleanup             Clean database from non-existing files or paths if
+                        activated, but will skip all paths marked as archived
+                        in the database.
+  -f, --force-reindex   Reindex existing index entry for every crawled file.
+  -H HOST, --host HOST  Server host name. Default is 'localhost'.
+  -p PORT, --port PORT  Port number. If not given a free port will be picked.
+</code></pre>
+
+<h2 id="fdsn-dataselect-service">FDSN dataselect service</h2>
+<p>The most common way to retrieve waveforms from <code>Jane</code> will be via its fdsnws
+<code>dataselect</code> service implementation. All indexed waveforms can be queried 
+with it. It can be found at <code>JANE_ROOT/fdsnws/dataselect/1/</code> and used with 
+any of the common tools.</p>
+<p>A very convenient tool it the FDSN web service client of the
+<a href="http://obspy.org">ObsPy</a> library 
+(<a href="http://docs.obspy.org/packages/obspy.clients.fdsn.html">documentation</a>), 
+usage example with <code>Jane</code>:</p>
+<pre><code class="python">&gt;&gt;&gt; import obspy
+&gt;&gt;&gt; from obspy.clients.fdsn import Client
+&gt;&gt;&gt; c = Client(&quot;http://JANE_ROOT&quot;)
+&gt;&gt;&gt; st = c.get.get_waveforms(
+...     network=&quot;BW&quot;, station=&quot;RJOB&quot;, location=&quot;&quot;, channel=&quot;BHZ&quot;, 
+...     starttime=obspy.UTCDateTime(2016, 1, 1, 3, 0, 5),
+...     endtime=obspy.UTCDateTime(2016, 1, 1, 5, 0, 5))
+</code></pre>
+
+<h2 id="waveform-rest-interface">Waveform REST Interface</h2>
+<p>Waveforms can also be retrieved via the REST interface, found at 
+<code>JANE_ROOT/rest/waveforms</code>. In most cases the fdsnws service will be more 
+convenient but the REST interface exists if somebody needs it. It should be 
+fairly self-explanatory.</p>
+<p><img alt="Waveform REST Interface" src="../images/waveforms_rest_interface.png" /></p>
+<h2 id="restrictionsprotected-stations">Restrictions/Protected Stations</h2>
+<p>By default all waveform data is public, i.e. anybody with access to the <code>Jane</code>
+HTTP server can query all data. It is possible to limit access at a 
+per-station granularity. To do that, add a new restriction in the admin 
+interface. As soon as a restriction has been added it will be considered 
+protected and only users that are part of the restriction will still be able
+to access them.</p>
+<p><img alt="Add waveform restriction" src="../images/add_waveform_restriction.png" /></p>
+<p>To access the data, users will have to use the <code>queryauth</code> route of the 
+fdsnws <code>dataselect</code> service. Usage example with <code>ObsPy</code>:</p>
+<pre><code class="python">&gt;&gt;&gt; import obspy
+&gt;&gt;&gt; from obspy.clients.fdsn import Client
+&gt;&gt;&gt; c = Client(&quot;http://JANE_ROOT&quot;, user=&quot;lion&quot;, password=&quot;myfavoritepw&quot;)
+&gt;&gt;&gt; st = c.get.get_waveforms(
+...     network=&quot;BW&quot;, station=&quot;RJOB&quot;, location=&quot;&quot;, channel=&quot;BHZ&quot;, 
+...     starttime=obspy.UTCDateTime(2016, 1, 1, 3, 0, 5),
+...     endtime=obspy.UTCDateTime(2016, 1, 1, 5, 0, 5))
+</code></pre></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+                <center>Jane Developers, 2014-2016</center>
+            
+            <center>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</center>
+        </footer>
+
+        <script src="../js/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/highlight.pack.js"></script>
+        <script>var base_url = '..';</script>
+        <script data-main="../mkdocs/js/search.js" src="../mkdocs/js/require.js"></script>
+        <script src="../js/base.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            From here you can search these documents. Enter
+                            your search terms below.
+                        </p>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                            </div>
+                        </form>
+                        <div id="mkdocs-search-results"></div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

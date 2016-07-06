@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+	<title>Settings - Jane</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+        <link href="../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../index.html">Jane</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="../index.html">Home</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../introduction/index.html">Introduction</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        
+<li >
+    <a href="../setup/index.html">Setup</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../testing/index.html">Testing</a>
+</li>
+
+                    
+                        
+<li class="active">
+    <a href="index.html">Settings</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../internals/index.html">Internals</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../rest/index.html">REST Interface</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../waveforms/index.html">Waveforms</a>
+</li>
+
+                    
+                    </ul>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                <li >
+                    <a rel="next" href="../testing/index.html">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../internals/index.html">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/krischer/jane/">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#jane-settings">Jane Settings</a></li>
+        
+            <li><a href="#default-settings">Default Settings</a></li>
+        
+            <li><a href="#available-settings">Available Settings</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="jane-settings">Jane Settings</h1>
+<p>This page documents the configuration options specific to <code>Jane</code>. For all 
+other settings, please refer the documentation of the 
+<a href="https://docs.djangoproject.com/en/1.9/topics/settings/">django settings</a> 
+and the 
+<a href="http://www.django-rest-framework.org/api-guide/settings/">Django REST framework settings</a>.</p>
+<p>To change 
+them, please edit/add them to the <code>local_settings.py</code> file in the <code>src/jane</code> 
+directory.</p>
+<h2 id="default-settings">Default Settings</h2>
+<p>Quick overview of all available settings including their default values. </p>
+<pre><code class="python">JANE_INSTANCE_NAME = &quot;Jane&quot;
+JANE_ACCENT_COLOR = &quot;#D9230F&quot;
+JANE_FDSN_STATIONXML_SENDER = &quot;Jane&quot;
+JANE_FDSN_STATIONXML_SOURCE = &quot;Jane&quot;
+</code></pre>
+
+<h2 id="available-settings">Available Settings</h2>
+<p>Detailed documentation of all available settings. </p>
+<h4 id="jane_instance_name">JANE_INSTANCE_NAME</h4>
+<p>Name of the instance used in parts of the web interface. Any reasonably short 
+string should work.</p>
+<ul>
+<li><em>Default Value:</em> <code>"Jane"</code></li>
+</ul>
+<h4 id="jane_accent_color">JANE_ACCENT_COLOR</h4>
+<p>Color used in certain parts of the web interface. Useful to distinguish
+separate Jane installations at a glance. Please pass a string containing a 
+hexadecimal HTML color.</p>
+<ul>
+<li><em>Default Value:</em> <code>"#D9230F"</code></li>
+</ul>
+<h4 id="jane_fdsn_stationxml_sender">JANE_FDSN_STATIONXML_SENDER</h4>
+<p>Will be written as the <code>&lt;Sender&gt;</code> tag to all StationXML files created by 
+<code>Jane</code>.</p>
+<ul>
+<li><em>Default Value:</em> <code>"Jane"</code></li>
+</ul>
+<h4 id="jane_fdsn_stationxml_source">JANE_FDSN_STATIONXML_SOURCE</h4>
+<p>Will be written as the <code>&lt;Source&gt;</code> tag to all StationXML files created by 
+<code>Jane</code>.</p>
+<ul>
+<li><em>Default Value:</em> <code>"Jane"</code></li>
+</ul></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+                <center>Jane Developers, 2014-2016</center>
+            
+            <center>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</center>
+        </footer>
+
+        <script src="../js/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/highlight.pack.js"></script>
+        <script>var base_url = '..';</script>
+        <script data-main="../mkdocs/js/search.js" src="../mkdocs/js/require.js"></script>
+        <script src="../js/base.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            From here you can search these documents. Enter
+                            your search terms below.
+                        </p>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                            </div>
+                        </form>
+                        <div id="mkdocs-search-results"></div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

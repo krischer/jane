@@ -1,0 +1,504 @@
+{
+    "docs": [
+        {
+            "location": "/index.html",
+            "text": "html, body {\n        height:100%;\n    }\n\n    body\n        {\n            background-color: black;\n            background-image: url('images/jane_background.jpg');\n            background-size: 100% auto;\n            background-repeat: no-repeat;\n\n        }\n\n    footer, .bs-sidebar { display: none; }",
+            "title": "Home"
+        },
+        {
+            "location": "/introduction/index.html",
+            "text": "Introduction\n\n\nJane is a database for seismological data especially suited for small to \nmedium size observatories and research groups.\n\n\nFeatures\n\n\nHigh Performance Waveform Database\n\n\nJane\n can index, and serve queries for seismological waveform data.\n\n\nDocument based StationXML and QuakeML store\n\n\nIt utilizes a JSON based document database to store and retrieve information\nabout QuakeML and StationXML files.\n\n\nREST Interface\n\n\nUpload, delete, and modify documents via a powerful REST interface. Supports\nthe JSON, XML, and YAML formats.\n\n\nBuilt-in FDSN Web Services\n\n\nWaveforms, station, and event meta information can be retrieved via the \nbuilt-in fdsnws web services implementations for all three data types.\n\n\nWeb GIS\n\n\nInformation within \nJane\n can be explored with an interactive HTML5 based web \nGIS system. It supports fast, client-side event display and filtering, \nvarious map background and other settings, the plotting of stations, \ninstrument responses, event heatmaps and many other things.\n\n\n\n\nPlugin System\n\n\nThe document store is fully plugin based - the QuakeML and StationXML \nhandling are also implemented as plugins. This means it is very easy to \nextend \nJane\n with your own functionality.\n\n\nUser Management\n\n\nThe full power and flexibility of Django is accessible allowing fine \ngrained user and group permission management.",
+            "title": "Introduction"
+        },
+        {
+            "location": "/introduction/index.html#introduction",
+            "text": "Jane is a database for seismological data especially suited for small to \nmedium size observatories and research groups.",
+            "title": "Introduction"
+        },
+        {
+            "location": "/introduction/index.html#features",
+            "text": "",
+            "title": "Features"
+        },
+        {
+            "location": "/introduction/index.html#high-performance-waveform-database",
+            "text": "Jane  can index, and serve queries for seismological waveform data.",
+            "title": "High Performance Waveform Database"
+        },
+        {
+            "location": "/introduction/index.html#document-based-stationxml-and-quakeml-store",
+            "text": "It utilizes a JSON based document database to store and retrieve information\nabout QuakeML and StationXML files.",
+            "title": "Document based StationXML and QuakeML store"
+        },
+        {
+            "location": "/introduction/index.html#rest-interface",
+            "text": "Upload, delete, and modify documents via a powerful REST interface. Supports\nthe JSON, XML, and YAML formats.",
+            "title": "REST Interface"
+        },
+        {
+            "location": "/introduction/index.html#built-in-fdsn-web-services",
+            "text": "Waveforms, station, and event meta information can be retrieved via the \nbuilt-in fdsnws web services implementations for all three data types.",
+            "title": "Built-in FDSN Web Services"
+        },
+        {
+            "location": "/introduction/index.html#web-gis",
+            "text": "Information within  Jane  can be explored with an interactive HTML5 based web \nGIS system. It supports fast, client-side event display and filtering, \nvarious map background and other settings, the plotting of stations, \ninstrument responses, event heatmaps and many other things.",
+            "title": "Web GIS"
+        },
+        {
+            "location": "/introduction/index.html#plugin-system",
+            "text": "The document store is fully plugin based - the QuakeML and StationXML \nhandling are also implemented as plugins. This means it is very easy to \nextend  Jane  with your own functionality.",
+            "title": "Plugin System"
+        },
+        {
+            "location": "/introduction/index.html#user-management",
+            "text": "The full power and flexibility of Django is accessible allowing fine \ngrained user and group permission management.",
+            "title": "User Management"
+        },
+        {
+            "location": "/setup/index.html",
+            "text": "Jane Setup\n\n\nThis page details how to setup and install \nJane\n. \n\n\nDependencies of Jane\n\n\nJane\n depends on the following non-Python dependencies\n\n\n\n\nPostgreSQL 9.4\n\n\nPostGIS 2.1\n\n\n\n\nand furthermore on\n\n\n\n\nPython 3.4\n\n\n\n\nwith the following Python modules\n\n\n\n\nobspy\n\n\ndjango==1.9.x\n\n\npsycopg2\n\n\ndjangorestframework\n\n\ndjangorestframework-gis\n\n\ndjangorestframework-jsonp\n\n\ndjangorestframework-xml\n\n\ndjangorestframework-yaml\n\n\ndjango-cors-headers\n\n\ndjango-debug-toolbar\n\n\ndjango-plugins\n \n\n\ndefusedxml\n\n\nflake8\n\n\ngdal\n  (\nsee here for Windows\n)\n\n\ngeojson\n\n\nmarkdown\n\n\nmkdocs\n\n\nmkdocs-bootswatch\n\n\n\n\nInstallation of Python and the Dependencies\n\n\nA simple way to install an up-to-date version of the dependencies is to use the\nAnaconda Python distribution. Once Anaconda is installed, the following can be\nused to setup a new dedicated and separate environment to run \nJane\n:\n\n\n$ conda config --add channels obspy\n$ conda create -n jane python=3.4\n$ source activate jane\n(jane)$ conda install obspy psycopg2 markdown flake8 gdal pyyaml pip\n# Install the latest 1.9.x release.\n(jane)$ pip install \ndjango\n=1.9,\n1.10\n\n(jane)$ pip install djangorestframework djangorestframework-gis djangorestframework-jsonp djangorestframework-xml djangorestframework-yaml django-cors-headers django-debug-toolbar django-plugins defusedxml geojson markdown mkdocs mkdocs-bootswatch\n\n\n\n\nAlternatively, the following Anaconda environment description file ...\n\n\nname: jane\ndependencies:\n- python=3.4\n- obspy\n- psycopg2\n- markdown\n- flake8\n- gdal\n- pyyaml\n- pip\n- pip:\n  - django\n=1.9,\n1.10\n  - djangorestframework\n  - djangorestframework-gis\n  - djangorestframework-jsonp\n  - djangorestframework-xml\n  - djangorestframework-yaml\n  - django-cors-headers\n  - django-debug-toolbar\n  - django-plugins\n  - defusedxml\n  - geojson\n  - markdown\n  - mkdocs\n  - mkdocs-bootswatch\n\n\n\n\n... can be used to create the environment (save as file \n\njane_anaconda_env.txt\n):\n\n\n$ conda config --add channels obspy\n$ conda env create -n jane -f jane_anaconda_env.txt\n\n\n\n\nIt is a good idea to pin the version of those packages that \nJane\n depends on \nin a certain version (to avoid accidental updates). To do so put the following\ncontent in a new file \n/path/to/anaconda/envs/jane/conda-meta/pinned\n (see\n\nhttp://conda.pydata.org/docs/faq.html#pinning-packages\n):\n\n\npython 3.4.*\nobspy 1.0.*\n\n\n\n\nAfter everything has been installed, make sure to run the tests as explained\n\non the testing page\n to make sure the installation is valid.\n\n\nPostgreSQL Setup\n\n\nPostgreSQL should also be run as a service via whatever mechanism your\noperating system requires. It is also good practice to run PostgreSQL as\nanother non-root user to minimize the attack surface. The database name, user,\nand password can of course be changed and be configured within \nJane\n.\n\n\nIf you don't run PostgreSQL as a service (\nDO NOT DO THIS IN PRODUCTION\n),\nyou can initalize and start it with:\n\n\n$ initdb -D /path/to/db\n$ postgres -D /path/to/db\n\n# All the following commands will have to be executed in a separate shell.\n$ createuser --superuser postgres  # required for pgadmin\n\n\n\n\nJane\n needs a database to work with. Here we will create a new database user\n\njane\n and a new database also called \njane\n. You are free to choose the names\nhowever you see fit, just make sure they are the same as in your \n\nlocal_settings.py\n file.\n\n\n$ createuser --encrypted --pwprompt jane\n$ createdb --owner=jane jane\n\n\n\n\nThe last step is to enable the PostGIS extension for the just created database.\n\n\n$ psql --command=\nCREATE EXTENSION postgis;\n jane\n\n\n\n\nInstalling Jane\n\n\ncd /path/where/jane/should/live\ngit clone https://github.com/krischer/jane.git\ncd jane\n\n\n\n\nAdapt Local Settings\n\n\nCopy \njane/src/local_settings.py.example\n to \njane/src/local_settings.py\n and \nfill in the database and user name and credentials. Also have a look at the\n\navailable settings\n to customize your \nJane\n installation.\n\n\nInitialize Django Database\n\n\nThis command will setup all necessary tables and what not. All \n\npython manage.py\n commands have to be executed in the \njane/src\n folder or \nuse an absolute path to the \nmanage.py\n file.\n\n\n$ python manage.py migrate\n$ python manage.py createsuperuser\n\n\n\n\nRun Jane\n\n\nTo test the setup, run \nJane\n with ...\n\n\n$ python manage.py runserver\n\n\n\n\n... which will launch a local web server.\n\n\nBuilding the Documentation\n\n\nAssuming \nmkdocs\n has been installed as above:\n\n\ncd /path/to/jane/docs\n./build_docs.sh\n\n\n\n\nthis will build and copy the build files to the correct directory.\n\n\nInstalling on a Production Server\n\n\nThings are very similar on a production server but you want to run most \nthings as services and of course the availability of all these service must be \nmonitored and security critical updates have to be applied to maintain a stable \ninstallation. Make sure to speak about this with your admin! We take no \nresponsibilities for any security problems.\n\n\nProperly deploying a Django application is well documented in the \n\nofficial Django documentation\n.\n\n\nThe fellowing is a shortened introduction on how to deploy it on a Debian \nserver with an Apache webserver. Please note that \nmod-wsgi-py3\n for the \nApache web server has to be the same Python with which \nJane\n is run, so \nusing the Anaconda Python is likely quite hard to do.\n\n\nPostgreSQL\n\n\nInstall with\n\n\nsudo apt-get install postgresql postgresql-contrib\n\n\n\n\nmake sure to get at least version 9.4. Then perform the basic setup (you \nmust run this as the \npostgres\n user or whatever user PostgreSQL has been \nconfigured with):\n\n\ncreateuser --encrypted --pwprompt jane\ncreatedb --owner=jane jane\npsql --command=\nCREATE EXTENSION postgis;\n jane\n\n\n\n\nPython and Dependencies\n\n\nWe (as much as possible) rely on Debian packages. Sometimes we have to use \n\npip\n if the Python module is not packaged. Make sure to install Python 3.4!\n\n\nFirst, add the ObsPy sources as written \n\nhere\n.\n\n\nThen install as much as possible with \napt-get\n:\n\n\n# AS ROOT!\napt-get install python3-psycopg2 \\\n    python3-markdown \\\n    python3-yaml \\\n    python3-defusedxml \\\n    python3-gdal \\\n    python3-flake8 \\\n    python3-pip \\\n    python3-obspy \\\n    ipython3 \\\n    git\n\n\n\n\nAnd finally some things as a local user. You will likely want to create a \nseparate user to run \nJane\n. With that user, run (note that you might have \nto use \npip3\n instead of \npip\n):\n\n\n# AS USER!\npip3 install --user \\\n    \ndjango\n=1.9,\n1.10\n \\\n    djangorestframework \\\n    djangorestframework-gis \\\n    djangorestframework-jsonp \\\n    djangorestframework-xml \\\n    djangorestframework-yaml \\\n    django-cors-headers \\\n    django-debug-toolbar \\\n    django-plugins \\\n    geojson \\\n    mkdocs \\\n    mkdocs-bootswatch\n\n\n\n\nThen follow the instructions above to get \nJane\n from Github, adapt the \n\nlocal_settings.py\n file, and build the documentation.\n\n\nFinally also run a couple of \nmanage.py\n commands (you might have to use \n\npython3\n). The \ncollectstatic\n command will copy all static files to a \ncommon directory that is then served directly by Apache making it much faster:\n\n\ncd jane/src\npython3 manage.py migrate\npython3 manage.py createsuperuser\npython3 manage.py collectstatic\n\n\n\n\nConfiguring Apache\n\n\nThe last thing to do is to configure Apache to run \nJane\n over the \nWSGI\n.\n\n\nInstall it with\n\n\nsudo apt-get install apache2 libapache2-mod-wsgi-py3\nsudo a2enmod wsgi\n\n\n\n\nmake sure its running\n\n\n/etc/init.d/apache2 status\n\n\n\n\nThe \nVirtualHost\n configuration has to look approximately like this (details \nwill of course differ per installation):\n\n\nVirtualHost *:80\n\n        WSGIDaemonProcess jane user=jane \n        python-path=/path/to/jane/jane/src:/path/to/site-packages processes=4 threads=8\n        WSGIProcessGroup jane\n        WSGIScriptAlias / /path/to/jane/jane/src/jane/wsgi.py\n        WSGIPassAuthorization On\n        WSGIApplicationGroup %{GLOBAL}\n\n        \nDirectory /path/to/jane/jane/src/jane\n\n                \nFiles wsgi.py\n\n                Require all granted\n                \n/Files\n\n        \n/Directory\n\n\n        # Prevent django from serving static files\n        DocumentRoot /path/to/jane/jane/static\n        Alias /static /path/to/jane/jane/static\n        \nDirectory /path/to/jane/jane/static\n\n                Require all granted\n        \n/Directory\n\n\n        ...\n\n\n/VirtualHost\n\n\n\n\n\nMake sure to choose sensible \nprocesses\n and \nthreads\n options.",
+            "title": "Setup"
+        },
+        {
+            "location": "/setup/index.html#jane-setup",
+            "text": "This page details how to setup and install  Jane .",
+            "title": "Jane Setup"
+        },
+        {
+            "location": "/setup/index.html#dependencies-of-jane",
+            "text": "Jane  depends on the following non-Python dependencies   PostgreSQL 9.4  PostGIS 2.1   and furthermore on   Python 3.4   with the following Python modules   obspy  django==1.9.x  psycopg2  djangorestframework  djangorestframework-gis  djangorestframework-jsonp  djangorestframework-xml  djangorestframework-yaml  django-cors-headers  django-debug-toolbar  django-plugins    defusedxml  flake8  gdal   ( see here for Windows )  geojson  markdown  mkdocs  mkdocs-bootswatch",
+            "title": "Dependencies of Jane"
+        },
+        {
+            "location": "/setup/index.html#installation-of-python-and-the-dependencies",
+            "text": "A simple way to install an up-to-date version of the dependencies is to use the\nAnaconda Python distribution. Once Anaconda is installed, the following can be\nused to setup a new dedicated and separate environment to run  Jane :  $ conda config --add channels obspy\n$ conda create -n jane python=3.4\n$ source activate jane\n(jane)$ conda install obspy psycopg2 markdown flake8 gdal pyyaml pip\n# Install the latest 1.9.x release.\n(jane)$ pip install  django =1.9, 1.10 \n(jane)$ pip install djangorestframework djangorestframework-gis djangorestframework-jsonp djangorestframework-xml djangorestframework-yaml django-cors-headers django-debug-toolbar django-plugins defusedxml geojson markdown mkdocs mkdocs-bootswatch  Alternatively, the following Anaconda environment description file ...  name: jane\ndependencies:\n- python=3.4\n- obspy\n- psycopg2\n- markdown\n- flake8\n- gdal\n- pyyaml\n- pip\n- pip:\n  - django =1.9, 1.10\n  - djangorestframework\n  - djangorestframework-gis\n  - djangorestframework-jsonp\n  - djangorestframework-xml\n  - djangorestframework-yaml\n  - django-cors-headers\n  - django-debug-toolbar\n  - django-plugins\n  - defusedxml\n  - geojson\n  - markdown\n  - mkdocs\n  - mkdocs-bootswatch  ... can be used to create the environment (save as file  jane_anaconda_env.txt ):  $ conda config --add channels obspy\n$ conda env create -n jane -f jane_anaconda_env.txt  It is a good idea to pin the version of those packages that  Jane  depends on \nin a certain version (to avoid accidental updates). To do so put the following\ncontent in a new file  /path/to/anaconda/envs/jane/conda-meta/pinned  (see http://conda.pydata.org/docs/faq.html#pinning-packages ):  python 3.4.*\nobspy 1.0.*  After everything has been installed, make sure to run the tests as explained on the testing page  to make sure the installation is valid.",
+            "title": "Installation of Python and the Dependencies"
+        },
+        {
+            "location": "/setup/index.html#postgresql-setup",
+            "text": "PostgreSQL should also be run as a service via whatever mechanism your\noperating system requires. It is also good practice to run PostgreSQL as\nanother non-root user to minimize the attack surface. The database name, user,\nand password can of course be changed and be configured within  Jane .  If you don't run PostgreSQL as a service ( DO NOT DO THIS IN PRODUCTION ),\nyou can initalize and start it with:  $ initdb -D /path/to/db\n$ postgres -D /path/to/db\n\n# All the following commands will have to be executed in a separate shell.\n$ createuser --superuser postgres  # required for pgadmin  Jane  needs a database to work with. Here we will create a new database user jane  and a new database also called  jane . You are free to choose the names\nhowever you see fit, just make sure they are the same as in your  local_settings.py  file.  $ createuser --encrypted --pwprompt jane\n$ createdb --owner=jane jane  The last step is to enable the PostGIS extension for the just created database.  $ psql --command= CREATE EXTENSION postgis;  jane",
+            "title": "PostgreSQL Setup"
+        },
+        {
+            "location": "/setup/index.html#installing-jane",
+            "text": "cd /path/where/jane/should/live\ngit clone https://github.com/krischer/jane.git\ncd jane",
+            "title": "Installing Jane"
+        },
+        {
+            "location": "/setup/index.html#adapt-local-settings",
+            "text": "Copy  jane/src/local_settings.py.example  to  jane/src/local_settings.py  and \nfill in the database and user name and credentials. Also have a look at the available settings  to customize your  Jane  installation.",
+            "title": "Adapt Local Settings"
+        },
+        {
+            "location": "/setup/index.html#initialize-django-database",
+            "text": "This command will setup all necessary tables and what not. All  python manage.py  commands have to be executed in the  jane/src  folder or \nuse an absolute path to the  manage.py  file.  $ python manage.py migrate\n$ python manage.py createsuperuser",
+            "title": "Initialize Django Database"
+        },
+        {
+            "location": "/setup/index.html#run-jane",
+            "text": "To test the setup, run  Jane  with ...  $ python manage.py runserver  ... which will launch a local web server.",
+            "title": "Run Jane"
+        },
+        {
+            "location": "/setup/index.html#building-the-documentation",
+            "text": "Assuming  mkdocs  has been installed as above:  cd /path/to/jane/docs\n./build_docs.sh  this will build and copy the build files to the correct directory.",
+            "title": "Building the Documentation"
+        },
+        {
+            "location": "/setup/index.html#installing-on-a-production-server",
+            "text": "Things are very similar on a production server but you want to run most \nthings as services and of course the availability of all these service must be \nmonitored and security critical updates have to be applied to maintain a stable \ninstallation. Make sure to speak about this with your admin! We take no \nresponsibilities for any security problems.  Properly deploying a Django application is well documented in the  official Django documentation .  The fellowing is a shortened introduction on how to deploy it on a Debian \nserver with an Apache webserver. Please note that  mod-wsgi-py3  for the \nApache web server has to be the same Python with which  Jane  is run, so \nusing the Anaconda Python is likely quite hard to do.",
+            "title": "Installing on a Production Server"
+        },
+        {
+            "location": "/setup/index.html#postgresql",
+            "text": "Install with  sudo apt-get install postgresql postgresql-contrib  make sure to get at least version 9.4. Then perform the basic setup (you \nmust run this as the  postgres  user or whatever user PostgreSQL has been \nconfigured with):  createuser --encrypted --pwprompt jane\ncreatedb --owner=jane jane\npsql --command= CREATE EXTENSION postgis;  jane",
+            "title": "PostgreSQL"
+        },
+        {
+            "location": "/setup/index.html#python-and-dependencies",
+            "text": "We (as much as possible) rely on Debian packages. Sometimes we have to use  pip  if the Python module is not packaged. Make sure to install Python 3.4!  First, add the ObsPy sources as written  here .  Then install as much as possible with  apt-get :  # AS ROOT!\napt-get install python3-psycopg2 \\\n    python3-markdown \\\n    python3-yaml \\\n    python3-defusedxml \\\n    python3-gdal \\\n    python3-flake8 \\\n    python3-pip \\\n    python3-obspy \\\n    ipython3 \\\n    git  And finally some things as a local user. You will likely want to create a \nseparate user to run  Jane . With that user, run (note that you might have \nto use  pip3  instead of  pip ):  # AS USER!\npip3 install --user \\\n     django =1.9, 1.10  \\\n    djangorestframework \\\n    djangorestframework-gis \\\n    djangorestframework-jsonp \\\n    djangorestframework-xml \\\n    djangorestframework-yaml \\\n    django-cors-headers \\\n    django-debug-toolbar \\\n    django-plugins \\\n    geojson \\\n    mkdocs \\\n    mkdocs-bootswatch  Then follow the instructions above to get  Jane  from Github, adapt the  local_settings.py  file, and build the documentation.  Finally also run a couple of  manage.py  commands (you might have to use  python3 ). The  collectstatic  command will copy all static files to a \ncommon directory that is then served directly by Apache making it much faster:  cd jane/src\npython3 manage.py migrate\npython3 manage.py createsuperuser\npython3 manage.py collectstatic",
+            "title": "Python and Dependencies"
+        },
+        {
+            "location": "/setup/index.html#configuring-apache",
+            "text": "The last thing to do is to configure Apache to run  Jane  over the  WSGI .  Install it with  sudo apt-get install apache2 libapache2-mod-wsgi-py3\nsudo a2enmod wsgi  make sure its running  /etc/init.d/apache2 status  The  VirtualHost  configuration has to look approximately like this (details \nwill of course differ per installation):  VirtualHost *:80 \n        WSGIDaemonProcess jane user=jane \n        python-path=/path/to/jane/jane/src:/path/to/site-packages processes=4 threads=8\n        WSGIProcessGroup jane\n        WSGIScriptAlias / /path/to/jane/jane/src/jane/wsgi.py\n        WSGIPassAuthorization On\n        WSGIApplicationGroup %{GLOBAL}\n\n         Directory /path/to/jane/jane/src/jane \n                 Files wsgi.py \n                Require all granted\n                 /Files \n         /Directory \n\n        # Prevent django from serving static files\n        DocumentRoot /path/to/jane/jane/static\n        Alias /static /path/to/jane/jane/static\n         Directory /path/to/jane/jane/static \n                Require all granted\n         /Directory \n\n        ... /VirtualHost   Make sure to choose sensible  processes  and  threads  options.",
+            "title": "Configuring Apache"
+        },
+        {
+            "location": "/testing/index.html",
+            "text": "Testing\n\n\nTo test \nJane\n you have to create (within PostgreSQL) a test database and a \ntest user according to your \nlocal_settings.py\n file in \njane/src\n (see the \nvery end of the template file). Defaults settings are \ntest_jane\n for database \nuser, table, and password. This user must have superuser privileges as it has \nto create a new database but also install the postgis extension for that \ndatabase! \n\n\n$ createuser --superuser --encrypted --pwprompt test_jane\n\n\n\n\nFinally, running the tests is then a matter of calling:\n\n\n$ python manage.py test\n\nCreating test database for alias 'default'...\n..............\n----------------------------------------------------------------------\nRan 14 tests in 4.142s\n\nOK\nDestroying test database for alias 'default'...",
+            "title": "Testing"
+        },
+        {
+            "location": "/testing/index.html#testing",
+            "text": "To test  Jane  you have to create (within PostgreSQL) a test database and a \ntest user according to your  local_settings.py  file in  jane/src  (see the \nvery end of the template file). Defaults settings are  test_jane  for database \nuser, table, and password. This user must have superuser privileges as it has \nto create a new database but also install the postgis extension for that \ndatabase!   $ createuser --superuser --encrypted --pwprompt test_jane  Finally, running the tests is then a matter of calling:  $ python manage.py test\n\nCreating test database for alias 'default'...\n..............\n----------------------------------------------------------------------\nRan 14 tests in 4.142s\n\nOK\nDestroying test database for alias 'default'...",
+            "title": "Testing"
+        },
+        {
+            "location": "/settings/index.html",
+            "text": "Jane Settings\n\n\nThis page documents the configuration options specific to \nJane\n. For all \nother settings, please refer the documentation of the \n\ndjango settings\n \nand the \n\nDjango REST framework settings\n.\n\n\nTo change \nthem, please edit/add them to the \nlocal_settings.py\n file in the \nsrc/jane\n \ndirectory.\n\n\nDefault Settings\n\n\nQuick overview of all available settings including their default values. \n\n\nJANE_INSTANCE_NAME = \nJane\n\nJANE_ACCENT_COLOR = \n#D9230F\n\nJANE_FDSN_STATIONXML_SENDER = \nJane\n\nJANE_FDSN_STATIONXML_SOURCE = \nJane\n\n\n\n\n\nAvailable Settings\n\n\nDetailed documentation of all available settings. \n\n\nJANE_INSTANCE_NAME\n\n\nName of the instance used in parts of the web interface. Any reasonably short \nstring should work.\n\n\n\n\nDefault Value:\n \n\"Jane\"\n\n\n\n\nJANE_ACCENT_COLOR\n\n\nColor used in certain parts of the web interface. Useful to distinguish\nseparate Jane installations at a glance. Please pass a string containing a \nhexadecimal HTML color.\n\n\n\n\nDefault Value:\n \n\"#D9230F\"\n\n\n\n\nJANE_FDSN_STATIONXML_SENDER\n\n\nWill be written as the \nSender\n tag to all StationXML files created by \n\nJane\n.\n\n\n\n\nDefault Value:\n \n\"Jane\"\n\n\n\n\nJANE_FDSN_STATIONXML_SOURCE\n\n\nWill be written as the \nSource\n tag to all StationXML files created by \n\nJane\n.\n\n\n\n\nDefault Value:\n \n\"Jane\"",
+            "title": "Settings"
+        },
+        {
+            "location": "/settings/index.html#jane-settings",
+            "text": "This page documents the configuration options specific to  Jane . For all \nother settings, please refer the documentation of the  django settings  \nand the  Django REST framework settings .  To change \nthem, please edit/add them to the  local_settings.py  file in the  src/jane  \ndirectory.",
+            "title": "Jane Settings"
+        },
+        {
+            "location": "/settings/index.html#default-settings",
+            "text": "Quick overview of all available settings including their default values.   JANE_INSTANCE_NAME =  Jane \nJANE_ACCENT_COLOR =  #D9230F \nJANE_FDSN_STATIONXML_SENDER =  Jane \nJANE_FDSN_STATIONXML_SOURCE =  Jane",
+            "title": "Default Settings"
+        },
+        {
+            "location": "/settings/index.html#available-settings",
+            "text": "Detailed documentation of all available settings.",
+            "title": "Available Settings"
+        },
+        {
+            "location": "/settings/index.html#jane_instance_name",
+            "text": "Name of the instance used in parts of the web interface. Any reasonably short \nstring should work.   Default Value:   \"Jane\"",
+            "title": "JANE_INSTANCE_NAME"
+        },
+        {
+            "location": "/settings/index.html#jane_accent_color",
+            "text": "Color used in certain parts of the web interface. Useful to distinguish\nseparate Jane installations at a glance. Please pass a string containing a \nhexadecimal HTML color.   Default Value:   \"#D9230F\"",
+            "title": "JANE_ACCENT_COLOR"
+        },
+        {
+            "location": "/settings/index.html#jane_fdsn_stationxml_sender",
+            "text": "Will be written as the  Sender  tag to all StationXML files created by  Jane .   Default Value:   \"Jane\"",
+            "title": "JANE_FDSN_STATIONXML_SENDER"
+        },
+        {
+            "location": "/settings/index.html#jane_fdsn_stationxml_source",
+            "text": "Will be written as the  Source  tag to all StationXML files created by  Jane .   Default Value:   \"Jane\"",
+            "title": "JANE_FDSN_STATIONXML_SOURCE"
+        },
+        {
+            "location": "/internals/index.html",
+            "text": "Jane Internals\n\n\nDocument Data Model\n\n\nJane\n stores data from plugins in a document database. The hierarchical data model is as follows:\n\n\n\n\nDocumentType\n: The document category. Determined from the installed plugins.\n\n\nDocument\n: One document of a certain type. Can have multiple indices.\n\n\nDocumentIndex\n: The indices of a certain document.\n\n\nDocumentIndexAttachments\n: The attachments for one index.",
+            "title": "Internals"
+        },
+        {
+            "location": "/internals/index.html#jane-internals",
+            "text": "",
+            "title": "Jane Internals"
+        },
+        {
+            "location": "/internals/index.html#document-data-model",
+            "text": "Jane  stores data from plugins in a document database. The hierarchical data model is as follows:   DocumentType : The document category. Determined from the installed plugins.  Document : One document of a certain type. Can have multiple indices.  DocumentIndex : The indices of a certain document.  DocumentIndexAttachments : The attachments for one index.",
+            "title": "Document Data Model"
+        },
+        {
+            "location": "/rest/index.html",
+            "text": "REST Interface\n\n\nJane's REST interface can be used to query documents defined by plug-ins and\nassociated indices and attachments. By default Jane ships with StationXML and\nQuakeML plug-ins but users can easily add their own. Additionally the REST\ninterface offers access to waveform data on a per-trace basis but this is\nlikely less useful than Jane's FDSNWS dataselect service which serves the same\ndata with a more convenient interface.\n\n\nIn the following \nJANE_ROOT\n will be used to denote the root address of a\nrunning Jane server. The REST interface can then be accessed at\n\nJANE_ROOT/rest\n.\n\n\nGeneral Remarks\n\n\nSupported Data Formats\n\n\nThe data in the REST interface can mostly be queried in different formats -\nchoose whichever suites you best. If accessed from a web browser, a nice HTML\nview will be served; otherwise it will default to \nJSON\n output. The \nformat\n\nargument can be used to request the data in different formats:\n\n\n\n\n\n\n\n\nFormat\n\n\nURL\n\n\n\n\n\n\n\n\n\n\nJSON\n\n\nJANE_ROOT/rest/something?format=json\n\n\n\n\n\n\nXML\n\n\nJANE_ROOT/rest/something?format=xml\n\n\n\n\n\n\nYAML\n\n\nJANE_ROOT/rest/something?format=yaml\n\n\n\n\n\n\nJSONP\n\n\nJANE_ROOT/rest/something?format=jsonp\n\n\n\n\n\n\nForce the HTML API view\n\n\nJANE_ROOT/rest/something?format=api\n\n\n\n\n\n\n\n\nPagination\n\n\nData in the REST interface is paginated, meaning that only a certain amount of\nthe available data is returned at any point. It can be controlled with two\nquery parameters:\n\n\n\n\n\n\n\n\nParameter\n\n\nMeaning\n\n\n\n\n\n\n\n\n\n\nlimit\n\n\nControls the number of returned records.\n\n\n\n\n\n\noffset\n\n\nSkip the given number of records.\n\n\n\n\n\n\n\n\nThe following URL for example will return records number 200 to 299:\n\nJANE_ROOT/rest/something?limit=100\noffset=200\n\n\nAuthentication\n\n\nMany actions and data require certain permissions, thus users have to\nauthenticate themselves. Within the HTML web API view, Django's sessions\nauthentication can be used; there is a nice button to log-in at the top right.\nAnother way to authenticate yourself is to use HTTP Basic authentication. For\nall examples on this page we will assume a user named \nuser\n with \npw\n as a\npassword. Furthermore we will illustrate all examples with code snippets for\nthe Python \nrequests\n library, for\n\nHTTPie\n, a user-friendly command line client, and good ol'\n\ncurl\n itself.\n\n\nExample using the Python \nrequests\n library:\n\n\nimport request\nr = request.get(url=\nJANE_ROOT/rest/...\n, auth=(\nuser\n, \npw\n))\n\n\n\n\nExample using the \nHTTPie\n CLI client:\n\n\n$ http -a user:pw JANE_ROOT/rest/...\n\n\n\n\nExample using \ncurl\n:\n\n\n$ curl --user user:pw JANE_ROOT/rest/...\n\n\n\n\nHTTP Methods and Headers\n\n\nDepending on the desired action, you might have to send the request with a\ndifferent HTTP method or additional headers. This section is a short tutorial\non how to do this.\n\n\nExample using the Python \nrequests\n library:\n\n\nimport request\n\nheaders = {\ncategory\n: \nsomething\n}\n\nr = request.get(\nJANE_ROOT/rest/...\n, headers=headers)\nr = request.put(\nJANE_ROOT/rest/...\n, headers=headers)\nr = request.post(\nJANE_ROOT/rest/...\n, headers=headers)\nr = request.delete(\nJANE_ROOT/rest/...\n, headers=headers)\n\n\n\n\nExample using the \nHTTPie\n CLI client:\n\n\n$ http JANE_ROOT/rest/... 'category:something'\n$ http PUT JANE_ROOT/rest/... 'category:something'\n$ http POST JANE_ROOT/rest/... 'category:something'\n$ http DELETE JANE_ROOT/rest/... 'category:something'\n\n\n\n\nExample using \ncurl\n:\n\n\n$ curl -H 'category: something' JANE_ROOT/rest/...\n$ curl -X PUT -H 'category: something' JANE_ROOT/rest/...\n$ curl -X POST -H 'category: something' JANE_ROOT/rest/...\n$ curl -X DELETE -H 'category: something' JANE_ROOT/rest/...\n\n\n\n\nAPI Endpoints\n\n\nThis section presents a quick overview of all available endpoints including the\nacceptable HTTP methods for each; they are explained in more detail further\ndown this page. Jane's REST API at points behaves a bit different from other\nREST APIs: it might not offer a certain method or interpret it slightly\ndifferent. This is on purpose to provide as natural an API as possible tailored\nto the capabilities of Jane.\n\n\nGeneral Endpoints\n\n\n\n\n\n\n\n\nEndpoint\n\n\nAvailable Methods\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\nJANE_ROOT/rest\n\n\nGET\n\n\nRoot of the REST interface.\n\n\n\n\n\n\n\n\nWaveform Endpoints\n\n\nAll endpoints related to the waveform database of Jane. \nID\n is the id of a\nparticular waveform trace.\n\n\n\n\n\n\n\n\nEndpoint\n\n\nAvailable Methods\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\nJANE_ROOT/rest/waveforms\n\n\nGET\n\n\nList of all waveforms.\n\n\n\n\n\n\nJANE_ROOT/rest/waveforms/ID\n\n\nGET\n\n\nREST resource for a particular waveform trace.\n\n\n\n\n\n\nJANE_ROOT/rest/waveforms/ID/plot\n\n\nGET\n\n\nPlot of that trace.\n\n\n\n\n\n\nJANE_ROOT/rest/waveforms/ID/file\n\n\nGET\n\n\nData containing that trace.\n\n\n\n\n\n\n\n\nDocument Endpoints\n\n\nEndpoints for the documents sorted by document type which is defined by the\nplug-ins. Each document represents a file. Use this to upload new files,\nupdated versions of existing ones, or delete a whole document. \nDOCTYPE\n\ndenotes the document type defined by the plug-ins, \nFILENAME\n the name of a\nparticular document.\n\n\n\n\n\n\n\n\nEndpoint\n\n\nAvailable Methods\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\nJANE_ROOT/rest/documents\n\n\nGET\n\n\nList of all document types.\n\n\n\n\n\n\nJANE_ROOT/rest/documents/DOCTYPE\n\n\nGET\n\n\nList of all documents of that type.\n\n\n\n\n\n\nJANE_ROOT/rest/documents/DOCTYPE/FILENAME\n\n\nGET\n, \nPUT\n, \nDELETE\n\n\nGet, create, or delete a document.\n\n\n\n\n\n\nJANE_ROOT/rest/documents/DOCTYPE/FILENAME/data\n\n\nGET\n\n\nGet the data behind a certain document.\n\n\n\n\n\n\n\n\nDocument Index Endpoints\n\n\nEndpoints for indices and attachments. Each document can have any number of\nindices and each index can have any number of attachments. \nDOCTYPE\n denotes\nthe document type defined by the plug-ins, \nID\n the id of a particular index,\nand \nAID\n the id of particular attachment.\n\n\n\n\n\n\n\n\nEndpoint\n\n\nAvailable Methods\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\nJANE_ROOT/rest/document_indices\n\n\nGET\n\n\nList of all document types.\n\n\n\n\n\n\nJANE_ROOT/rest/document_indices/DOCTYPE\n\n\nGET\n\n\nList of all document indices of that type.\n\n\n\n\n\n\nJANE_ROOT/rest/document_indices/DOCTYPE/ID\n\n\nGET\n\n\nGet a certain document index.\n\n\n\n\n\n\nJANE_ROOT/rest/document_indices/DOCTYPE/ID/attachments\n\n\nGET\n, \nPOST\n\n\nGet all or add a new attachment.\n\n\n\n\n\n\nJANE_ROOT/rest/document_indices/DOCTYPE/ID/attachments/AID\n\n\nGET\n, \nPUT\n, \nDELETE\n\n\nGet a certain, update an existing, or delete an attachment.\n\n\n\n\n\n\nJANE_ROOT/rest/document_indices/DOCTYPE/ID/attachments/AID/data\n\n\nGET\n\n\nGet the data for a certain attachment.\n\n\n\n\n\n\n\n\nWaveforms\n\n\nThe API endpoint for the waveform data is at \nJANE_ROOT/rest/waveforms\n, see the table in the previous section for some sub-routes.\n\n\nIt can currently display all available traces including a picture and some meta\ninformation. In the future it might evolve to do some different things so there\ncurrently is not much more to say to this.\n\n\nDocuments\n\n\nThe \nJANE_ROOT/rest/documents\n route is the entry point to the actual files on\nwhich Jane's document database is built around.\n\n\nList View\n\n\nTo get a list of all available documents of a certain document type, send, e.g.\n\n\nGET JANE_ROOT/rest/documents/stationxml\n\n\n\n\nDocument View\n\n\nDocuments are identified via filename, which thus has to be unique per document\ntype.\n\n\nGET JANE_ROOT/rest/documents/stationxml/BW.FURT.xml\n\n\n\n\nData\n\n\nThe REST API shows some information for each file, to download the actual file, do, e.g.\n\n\nGET JANE_ROOT/rest/documents/stationxml/BW.FURT.xml/data\n\n\n\n\nAdd New Document\n\n\nTo create a new document, send a \nPUT\n request to a certain document URL, e.g.\n\n\nPUT JANE_ROOT/rest/documents/stationxml/BW.FURT.xml\n\n\n\n\nLet's say you want to upload the file \nBW.FURT.xml\n.\n\n\nExample using the Python \nrequests\n library:\n\n\nimport request\n\nwith open(\nBW.FURT.xml\n, \nrb\n) as fh:\n    r = requests.put(\n        url=\nJANE_ROOT/rest/documents/stationxml/BW.FURT.xml\n,\n        auth=(\nuser\n, \npw\n),\n        data=fh)\n\nassert r.ok\n\n\n\n\nExample using the \nHTTPie\n CLI client:\n\n\n$ http -a user:pw PUT \nJANE_ROOT/rest/documents/stationxml/BF.FURT.xml\n \n BW.FURT.xml\n\n\n\n\nExample using \ncurl\n:\n\n\n$ curl --user user:pw \\\n  --data-binary @BW.FURT.XML \\\n  -X PUT \nJANE_ROOT/rest/documents/stationxml/BF.FURT.xml\n\n\n\n\n\nDelete a Document\n\n\nTo delete a document, just send a \nDELETE\n request. Please keep in mind that\nthis will also delete all indices and potential attachments of the document.\nThe attachments might not be restorable if you have no backup.\n\n\nDELETE JANE_ROOT/rest/documents/stationxml/BW.FURT.xml\n\n\n\n\nExample using the Python \nrequests\n library:\n\n\nimport request\n\nr = requests.delete(\n    url=\nJANE_ROOT/rest/documents/stationxml/BW.FURT.xml\n,\n    auth=(\nuser\n, \npw\n))\n\nassert r.ok\n\n\n\n\nExample using the \nHTTPie\n CLI client:\n\n\n$ http -a user:pw DELETE \nJANE_ROOT/rest/documents/stationxml/BF.FURT.xml\n\n\n\n\n\nExample using \ncurl\n:\n\n\n$ curl --user user:pw \\\n  -X DELETE \nJANE_ROOT/rest/documents/stationxml/BF.FURT.xml\n\n\n\n\n\nModify Existing Document\n\n\nTo modify an existing document, first delete it and then create a new one with\nthe same name. This is to safe-guard against accidentally overwriting exiting\ndocuments including attachments.\n\n\nDocument Indices\n\n\nThe \nJANE_ROOT/rest/document_indices\n route is the entry point to the indices,\n    the core of Jane's document database.\n\n\nList View\n\n\nTo get a list of all available indices of a certain document type, send, e.g.\n\n\nGET JANE_ROOT/rest/document_indices/stationxml\n\n\n\n\nSearching Over the Indices\n\n\nNow the special thing here is that you can search over these indices and only\nget a subset of indices that match your query. The keys that can be searched\nover are determined by the \nmeta\n attribute of the indexer plug-in for that\nparticular document type. In the case of the StationXML plugin it is defined as\n\n\nmeta = {\n    \nnetwork\n: \nstr\n,\n    \nstation\n: \nstr\n,\n    \nlocation\n: \nstr\n,\n    \nchannel\n: \nstr\n,\n    \nlatitude\n: \nfloat\n,\n    \nlongitude\n: \nfloat\n,\n    \nelevation_in_m\n: \nfloat\n,\n    \ndepth_in_m\n: \nfloat\n,\n    \nstart_date\n: \nUTCDateTime\n,\n    \nend_date\n: \nUTCDateTime\n,\n    \nsample_rate\n: \nfloat\n,\n    \nsensor_type\n: \nstr\n}\n\n\n\n\nIt is necessary to define this, as the available queries depend on the data\ntype. There are 5 possible data types: \n\"str\"\n, \n\"int\"\n, \n\"float\"\n, \n\"bool\"\n,\nand \n\"UTCDateTime\"\n. Search parameters are appended to the URL and the type\nof the parameters determines the available queries. Any number of them can\nbe combined. Identity queries can be negated by prefixing with an\nexclamation mark. Furthermore as soon as you query a parameter and it is\n\nnull\n for a certain document, that document will not be returned even for\ninequality queries.\n\n\nStrings\n\n\nStrings can be searched based on (in)equality. Wildcards can be used.\n\n\nGET JANE_ROOT/rest/document_indices/stationxml?network=BW\nGET JANE_ROOT/rest/document_indices/stationxml?network=B?\nGET JANE_ROOT/rest/document_indices/stationxml?station=A*M\n# An exclamation mark negates the query, meaning it will now return everything\n# not containing the chosen string.\nGET JANE_ROOT/rest/document_indices/stationxml?!network=BW\nGET JANE_ROOT/rest/document_indices/stationxml?!network=B?\nGET JANE_ROOT/rest/document_indices/stationxml?!station=A*M\n\n\n\n\nInts, Floats, and UTCDateTimes\n\n\nThese three types can be queried for (in)equality and smaller/larger.\n\nmin_NAME\n maps to \n=\n and \nmax_NAME\n to \n=\n in the underlying SQL query.\nPlease keep in mind that (in)equality comparisons are extremely fragile for\nfloating point numbers and should not be used in almost all cases.\n\n\nGET JANE_ROOT/rest/document_indices/stationxml?min_latitude=15.1\nmax_latitude=16.1\nGET JANE_ROOT/rest/document_indices/stationxml?sample_rate=20.0\nGET JANE_ROOT/rest/document_indices/stationxml?!sample_rate=20.0\n\n\n\n\nBooleans\n\n\nBooleans can only be searched for (in)equality.\n\n\nGET JANE_ROOT/rest/document_indices/quakeml?public=true\nGET JANE_ROOT/rest/document_indices/quakeml?public=false\nGET JANE_ROOT/rest/document_indices/quakeml?!public=false\n\n\n\n\nIndex View\n\n\nIndices are identified by their numeric id; get a certain index with, e.g.\n\n\nGET JANE_ROOT/rest/document_indices/stationxml/1\n\n\n\n\nAttachments List\n\n\nTo get a list of all attachments for a certain index, query, e.g.\n\n\nGET JANE_ROOT/rest/document_indices/stationxml/1/attachments\n\n\n\n\nAttachment\n\n\nTo get a certain attachment, you have to use the id of the attachment, e.g.\n\n\nGET JANE_ROOT/rest/document_indices/stationxml/1/attachments/11\n\n\n\n\nAttachment Data\n\n\nThe actual data of any attachment can be queried with\n\n\nGET JANE_ROOT/rest/document_indices/stationxml/1/attachments/11/data\n\n\n\n\nAdd a New Attachment\n\n\nEach index (here a single channel for a certain time interval in a StationXML\nfile) can have any number of attachments. Attachments might be created\nduring the initial upload of a document as part of the indexing process but\nthey can also be added, changed, and removed at a later stage.\n\n\nEach attachment consists of the actual file that comprises the major part of an\nattachment, an associated content type determining the type of file, and a\ncategory which is just a string (usually a single word) to quickly describe the\nattachment. Information about each attachment can be retrieved from the detail\nview of any index.\n\n\nCommon Content Types\n\n\nHere is a list of content types that you might want to use for the attachments.\nMake sure to choose the correct one.\n\n\n\n\nBitmap Image:\n \nimage/bmp\n\n\nGIF Image:\n \nimage/gif\n\n\nJPEG Image:\n \nimage/jpeg\n\n\nPDF File:\n   \napplication/pdf\n\n\nPNG Image:\n \nimage/png\n\n\nTIFF Image:\n \nimage/tiff\n\n\nWebP Image:\n \nimage/webp\n\n\nGoogle Earth - KML:\n \napplication/vnd.google-earth.kml+xml\n\n\nGoogle Earth - Zipped KML:\n \napplication/vnd.google-earth.kmz\n\n\nMicrosoft Word:\n \napplication/msword\n\n\nZip Archive:\n \napplication/zip\n\n\nBzip2 Archive:\n \napplication/x-bzip2\n\n\nCSV File:\n \ntext/csv\n\n\nLaTeX File:\n \napplication/x-latex\n\n\nPlain Text:\n \ntext/plain\n\n\nXML File:\n \napplication/xml\n\n\nYAML File:\n \ntext/yaml\n\n\nArbitrary Binary Data:\n \napplication/octet-stream\n\n\n\n\nTo create a new attachment, send a \nPOST\n request to the attachments URL of a\ncertain index.\n\n\nPOST JANE_ROOT/rest/document_indices/stationxml/1/attachments\n\n\n\n\nand add two HTTP headers:\n\n\n\n\ncontent-type\n: The content type.\n\n\nCategory\n: The category/tag of the file.\n\n\n\n\nLet's say you want to upload the picture \ntest.png\n.\n\n\nExample using the Python \nrequests\n library:\n\n\nimport request\n\nheaders = {\ncontent-type\n: \nimage/png\n,\n           \ncategory\n: \nrandom_image\n}\n\nwith open(\ntest.png\n, \nrb\n) as fh:\n    r = requests.post(\n        url=\nJANE_ROOT/rest/document_indices/stationxml/1/attachments\n,\n        auth=(\nuser\n, \npw\n),\n        headers=headers,\n        data=fh)\n\nassert r.ok\n\n\n\n\nExample using the \nHTTPie\n CLI client:\n\n\n$ http -a user:pw POST \nJANE_ROOT/rest/document_indices/stationxml/1/attachments\n \\\n  'content-type:image/png' 'category:random_image' \n test.png\n\n\n\n\nExample using \ncurl\n:\n\n\n$ curl --user user:pw \\\n  --data-binary @test.png \\\n  -H 'content-type: image/png' -H 'category: random_image'\n  -X POST \nJANE_ROOT/rest/document_indices/stationxml/1/attachments\n\n\n\n\n\nModify an Existing Document\n\n\nThe same logic hold true to modify an attachment, this time just send a \nPUT\n\nrequest to the URL of a particular attachment.\n\n\nPUT JANE_ROOT/rest/document_indices/stationxml/1/attachments/11\n\n\n\n\nExample using the Python \nrequests\n library:\n\n\nimport request\n\nheaders = {\ncontent-type\n: \nimage/png\n,\n           \ncategory\n: \nrandom_image\n}\n\nwith open(\ntest.png\n, \nrb\n) as fh:\n    r = requests.put(\n        url=\nJANE_ROOT/rest/document_indices/stationxml/1/attachments/11\n,\n        auth=(\nuser\n, \npw\n),\n        headers=headers,\n        data=fh)\n\nassert r.ok\n\n\n\n\nExample using the \nHTTPie\n CLI client:\n\n\n$ http -a user:pw PUT \nJANE_ROOT/rest/document_indices/stationxml/1/attachments/11\n \\\n  'content-type:image/png' 'category:random_image' \n test.png\n\n\n\n\nExample using \ncurl\n:\n\n\n$ curl --user user:pw \\\n  --data-binary @test.png \\\n  -H 'content-type: image/png' -H 'category: random_image'\n  -X PUT \nJANE_ROOT/rest/document_indices/stationxml/1/attachments/11\n\n\n\n\n\nDelete an Attachment\n\n\nTo delete an attachment, just send a \nDELETE\n request.\n\n\nDELETE JANE_ROOT/rest/document_indices/stationxml/1/attachments/11\n\n\n\n\nExample using the Python \nrequests\n library:\n\n\nimport request\n\nr = requests.delete(\n    url=\nJANE_ROOT/rest/document_indices/stationxml/1/attachments/11\n\n    auth=(\nuser\n, \npw\n))\n\nassert r.ok\n\n\n\n\nExample using the \nHTTPie\n CLI client:\n\n\n$ http -a user:pw DELETE \\\n  \nJANE_ROOT/rest/document_indices/stationxml/1/attachments/11\n\n\n\n\n\nExample using \ncurl\n:\n\n\n$ curl --user user:pw \\\n  -X DELETE \nJANE_ROOT/rest/document_indices/stationxml/1/attachments/11",
+            "title": "REST Interface"
+        },
+        {
+            "location": "/rest/index.html#rest-interface",
+            "text": "Jane's REST interface can be used to query documents defined by plug-ins and\nassociated indices and attachments. By default Jane ships with StationXML and\nQuakeML plug-ins but users can easily add their own. Additionally the REST\ninterface offers access to waveform data on a per-trace basis but this is\nlikely less useful than Jane's FDSNWS dataselect service which serves the same\ndata with a more convenient interface.  In the following  JANE_ROOT  will be used to denote the root address of a\nrunning Jane server. The REST interface can then be accessed at JANE_ROOT/rest .",
+            "title": "REST Interface"
+        },
+        {
+            "location": "/rest/index.html#general-remarks",
+            "text": "",
+            "title": "General Remarks"
+        },
+        {
+            "location": "/rest/index.html#supported-data-formats",
+            "text": "The data in the REST interface can mostly be queried in different formats -\nchoose whichever suites you best. If accessed from a web browser, a nice HTML\nview will be served; otherwise it will default to  JSON  output. The  format \nargument can be used to request the data in different formats:     Format  URL      JSON  JANE_ROOT/rest/something?format=json    XML  JANE_ROOT/rest/something?format=xml    YAML  JANE_ROOT/rest/something?format=yaml    JSONP  JANE_ROOT/rest/something?format=jsonp    Force the HTML API view  JANE_ROOT/rest/something?format=api",
+            "title": "Supported Data Formats"
+        },
+        {
+            "location": "/rest/index.html#pagination",
+            "text": "Data in the REST interface is paginated, meaning that only a certain amount of\nthe available data is returned at any point. It can be controlled with two\nquery parameters:     Parameter  Meaning      limit  Controls the number of returned records.    offset  Skip the given number of records.     The following URL for example will return records number 200 to 299: JANE_ROOT/rest/something?limit=100 offset=200",
+            "title": "Pagination"
+        },
+        {
+            "location": "/rest/index.html#authentication",
+            "text": "Many actions and data require certain permissions, thus users have to\nauthenticate themselves. Within the HTML web API view, Django's sessions\nauthentication can be used; there is a nice button to log-in at the top right.\nAnother way to authenticate yourself is to use HTTP Basic authentication. For\nall examples on this page we will assume a user named  user  with  pw  as a\npassword. Furthermore we will illustrate all examples with code snippets for\nthe Python  requests  library, for HTTPie , a user-friendly command line client, and good ol' curl  itself.",
+            "title": "Authentication"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-python-requests-library",
+            "text": "import request\nr = request.get(url= JANE_ROOT/rest/... , auth=( user ,  pw ))",
+            "title": "Example using the Python requests library:"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-httpie-cli-client",
+            "text": "$ http -a user:pw JANE_ROOT/rest/...",
+            "title": "Example using the HTTPie CLI client:"
+        },
+        {
+            "location": "/rest/index.html#example-using-curl",
+            "text": "$ curl --user user:pw JANE_ROOT/rest/...",
+            "title": "Example using curl:"
+        },
+        {
+            "location": "/rest/index.html#http-methods-and-headers",
+            "text": "Depending on the desired action, you might have to send the request with a\ndifferent HTTP method or additional headers. This section is a short tutorial\non how to do this.",
+            "title": "HTTP Methods and Headers"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-python-requests-library_1",
+            "text": "import request\n\nheaders = { category :  something }\n\nr = request.get( JANE_ROOT/rest/... , headers=headers)\nr = request.put( JANE_ROOT/rest/... , headers=headers)\nr = request.post( JANE_ROOT/rest/... , headers=headers)\nr = request.delete( JANE_ROOT/rest/... , headers=headers)",
+            "title": "Example using the Python requests library:"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-httpie-cli-client_1",
+            "text": "$ http JANE_ROOT/rest/... 'category:something'\n$ http PUT JANE_ROOT/rest/... 'category:something'\n$ http POST JANE_ROOT/rest/... 'category:something'\n$ http DELETE JANE_ROOT/rest/... 'category:something'",
+            "title": "Example using the HTTPie CLI client:"
+        },
+        {
+            "location": "/rest/index.html#example-using-curl_1",
+            "text": "$ curl -H 'category: something' JANE_ROOT/rest/...\n$ curl -X PUT -H 'category: something' JANE_ROOT/rest/...\n$ curl -X POST -H 'category: something' JANE_ROOT/rest/...\n$ curl -X DELETE -H 'category: something' JANE_ROOT/rest/...",
+            "title": "Example using curl:"
+        },
+        {
+            "location": "/rest/index.html#api-endpoints",
+            "text": "This section presents a quick overview of all available endpoints including the\nacceptable HTTP methods for each; they are explained in more detail further\ndown this page. Jane's REST API at points behaves a bit different from other\nREST APIs: it might not offer a certain method or interpret it slightly\ndifferent. This is on purpose to provide as natural an API as possible tailored\nto the capabilities of Jane.",
+            "title": "API Endpoints"
+        },
+        {
+            "location": "/rest/index.html#general-endpoints",
+            "text": "Endpoint  Available Methods  Description      JANE_ROOT/rest  GET  Root of the REST interface.",
+            "title": "General Endpoints"
+        },
+        {
+            "location": "/rest/index.html#waveform-endpoints",
+            "text": "All endpoints related to the waveform database of Jane.  ID  is the id of a\nparticular waveform trace.     Endpoint  Available Methods  Description      JANE_ROOT/rest/waveforms  GET  List of all waveforms.    JANE_ROOT/rest/waveforms/ID  GET  REST resource for a particular waveform trace.    JANE_ROOT/rest/waveforms/ID/plot  GET  Plot of that trace.    JANE_ROOT/rest/waveforms/ID/file  GET  Data containing that trace.",
+            "title": "Waveform Endpoints"
+        },
+        {
+            "location": "/rest/index.html#document-endpoints",
+            "text": "Endpoints for the documents sorted by document type which is defined by the\nplug-ins. Each document represents a file. Use this to upload new files,\nupdated versions of existing ones, or delete a whole document.  DOCTYPE \ndenotes the document type defined by the plug-ins,  FILENAME  the name of a\nparticular document.     Endpoint  Available Methods  Description      JANE_ROOT/rest/documents  GET  List of all document types.    JANE_ROOT/rest/documents/DOCTYPE  GET  List of all documents of that type.    JANE_ROOT/rest/documents/DOCTYPE/FILENAME  GET ,  PUT ,  DELETE  Get, create, or delete a document.    JANE_ROOT/rest/documents/DOCTYPE/FILENAME/data  GET  Get the data behind a certain document.",
+            "title": "Document Endpoints"
+        },
+        {
+            "location": "/rest/index.html#document-index-endpoints",
+            "text": "Endpoints for indices and attachments. Each document can have any number of\nindices and each index can have any number of attachments.  DOCTYPE  denotes\nthe document type defined by the plug-ins,  ID  the id of a particular index,\nand  AID  the id of particular attachment.     Endpoint  Available Methods  Description      JANE_ROOT/rest/document_indices  GET  List of all document types.    JANE_ROOT/rest/document_indices/DOCTYPE  GET  List of all document indices of that type.    JANE_ROOT/rest/document_indices/DOCTYPE/ID  GET  Get a certain document index.    JANE_ROOT/rest/document_indices/DOCTYPE/ID/attachments  GET ,  POST  Get all or add a new attachment.    JANE_ROOT/rest/document_indices/DOCTYPE/ID/attachments/AID  GET ,  PUT ,  DELETE  Get a certain, update an existing, or delete an attachment.    JANE_ROOT/rest/document_indices/DOCTYPE/ID/attachments/AID/data  GET  Get the data for a certain attachment.",
+            "title": "Document Index Endpoints"
+        },
+        {
+            "location": "/rest/index.html#waveforms",
+            "text": "The API endpoint for the waveform data is at  JANE_ROOT/rest/waveforms , see the table in the previous section for some sub-routes.  It can currently display all available traces including a picture and some meta\ninformation. In the future it might evolve to do some different things so there\ncurrently is not much more to say to this.",
+            "title": "Waveforms"
+        },
+        {
+            "location": "/rest/index.html#documents",
+            "text": "The  JANE_ROOT/rest/documents  route is the entry point to the actual files on\nwhich Jane's document database is built around.",
+            "title": "Documents"
+        },
+        {
+            "location": "/rest/index.html#list-view",
+            "text": "To get a list of all available documents of a certain document type, send, e.g.  GET JANE_ROOT/rest/documents/stationxml",
+            "title": "List View"
+        },
+        {
+            "location": "/rest/index.html#document-view",
+            "text": "Documents are identified via filename, which thus has to be unique per document\ntype.  GET JANE_ROOT/rest/documents/stationxml/BW.FURT.xml",
+            "title": "Document View"
+        },
+        {
+            "location": "/rest/index.html#data",
+            "text": "The REST API shows some information for each file, to download the actual file, do, e.g.  GET JANE_ROOT/rest/documents/stationxml/BW.FURT.xml/data",
+            "title": "Data"
+        },
+        {
+            "location": "/rest/index.html#add-new-document",
+            "text": "To create a new document, send a  PUT  request to a certain document URL, e.g.  PUT JANE_ROOT/rest/documents/stationxml/BW.FURT.xml  Let's say you want to upload the file  BW.FURT.xml .",
+            "title": "Add New Document"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-python-requests-library_2",
+            "text": "import request\n\nwith open( BW.FURT.xml ,  rb ) as fh:\n    r = requests.put(\n        url= JANE_ROOT/rest/documents/stationxml/BW.FURT.xml ,\n        auth=( user ,  pw ),\n        data=fh)\n\nassert r.ok",
+            "title": "Example using the Python requests library:"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-httpie-cli-client_2",
+            "text": "$ http -a user:pw PUT  JANE_ROOT/rest/documents/stationxml/BF.FURT.xml    BW.FURT.xml",
+            "title": "Example using the HTTPie CLI client:"
+        },
+        {
+            "location": "/rest/index.html#example-using-curl_2",
+            "text": "$ curl --user user:pw \\\n  --data-binary @BW.FURT.XML \\\n  -X PUT  JANE_ROOT/rest/documents/stationxml/BF.FURT.xml",
+            "title": "Example using curl:"
+        },
+        {
+            "location": "/rest/index.html#delete-a-document",
+            "text": "To delete a document, just send a  DELETE  request. Please keep in mind that\nthis will also delete all indices and potential attachments of the document.\nThe attachments might not be restorable if you have no backup.  DELETE JANE_ROOT/rest/documents/stationxml/BW.FURT.xml",
+            "title": "Delete a Document"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-python-requests-library_3",
+            "text": "import request\n\nr = requests.delete(\n    url= JANE_ROOT/rest/documents/stationxml/BW.FURT.xml ,\n    auth=( user ,  pw ))\n\nassert r.ok",
+            "title": "Example using the Python requests library:"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-httpie-cli-client_3",
+            "text": "$ http -a user:pw DELETE  JANE_ROOT/rest/documents/stationxml/BF.FURT.xml",
+            "title": "Example using the HTTPie CLI client:"
+        },
+        {
+            "location": "/rest/index.html#example-using-curl_3",
+            "text": "$ curl --user user:pw \\\n  -X DELETE  JANE_ROOT/rest/documents/stationxml/BF.FURT.xml",
+            "title": "Example using curl:"
+        },
+        {
+            "location": "/rest/index.html#modify-existing-document",
+            "text": "To modify an existing document, first delete it and then create a new one with\nthe same name. This is to safe-guard against accidentally overwriting exiting\ndocuments including attachments.",
+            "title": "Modify Existing Document"
+        },
+        {
+            "location": "/rest/index.html#document-indices",
+            "text": "The  JANE_ROOT/rest/document_indices  route is the entry point to the indices,\n    the core of Jane's document database.",
+            "title": "Document Indices"
+        },
+        {
+            "location": "/rest/index.html#list-view_1",
+            "text": "To get a list of all available indices of a certain document type, send, e.g.  GET JANE_ROOT/rest/document_indices/stationxml",
+            "title": "List View"
+        },
+        {
+            "location": "/rest/index.html#searching-over-the-indices",
+            "text": "Now the special thing here is that you can search over these indices and only\nget a subset of indices that match your query. The keys that can be searched\nover are determined by the  meta  attribute of the indexer plug-in for that\nparticular document type. In the case of the StationXML plugin it is defined as  meta = {\n     network :  str ,\n     station :  str ,\n     location :  str ,\n     channel :  str ,\n     latitude :  float ,\n     longitude :  float ,\n     elevation_in_m :  float ,\n     depth_in_m :  float ,\n     start_date :  UTCDateTime ,\n     end_date :  UTCDateTime ,\n     sample_rate :  float ,\n     sensor_type :  str }  It is necessary to define this, as the available queries depend on the data\ntype. There are 5 possible data types:  \"str\" ,  \"int\" ,  \"float\" ,  \"bool\" ,\nand  \"UTCDateTime\" . Search parameters are appended to the URL and the type\nof the parameters determines the available queries. Any number of them can\nbe combined. Identity queries can be negated by prefixing with an\nexclamation mark. Furthermore as soon as you query a parameter and it is null  for a certain document, that document will not be returned even for\ninequality queries.",
+            "title": "Searching Over the Indices"
+        },
+        {
+            "location": "/rest/index.html#strings",
+            "text": "Strings can be searched based on (in)equality. Wildcards can be used.  GET JANE_ROOT/rest/document_indices/stationxml?network=BW\nGET JANE_ROOT/rest/document_indices/stationxml?network=B?\nGET JANE_ROOT/rest/document_indices/stationxml?station=A*M\n# An exclamation mark negates the query, meaning it will now return everything\n# not containing the chosen string.\nGET JANE_ROOT/rest/document_indices/stationxml?!network=BW\nGET JANE_ROOT/rest/document_indices/stationxml?!network=B?\nGET JANE_ROOT/rest/document_indices/stationxml?!station=A*M",
+            "title": "Strings"
+        },
+        {
+            "location": "/rest/index.html#ints-floats-and-utcdatetimes",
+            "text": "These three types can be queried for (in)equality and smaller/larger. min_NAME  maps to  =  and  max_NAME  to  =  in the underlying SQL query.\nPlease keep in mind that (in)equality comparisons are extremely fragile for\nfloating point numbers and should not be used in almost all cases.  GET JANE_ROOT/rest/document_indices/stationxml?min_latitude=15.1 max_latitude=16.1\nGET JANE_ROOT/rest/document_indices/stationxml?sample_rate=20.0\nGET JANE_ROOT/rest/document_indices/stationxml?!sample_rate=20.0",
+            "title": "Ints, Floats, and UTCDateTimes"
+        },
+        {
+            "location": "/rest/index.html#booleans",
+            "text": "Booleans can only be searched for (in)equality.  GET JANE_ROOT/rest/document_indices/quakeml?public=true\nGET JANE_ROOT/rest/document_indices/quakeml?public=false\nGET JANE_ROOT/rest/document_indices/quakeml?!public=false",
+            "title": "Booleans"
+        },
+        {
+            "location": "/rest/index.html#index-view",
+            "text": "Indices are identified by their numeric id; get a certain index with, e.g.  GET JANE_ROOT/rest/document_indices/stationxml/1",
+            "title": "Index View"
+        },
+        {
+            "location": "/rest/index.html#attachments-list",
+            "text": "To get a list of all attachments for a certain index, query, e.g.  GET JANE_ROOT/rest/document_indices/stationxml/1/attachments",
+            "title": "Attachments List"
+        },
+        {
+            "location": "/rest/index.html#attachment",
+            "text": "To get a certain attachment, you have to use the id of the attachment, e.g.  GET JANE_ROOT/rest/document_indices/stationxml/1/attachments/11",
+            "title": "Attachment"
+        },
+        {
+            "location": "/rest/index.html#attachment-data",
+            "text": "The actual data of any attachment can be queried with  GET JANE_ROOT/rest/document_indices/stationxml/1/attachments/11/data",
+            "title": "Attachment Data"
+        },
+        {
+            "location": "/rest/index.html#add-a-new-attachment",
+            "text": "Each index (here a single channel for a certain time interval in a StationXML\nfile) can have any number of attachments. Attachments might be created\nduring the initial upload of a document as part of the indexing process but\nthey can also be added, changed, and removed at a later stage.  Each attachment consists of the actual file that comprises the major part of an\nattachment, an associated content type determining the type of file, and a\ncategory which is just a string (usually a single word) to quickly describe the\nattachment. Information about each attachment can be retrieved from the detail\nview of any index.",
+            "title": "Add a New Attachment"
+        },
+        {
+            "location": "/rest/index.html#common-content-types",
+            "text": "Here is a list of content types that you might want to use for the attachments.\nMake sure to choose the correct one.   Bitmap Image:   image/bmp  GIF Image:   image/gif  JPEG Image:   image/jpeg  PDF File:     application/pdf  PNG Image:   image/png  TIFF Image:   image/tiff  WebP Image:   image/webp  Google Earth - KML:   application/vnd.google-earth.kml+xml  Google Earth - Zipped KML:   application/vnd.google-earth.kmz  Microsoft Word:   application/msword  Zip Archive:   application/zip  Bzip2 Archive:   application/x-bzip2  CSV File:   text/csv  LaTeX File:   application/x-latex  Plain Text:   text/plain  XML File:   application/xml  YAML File:   text/yaml  Arbitrary Binary Data:   application/octet-stream   To create a new attachment, send a  POST  request to the attachments URL of a\ncertain index.  POST JANE_ROOT/rest/document_indices/stationxml/1/attachments  and add two HTTP headers:   content-type : The content type.  Category : The category/tag of the file.   Let's say you want to upload the picture  test.png .",
+            "title": "Common Content Types"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-python-requests-library_4",
+            "text": "import request\n\nheaders = { content-type :  image/png ,\n            category :  random_image }\n\nwith open( test.png ,  rb ) as fh:\n    r = requests.post(\n        url= JANE_ROOT/rest/document_indices/stationxml/1/attachments ,\n        auth=( user ,  pw ),\n        headers=headers,\n        data=fh)\n\nassert r.ok",
+            "title": "Example using the Python requests library:"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-httpie-cli-client_4",
+            "text": "$ http -a user:pw POST  JANE_ROOT/rest/document_indices/stationxml/1/attachments  \\\n  'content-type:image/png' 'category:random_image'   test.png",
+            "title": "Example using the HTTPie CLI client:"
+        },
+        {
+            "location": "/rest/index.html#example-using-curl_4",
+            "text": "$ curl --user user:pw \\\n  --data-binary @test.png \\\n  -H 'content-type: image/png' -H 'category: random_image'\n  -X POST  JANE_ROOT/rest/document_indices/stationxml/1/attachments",
+            "title": "Example using curl:"
+        },
+        {
+            "location": "/rest/index.html#modify-an-existing-document",
+            "text": "The same logic hold true to modify an attachment, this time just send a  PUT \nrequest to the URL of a particular attachment.  PUT JANE_ROOT/rest/document_indices/stationxml/1/attachments/11",
+            "title": "Modify an Existing Document"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-python-requests-library_5",
+            "text": "import request\n\nheaders = { content-type :  image/png ,\n            category :  random_image }\n\nwith open( test.png ,  rb ) as fh:\n    r = requests.put(\n        url= JANE_ROOT/rest/document_indices/stationxml/1/attachments/11 ,\n        auth=( user ,  pw ),\n        headers=headers,\n        data=fh)\n\nassert r.ok",
+            "title": "Example using the Python requests library:"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-httpie-cli-client_5",
+            "text": "$ http -a user:pw PUT  JANE_ROOT/rest/document_indices/stationxml/1/attachments/11  \\\n  'content-type:image/png' 'category:random_image'   test.png",
+            "title": "Example using the HTTPie CLI client:"
+        },
+        {
+            "location": "/rest/index.html#example-using-curl_5",
+            "text": "$ curl --user user:pw \\\n  --data-binary @test.png \\\n  -H 'content-type: image/png' -H 'category: random_image'\n  -X PUT  JANE_ROOT/rest/document_indices/stationxml/1/attachments/11",
+            "title": "Example using curl:"
+        },
+        {
+            "location": "/rest/index.html#delete-an-attachment",
+            "text": "To delete an attachment, just send a  DELETE  request.  DELETE JANE_ROOT/rest/document_indices/stationxml/1/attachments/11",
+            "title": "Delete an Attachment"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-python-requests-library_6",
+            "text": "import request\n\nr = requests.delete(\n    url= JANE_ROOT/rest/document_indices/stationxml/1/attachments/11 \n    auth=( user ,  pw ))\n\nassert r.ok",
+            "title": "Example using the Python requests library:"
+        },
+        {
+            "location": "/rest/index.html#example-using-the-httpie-cli-client_6",
+            "text": "$ http -a user:pw DELETE \\\n   JANE_ROOT/rest/document_indices/stationxml/1/attachments/11",
+            "title": "Example using the HTTPie CLI client:"
+        },
+        {
+            "location": "/rest/index.html#example-using-curl_6",
+            "text": "$ curl --user user:pw \\\n  -X DELETE  JANE_ROOT/rest/document_indices/stationxml/1/attachments/11",
+            "title": "Example using curl:"
+        },
+        {
+            "location": "/waveforms/index.html",
+            "text": "Waveforms\n\n\nJane\n's second pillar besides its plugin-based document database is the \nability to deal with seismic waveforms. There is no reason to store that \ninformation in a document database as it is very well structured; something a \nrelational database is made for.  Thus waveform data is stored in a couple of \ntables in the underlying PostgreSQL database.\n\n\nIndexing Waveforms\n\n\nJane\n does not store the waveform in the database but only indexes some \ninformation about it - thus \nyou must not move data after it has been \nindexed\n, otherwise \nJane\n will no longer be able to find it.\n\n\nTo index waveforms, use the \nindex_waveform\n \nmanage.py\n command. As all\n\nmanage.py\n commands, this has to be run from the \njane/src\n directory. It \nis quite a powerful command and can recursively index a whole directory in a\nsingle shot as well as continuously monitor a directory and automatically \nindex all changed files.\n\n\nUsage Examples\n\n\n(1.) Run only once and remove duplicates::\n\n\nDATA=/path/to/archive/2015,/path/to/archive/2016\nLOG=/path/to/indexer.log\npython manage.py index_waveforms --verbose -i0.0 --run-once \\\n    --check-duplicates -n1 -d$DATA\n\n\n\n\n(2.) Run indexer as a daemon continuously crawling the given paths but index \n     only the last 24 hours (-r24) of a waveform archive::\n\n\nDATA=/path/to/archive/2015,/path/to/archive/2016\nLOG=/path/to/indexer.log\npython manage.py index_waveforms --verbose -i0.0 -n1 -d$DATA -r24 -l$LOG \n\n\n\n\n\nThere are a lot more options, please refer to the \n--help\n output for the \nmost up-to-date information.\n\n\n$ python manage.py index_waveforms --help\n\nusage: manage.py index_waveforms [-h] [--version] [-v {0,1,2,3}]\n                                 [--settings SETTINGS]\n                                 [--pythonpath PYTHONPATH] [--traceback]\n                                 [--no-color] [-d DATA] [-n NUMBER_OF_CPUS]\n                                 [-i POLL_INTERVAL] [-r RECENT] [-l LOG] [-a]\n                                 [-1] [--check-duplicates] [--cleanup] [-f]\n                                 [-H HOST] [-p PORT]\n\nCrawl directories and index waveforms to Jane.\n\noptional arguments:\n  -h, --help            show this help message and exit\n  --version             show program's version number and exit\n  -v {0,1,2,3}, --verbosity {0,1,2,3}\n                        Verbosity level; 0=minimal output, 1=normal output,\n                        2=verbose output, 3=very verbose output\n  --settings SETTINGS   The Python path to a settings module, e.g.\n                        \nmyproject.settings.main\n. If this isn't provided, the\n                        DJANGO_SETTINGS_MODULE environment variable will be\n                        used.\n  --pythonpath PYTHONPATH\n                        A directory to add to the Python path, e.g.\n                        \n/home/djangoprojects/myproject\n.\n  --traceback           Raise on CommandError exceptions\n  --no-color            Don't colorize the command output.\n  -d DATA, --data DATA  Path, search patterns and feature plug-ins of waveform\n                        files. The indexer will crawl recursively through all\n                        sub-directories within each given path. Multiple paths\n                        have to be separated with a comma, e.g.\n                        '/first/path=*.*,/second/path,/third/path=*.gse'. File\n                        patterns are given as space-separated list of\n                        wildcards after a equal sign, e.g. '/path=*.gse2\n                        *.mseed,/second/path=*.*'. Default path option is\n                        'data=*.*'.\n  -n NUMBER_OF_CPUS     Number of CPUs used for the indexer.\n  -i POLL_INTERVAL, --poll-interval POLL_INTERVAL\n                        Poll interval for file crawler in seconds (default is\n                        0).\n  -r RECENT, --recent RECENT\n                        Index only recent files modified within the given\n                        number of hours. This option is deactivated by\n                        default.\n  -l LOG, --log LOG     Log file name. If no log file is given, stdout will be\n                        used.\n  -a, --all-files       The indexer will automatically skip paths or files\n                        starting with a dot. This option forces parsing of all\n                        paths and files.\n  -1, --run-once        The indexer will parse through all given directories\n                        only once and quit afterwards.\n  --check-duplicates    Checks for duplicate entries within database. This\n                        feature will slow down the indexer progress.\n  --cleanup             Clean database from non-existing files or paths if\n                        activated, but will skip all paths marked as archived\n                        in the database.\n  -f, --force-reindex   Reindex existing index entry for every crawled file.\n  -H HOST, --host HOST  Server host name. Default is 'localhost'.\n  -p PORT, --port PORT  Port number. If not given a free port will be picked.\n\n\n\n\nFDSN dataselect service\n\n\nThe most common way to retrieve waveforms from \nJane\n will be via its fdsnws\n\ndataselect\n service implementation. All indexed waveforms can be queried \nwith it. It can be found at \nJANE_ROOT/fdsnws/dataselect/1/\n and used with \nany of the common tools.\n\n\nA very convenient tool it the FDSN web service client of the\n\nObsPy\n library \n(\ndocumentation\n), \nusage example with \nJane\n:\n\n\n import obspy\n\n from obspy.clients.fdsn import Client\n\n c = Client(\nhttp://JANE_ROOT\n)\n\n st = c.get.get_waveforms(\n...     network=\nBW\n, station=\nRJOB\n, location=\n, channel=\nBHZ\n, \n...     starttime=obspy.UTCDateTime(2016, 1, 1, 3, 0, 5),\n...     endtime=obspy.UTCDateTime(2016, 1, 1, 5, 0, 5))\n\n\n\n\nWaveform REST Interface\n\n\nWaveforms can also be retrieved via the REST interface, found at \n\nJANE_ROOT/rest/waveforms\n. In most cases the fdsnws service will be more \nconvenient but the REST interface exists if somebody needs it. It should be \nfairly self-explanatory.\n\n\n\n\nRestrictions/Protected Stations\n\n\nBy default all waveform data is public, i.e. anybody with access to the \nJane\n\nHTTP server can query all data. It is possible to limit access at a \nper-station granularity. To do that, add a new restriction in the admin \ninterface. As soon as a restriction has been added it will be considered \nprotected and only users that are part of the restriction will still be able\nto access them.\n\n\n\n\nTo access the data, users will have to use the \nqueryauth\n route of the \nfdsnws \ndataselect\n service. Usage example with \nObsPy\n:\n\n\n import obspy\n\n from obspy.clients.fdsn import Client\n\n c = Client(\nhttp://JANE_ROOT\n, user=\nlion\n, password=\nmyfavoritepw\n)\n\n st = c.get.get_waveforms(\n...     network=\nBW\n, station=\nRJOB\n, location=\n, channel=\nBHZ\n, \n...     starttime=obspy.UTCDateTime(2016, 1, 1, 3, 0, 5),\n...     endtime=obspy.UTCDateTime(2016, 1, 1, 5, 0, 5))",
+            "title": "Waveforms"
+        },
+        {
+            "location": "/waveforms/index.html#waveforms",
+            "text": "Jane 's second pillar besides its plugin-based document database is the \nability to deal with seismic waveforms. There is no reason to store that \ninformation in a document database as it is very well structured; something a \nrelational database is made for.  Thus waveform data is stored in a couple of \ntables in the underlying PostgreSQL database.",
+            "title": "Waveforms"
+        },
+        {
+            "location": "/waveforms/index.html#indexing-waveforms",
+            "text": "Jane  does not store the waveform in the database but only indexes some \ninformation about it - thus  you must not move data after it has been \nindexed , otherwise  Jane  will no longer be able to find it.  To index waveforms, use the  index_waveform   manage.py  command. As all manage.py  commands, this has to be run from the  jane/src  directory. It \nis quite a powerful command and can recursively index a whole directory in a\nsingle shot as well as continuously monitor a directory and automatically \nindex all changed files.",
+            "title": "Indexing Waveforms"
+        },
+        {
+            "location": "/waveforms/index.html#usage-examples",
+            "text": "(1.) Run only once and remove duplicates::  DATA=/path/to/archive/2015,/path/to/archive/2016\nLOG=/path/to/indexer.log\npython manage.py index_waveforms --verbose -i0.0 --run-once \\\n    --check-duplicates -n1 -d$DATA  (2.) Run indexer as a daemon continuously crawling the given paths but index \n     only the last 24 hours (-r24) of a waveform archive::  DATA=/path/to/archive/2015,/path/to/archive/2016\nLOG=/path/to/indexer.log\npython manage.py index_waveforms --verbose -i0.0 -n1 -d$DATA -r24 -l$LOG    There are a lot more options, please refer to the  --help  output for the \nmost up-to-date information.  $ python manage.py index_waveforms --help\n\nusage: manage.py index_waveforms [-h] [--version] [-v {0,1,2,3}]\n                                 [--settings SETTINGS]\n                                 [--pythonpath PYTHONPATH] [--traceback]\n                                 [--no-color] [-d DATA] [-n NUMBER_OF_CPUS]\n                                 [-i POLL_INTERVAL] [-r RECENT] [-l LOG] [-a]\n                                 [-1] [--check-duplicates] [--cleanup] [-f]\n                                 [-H HOST] [-p PORT]\n\nCrawl directories and index waveforms to Jane.\n\noptional arguments:\n  -h, --help            show this help message and exit\n  --version             show program's version number and exit\n  -v {0,1,2,3}, --verbosity {0,1,2,3}\n                        Verbosity level; 0=minimal output, 1=normal output,\n                        2=verbose output, 3=very verbose output\n  --settings SETTINGS   The Python path to a settings module, e.g.\n                         myproject.settings.main . If this isn't provided, the\n                        DJANGO_SETTINGS_MODULE environment variable will be\n                        used.\n  --pythonpath PYTHONPATH\n                        A directory to add to the Python path, e.g.\n                         /home/djangoprojects/myproject .\n  --traceback           Raise on CommandError exceptions\n  --no-color            Don't colorize the command output.\n  -d DATA, --data DATA  Path, search patterns and feature plug-ins of waveform\n                        files. The indexer will crawl recursively through all\n                        sub-directories within each given path. Multiple paths\n                        have to be separated with a comma, e.g.\n                        '/first/path=*.*,/second/path,/third/path=*.gse'. File\n                        patterns are given as space-separated list of\n                        wildcards after a equal sign, e.g. '/path=*.gse2\n                        *.mseed,/second/path=*.*'. Default path option is\n                        'data=*.*'.\n  -n NUMBER_OF_CPUS     Number of CPUs used for the indexer.\n  -i POLL_INTERVAL, --poll-interval POLL_INTERVAL\n                        Poll interval for file crawler in seconds (default is\n                        0).\n  -r RECENT, --recent RECENT\n                        Index only recent files modified within the given\n                        number of hours. This option is deactivated by\n                        default.\n  -l LOG, --log LOG     Log file name. If no log file is given, stdout will be\n                        used.\n  -a, --all-files       The indexer will automatically skip paths or files\n                        starting with a dot. This option forces parsing of all\n                        paths and files.\n  -1, --run-once        The indexer will parse through all given directories\n                        only once and quit afterwards.\n  --check-duplicates    Checks for duplicate entries within database. This\n                        feature will slow down the indexer progress.\n  --cleanup             Clean database from non-existing files or paths if\n                        activated, but will skip all paths marked as archived\n                        in the database.\n  -f, --force-reindex   Reindex existing index entry for every crawled file.\n  -H HOST, --host HOST  Server host name. Default is 'localhost'.\n  -p PORT, --port PORT  Port number. If not given a free port will be picked.",
+            "title": "Usage Examples"
+        },
+        {
+            "location": "/waveforms/index.html#fdsn-dataselect-service",
+            "text": "The most common way to retrieve waveforms from  Jane  will be via its fdsnws dataselect  service implementation. All indexed waveforms can be queried \nwith it. It can be found at  JANE_ROOT/fdsnws/dataselect/1/  and used with \nany of the common tools.  A very convenient tool it the FDSN web service client of the ObsPy  library \n( documentation ), \nusage example with  Jane :   import obspy  from obspy.clients.fdsn import Client  c = Client( http://JANE_ROOT )  st = c.get.get_waveforms(\n...     network= BW , station= RJOB , location= , channel= BHZ , \n...     starttime=obspy.UTCDateTime(2016, 1, 1, 3, 0, 5),\n...     endtime=obspy.UTCDateTime(2016, 1, 1, 5, 0, 5))",
+            "title": "FDSN dataselect service"
+        },
+        {
+            "location": "/waveforms/index.html#waveform-rest-interface",
+            "text": "Waveforms can also be retrieved via the REST interface, found at  JANE_ROOT/rest/waveforms . In most cases the fdsnws service will be more \nconvenient but the REST interface exists if somebody needs it. It should be \nfairly self-explanatory.",
+            "title": "Waveform REST Interface"
+        },
+        {
+            "location": "/waveforms/index.html#restrictionsprotected-stations",
+            "text": "By default all waveform data is public, i.e. anybody with access to the  Jane \nHTTP server can query all data. It is possible to limit access at a \nper-station granularity. To do that, add a new restriction in the admin \ninterface. As soon as a restriction has been added it will be considered \nprotected and only users that are part of the restriction will still be able\nto access them.   To access the data, users will have to use the  queryauth  route of the \nfdsnws  dataselect  service. Usage example with  ObsPy :   import obspy  from obspy.clients.fdsn import Client  c = Client( http://JANE_ROOT , user= lion , password= myfavoritepw )  st = c.get.get_waveforms(\n...     network= BW , station= RJOB , location= , channel= BHZ , \n...     starttime=obspy.UTCDateTime(2016, 1, 1, 3, 0, 5),\n...     endtime=obspy.UTCDateTime(2016, 1, 1, 5, 0, 5))",
+            "title": "Restrictions/Protected Stations"
+        }
+    ]
+}

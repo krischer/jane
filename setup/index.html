@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+	<title>Setup - Jane</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+        <link href="../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../index.html">Jane</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="../index.html">Home</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../introduction/index.html">Introduction</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        
+<li class="active">
+    <a href="index.html">Setup</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../testing/index.html">Testing</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../settings/index.html">Settings</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../internals/index.html">Internals</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../rest/index.html">REST Interface</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../waveforms/index.html">Waveforms</a>
+</li>
+
+                    
+                    </ul>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                <li >
+                    <a rel="next" href="../introduction/index.html">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../testing/index.html">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/krischer/jane/">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#jane-setup">Jane Setup</a></li>
+        
+            <li><a href="#dependencies-of-jane">Dependencies of Jane</a></li>
+        
+            <li><a href="#installation-of-python-and-the-dependencies">Installation of Python and the Dependencies</a></li>
+        
+            <li><a href="#postgresql-setup">PostgreSQL Setup</a></li>
+        
+            <li><a href="#installing-jane">Installing Jane</a></li>
+        
+            <li><a href="#adapt-local-settings">Adapt Local Settings</a></li>
+        
+            <li><a href="#initialize-django-database">Initialize Django Database</a></li>
+        
+            <li><a href="#run-jane">Run Jane</a></li>
+        
+            <li><a href="#building-the-documentation">Building the Documentation</a></li>
+        
+            <li><a href="#installing-on-a-production-server">Installing on a Production Server</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="jane-setup">Jane Setup</h1>
+<p>This page details how to setup and install <code>Jane</code>. </p>
+<h2 id="dependencies-of-jane">Dependencies of Jane</h2>
+<p><code>Jane</code> depends on the following non-Python dependencies</p>
+<ul>
+<li><code>PostgreSQL 9.4</code></li>
+<li><code>PostGIS 2.1</code></li>
+</ul>
+<p>and furthermore on</p>
+<ul>
+<li><code>Python 3.4</code></li>
+</ul>
+<p>with the following Python modules</p>
+<ul>
+<li><code>obspy</code></li>
+<li><code>django==1.9.x</code></li>
+<li><code>psycopg2</code></li>
+<li><code>djangorestframework</code></li>
+<li><code>djangorestframework-gis</code></li>
+<li><code>djangorestframework-jsonp</code></li>
+<li><code>djangorestframework-xml</code></li>
+<li><code>djangorestframework-yaml</code></li>
+<li><code>django-cors-headers</code></li>
+<li><code>django-debug-toolbar</code></li>
+<li><code>django-plugins</code> </li>
+<li><code>defusedxml</code></li>
+<li><code>flake8</code></li>
+<li><code>gdal</code>  (<a href="http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal">see here for Windows</a>)</li>
+<li><code>geojson</code></li>
+<li><code>markdown</code></li>
+<li><code>mkdocs</code></li>
+<li><code>mkdocs-bootswatch</code></li>
+</ul>
+<h2 id="installation-of-python-and-the-dependencies">Installation of Python and the Dependencies</h2>
+<p>A simple way to install an up-to-date version of the dependencies is to use the
+Anaconda Python distribution. Once Anaconda is installed, the following can be
+used to setup a new dedicated and separate environment to run <code>Jane</code>:</p>
+<pre><code class="bash">$ conda config --add channels obspy
+$ conda create -n jane python=3.4
+$ source activate jane
+(jane)$ conda install obspy psycopg2 markdown flake8 gdal pyyaml pip
+# Install the latest 1.9.x release.
+(jane)$ pip install &quot;django&gt;=1.9,&lt;1.10&quot;
+(jane)$ pip install djangorestframework djangorestframework-gis djangorestframework-jsonp djangorestframework-xml djangorestframework-yaml django-cors-headers django-debug-toolbar django-plugins defusedxml geojson markdown mkdocs mkdocs-bootswatch
+</code></pre>
+
+<p>Alternatively, the following Anaconda environment description file ...</p>
+<pre><code>name: jane
+dependencies:
+- python=3.4
+- obspy
+- psycopg2
+- markdown
+- flake8
+- gdal
+- pyyaml
+- pip
+- pip:
+  - django&gt;=1.9,&lt;1.10
+  - djangorestframework
+  - djangorestframework-gis
+  - djangorestframework-jsonp
+  - djangorestframework-xml
+  - djangorestframework-yaml
+  - django-cors-headers
+  - django-debug-toolbar
+  - django-plugins
+  - defusedxml
+  - geojson
+  - markdown
+  - mkdocs
+  - mkdocs-bootswatch
+</code></pre>
+
+<p>... can be used to create the environment (save as file 
+<code>jane_anaconda_env.txt</code>):</p>
+<pre><code class="bash">$ conda config --add channels obspy
+$ conda env create -n jane -f jane_anaconda_env.txt
+</code></pre>
+
+<p>It is a good idea to pin the version of those packages that <code>Jane</code> depends on 
+in a certain version (to avoid accidental updates). To do so put the following
+content in a new file <code>/path/to/anaconda/envs/jane/conda-meta/pinned</code> (see
+<a href="http://conda.pydata.org/docs/faq.html#pinning-packages">http://conda.pydata.org/docs/faq.html#pinning-packages</a>):</p>
+<pre><code class="bash">python 3.4.*
+obspy 1.0.*
+</code></pre>
+
+<p>After everything has been installed, make sure to run the tests as explained
+<a href="../testing/index.html">on the testing page</a> to make sure the installation is valid.</p>
+<h2 id="postgresql-setup">PostgreSQL Setup</h2>
+<p>PostgreSQL should also be run as a service via whatever mechanism your
+operating system requires. It is also good practice to run PostgreSQL as
+another non-root user to minimize the attack surface. The database name, user,
+and password can of course be changed and be configured within <code>Jane</code>.</p>
+<p>If you don't run PostgreSQL as a service (<strong>DO NOT DO THIS IN PRODUCTION</strong>),
+you can initalize and start it with:</p>
+<pre><code class="bash">$ initdb -D /path/to/db
+$ postgres -D /path/to/db
+
+# All the following commands will have to be executed in a separate shell.
+$ createuser --superuser postgres  # required for pgadmin
+</code></pre>
+
+<p><code>Jane</code> needs a database to work with. Here we will create a new database user
+<code>jane</code> and a new database also called <code>jane</code>. You are free to choose the names
+however you see fit, just make sure they are the same as in your 
+<code>local_settings.py</code> file.</p>
+<pre><code class="bash">$ createuser --encrypted --pwprompt jane
+$ createdb --owner=jane jane
+</code></pre>
+
+<p>The last step is to enable the PostGIS extension for the just created database.</p>
+<pre><code class="bash">$ psql --command=&quot;CREATE EXTENSION postgis;&quot; jane
+</code></pre>
+
+<h2 id="installing-jane">Installing Jane</h2>
+<pre><code class="bash">cd /path/where/jane/should/live
+git clone https://github.com/krischer/jane.git
+cd jane
+</code></pre>
+
+<h2 id="adapt-local-settings">Adapt Local Settings</h2>
+<p>Copy <code>jane/src/local_settings.py.example</code> to <code>jane/src/local_settings.py</code> and 
+fill in the database and user name and credentials. Also have a look at the
+<a href="../settings/index.html">available settings</a> to customize your <code>Jane</code> installation.</p>
+<h2 id="initialize-django-database">Initialize Django Database</h2>
+<p>This command will setup all necessary tables and what not. All 
+<code>python manage.py</code> commands have to be executed in the <code>jane/src</code> folder or 
+use an absolute path to the <code>manage.py</code> file.</p>
+<pre><code class="bash">$ python manage.py migrate
+$ python manage.py createsuperuser
+</code></pre>
+
+<h2 id="run-jane">Run Jane</h2>
+<p>To test the setup, run <code>Jane</code> with ...</p>
+<pre><code class="bash">$ python manage.py runserver
+</code></pre>
+
+<p>... which will launch a local web server.</p>
+<h2 id="building-the-documentation">Building the Documentation</h2>
+<p>Assuming <code>mkdocs</code> has been installed as above:</p>
+<pre><code>cd /path/to/jane/docs
+./build_docs.sh
+</code></pre>
+
+<p>this will build and copy the build files to the correct directory.</p>
+<h2 id="installing-on-a-production-server">Installing on a Production Server</h2>
+<p>Things are very similar on a production server but you want to run most 
+things as services and of course the availability of all these service must be 
+monitored and security critical updates have to be applied to maintain a stable 
+installation. Make sure to speak about this with your admin! We take no 
+responsibilities for any security problems.</p>
+<p>Properly deploying a Django application is well documented in the 
+<a href="https://docs.djangoproject.com/en/1.9/howto/deployment/">official Django documentation</a>.</p>
+<p>The fellowing is a shortened introduction on how to deploy it on a Debian 
+server with an Apache webserver. Please note that <code>mod-wsgi-py3</code> for the 
+Apache web server has to be the same Python with which <code>Jane</code> is run, so 
+using the Anaconda Python is likely quite hard to do.</p>
+<h3 id="postgresql">PostgreSQL</h3>
+<p>Install with</p>
+<pre><code class="bash">sudo apt-get install postgresql postgresql-contrib
+</code></pre>
+
+<p>make sure to get at least version 9.4. Then perform the basic setup (you 
+must run this as the <code>postgres</code> user or whatever user PostgreSQL has been 
+configured with):</p>
+<pre><code class="bash">createuser --encrypted --pwprompt jane
+createdb --owner=jane jane
+psql --command=&quot;CREATE EXTENSION postgis;&quot; jane
+</code></pre>
+
+<h3 id="python-and-dependencies">Python and Dependencies</h3>
+<p>We (as much as possible) rely on Debian packages. Sometimes we have to use 
+<code>pip</code> if the Python module is not packaged. Make sure to install Python 3.4!</p>
+<p>First, add the ObsPy sources as written 
+<a href="https://github.com/obspy/obspy/wiki/Installation-on-Linux-via-Apt-Repository">here</a>.</p>
+<p>Then install as much as possible with <code>apt-get</code>:</p>
+<pre><code class="bash"># AS ROOT!
+apt-get install python3-psycopg2 \
+    python3-markdown \
+    python3-yaml \
+    python3-defusedxml \
+    python3-gdal \
+    python3-flake8 \
+    python3-pip \
+    python3-obspy \
+    ipython3 \
+    git
+</code></pre>
+
+<p>And finally some things as a local user. You will likely want to create a 
+separate user to run <code>Jane</code>. With that user, run (note that you might have 
+to use <code>pip3</code> instead of <code>pip</code>):</p>
+<pre><code class="bash"># AS USER!
+pip3 install --user \
+    &quot;django&gt;=1.9,&lt;1.10&quot; \
+    djangorestframework \
+    djangorestframework-gis \
+    djangorestframework-jsonp \
+    djangorestframework-xml \
+    djangorestframework-yaml \
+    django-cors-headers \
+    django-debug-toolbar \
+    django-plugins \
+    geojson \
+    mkdocs \
+    mkdocs-bootswatch
+</code></pre>
+
+<p>Then follow the instructions above to get <code>Jane</code> from Github, adapt the 
+<code>local_settings.py</code> file, and build the documentation.</p>
+<p>Finally also run a couple of <code>manage.py</code> commands (you might have to use 
+<code>python3</code>). The <code>collectstatic</code> command will copy all static files to a 
+common directory that is then served directly by Apache making it much faster:</p>
+<pre><code class="bash">cd jane/src
+python3 manage.py migrate
+python3 manage.py createsuperuser
+python3 manage.py collectstatic
+</code></pre>
+
+<h3 id="configuring-apache">Configuring Apache</h3>
+<p>The last thing to do is to configure Apache to run <code>Jane</code> over the <code>WSGI</code>.</p>
+<p>Install it with</p>
+<pre><code class="bash">sudo apt-get install apache2 libapache2-mod-wsgi-py3
+sudo a2enmod wsgi
+</code></pre>
+
+<p>make sure its running</p>
+<pre><code class="bash">/etc/init.d/apache2 status
+</code></pre>
+
+<p>The <code>VirtualHost</code> configuration has to look approximately like this (details 
+will of course differ per installation):</p>
+<pre><code class="apache">&lt;VirtualHost *:80&gt;
+        WSGIDaemonProcess jane user=jane 
+        python-path=/path/to/jane/jane/src:/path/to/site-packages processes=4 threads=8
+        WSGIProcessGroup jane
+        WSGIScriptAlias / /path/to/jane/jane/src/jane/wsgi.py
+        WSGIPassAuthorization On
+        WSGIApplicationGroup %{GLOBAL}
+
+        &lt;Directory /path/to/jane/jane/src/jane&gt;
+                &lt;Files wsgi.py&gt;
+                Require all granted
+                &lt;/Files&gt;
+        &lt;/Directory&gt;
+
+        # Prevent django from serving static files
+        DocumentRoot /path/to/jane/jane/static
+        Alias /static /path/to/jane/jane/static
+        &lt;Directory /path/to/jane/jane/static&gt;
+                Require all granted
+        &lt;/Directory&gt;
+
+        ...
+
+&lt;/VirtualHost&gt;
+</code></pre>
+
+<p>Make sure to choose sensible <code>processes</code> and <code>threads</code> options.</p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+                <center>Jane Developers, 2014-2016</center>
+            
+            <center>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</center>
+        </footer>
+
+        <script src="../js/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/highlight.pack.js"></script>
+        <script>var base_url = '..';</script>
+        <script data-main="../mkdocs/js/search.js" src="../mkdocs/js/require.js"></script>
+        <script src="../js/base.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            From here you can search these documents. Enter
+                            your search terms below.
+                        </p>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                            </div>
+                        </form>
+                        <div id="mkdocs-search-results"></div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

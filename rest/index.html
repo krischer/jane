@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+	<title>REST Interface - Jane</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+        <link href="../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../index.html">Jane</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="../index.html">Home</a>
+                </li>
+            
+            
+            
+                <li >
+                    <a href="../introduction/index.html">Introduction</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        
+<li >
+    <a href="../setup/index.html">Setup</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../testing/index.html">Testing</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../settings/index.html">Settings</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../internals/index.html">Internals</a>
+</li>
+
+                    
+                        
+<li class="active">
+    <a href="index.html">REST Interface</a>
+</li>
+
+                    
+                        
+<li >
+    <a href="../waveforms/index.html">Waveforms</a>
+</li>
+
+                    
+                    </ul>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                <li >
+                    <a rel="next" href="../internals/index.html">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../waveforms/index.html">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/krischer/jane/">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#rest-interface">REST Interface</a></li>
+        
+            <li><a href="#general-remarks">General Remarks</a></li>
+        
+            <li><a href="#api-endpoints">API Endpoints</a></li>
+        
+            <li><a href="#waveforms">Waveforms</a></li>
+        
+            <li><a href="#documents">Documents</a></li>
+        
+            <li><a href="#document-indices">Document Indices</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="rest-interface">REST Interface</h1>
+<p>Jane's REST interface can be used to query documents defined by plug-ins and
+associated indices and attachments. By default Jane ships with StationXML and
+QuakeML plug-ins but users can easily add their own. Additionally the REST
+interface offers access to waveform data on a per-trace basis but this is
+likely less useful than Jane's FDSNWS dataselect service which serves the same
+data with a more convenient interface.</p>
+<p>In the following <code>JANE_ROOT</code> will be used to denote the root address of a
+running Jane server. The REST interface can then be accessed at
+<code>JANE_ROOT/rest</code>.</p>
+<h2 id="general-remarks">General Remarks</h2>
+<h3 id="supported-data-formats">Supported Data Formats</h3>
+<p>The data in the REST interface can mostly be queried in different formats -
+choose whichever suites you best. If accessed from a web browser, a nice HTML
+view will be served; otherwise it will default to <code>JSON</code> output. The <code>format</code>
+argument can be used to request the data in different formats:</p>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>JSON</strong></td>
+<td><code>JANE_ROOT/rest/something?format=json</code></td>
+</tr>
+<tr>
+<td><strong>XML</strong></td>
+<td><code>JANE_ROOT/rest/something?format=xml</code></td>
+</tr>
+<tr>
+<td><strong>YAML</strong></td>
+<td><code>JANE_ROOT/rest/something?format=yaml</code></td>
+</tr>
+<tr>
+<td><strong>JSONP</strong></td>
+<td><code>JANE_ROOT/rest/something?format=jsonp</code></td>
+</tr>
+<tr>
+<td><strong>Force the HTML API view</strong></td>
+<td><code>JANE_ROOT/rest/something?format=api</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="pagination">Pagination</h3>
+<p>Data in the REST interface is paginated, meaning that only a certain amount of
+the available data is returned at any point. It can be controlled with two
+query parameters:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>limit</code></td>
+<td>Controls the number of returned records.</td>
+</tr>
+<tr>
+<td><code>offset</code></td>
+<td>Skip the given number of records.</td>
+</tr>
+</tbody>
+</table>
+<p>The following URL for example will return records number 200 to 299:
+<code>JANE_ROOT/rest/something?limit=100&amp;offset=200</code></p>
+<h3 id="authentication">Authentication</h3>
+<p>Many actions and data require certain permissions, thus users have to
+authenticate themselves. Within the HTML web API view, Django's sessions
+authentication can be used; there is a nice button to log-in at the top right.
+Another way to authenticate yourself is to use HTTP Basic authentication. For
+all examples on this page we will assume a user named <code>user</code> with <code>pw</code> as a
+password. Furthermore we will illustrate all examples with code snippets for
+the Python <a href="http://python-requests.org">requests</a> library, for
+<a href="http://httpie.org">HTTPie</a>, a user-friendly command line client, and good ol'
+<code>curl</code> itself.</p>
+<h5 id="example-using-the-python-requests-library">Example using the Python <a href="http://python-requests.org">requests</a> library:</h5>
+<pre><code class="python">import request
+r = request.get(url=&quot;JANE_ROOT/rest/...&quot;, auth=(&quot;user&quot;, &quot;pw&quot;))
+</code></pre>
+
+<h5 id="example-using-the-httpie-cli-client">Example using the <a href="http://httpie.org">HTTPie</a> CLI client:</h5>
+<pre><code class="bash">$ http -a user:pw JANE_ROOT/rest/...
+</code></pre>
+
+<h5 id="example-using-curl">Example using <code>curl</code>:</h5>
+<pre><code class="bash">$ curl --user user:pw JANE_ROOT/rest/...
+</code></pre>
+
+<h3 id="http-methods-and-headers">HTTP Methods and Headers</h3>
+<p>Depending on the desired action, you might have to send the request with a
+different HTTP method or additional headers. This section is a short tutorial
+on how to do this.</p>
+<h5 id="example-using-the-python-requests-library_1">Example using the Python <a href="http://python-requests.org">requests</a> library:</h5>
+<pre><code class="python">import request
+
+headers = {&quot;category&quot;: &quot;something&quot;}
+
+r = request.get(&quot;JANE_ROOT/rest/...&quot;, headers=headers)
+r = request.put(&quot;JANE_ROOT/rest/...&quot;, headers=headers)
+r = request.post(&quot;JANE_ROOT/rest/...&quot;, headers=headers)
+r = request.delete(&quot;JANE_ROOT/rest/...&quot;, headers=headers)
+</code></pre>
+
+<h5 id="example-using-the-httpie-cli-client_1">Example using the <a href="http://httpie.org">HTTPie</a> CLI client:</h5>
+<pre><code class="bash">$ http JANE_ROOT/rest/... 'category:something'
+$ http PUT JANE_ROOT/rest/... 'category:something'
+$ http POST JANE_ROOT/rest/... 'category:something'
+$ http DELETE JANE_ROOT/rest/... 'category:something'
+</code></pre>
+
+<h5 id="example-using-curl_1">Example using <code>curl</code>:</h5>
+<pre><code class="bash">$ curl -H 'category: something' JANE_ROOT/rest/...
+$ curl -X PUT -H 'category: something' JANE_ROOT/rest/...
+$ curl -X POST -H 'category: something' JANE_ROOT/rest/...
+$ curl -X DELETE -H 'category: something' JANE_ROOT/rest/...
+</code></pre>
+
+<h2 id="api-endpoints">API Endpoints</h2>
+<p>This section presents a quick overview of all available endpoints including the
+acceptable HTTP methods for each; they are explained in more detail further
+down this page. Jane's REST API at points behaves a bit different from other
+REST APIs: it might not offer a certain method or interpret it slightly
+different. This is on purpose to provide as natural an API as possible tailored
+to the capabilities of Jane.</p>
+<h4 id="general-endpoints">General Endpoints</h4>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Available Methods</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JANE_ROOT/rest</code></td>
+<td><code>GET</code></td>
+<td>Root of the REST interface.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="waveform-endpoints">Waveform Endpoints</h4>
+<p>All endpoints related to the waveform database of Jane. <code>ID</code> is the id of a
+particular waveform trace.</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Available Methods</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JANE_ROOT/rest/waveforms</code></td>
+<td><code>GET</code></td>
+<td>List of all waveforms.</td>
+</tr>
+<tr>
+<td><code>JANE_ROOT/rest/waveforms/ID</code></td>
+<td><code>GET</code></td>
+<td>REST resource for a particular waveform trace.</td>
+</tr>
+<tr>
+<td><code>JANE_ROOT/rest/waveforms/ID/plot</code></td>
+<td><code>GET</code></td>
+<td>Plot of that trace.</td>
+</tr>
+<tr>
+<td><code>JANE_ROOT/rest/waveforms/ID/file</code></td>
+<td><code>GET</code></td>
+<td>Data containing that trace.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="document-endpoints">Document Endpoints</h4>
+<p>Endpoints for the documents sorted by document type which is defined by the
+plug-ins. Each document represents a file. Use this to upload new files,
+updated versions of existing ones, or delete a whole document. <code>DOCTYPE</code>
+denotes the document type defined by the plug-ins, <code>FILENAME</code> the name of a
+particular document.</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Available Methods</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JANE_ROOT/rest/documents</code></td>
+<td><code>GET</code></td>
+<td>List of all document types.</td>
+</tr>
+<tr>
+<td><code>JANE_ROOT/rest/documents/DOCTYPE</code></td>
+<td><code>GET</code></td>
+<td>List of all documents of that type.</td>
+</tr>
+<tr>
+<td><code>JANE_ROOT/rest/documents/DOCTYPE/FILENAME</code></td>
+<td><code>GET</code>, <code>PUT</code>, <code>DELETE</code></td>
+<td>Get, create, or delete a document.</td>
+</tr>
+<tr>
+<td><code>JANE_ROOT/rest/documents/DOCTYPE/FILENAME/data</code></td>
+<td><code>GET</code></td>
+<td>Get the data behind a certain document.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="document-index-endpoints">Document Index Endpoints</h4>
+<p>Endpoints for indices and attachments. Each document can have any number of
+indices and each index can have any number of attachments. <code>DOCTYPE</code> denotes
+the document type defined by the plug-ins, <code>ID</code> the id of a particular index,
+and <code>AID</code> the id of particular attachment.</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Available Methods</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JANE_ROOT/rest/document_indices</code></td>
+<td><code>GET</code></td>
+<td>List of all document types.</td>
+</tr>
+<tr>
+<td><code>JANE_ROOT/rest/document_indices/DOCTYPE</code></td>
+<td><code>GET</code></td>
+<td>List of all document indices of that type.</td>
+</tr>
+<tr>
+<td><code>JANE_ROOT/rest/document_indices/DOCTYPE/ID</code></td>
+<td><code>GET</code></td>
+<td>Get a certain document index.</td>
+</tr>
+<tr>
+<td><code>JANE_ROOT/rest/document_indices/DOCTYPE/ID/attachments</code></td>
+<td><code>GET</code>, <code>POST</code></td>
+<td>Get all or add a new attachment.</td>
+</tr>
+<tr>
+<td><code>JANE_ROOT/rest/document_indices/DOCTYPE/ID/attachments/AID</code></td>
+<td><code>GET</code>, <code>PUT</code>, <code>DELETE</code></td>
+<td>Get a certain, update an existing, or delete an attachment.</td>
+</tr>
+<tr>
+<td><code>JANE_ROOT/rest/document_indices/DOCTYPE/ID/attachments/AID/data</code></td>
+<td><code>GET</code></td>
+<td>Get the data for a certain attachment.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="waveforms">Waveforms</h2>
+<p>The API endpoint for the waveform data is at <code>JANE_ROOT/rest/waveforms</code>, see the table in the previous section for some sub-routes.</p>
+<p>It can currently display all available traces including a picture and some meta
+information. In the future it might evolve to do some different things so there
+currently is not much more to say to this.</p>
+<h2 id="documents">Documents</h2>
+<p>The <code>JANE_ROOT/rest/documents</code> route is the entry point to the actual files on
+which Jane's document database is built around.</p>
+<h4 id="list-view">List View</h4>
+<p>To get a list of all available documents of a certain document type, send, e.g.</p>
+<pre><code>GET JANE_ROOT/rest/documents/stationxml
+</code></pre>
+
+<h4 id="document-view">Document View</h4>
+<p>Documents are identified via filename, which thus has to be unique per document
+type.</p>
+<pre><code>GET JANE_ROOT/rest/documents/stationxml/BW.FURT.xml
+</code></pre>
+
+<h4 id="data">Data</h4>
+<p>The REST API shows some information for each file, to download the actual file, do, e.g.</p>
+<pre><code>GET JANE_ROOT/rest/documents/stationxml/BW.FURT.xml/data
+</code></pre>
+
+<h4 id="add-new-document">Add New Document</h4>
+<p>To create a new document, send a <code>PUT</code> request to a certain document URL, e.g.</p>
+<pre><code>PUT JANE_ROOT/rest/documents/stationxml/BW.FURT.xml
+</code></pre>
+
+<p>Let's say you want to upload the file <code>BW.FURT.xml</code>.</p>
+<h5 id="example-using-the-python-requests-library_2">Example using the Python <a href="http://python-requests.org">requests</a> library:</h5>
+<pre><code class="python">import request
+
+with open(&quot;BW.FURT.xml&quot;, &quot;rb&quot;) as fh:
+    r = requests.put(
+        url=&quot;JANE_ROOT/rest/documents/stationxml/BW.FURT.xml&quot;,
+        auth=(&quot;user&quot;, &quot;pw&quot;),
+        data=fh)
+
+assert r.ok
+</code></pre>
+
+<h5 id="example-using-the-httpie-cli-client_2">Example using the <a href="http://httpie.org">HTTPie</a> CLI client:</h5>
+<pre><code class="bash">$ http -a user:pw PUT &quot;JANE_ROOT/rest/documents/stationxml/BF.FURT.xml&quot; &lt; BW.FURT.xml
+</code></pre>
+
+<h5 id="example-using-curl_2">Example using <code>curl</code>:</h5>
+<pre><code class="bash">$ curl --user user:pw \
+  --data-binary @BW.FURT.XML \
+  -X PUT &quot;JANE_ROOT/rest/documents/stationxml/BF.FURT.xml&quot;
+</code></pre>
+
+<h4 id="delete-a-document">Delete a Document</h4>
+<p>To delete a document, just send a <code>DELETE</code> request. Please keep in mind that
+this will also delete all indices and potential attachments of the document.
+The attachments might not be restorable if you have no backup.</p>
+<pre><code>DELETE JANE_ROOT/rest/documents/stationxml/BW.FURT.xml
+</code></pre>
+
+<h5 id="example-using-the-python-requests-library_3">Example using the Python <a href="http://python-requests.org">requests</a> library:</h5>
+<pre><code class="python">import request
+
+r = requests.delete(
+    url=&quot;JANE_ROOT/rest/documents/stationxml/BW.FURT.xml&quot;,
+    auth=(&quot;user&quot;, &quot;pw&quot;))
+
+assert r.ok
+</code></pre>
+
+<h5 id="example-using-the-httpie-cli-client_3">Example using the <a href="http://httpie.org">HTTPie</a> CLI client:</h5>
+<pre><code class="bash">$ http -a user:pw DELETE &quot;JANE_ROOT/rest/documents/stationxml/BF.FURT.xml&quot;
+</code></pre>
+
+<h5 id="example-using-curl_3">Example using <code>curl</code>:</h5>
+<pre><code class="bash">$ curl --user user:pw \
+  -X DELETE &quot;JANE_ROOT/rest/documents/stationxml/BF.FURT.xml&quot;
+</code></pre>
+
+<h4 id="modify-existing-document">Modify Existing Document</h4>
+<p>To modify an existing document, first delete it and then create a new one with
+the same name. This is to safe-guard against accidentally overwriting exiting
+documents including attachments.</p>
+<h2 id="document-indices">Document Indices</h2>
+<p>The <code>JANE_ROOT/rest/document_indices</code> route is the entry point to the indices,
+    the core of Jane's document database.</p>
+<h4 id="list-view_1">List View</h4>
+<p>To get a list of all available indices of a certain document type, send, e.g.</p>
+<pre><code>GET JANE_ROOT/rest/document_indices/stationxml
+</code></pre>
+
+<h5 id="searching-over-the-indices">Searching Over the Indices</h5>
+<p>Now the special thing here is that you can search over these indices and only
+get a subset of indices that match your query. The keys that can be searched
+over are determined by the <code>meta</code> attribute of the indexer plug-in for that
+particular document type. In the case of the StationXML plugin it is defined as</p>
+<pre><code class="python">meta = {
+    &quot;network&quot;: &quot;str&quot;,
+    &quot;station&quot;: &quot;str&quot;,
+    &quot;location&quot;: &quot;str&quot;,
+    &quot;channel&quot;: &quot;str&quot;,
+    &quot;latitude&quot;: &quot;float&quot;,
+    &quot;longitude&quot;: &quot;float&quot;,
+    &quot;elevation_in_m&quot;: &quot;float&quot;,
+    &quot;depth_in_m&quot;: &quot;float&quot;,
+    &quot;start_date&quot;: &quot;UTCDateTime&quot;,
+    &quot;end_date&quot;: &quot;UTCDateTime&quot;,
+    &quot;sample_rate&quot;: &quot;float&quot;,
+    &quot;sensor_type&quot;: &quot;str&quot;}
+</code></pre>
+
+<p>It is necessary to define this, as the available queries depend on the data
+type. There are 5 possible data types: <code>"str"</code>, <code>"int"</code>, <code>"float"</code>, <code>"bool"</code>,
+and <code>"UTCDateTime"</code>. Search parameters are appended to the URL and the type
+of the parameters determines the available queries. Any number of them can
+be combined. Identity queries can be negated by prefixing with an
+exclamation mark. Furthermore as soon as you query a parameter and it is
+<code>null</code> for a certain document, that document will not be returned even for
+inequality queries.</p>
+<h6 id="strings">Strings</h6>
+<p>Strings can be searched based on (in)equality. Wildcards can be used.</p>
+<pre><code>GET JANE_ROOT/rest/document_indices/stationxml?network=BW
+GET JANE_ROOT/rest/document_indices/stationxml?network=B?
+GET JANE_ROOT/rest/document_indices/stationxml?station=A*M
+# An exclamation mark negates the query, meaning it will now return everything
+# not containing the chosen string.
+GET JANE_ROOT/rest/document_indices/stationxml?!network=BW
+GET JANE_ROOT/rest/document_indices/stationxml?!network=B?
+GET JANE_ROOT/rest/document_indices/stationxml?!station=A*M
+</code></pre>
+
+<h6 id="ints-floats-and-utcdatetimes">Ints, Floats, and UTCDateTimes</h6>
+<p>These three types can be queried for (in)equality and smaller/larger.
+<code>min_NAME</code> maps to <code>&gt;=</code> and <code>max_NAME</code> to <code>&lt;=</code> in the underlying SQL query.
+Please keep in mind that (in)equality comparisons are extremely fragile for
+floating point numbers and should not be used in almost all cases.</p>
+<pre><code>GET JANE_ROOT/rest/document_indices/stationxml?min_latitude=15.1&amp;max_latitude=16.1
+GET JANE_ROOT/rest/document_indices/stationxml?sample_rate=20.0
+GET JANE_ROOT/rest/document_indices/stationxml?!sample_rate=20.0
+</code></pre>
+
+<h6 id="booleans">Booleans</h6>
+<p>Booleans can only be searched for (in)equality.</p>
+<pre><code>GET JANE_ROOT/rest/document_indices/quakeml?public=true
+GET JANE_ROOT/rest/document_indices/quakeml?public=false
+GET JANE_ROOT/rest/document_indices/quakeml?!public=false
+</code></pre>
+
+<h4 id="index-view">Index View</h4>
+<p>Indices are identified by their numeric id; get a certain index with, e.g.</p>
+<pre><code>GET JANE_ROOT/rest/document_indices/stationxml/1
+</code></pre>
+
+<h4 id="attachments-list">Attachments List</h4>
+<p>To get a list of all attachments for a certain index, query, e.g.</p>
+<pre><code>GET JANE_ROOT/rest/document_indices/stationxml/1/attachments
+</code></pre>
+
+<h4 id="attachment">Attachment</h4>
+<p>To get a certain attachment, you have to use the id of the attachment, e.g.</p>
+<pre><code>GET JANE_ROOT/rest/document_indices/stationxml/1/attachments/11
+</code></pre>
+
+<h4 id="attachment-data">Attachment Data</h4>
+<p>The actual data of any attachment can be queried with</p>
+<pre><code>GET JANE_ROOT/rest/document_indices/stationxml/1/attachments/11/data
+</code></pre>
+
+<h4 id="add-a-new-attachment">Add a New Attachment</h4>
+<p>Each index (here a single channel for a certain time interval in a StationXML
+file) can have any number of attachments. Attachments might be created
+during the initial upload of a document as part of the indexing process but
+they can also be added, changed, and removed at a later stage.</p>
+<p>Each attachment consists of the actual file that comprises the major part of an
+attachment, an associated content type determining the type of file, and a
+category which is just a string (usually a single word) to quickly describe the
+attachment. Information about each attachment can be retrieved from the detail
+view of any index.</p>
+<h5 id="common-content-types">Common Content Types</h5>
+<p>Here is a list of content types that you might want to use for the attachments.
+Make sure to choose the correct one.</p>
+<ul>
+<li><strong>Bitmap Image:</strong> <code>image/bmp</code></li>
+<li><strong>GIF Image:</strong> <code>image/gif</code></li>
+<li><strong>JPEG Image:</strong> <code>image/jpeg</code></li>
+<li><strong>PDF File:</strong>   <code>application/pdf</code></li>
+<li><strong>PNG Image:</strong> <code>image/png</code></li>
+<li><strong>TIFF Image:</strong> <code>image/tiff</code></li>
+<li><strong>WebP Image:</strong> <code>image/webp</code></li>
+<li><strong>Google Earth - KML:</strong> <code>application/vnd.google-earth.kml+xml</code></li>
+<li><strong>Google Earth - Zipped KML:</strong> <code>application/vnd.google-earth.kmz</code></li>
+<li><strong>Microsoft Word:</strong> <code>application/msword</code></li>
+<li><strong>Zip Archive:</strong> <code>application/zip</code></li>
+<li><strong>Bzip2 Archive:</strong> <code>application/x-bzip2</code></li>
+<li><strong>CSV File:</strong> <code>text/csv</code></li>
+<li><strong>LaTeX File:</strong> <code>application/x-latex</code></li>
+<li><strong>Plain Text:</strong> <code>text/plain</code></li>
+<li><strong>XML File:</strong> <code>application/xml</code></li>
+<li><strong>YAML File:</strong> <code>text/yaml</code></li>
+<li><strong>Arbitrary Binary Data:</strong> <code>application/octet-stream</code></li>
+</ul>
+<p>To create a new attachment, send a <code>POST</code> request to the attachments URL of a
+certain index.</p>
+<pre><code>POST JANE_ROOT/rest/document_indices/stationxml/1/attachments
+</code></pre>
+
+<p>and add two HTTP headers:</p>
+<ul>
+<li><code>content-type</code>: The content type.</li>
+<li><code>Category</code>: The category/tag of the file.</li>
+</ul>
+<p>Let's say you want to upload the picture <code>test.png</code>.</p>
+<h5 id="example-using-the-python-requests-library_4">Example using the Python <a href="http://python-requests.org">requests</a> library:</h5>
+<pre><code class="python">import request
+
+headers = {&quot;content-type&quot;: &quot;image/png&quot;,
+           &quot;category&quot;: &quot;random_image&quot;}
+
+with open(&quot;test.png&quot;, &quot;rb&quot;) as fh:
+    r = requests.post(
+        url=&quot;JANE_ROOT/rest/document_indices/stationxml/1/attachments&quot;,
+        auth=(&quot;user&quot;, &quot;pw&quot;),
+        headers=headers,
+        data=fh)
+
+assert r.ok
+</code></pre>
+
+<h5 id="example-using-the-httpie-cli-client_4">Example using the <a href="http://httpie.org">HTTPie</a> CLI client:</h5>
+<pre><code class="bash">$ http -a user:pw POST &quot;JANE_ROOT/rest/document_indices/stationxml/1/attachments&quot; \
+  'content-type:image/png' 'category:random_image' &lt; test.png
+</code></pre>
+
+<h5 id="example-using-curl_4">Example using <code>curl</code>:</h5>
+<pre><code class="bash">$ curl --user user:pw \
+  --data-binary @test.png \
+  -H 'content-type: image/png' -H 'category: random_image'
+  -X POST &quot;JANE_ROOT/rest/document_indices/stationxml/1/attachments&quot;
+</code></pre>
+
+<h4 id="modify-an-existing-document">Modify an Existing Document</h4>
+<p>The same logic hold true to modify an attachment, this time just send a <code>PUT</code>
+request to the URL of a particular attachment.</p>
+<pre><code>PUT JANE_ROOT/rest/document_indices/stationxml/1/attachments/11
+</code></pre>
+
+<h5 id="example-using-the-python-requests-library_5">Example using the Python <a href="http://python-requests.org">requests</a> library:</h5>
+<pre><code class="python">import request
+
+headers = {&quot;content-type&quot;: &quot;image/png&quot;,
+           &quot;category&quot;: &quot;random_image&quot;}
+
+with open(&quot;test.png&quot;, &quot;rb&quot;) as fh:
+    r = requests.put(
+        url=&quot;JANE_ROOT/rest/document_indices/stationxml/1/attachments/11&quot;,
+        auth=(&quot;user&quot;, &quot;pw&quot;),
+        headers=headers,
+        data=fh)
+
+assert r.ok
+</code></pre>
+
+<h5 id="example-using-the-httpie-cli-client_5">Example using the <a href="http://httpie.org">HTTPie</a> CLI client:</h5>
+<pre><code class="bash">$ http -a user:pw PUT &quot;JANE_ROOT/rest/document_indices/stationxml/1/attachments/11&quot; \
+  'content-type:image/png' 'category:random_image' &lt; test.png
+</code></pre>
+
+<h5 id="example-using-curl_5">Example using <code>curl</code>:</h5>
+<pre><code class="bash">$ curl --user user:pw \
+  --data-binary @test.png \
+  -H 'content-type: image/png' -H 'category: random_image'
+  -X PUT &quot;JANE_ROOT/rest/document_indices/stationxml/1/attachments/11&quot;
+</code></pre>
+
+<h4 id="delete-an-attachment">Delete an Attachment</h4>
+<p>To delete an attachment, just send a <code>DELETE</code> request.</p>
+<pre><code>DELETE JANE_ROOT/rest/document_indices/stationxml/1/attachments/11
+</code></pre>
+
+<h5 id="example-using-the-python-requests-library_6">Example using the Python <a href="http://python-requests.org">requests</a> library:</h5>
+<pre><code class="python">import request
+
+r = requests.delete(
+    url=&quot;JANE_ROOT/rest/document_indices/stationxml/1/attachments/11&quot;
+    auth=(&quot;user&quot;, &quot;pw&quot;))
+
+assert r.ok
+</code></pre>
+
+<h5 id="example-using-the-httpie-cli-client_6">Example using the <a href="http://httpie.org">HTTPie</a> CLI client:</h5>
+<pre><code class="bash">$ http -a user:pw DELETE \
+  &quot;JANE_ROOT/rest/document_indices/stationxml/1/attachments/11&quot;
+</code></pre>
+
+<h5 id="example-using-curl_6">Example using <code>curl</code>:</h5>
+<pre><code class="bash">$ curl --user user:pw \
+  -X DELETE &quot;JANE_ROOT/rest/document_indices/stationxml/1/attachments/11&quot;
+</code></pre></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+                <center>Jane Developers, 2014-2016</center>
+            
+            <center>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</center>
+        </footer>
+
+        <script src="../js/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/highlight.pack.js"></script>
+        <script>var base_url = '..';</script>
+        <script data-main="../mkdocs/js/search.js" src="../mkdocs/js/require.js"></script>
+        <script src="../js/base.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            From here you can search these documents. Enter
+                            your search terms below.
+                        </p>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                            </div>
+                        </form>
+                        <div id="mkdocs-search-results"></div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
