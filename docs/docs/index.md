@@ -13,4 +13,6 @@
         }
         
     footer, .bs-sidebar { display: none; }
+    
+    body > div.container { display: none; }
 </style>
