@@ -199,6 +199,15 @@ class Mapping(models.Model):
     class Meta:
         ordering = ['-timerange']
 
+    def clean(self):
+        # Make sure no two incompatible mappings are even created.
+        if Mapping.objects.filter(timerange__overlap=self.timerange,
+                                  network__exact=self.network,
+                                  station__exact=self.station,
+                                  channel__exact=self.channel,
+                                  location__exact=self.location).count():
+            raise ValidationError("This mapping is not compatible with an "
+                                  "existing mapping. Check the time range?")
 
 class Restriction(models.Model):
     """
