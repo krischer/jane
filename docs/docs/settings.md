@@ -1,6 +1,12 @@
 # Jane Settings
 
-This page documents the configuration options specific to `Jane`. To change 
+This page documents the configuration options specific to `Jane`. For all 
+other settings, please refer the documentation of the 
+[django settings](https://docs.djangoproject.com/en/1.9/topics/settings/) 
+and the 
+[Django REST framework settings](http://www.django-rest-framework.org/api-guide/settings/).
+
+To change 
 them, please edit/add them to the `local_settings.py` file in the `src/jane` 
 directory.
 
