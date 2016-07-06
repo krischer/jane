@@ -4,8 +4,8 @@ import sys
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'jane1A',
-        'USER': 'jane1',
+        'NAME': 'jane',
+        'USER': 'jane',
         'PASSWORD': 'CHANGEME!',
         'HOST': '127.0.0.1',
         'PORT': 5432
