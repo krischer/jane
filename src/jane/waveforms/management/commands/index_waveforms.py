@@ -410,6 +410,7 @@ def _run_indexer(options):
 
 class Command(BaseCommand):
     help = "Crawl directories and index waveforms to Jane."
+
     def add_arguments(self, parser):
         parser.add_argument(
             '-d', '--data', default='data=*.*',
