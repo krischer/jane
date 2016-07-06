@@ -116,9 +116,15 @@ class ContinuousTrace(models.Model):
                                 self.channel)
 
     def save(self, *args, **kwargs):
-        # Save/update the mappings upon saving to database.
-        net, sta, loc, cha = self.network, self.station, self.location, \
-                             self.channel
+        if self.pk is None:
+            # Never saved before.
+            net, sta, loc, cha = self.network, self.station, self.location, \
+                                 self.channel
+        else:
+            # Its an update.
+            net, sta, loc, cha = self.original_network, \
+                self.original_station, self.original_location, \
+                self.original_channel
 
         # Find the mapping
         query = Mapping.objects.filter(timerange__overlap=self.timerange)
@@ -152,6 +158,16 @@ class ContinuousTrace(models.Model):
         self.original_channel = cha
 
         super().save(*args, **kwargs)
+
+    @classmethod
+    def update_all_mappings(cls):
+        """
+        Has to be called when the mappings have been changed.
+
+        Potentially very slow.
+        """
+        for row in cls.objects.all().iterator():
+            row.save()
 
 
 class Mapping(models.Model):

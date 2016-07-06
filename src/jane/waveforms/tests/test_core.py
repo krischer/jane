@@ -88,4 +88,20 @@ class CoreTestCase(TestCase):
         self.assertEqual(len(ids), len(expected_ids))
         self.assertIn("XX.YY.00.ZZZ", ids)
         self.assertNotIn("TA.A25A..BHE", ids)
+
+        # Now remove the mappings and test the reindexing!
+        models.Mapping.objects.all().delete()
+
+        # Without reindex, nothing changed.
+        ids = sorted([_i.seed_id for _i in
+                      models.ContinuousTrace.objects.all()])
+        self.assertEqual(len(ids), len(expected_ids))
+        self.assertIn("XX.YY.00.ZZZ", ids)
+        self.assertNotIn("TA.A25A..BHE", ids)
+
+        # Now reindex - it should have changed.
+        models.ContinuousTrace.update_all_mappings()
+        ids = sorted([_i.seed_id for _i in
+                      models.ContinuousTrace.objects.all()])
+        self.assertEqual(expected_ids, ids)
         delete_indexed_waveforms()
