@@ -11,7 +11,7 @@ from jane.waveforms import models
 class CoreTestCase(TestCase):
     def setUp(self):
         self.path = os.path.abspath(os.path.dirname(__file__))
-        self.file = 'tests.py'
+        self.file = 'test_core.py'
 
     def test_metadata(self):
         """
