@@ -110,6 +110,11 @@ class ContinuousTrace(models.Model):
         return [((self.timerange.lower + (delta * i)).isoformat(), v / 2)
                 for i, v in enumerate(self.preview_trace)]
 
+    @property
+    def seed_id(self):
+        return "%s.%s.%s.%s" % (self.network, self.station, self.location,
+                                self.channel)
+
     def save(self, *args, **kwargs):
         # Save/update the mappings upon saving to database.
         net, sta, loc, cha = self.network, self.station, self.location, \
@@ -127,9 +132,8 @@ class ContinuousTrace(models.Model):
 
         if count > 1:
             raise ImproperlyConfigured(
-                "More than one mapping found for %s.%s.%s.%s (%s-%s)." % (
-                    net, sta, cha, loc,
-                    self.timerange.lower, self.timerange.upper))
+                "More than one mapping found for %s (%s-%s)." % (
+                    self.seed_id, self.timerange.lower, self.timerange.upper))
         elif count == 0:
             new_net, new_sta, new_loc, new_cha = net, sta, loc, cha
         else:
