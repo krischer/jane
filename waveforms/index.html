@@ -15,6 +15,7 @@
         <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
         <link rel="stylesheet" href="../css/highlight.css">
         <link href="../css/base.css" rel="stylesheet">
+        <link href="../extra.css" rel="stylesheet">
 
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
@@ -153,6 +154,8 @@
             <li><a href="#waveform-rest-interface">Waveform REST Interface</a></li>
         
             <li><a href="#restrictionsprotected-stations">Restrictions/Protected Stations</a></li>
+        
+            <li><a href="#waveform-mappings">Waveform Mappings</a></li>
         
     
     </ul>
@@ -293,7 +296,25 @@ fdsnws <code>dataselect</code> service. Usage example with <code>ObsPy</code>:</
 ...     network=&quot;BW&quot;, station=&quot;RJOB&quot;, location=&quot;&quot;, channel=&quot;BHZ&quot;, 
 ...     starttime=obspy.UTCDateTime(2016, 1, 1, 3, 0, 5),
 ...     endtime=obspy.UTCDateTime(2016, 1, 1, 5, 0, 5))
-</code></pre></div>
+</code></pre>
+
+<h2 id="waveform-mappings">Waveform Mappings</h2>
+<p>Some data, especially temporary deployments, might have different network,
+station, location, and/or channel codes than you would like them to have.
+Waveform mappings to the rescue! Add a mapping by using the admin interface:</p>
+<p><img alt="Add mapping" src="../images/add_mapping.png" /></p>
+<p>As can be seen it maps a network, station, location, channel tuple to a new
+one, valid across a certain time range. Additionally, to solve the tricky
+cases, each mapping takes a regular expression for its path on the filesystem.
+The default value simply matches all paths. Be careful to not define
+overlapping mappings - it will cause errors during the waveform indexing
+process. <code>Jane</code> has some checks in place to prevent that but in cases
+involving different regular expressions for the paths it cannot tell.</p>
+<p>Any freshly added mapping will be automatically applied to newly indexed
+data. To also apply it to existing data, press the <code>UPDATE WAVEFORM INDICES
+WITH MAPPINGS (SLOW!)</code> button in the mappings panel in the admin interface:</p>
+<p><img alt="Add mapping" src="../images/update_mappings_button.png" /></p>
+<p>This might take a while for big databases.</p></div>
         </div>
 
         <footer class="col-md-12">
