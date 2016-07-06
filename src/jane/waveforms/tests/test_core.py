@@ -107,6 +107,24 @@ class CoreTestCase(TestCase):
         self.assertEqual(expected_ids, ids)
         delete_indexed_waveforms()
 
+        # One last thing - we'll add a mapping that would match but it does
+        # not match the path regex - it will thus fail to be applied.
+        models.Mapping(
+            timerange=DateTimeTZRange(
+                obspy.UTCDateTime(2002, 1, 1).datetime,
+                obspy.UTCDateTime(2016, 1, 2).datetime),
+            network="TA", station="A25A", location="", channel="BHE",
+            new_network="XX", new_station="YY", new_location="00",
+            new_channel="ZZZ",
+            # Does not match the path - this the mapping is ignored.
+            full_path_regex="^/very/random/path/.*gse2$").save()
+
+        process_file(filename)
+        ids = sorted([_i.seed_id for _i in
+                      models.ContinuousTrace.objects.all()])
+        self.assertEqual(expected_ids, ids)
+        delete_indexed_waveforms()
+
     def test_creation_of_mappings(self):
         # First create two compatible ones.
         models.Mapping(
