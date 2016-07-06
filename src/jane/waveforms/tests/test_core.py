@@ -133,3 +133,18 @@ class CoreTestCase(TestCase):
                 network="TA", station="A25A", location="",
                 channel="BHE", new_network="XX", new_station="YY",
                 new_location="00", new_channel="ZZZ").save()
+
+        # If the full_path_regex is different it can still be saved - this
+        # is a bit of an edge case because Jane can never figure out if two
+        # regular expressions are identical - this is caught when applying
+        # the mappings.
+        models.Mapping(
+            timerange=DateTimeTZRange(
+                obspy.UTCDateTime(2000, 1, 1).datetime,
+                obspy.UTCDateTime(2012, 1, 2).datetime),
+            network="TA", station="A25A", location="",
+            channel="BHE", new_network="XX", new_station="YY",
+            new_location="00", new_channel="ZZZ",
+            full_path_regex="^/random/.mseed$").save()
+
+        self.assertEqual(models.Mapping.objects.count(), 3)
