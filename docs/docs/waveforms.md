@@ -161,3 +161,9 @@ fdsnws `dataselect` service. Usage example with `ObsPy`:
 ...     starttime=obspy.UTCDateTime(2016, 1, 1, 3, 0, 5),
 ...     endtime=obspy.UTCDateTime(2016, 1, 1, 5, 0, 5))
 ```
+
+
+## Waveform Mappings
+
+Some data, especially temporary deployments, might have different network, 
+station, location, and/or channel codes 

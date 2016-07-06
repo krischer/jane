@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import re
 import os
 
 from django.conf import settings
@@ -133,9 +134,15 @@ class ContinuousTrace(models.Model):
                              channel__exact=cha,
                              location__exact=loc)
 
-        # Raise exception if more than one mapping matches.
-        count = query.count()
+        # This is slow for large queries, but we expect the already filtered
+        # mapping queryset to always be very small so this should prove no
+        # issue.
+        full_path = os.path.join(self.file.path.name, self.file.name)
+        query = [_i for _i in query if
+                 re.match(_i.full_path_regex, full_path)]
 
+        # Raise exception if more than one mapping matches.
+        count = len(query)
         if count > 1:
             raise ImproperlyConfigured(
                 "More than one mapping found for %s (%s-%s)." % (
@@ -143,7 +150,7 @@ class ContinuousTrace(models.Model):
         elif count == 0:
             new_net, new_sta, new_loc, new_cha = net, sta, loc, cha
         else:
-            m = query.first()
+            m = query[0]
             new_net, new_sta, new_loc, new_cha = \
                 m.new_network, m.new_station, m.new_location, m.new_channel
 
@@ -182,7 +189,7 @@ class Mapping(models.Model):
     new_location = models.CharField(max_length=2, blank=True)
     new_channel = models.CharField(max_length=3, blank=True)
     full_path_regex = models.CharField(
-        max_length=255, blank=False, default=r".*")
+        max_length=255, blank=False, default=r"^.*$")
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     created_by = models.ForeignKey(User, null=True, editable=False,
                                    related_name='mappings_created')
@@ -205,7 +212,9 @@ class Mapping(models.Model):
                                   network__exact=self.network,
                                   station__exact=self.station,
                                   channel__exact=self.channel,
-                                  location__exact=self.location).count():
+                                  location__exact=self.location,
+                                  full_path_regex__exact=self.full_path_regex
+                                  ).count():
             raise ValidationError("This mapping is not compatible with an "
                                   "existing mapping. Check the time range?")
 

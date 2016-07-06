@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='mapping',
             name='full_path_regex',
-            field=models.CharField(default='.*', max_length=255),
+            field=models.CharField(default=r'^.*$', max_length=255),
         ),
         migrations.AlterField(
             model_name='mapping',
