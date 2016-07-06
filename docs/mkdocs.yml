@@ -8,8 +8,8 @@ pages:
 - 'Introduction': 'introduction.md'
 - 'Details':
     - 'Setup': 'setup.md'
+    - 'Testing': 'testing.md'
+    - 'Settings': 'settings.md'
     - 'Internals': 'internals.md'
     - 'REST Interface': 'rest.md'
     - 'Waveforms': 'waveforms.md'
-    - 'Settings': 'settings.md'
-    - 'Testing': 'testing.md'
