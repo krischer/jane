@@ -172,9 +172,15 @@ class ContinuousTrace(models.Model):
         Has to be called when the mappings have been changed.
 
         Potentially very slow.
+
+        Returns the total number of updated rows.
         """
+        count = 0
         for row in cls.objects.all().iterator():
             row.save()
+            count += 1
+
+        return count
 
 
 class Mapping(models.Model):

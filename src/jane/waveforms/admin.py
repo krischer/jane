@@ -2,9 +2,14 @@
 
 from django.contrib import admin
 from django.contrib.admin.filters import SimpleListFilter
+from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models.aggregates import Count
+from django.conf.urls import patterns, url
+from django.http import HttpResponse
 
 from jane.waveforms import models
+
+import time
 
 
 @admin.register(models.Path)
@@ -143,9 +148,32 @@ class ContinuousTraceAdmin(admin.ModelAdmin):
     format_path.short_description = 'Path'
 
 
+@staff_member_required
+def update_waveform_indices(request):
+
+    # Update all mappings. This might be very slow!
+    a = time.time()
+    n_rows = models.ContinuousTrace.update_all_mappings()
+    b = time.time()
+
+    html = (
+        "<html><body>"
+        "<p>Success!</p>"
+        "<p>Updated %i rows in %.4f seconds.</p>"
+        "</body></html>") % (n_rows, b - a)
+
+    return HttpResponse(html)
+
+
 @admin.register(models.Mapping)
 class MappingAdmin(admin.ModelAdmin):
     list_filter = ['network', 'station', 'location', 'channel']
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = patterns(
+            "", url(r"^update-waveform-indices$", update_waveform_indices))
+        return my_urls + urls
 
 
 @admin.register(models.Restriction)
