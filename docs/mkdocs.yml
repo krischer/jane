@@ -13,3 +13,5 @@ pages:
     - 'Internals': 'internals.md'
     - 'REST Interface': 'rest.md'
     - 'Waveforms': 'waveforms.md'
+    - 'Document Database': 'documents.md'
+    - 'Management Commands': 'management_commands.md'

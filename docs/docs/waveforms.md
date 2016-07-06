@@ -179,6 +179,10 @@ overlapping mappings - it will cause errors during the waveform indexing
 process. `Jane` has some checks in place to prevent that but in cases
 involving different regular expressions for the paths it cannot tell.
 
+If you have a large number of mappings to apply, consider using the 
+`add_documents` management command as documented 
+[here](management_commands.md).
+
 Any freshly added mapping will be automatically applied to newly indexed
 data. To also apply it to existing data, press the `UPDATE WAVEFORM INDICES
 WITH MAPPINGS (SLOW!)` button in the mappings panel in the admin interface:

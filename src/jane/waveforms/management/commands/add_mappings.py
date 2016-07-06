@@ -74,7 +74,8 @@ class Command(BaseCommand):
 
                 # Check if the mapping already exists.
                 if Mapping.objects.filter(**params).count():
-                    print("Mapping '%s' already exists. Skipping." % line)
+                    self.stdout.write(
+                        "Mapping '%s' already exists. Skipping.\n" % line)
                     continue
 
                 # Now try to save the new mapping.
@@ -87,12 +88,13 @@ class Command(BaseCommand):
                         "Overlaps are not allowed.") % line
                     raise Exception(msg)
 
-                print("Created mapping '%s'." % line)
+                self.stdout.write("Created mapping '%s'.\n" % line)
                 count += 1
 
-        print("\nSuccessfully created %i mapping." % count)
+        self.stdout.write("\nSuccessfully created %i mapping.\n" % count)
 
         if count:
-            print("\nIf you want to apply the mappings to existing files, "
-                  "make sure to update the waveform indices via the "
-                  "'Mappings' panel in the admin interface.")
+            self.stdout.write(
+                "\nIf you want to apply the mappings to existing files, "
+                "make sure to update the waveform indices via the "
+                "'Mappings' panel in the admin interface.")
