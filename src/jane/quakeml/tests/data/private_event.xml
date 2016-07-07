@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<q:quakeml xmlns="http://quakeml.org/xmlns/bed/1.2" xmlns:catalog="http://anss.org/xmlns/catalog/0.1" xmlns:q="http://quakeml.org/xmlns/quakeml/1.2" xmlns:edb="http://erdbeben-in-bayern.de/xmlns/0.1">
+  <eventParameters publicID="quakeml:comcat.cr.usgs.gov/fdsnws/event/1/query">
+    <event catalog:datasource="uw" catalog:eventsource="uw" catalog:eventid="60916552" publicID="quakeml:comcat.cr.usgs.gov/fdsnws/event/1/query?eventid=uw60916552&amp;amp;format=quakeml">
+      <origin catalog:datasource="uw" catalog:dataid="uw60916552" catalog:eventsource="uw" catalog:eventid="60916552" publicID="quakeml:earthquake.usgs.gov/product/uw/origin/uw60916552/1416001662333">
+        <time>
+          <value>2014-11-14T21:07:48.200Z</value>
+        </time>
+        <longitude>
+          <value>-120.2807</value>
+        </longitude>
+        <latitude>
+          <value>42.138</value>
+        </latitude>
+        <depth>
+          <value>0</value>
+          <uncertainty>31600</uncertainty>
+        </depth>
+        <evaluationMode>manual</evaluationMode>
+        <creationInfo>
+          <creationTime>2014-11-14T21:47:42.333Z</creationTime>
+          <version>1</version>
+        </creationInfo>
+      </origin>
+      <magnitude catalog:datasource="uw" catalog:dataid="uw60916552" catalog:eventsource="uw" catalog:eventid="60916552" publicID="quakeml:earthquake.usgs.gov/product/uw/origin/uw60916552/1416001662333/magnitude">
+        <mag>
+          <value>1.6</value>
+          <uncertainty>0.2</uncertainty>
+        </mag>
+        <type>Md</type>
+        <stationCount>3</stationCount>
+        <originID>quakeml:earthquake.usgs.gov/product/uw/origin/uw60916552/1416001662333</originID>
+        <evaluationMode>manual</evaluationMode>
+        <creationInfo>
+          <creationTime>2014-11-14T21:47:42.333Z</creationTime>
+        </creationInfo>
+      </magnitude>
+      <preferredOriginID>quakeml:earthquake.usgs.gov/product/uw/origin/uw60916552/1416001662333</preferredOriginID>
+      <preferredMagnitudeID>quakeml:earthquake.usgs.gov/product/uw/origin/uw60916552/1416001662333/magnitude</preferredMagnitudeID>
+      <type>quarry blast</type>
+      <edb:public>false</edb:public>
+      <edb:evaluationMode>automatic</edb:evaluationMode>
+    </event>
+  </eventParameters>
+</q:quakeml>

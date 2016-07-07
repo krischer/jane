@@ -20,6 +20,7 @@ PATH = os.path.join(os.path.dirname(__file__), 'data')
 FILES = {
     "usgs": os.path.join(PATH, 'usgs_event.xml'),
     "focmec": os.path.join(PATH, 'quakeml_1.2_focalmechanism.xml'),
+    "private": os.path.join(PATH, "private_event.xml")
 }
 
 
@@ -146,3 +147,32 @@ class QuakeMLPluginTestCase(TestCase):
         documents = \
             self.client.get("/rest/documents/quakeml").json()["results"]
         self.assertEqual(len(documents), 1)
+
+    def test_can_see_private_event_permission_plugin(self):
+        """
+        Tests the can see private events permission plugin by using the REST
+        interface.
+        """
+        self.user.user_permissions.add(self.can_modify_quakeml_permission)
+
+        # Upload private event.
+        with open(FILES["private"], "rb") as fh:
+            r = self.client.put("/rest/documents/quakeml/quake.xml",
+                                data=fh.read(), **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 201)
+
+        # By default nobody can see it. First unauthorized.
+        path = "/rest/document_indices/quakeml"
+        self.assertEqual(len(self.client.get(path).json()["results"]), 0)
+
+        # Authorized but missing permissions.
+        self.assertEqual(len(self.client.get(
+            path, **self.valid_auth_headers).json()["results"]), 0)
+
+        # Add the required permission.
+        p = Permission.objects.filter(codename="can_see_private_events")\
+            .first()
+        self.user.user_permissions.add(p)
+        # Now it works.
+        self.assertEqual(len(self.client.get(
+            path, **self.valid_auth_headers).json()["results"]), 1)
