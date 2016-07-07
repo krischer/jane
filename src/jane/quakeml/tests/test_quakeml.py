@@ -302,6 +302,9 @@ class QuakeMLPluginTestCase(TestCase):
         self.assertEqual(len(self.client.get(
             path + "?event_type=quarry*",
             **self.valid_auth_headers).json()["results"]), 2)
+        self.assertEqual(len(self.client.get(
+            path + "?!event_type=quarry*",
+            **self.valid_auth_headers).json()["results"]), 0)
 
         self.assertEqual(len(self.client.get(
             path + "?author=random",
