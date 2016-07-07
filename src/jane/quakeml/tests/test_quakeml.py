@@ -1,11 +1,19 @@
 # -*- coding: utf-8 -*-
 
+import base64
 import os
 
+import django
+from django.contrib.auth.models import User, Permission
+from django.contrib.auth.hashers import make_password
 from django.contrib.gis.geos.point import Point
 from django.test import TestCase
 
 from jane.quakeml.plugins import QuakeMLIndexerPlugin
+from jane.documents.plugins import initialize_plugins
+
+
+django.setup()
 
 
 PATH = os.path.join(os.path.dirname(__file__), 'data')
@@ -15,10 +23,28 @@ FILES = {
 }
 
 
-class QuakeMLIndexerTestCase(TestCase):
-
+class QuakeMLPluginTestCase(TestCase):
     def setUp(self):
-        pass
+
+        # The test case class somehow messes with the plugins - thus we have
+        # to initialize them all the time.
+        initialize_plugins()
+
+        self.user = User.objects.get_or_create(
+            username='random', password=make_password('random'))[0]
+
+        self.can_modify_quakeml_permission = \
+            Permission.objects.filter(codename='can_modify_quakeml').first()
+
+        credentials = base64.b64encode(b'random:random')
+        self.valid_auth_headers = {
+            'HTTP_AUTHORIZATION': 'Basic ' + credentials.decode("ISO-8859-1")
+        }
+
+        credentials = base64.b64encode(b'random:random2')
+        self.invalid_auth_headers = {
+            'HTTP_AUTHORIZATION': 'Basic ' + credentials.decode("ISO-8859-1")
+        }
 
     def test_indexing(self):
         expected_usgs = [
@@ -75,3 +101,48 @@ class QuakeMLIndexerTestCase(TestCase):
         result_focmec = indexer.index(FILES['focmec'])
         self.assertEqual(expected_usgs, result_usgs)
         self.assertEqual(expected_focmec, result_focmec)
+
+    def test_quakeml_uploading(self):
+        """
+        Also a bit of an integration test for the plugin system which
+        actually requires a plugin to be fully tested.
+        """
+        path = "/rest/document_indices/quakeml"
+        # Nothing there yet.
+        events = self.client.get(path).json()["results"]
+        self.assertEqual(len(events), 0)
+
+        with open(FILES["focmec"], "rb") as fh:
+            data = fh.read()
+
+        # Unauthorized - thus cannot upload events.
+        r = self.client.put("/rest/documents/quakeml/quake.xml", data=data)
+        self.assertEqual(r.status_code, 401)
+        events = self.client.get(path).json()["results"]
+        self.assertEqual(len(events), 0)
+
+        # Now authorize but with invalid credentials.
+        r = self.client.put("/rest/documents/quakeml/quake.xml", data=data,
+                            **self.invalid_auth_headers)
+        self.assertEqual(r.status_code, 401)
+        events = self.client.get(path).json()["results"]
+        self.assertEqual(len(events), 0)
+
+        # Valid credentials but not the right permissions.
+        r = self.client.put("/rest/documents/quakeml/quake.xml", data=data,
+                            **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 401)
+        events = self.client.get(path).json()["results"]
+        self.assertEqual(len(events), 0)
+
+        # Add the proper permissions. Now it should work.
+        self.user.user_permissions.add(self.can_modify_quakeml_permission)
+        r = self.client.put("/rest/documents/quakeml/quake.xml", data=data,
+                            **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 201)
+        events = self.client.get(path).json()["results"]
+        self.assertEqual(len(events), 1)
+        # And it should have also resulted in a single document being uploaded.
+        documents = \
+            self.client.get("/rest/documents/quakeml").json()["results"]
+        self.assertEqual(len(documents), 1)

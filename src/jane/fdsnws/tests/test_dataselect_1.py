@@ -31,7 +31,6 @@ class DataSelect1TestCase(TestCase):
     def setUp(self):
         # index waveform files
         [process_file(f) for f in FILES]
-        # create anonymous user
         User.objects.get_or_create(username='random',
                                    password=make_password('random'))
 
