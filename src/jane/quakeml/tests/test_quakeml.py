@@ -11,6 +11,7 @@ from django.test import TestCase
 
 from jane.quakeml.plugins import QuakeMLIndexerPlugin
 from jane.documents import JaneDocumentsValidationException
+from jane.documents.models import DocumentIndex
 from jane.documents.plugins import initialize_plugins
 
 
@@ -323,3 +324,70 @@ class QuakeMLPluginTestCase(TestCase):
         ev = self.client.get(path + "?ordering=latitude").json()["results"]
         self.assertEqual(ev[0]["indexed_data"]["depth_in_m"], 10.0)
         self.assertEqual(ev[1]["indexed_data"]["depth_in_m"], 0.0)
+
+    def test_radial_query_quakeml(self):
+        """
+        Test radial queries with QuakeML.
+        """
+        # Be lazy and upload via REST.
+        self.user.user_permissions.add(self.can_modify_quakeml_permission)
+
+        # Upload files - should be two events.
+        with open(FILES["usgs"], "rb") as fh:
+            r = self.client.put("/rest/documents/quakeml/quake.xml",
+                                data=fh.read(), **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(len(self.client.get(
+            "/rest/document_indices/quakeml",
+            **self.valid_auth_headers).json()["results"]), 2)
+
+        # Actual location of one event.
+        lat = 35.0476667
+        lng = -117.6623333
+
+        q = DocumentIndex.objects.get_filtered_queryset_radial_distance(
+            document_type="quakeml",
+            central_latitude=lat, central_longitude=lng)
+        self.assertEqual(q.count(), 2)
+
+        # Min radius.
+        q = DocumentIndex.objects.get_filtered_queryset_radial_distance(
+            document_type="quakeml", min_radius=0.1,
+            central_latitude=lat, central_longitude=lng)
+        self.assertEqual(q.count(), 1)
+
+        q = DocumentIndex.objects.get_filtered_queryset_radial_distance(
+            document_type="quakeml", min_radius=2,
+            central_latitude=lat, central_longitude=lng)
+        self.assertEqual(q.count(), 1)
+
+        q = DocumentIndex.objects.get_filtered_queryset_radial_distance(
+            document_type="quakeml", min_radius=10,
+            central_latitude=lat, central_longitude=lng)
+        self.assertEqual(q.count(), 0)
+
+        # Max radius.
+        q = DocumentIndex.objects.get_filtered_queryset_radial_distance(
+            document_type="quakeml", max_radius=0.1,
+            central_latitude=lat, central_longitude=lng)
+        self.assertEqual(q.count(), 1)
+
+        q = DocumentIndex.objects.get_filtered_queryset_radial_distance(
+            document_type="quakeml", max_radius=2,
+            central_latitude=lat, central_longitude=lng)
+        self.assertEqual(q.count(), 1)
+
+        q = DocumentIndex.objects.get_filtered_queryset_radial_distance(
+            document_type="quakeml", max_radius=10,
+            central_latitude=lat, central_longitude=lng)
+        self.assertEqual(q.count(), 2)
+
+        # Combinations of both.
+        q = DocumentIndex.objects.get_filtered_queryset_radial_distance(
+            document_type="quakeml", min_radius=1, max_radius=2,
+            central_latitude=lat, central_longitude=lng)
+        self.assertEqual(q.count(), 0)
+        q = DocumentIndex.objects.get_filtered_queryset_radial_distance(
+            document_type="quakeml", min_radius=1, max_radius=10,
+            central_latitude=lat, central_longitude=lng)
+        self.assertEqual(q.count(), 1)
