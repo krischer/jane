@@ -314,3 +314,12 @@ class QuakeMLPluginTestCase(TestCase):
         self.assertEqual(len(self.client.get(
             path + "?!author=random",
             **self.valid_auth_headers).json()["results"]), 0)
+
+        # Test the ordering.
+        ev = self.client.get(path + "?ordering=depth_in_m").json()["results"]
+        self.assertEqual(ev[0]["indexed_data"]["depth_in_m"], 0.0)
+        self.assertEqual(ev[1]["indexed_data"]["depth_in_m"], 10.0)
+        # Sorting by latitude will reverse the order.
+        ev = self.client.get(path + "?ordering=latitude").json()["results"]
+        self.assertEqual(ev[0]["indexed_data"]["depth_in_m"], 10.0)
+        self.assertEqual(ev[1]["indexed_data"]["depth_in_m"], 0.0)

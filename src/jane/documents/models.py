@@ -412,7 +412,7 @@ class DocumentIndexManager(models.GeoManager):
                             where.append("json->>'%s' NOT ILIKE '%s'" % (
                                 key, value))
                         else:
-                            raise NotImplementedError()
+                            raise NotImplementedError()  # pragma: no cover
                     else:
                         where.append(
                             self._get_json_query(key, operator, value_type,
@@ -442,11 +442,11 @@ class DocumentIndexManager(models.GeoManager):
                     elif value in ["f", "false", "no", "n"]:
                         value = "false"
                     else:
-                        raise NotImplementedError()
+                        raise NotImplementedError()  # pragma: no cover
                     where.append(self._get_json_query(
                         key, operator, value_type, value))
             else:
-                raise NotImplementedError()
+                raise NotImplementedError()  # pragma: no cover
 
         queryset = queryset.extra(where=where)
 
