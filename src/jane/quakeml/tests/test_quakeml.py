@@ -331,8 +331,6 @@ class QuakeMLPluginTestCase(TestCase):
         """
         # Be lazy and upload via REST.
         self.user.user_permissions.add(self.can_modify_quakeml_permission)
-
-        # Upload files - should be two events.
         with open(FILES["usgs"], "rb") as fh:
             r = self.client.put("/rest/documents/quakeml/quake.xml",
                                 data=fh.read(), **self.valid_auth_headers)
@@ -391,3 +389,35 @@ class QuakeMLPluginTestCase(TestCase):
             document_type="quakeml", min_radius=1, max_radius=10,
             central_latitude=lat, central_longitude=lng)
         self.assertEqual(q.count(), 1)
+
+    def test_get_distinct_values_quakeml(self):
+        """
+        Test getting distinct values from the QuakeML indices.
+        """
+        # Be lazy and upload via REST.
+        self.user.user_permissions.add(self.can_modify_quakeml_permission)
+        with open(FILES["usgs"], "rb") as fh:
+            r = self.client.put("/rest/documents/quakeml/quake.xml",
+                                data=fh.read(), **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(len(self.client.get(
+            "/rest/document_indices/quakeml",
+            **self.valid_auth_headers).json()["results"]), 2)
+
+        self.assertEqual(sorted(DocumentIndex.objects.get_distinct_values(
+            document_type="quakeml", json_key="agency")),
+            ["ci", "uw"])
+
+        self.assertEqual(sorted(DocumentIndex.objects.get_distinct_values(
+            document_type="quakeml", json_key="event_type")),
+            ["quarry blast"])
+
+        # Failure condition 1: Not in meta dict of plugin.
+        with self.assertRaises(Exception):
+            DocumentIndex.objects.get_distinct_values(
+                document_type="quakeml", json_key="bogus")
+
+        # Failure condition 2: Not a string key.
+        with self.assertRaises(Exception):
+            DocumentIndex.objects.get_distinct_values(
+                document_type="quakeml", json_key="latitude")
