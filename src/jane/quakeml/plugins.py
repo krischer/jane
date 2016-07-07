@@ -114,7 +114,9 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
         "author": "str",
         "public": "bool",
         "evaluation_mode": "str",
-        "event_type": "str"
+        "event_type": "str",
+        "has_focal_mechanism": "bool",
+        "has_moment_tensor": "bool",
     }
 
     def index(self, document):
@@ -141,6 +143,13 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 mag = event.preferred_magnitude() or event.magnitudes[0]
             else:
                 mag = None
+
+            has_focal_mechanism = False
+            has_moment_tensor = False
+            if event.focal_mechanisms:
+                has_focal_mechanism = True
+                if any(mt for mt in event.focal_mechanisms):
+                    has_moment_tensor = True
 
             # Parse attributes in the baynet namespace.
             # The public attribute defaults to True, it can only be set to
@@ -176,6 +185,8 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 "public": public,
                 "evaluation_mode": evaluation_mode,
                 "event_type": event.event_type,
+                "has_focal_mechanism": has_focal_mechanism,
+                "has_moment_tensor": has_moment_tensor,
                 # The special key geometry can be used to store geographic
                 # information about the indexes geometry. Useful for very
                 # fast queries using PostGIS.
