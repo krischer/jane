@@ -50,7 +50,7 @@
       </magnitude>
       <preferredOriginID>quakeml:earthquake.usgs.gov/product/ci/origin/ci37285320/1415311367340</preferredOriginID>
       <preferredMagnitudeID>quakeml:earthquake.usgs.gov/product/ci/origin/ci37285320/1415311367340/magnitude</preferredMagnitudeID>
-      <type>quarry_blast</type>
+      <type>quarry blast</type>
       <creationInfo>
         <agencyID>ci</agencyID>
         <creationTime>2014-11-06T22:02:47.340Z</creationTime>
