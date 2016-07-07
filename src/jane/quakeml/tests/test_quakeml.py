@@ -213,3 +213,101 @@ class QuakeMLPluginTestCase(TestCase):
         with self.assertRaises(JaneDocumentsValidationException):
             self.client.put("/rest/documents/quakeml/quake.xml",
                             data=qml, **self.valid_auth_headers)
+
+        # Nothing should have been uploaded.
+        self.assertEqual(len(self.client.get(
+            "/rest/document_indices/quakeml",
+            **self.valid_auth_headers).json()["results"]), 0)
+
+    def test_quakeml_queries(self):
+        """
+        Test the REST queries for the QuakeML plugin.
+        """
+        path = "/rest/document_indices/quakeml"
+        self.user.user_permissions.add(self.can_modify_quakeml_permission)
+
+        # Upload files - should be two events.
+        with open(FILES["usgs"], "rb") as fh:
+            r = self.client.put("/rest/documents/quakeml/quake.xml",
+                                data=fh.read(), **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(len(self.client.get(
+            path, **self.valid_auth_headers).json()["results"]), 2)
+
+        # Just test a bunch of queries.
+        self.assertEqual(len(self.client.get(
+            path + "?min_latitude=43",
+            **self.valid_auth_headers).json()["results"]), 0)
+        self.assertEqual(len(self.client.get(
+            path + "?min_latitude=42",
+            **self.valid_auth_headers).json()["results"]), 1)
+        self.assertEqual(len(self.client.get(
+            path + "?min_latitude=30",
+            **self.valid_auth_headers).json()["results"]), 2)
+        self.assertEqual(len(self.client.get(
+            path + "?min_latitude=30&min_longitude=-118",
+            **self.valid_auth_headers).json()["results"]), 1)
+
+        self.assertEqual(len(self.client.get(
+            path + "?max_magnitude=1.56",
+            **self.valid_auth_headers).json()["results"]), 1)
+
+        self.assertEqual(len(self.client.get(
+            path + "?magnitude_type=Md",
+            **self.valid_auth_headers).json()["results"]), 1)
+        self.assertEqual(len(self.client.get(
+            path + "?magnitude_type=M*",
+            **self.valid_auth_headers).json()["results"]), 2)
+
+        self.assertEqual(len(self.client.get(
+            path + "?agency=uw",
+            **self.valid_auth_headers).json()["results"]), 1)
+        self.assertEqual(len(self.client.get(
+            path + "?!agency=ci",
+            **self.valid_auth_headers).json()["results"]), 1)
+
+        self.assertEqual(len(self.client.get(
+            path + "?has_focal_mechanism=true",
+            **self.valid_auth_headers).json()["results"]), 0)
+        self.assertEqual(len(self.client.get(
+            path + "?has_focal_mechanism=false",
+            **self.valid_auth_headers).json()["results"]), 2)
+
+        self.assertEqual(len(self.client.get(
+            path + "?depth_in_m=0",
+            **self.valid_auth_headers).json()["results"]), 1)
+        self.assertEqual(len(self.client.get(
+            path + "?min_depth_in_m=-2",
+            **self.valid_auth_headers).json()["results"]), 2)
+        self.assertEqual(len(self.client.get(
+            path + "?min_depth_in_m=2",
+            **self.valid_auth_headers).json()["results"]), 1)
+
+        self.assertEqual(len(self.client.get(
+            path + "?min_origin_time=2015-01-01",
+            **self.valid_auth_headers).json()["results"]), 0)
+        self.assertEqual(len(self.client.get(
+            path + "?min_origin_time=2014-01-01",
+            **self.valid_auth_headers).json()["results"]), 2)
+        self.assertEqual(len(self.client.get(
+            path + "?min_origin_time=2014-11-10",
+            **self.valid_auth_headers).json()["results"]), 1)
+
+        self.assertEqual(len(self.client.get(
+            path + "?event_type=earthquake",
+            **self.valid_auth_headers).json()["results"]), 0)
+        self.assertEqual(len(self.client.get(
+            path + "?!event_type=earthquake",
+            **self.valid_auth_headers).json()["results"]), 2)
+        self.assertEqual(len(self.client.get(
+            path + "?event_type=quarry*",
+            **self.valid_auth_headers).json()["results"]), 2)
+
+        self.assertEqual(len(self.client.get(
+            path + "?author=random",
+            **self.valid_auth_headers).json()["results"]), 0)
+        # All authors are None - so as soon as one searches for an author,
+        # only results with an author will return something.
+        self.assertEqual(len(self.client.get(
+            path + "?!author=random",
+            **self.valid_auth_headers).json()["results"]), 0)
