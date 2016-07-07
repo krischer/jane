@@ -9,7 +9,7 @@ from django.db.models.signals import pre_save, post_save
 from django.dispatch.dispatcher import receiver
 
 
-from jane.documents import models
+from jane.documents import models, JaneDocumentsValidationException
 
 
 @receiver(pre_save, sender=models.Document)
@@ -27,8 +27,9 @@ def validate_document(sender, instance, **kwargs):
             data.seek(0, 0)
             # raise if not valid
             if not plugin.get_plugin().validate(data):
-                raise Exception("Not a valid document of type %s." %
-                                instance.document_type.name)
+                raise JaneDocumentsValidationException(
+                    "Not a valid document of type %s." %
+                    instance.document_type.name)
 
 
 @receiver(pre_save, sender=models.Document)

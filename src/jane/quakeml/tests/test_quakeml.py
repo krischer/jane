@@ -10,6 +10,7 @@ from django.contrib.gis.geos.point import Point
 from django.test import TestCase
 
 from jane.quakeml.plugins import QuakeMLIndexerPlugin
+from jane.documents import JaneDocumentsValidationException
 from jane.documents.plugins import initialize_plugins
 
 
@@ -176,3 +177,39 @@ class QuakeMLPluginTestCase(TestCase):
         # Now it works.
         self.assertEqual(len(self.client.get(
             path, **self.valid_auth_headers).json()["results"]), 1)
+
+    def test_quakeml_validator(self):
+        """
+        Tests the QuakeML validator.
+        """
+        # Adding valid QuakeML files is tested enough in the other tests.
+        # Here we just test adding an invalid file.
+        self.user.user_permissions.add(self.can_modify_quakeml_permission)
+
+        # QuakeML with no longitude.
+        qml = b"""
+           <?xml version='1.0' encoding='utf-8'?>
+           <q:quakeml xmlns:q="http://quakeml.org/xmlns/quakeml/1.2"
+                      xmlns="http://quakeml.org/xmlns/bed/1.2">
+             <eventParameters
+                 publicID="smi:local/ef7cc032-af32-4037-8e46-e021acdebb71">
+               <event publicID="quakeml:eu.emsc/event/20120404_0000041">
+                 <origin publicID="quakeml:eu.emsc/origin/rts/261020/782484">
+                   <time>
+                     <value>2012-04-04T14:21:42.300000Z</value>
+                   </time>
+                   <latitude>
+                     <value>41.818</value>
+                   </latitude>
+                   <depth>
+                     <value>1000.0</value>
+                   </depth>
+                   <depthType>from location</depthType>
+                   <methodID>smi:eu.emsc-csem/origin_method/NA</methodID>
+                 </origin>
+               </event>
+             </eventParameters>
+           </q:quakeml>"""
+        with self.assertRaises(JaneDocumentsValidationException):
+            self.client.put("/rest/documents/quakeml/quake.xml",
+                            data=qml, **self.valid_auth_headers)
