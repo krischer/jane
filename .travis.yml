@@ -23,7 +23,7 @@ before_install:
   - conda install --yes -n condaenv pip
   - source activate condaenv
   - conda install --yes -c obspy obspy psycopg2 markdown flake8 gdal pyyaml pip
-  - pip install coveralls "django>=1.9,<1.10" djangorestframework djangorestframework-gis djangorestframework-jsonp djangorestframework-xml djangorestframework-yaml django-cors-headers django-debug-toolbar django-plugins defusedxml geojson markdown mkdocs mkdocs-bootswatch
+  - pip install codecov "django>=1.9,<1.10" djangorestframework djangorestframework-gis djangorestframework-jsonp djangorestframework-xml djangorestframework-yaml django-cors-headers django-debug-toolbar django-plugins defusedxml geojson markdown mkdocs mkdocs-bootswatch
   # Copy local_settings template.
   - cp $TRAVIS_BUILD_DIR/src/jane/local_settings.py.example $TRAVIS_BUILD_DIR/src/jane/local_settings.py
 
@@ -39,4 +39,7 @@ script:
   - cd $TRAVIS_BUILD_DIR/src; coverage run ./manage.py test
 
 after_success:
-  - cd $TRAVIS_BUILD_DIR; coveralls
+  - mv .coverage ../.coverage.empty
+  - cd ..
+  - coverage combine
+  - codecov
