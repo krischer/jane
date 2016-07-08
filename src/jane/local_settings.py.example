@@ -18,7 +18,7 @@ DATABASES = {
 # >>> from random import choice
 # >>> "".join([choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)")
 # ... for i in range(50)])
-#SECRET_KEY = 'CHANGEME!'
+SECRET_KEY = 'CHANGEME!'
 
 
 ADMINS = (
