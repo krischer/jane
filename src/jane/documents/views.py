@@ -198,7 +198,7 @@ def documents_rest_root(request, format=None):
                  models.Document.objects.filter(document_type=i[0]).count())]
             ) for i in sorted(data, key=lambda x: x[0])
         ])
-    else:
+    else:  # pragma: no cover
         raise Http404
 
 
@@ -226,7 +226,7 @@ def documents_indices_rest_root(request, format=None):
                      document__document_type=i[0]).count())]
             ) for i in sorted(data, key=lambda x: x[0])
         ])
-    else:
+    else:  # pragma: no cover
         raise Http404
 
 
