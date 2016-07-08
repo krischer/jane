@@ -617,7 +617,7 @@ class QuakeMLPluginTestCase(TestCase):
         r = self.client.delete(a_path + "/1", **self.valid_auth_headers)
         self.assertEqual(r.status_code, 401)
 
-        # Add it again.
+        # Delete them
         self.user.user_permissions.add(p)
         r = self.client.delete(a_path + "/1", **self.valid_auth_headers)
         self.assertEqual(r.status_code, 204)
@@ -625,6 +625,11 @@ class QuakeMLPluginTestCase(TestCase):
         r = self.client.delete(a_path + "/2", **self.valid_auth_headers)
         self.assertEqual(r.status_code, 204)
         self.assertEqual(self.client.get(a_path).json()["count"], 0)
+
+        # Test failure when missing the category.
+        r = self.client.post(a_path, data=data_1, content_type="text/plain",
+                             **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 400)
 
     def test_documents_are_not_modified(self):
         """
