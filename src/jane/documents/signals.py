@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
+"""
+Signals - all are called directly from within an overwritten save() method.
+
+Otherwise they do not get reliably triggered during a model update for example.
+"""
 
 import hashlib
 import io
 
 from django.core.cache import cache
 from django.contrib.gis.geos.collections import GeometryCollection
-from django.db.models.signals import pre_save, post_save
-from django.dispatch.dispatcher import receiver
+
+from jane.documents import JaneDocumentsValidationException
 
 
-from jane.documents import models, JaneDocumentsValidationException
-
-
-@receiver(pre_save, sender=models.Document)
+# @receiver(pre_save, sender=models.Document)
 def validate_document(sender, instance, **kwargs):
     """
     Validate document before saving using validators of specified document type
@@ -32,7 +34,7 @@ def validate_document(sender, instance, **kwargs):
                     instance.document_type.name)
 
 
-@receiver(pre_save, sender=models.Document)
+# @receiver(pre_save, sender=models.Document)
 def set_document_metadata(sender, instance, **kwargs):
     # If not set, use the default content type for that particular document
     # type.
@@ -46,11 +48,14 @@ def set_document_metadata(sender, instance, **kwargs):
     instance.sha1 = hashlib.sha1(instance.data).hexdigest()
 
 
-@receiver(post_save, sender=models.Document)
+# @receiver(post_save, sender=models.Document)
 def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
     """
     Index data
     """
+    # Avoid circular imports.
+    from jane.documents import models
+
     # delete all existing indexed data
     instance.indices.all().delete()
     indexer = instance.document_type.indexer.get_plugin()

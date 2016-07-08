@@ -32,7 +32,7 @@ from djangoplugins.fields import PluginField, ManyPluginField
 from obspy.core.utcdatetime import UTCDateTime
 from rest_framework import status
 
-from jane.documents import plugins
+from jane.documents import plugins, signals
 from jane.documents.utils import deg2km
 from jane.exceptions import (JaneDocumentAlreadyExists,
                              JaneNotAuthorizedException)
@@ -154,7 +154,6 @@ class DocumentManager(models.Manager):
             stat = status.HTTP_201_CREATED
 
         document.data = data
-
         document.save()
 
         # Return the status to be able to generate good HTTP responses. Can
@@ -215,6 +214,16 @@ class Document(models.Model):
         return filesizeformat(self.filesize)
     format_filesize.short_description = 'File size'
     format_filesize.admin_order_field = 'filesize'
+
+    def save(self, *args, **kwargs):
+        """
+        Manually trigger the signals as they are for some reason unreliable
+        and for example do not get called when a model is updated.
+        """
+        signals.validate_document(sender=None, instance=self)
+        signals.set_document_metadata(sender=None, instance=self)
+        super().save(*args, **kwargs)
+        signals.index_document(sender=None, instance=self, created=None)
 
 
 class DocumentIndexManager(models.GeoManager):
