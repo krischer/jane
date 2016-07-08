@@ -44,3 +44,16 @@ class JaneDocumentsTestCase(TestCase):
              'description': "StationXML Plugin for Jane's Document Database",
              'document_type': 'stationxml',
              'url': 'http://testserver/rest/document_indices/stationxml'}])
+
+    def test_documents_root_view(self):
+        r = self.client.get("/rest/documents")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json(), [
+            {'available_documents': 0,
+             'description': "QuakeML Plugin for Jane's Document Database",
+             'document_type': 'quakeml',
+             'url': 'http://testserver/rest/documents/quakeml'},
+            {'available_documents': 0,
+             'description': "StationXML Plugin for Jane's Document Database",
+             'document_type': 'stationxml',
+             'url': 'http://testserver/rest/documents/stationxml'}])
