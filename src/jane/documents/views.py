@@ -142,33 +142,9 @@ class DocumentIndexAttachmentsView(mixins.RetrieveModelMixin,
              "status_code": status.HTTP_204_NO_CONTENT},
             status=status.HTTP_204_NO_CONTENT)
 
-    def create(self, request, document_type, idx):
+    def create(self, request, document_type, idx, pk=None):
         """
         Called when "POSTING" a new attachment.
-        """
-        # Two headers must be given. The content type is usually always set.
-        if "HTTP_CATEGORY" not in request.stream.META:
-            raise JaneInvalidRequestException("The 'category' must be passed "
-                                              "in the HTTP header.")
-        category = request.stream.META["HTTP_CATEGORY"]
-
-        models.DocumentIndexAttachment.objects.add_or_modify_attachment(
-            document_type=document_type,
-            index_id=idx,
-            content_type=request.content_type,
-            category=category,
-            data=request.data.body,
-            user=request.user)
-
-        return Response(
-            {"status": "Successfully added an attachment.",
-             "status_code": status.HTTP_201_CREATED},
-            status=status.HTTP_201_CREATED)
-
-    def update(self, request, document_type, idx, pk):
-        """
-        Method called upon "PUT"ting an attachment. Modifies an existing
-        document.
         """
         # Two headers must be given. The content type is usually always set.
         if "HTTP_CATEGORY" not in request.stream.META:
@@ -186,9 +162,17 @@ class DocumentIndexAttachmentsView(mixins.RetrieveModelMixin,
             pk=pk)
 
         return Response(
-            {"status": "Successfully modified an attachment.",
-             "status_code": status.HTTP_200_OK},
-            status=status.HTTP_200_OK)
+            {"status": "Successfully added an attachment.",
+             "status_code": status.HTTP_201_CREATED},
+            status=status.HTTP_201_CREATED)
+
+    def update(self, request, document_type, idx, pk):
+        """
+        Method called upon "PUT"ting an attachment. Modifies an existing
+        document.
+        """
+        return self.create(request=request, document_type=document_type,
+                           idx=idx, pk=pk)
 
 
 @api_view(['GET'])
