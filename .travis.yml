@@ -34,7 +34,7 @@ install:
   - git status
 
 script:
-  - coverage run ./manage.py test
+  - cd $TRAVIS_BUILD_DIR/src; coverage run ./manage.py test
 
 after_success:
   - cd $TRAVIS_BUILD_DIR; coveralls
