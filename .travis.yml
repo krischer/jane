@@ -22,7 +22,7 @@ before_install:
   - conda create --yes -n condaenv python=$TRAVIS_PYTHON_VERSION
   - conda install --yes -n condaenv pip
   - source activate condaenv
-  - conda install --yes -c obspy conda install obspy psycopg2 markdown flake8 gdal pyyaml pip
+  - conda install --yes -c obspy obspy psycopg2 markdown flake8 gdal pyyaml pip
   - pip install coveralls "django>=1.9,<1.10" djangorestframework djangorestframework-gis djangorestframework-jsonp djangorestframework-xml djangorestframework-yaml django-cors-headers django-debug-toolbar django-plugins defusedxml geojson markdown mkdocs mkdocs-bootswatch
 
 install:
