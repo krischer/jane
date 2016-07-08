@@ -625,3 +625,17 @@ class QuakeMLPluginTestCase(TestCase):
         r = self.client.delete(a_path + "/2", **self.valid_auth_headers)
         self.assertEqual(r.status_code, 204)
         self.assertEqual(self.client.get(a_path).json()["count"], 0)
+
+    def test_documents_are_not_modified(self):
+        """
+        Tests that stored documents are not modified.
+        """
+        self.user.user_permissions.add(self.can_modify_quakeml_permission)
+        with open(FILES["focmec"], "rb") as fh:
+            data = fh.read()
+        r = self.client.put("/rest/documents/quakeml/quake.xml",
+                            data=data, **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 201)
+
+        r = self.client.get("/rest/documents/quakeml/quake.xml/data")
+        self.assertEqual(r.content, data)
