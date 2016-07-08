@@ -448,7 +448,6 @@ class QuakeMLPluginTestCase(TestCase):
         """
         Test getting distinct values from the QuakeML indices.
         """
-        # Be lazy and upload via REST.
         self.user.user_permissions.add(self.can_modify_quakeml_permission)
         with open(FILES["usgs"], "rb") as fh:
             r = self.client.put("/rest/documents/quakeml/quake.xml",
@@ -475,3 +474,29 @@ class QuakeMLPluginTestCase(TestCase):
         with self.assertRaises(Exception):
             DocumentIndex.objects.get_distinct_values(
                 document_type="quakeml", json_key="latitude")
+
+    def test_geometry_generation(self):
+        self.user.user_permissions.add(self.can_modify_quakeml_permission)
+        with open(FILES["usgs"], "rb") as fh:
+            r = self.client.put("/rest/documents/quakeml/quake.xml",
+                                data=fh.read(), **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 201)
+        path = "/rest/document_indices/quakeml"
+        r = self.client.get(path).json()["results"][0]
+
+        geo = r["geometry"]
+        self.assertEqual(len(geo["coordinates"]), 1)
+        self.assertEqual(len(geo["coordinates"][0]), 2)
+        self.assertEqual(geo["type"], "GeometryCollection")
+        self.assertAlmostEqual(geo["coordinates"][0][0], -117.6623333)
+        self.assertAlmostEqual(geo["coordinates"][0][1], 35.0476667)
+
+        # The focmec one has no geometry.
+        self.user.user_permissions.add(self.can_modify_quakeml_permission)
+        with open(FILES["focmec"], "rb") as fh:
+            r = self.client.put("/rest/documents/quakeml/quake1.xml",
+                                data=fh.read(), **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 201)
+        path = "/rest/document_indices/quakeml"
+        r = self.client.get(path).json()["results"][-1]
+        self.assertIs(r["geometry"], None)
