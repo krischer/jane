@@ -57,7 +57,7 @@ class StationXMLPluginTestCase(TestCase):
             'depth_in_m': 0.0,
             'dip': -90.0,
             'elevation_in_m': 430.0,
-            'end_date': None,
+            'end_date': '2011-01-01T00:00:00.000000Z',
             'latitude': 48.995167,
             'location': '',
             'longitude': 11.519922,

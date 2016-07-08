@@ -167,7 +167,9 @@ fdsnws `dataselect` service. Usage example with `ObsPy`:
 
 Some data, especially temporary deployments, might have different network,
 station, location, and/or channel codes than you would like them to have.
-Waveform mappings to the rescue! Add a mapping by using the admin interface:
+Waveform mappings to the rescue! **Please note that the mappings only 
+apply to waveforms and not the StationXML data!** Add a mapping by using the 
+admin interface:
 
 ![Add mapping](./images/add_mapping.png)
 

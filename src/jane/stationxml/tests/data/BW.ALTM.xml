@@ -19,7 +19,8 @@
       <CreationDate>2010-04-29T00:00:00.000</CreationDate>
       <TotalNumberChannels>6</TotalNumberChannels>
       <SelectedNumberChannels>6</SelectedNumberChannels>
-      <Channel locationCode="" code="EHZ" startDate="2010-04-29T00:00:00.000">
+      <Channel locationCode="" code="EHZ" startDate="2010-04-29T00:00:00.000"
+                endDate="2011-01-01T00:00:00.000">
         <Latitude plusError="0.0" minusError="0.0">48.995167</Latitude>
         <Longitude plusError="0.0" minusError="0.0">11.519922</Longitude>
         <Elevation plusError="0.0" minusError="0.0">430.0</Elevation>
