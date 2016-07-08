@@ -187,12 +187,12 @@
 <h2 id="dependencies-of-jane">Dependencies of Jane</h2>
 <p><code>Jane</code> depends on the following non-Python dependencies</p>
 <ul>
-<li><code>PostgreSQL 9.4</code></li>
-<li><code>PostGIS 2.1</code></li>
+<li><code>PostgreSQL &gt;= 9.4</code></li>
+<li><code>PostGIS &gt;= 2.1</code></li>
 </ul>
 <p>and furthermore on</p>
 <ul>
-<li><code>Python 3.4</code></li>
+<li><code>Python 3.4 or 3.5</code></li>
 </ul>
 <p>with the following Python modules</p>
 <ul>
@@ -220,7 +220,7 @@
 Anaconda Python distribution. Once Anaconda is installed, the following can be
 used to setup a new dedicated and separate environment to run <code>Jane</code>:</p>
 <pre><code class="bash">$ conda config --add channels obspy
-$ conda create -n jane python=3.4
+$ conda create -n jane python=3.5
 $ source activate jane
 (jane)$ conda install obspy psycopg2 markdown flake8 gdal pyyaml pip
 # Install the latest 1.9.x release.
@@ -231,7 +231,7 @@ $ source activate jane
 <p>Alternatively, the following Anaconda environment description file ...</p>
 <pre><code>name: jane
 dependencies:
-- python=3.4
+- python=3.5
 - obspy
 - psycopg2
 - markdown
@@ -266,7 +266,7 @@ $ conda env create -n jane -f jane_anaconda_env.txt
 in a certain version (to avoid accidental updates). To do so put the following
 content in a new file <code>/path/to/anaconda/envs/jane/conda-meta/pinned</code> (see
 <a href="http://conda.pydata.org/docs/faq.html#pinning-packages">http://conda.pydata.org/docs/faq.html#pinning-packages</a>):</p>
-<pre><code class="bash">python 3.4.*
+<pre><code class="bash">python 3.5.*
 obspy 1.0.*
 </code></pre>
 
@@ -356,7 +356,8 @@ psql --command=&quot;CREATE EXTENSION postgis;&quot; jane
 
 <h3 id="python-and-dependencies">Python and Dependencies</h3>
 <p>We (as much as possible) rely on Debian packages. Sometimes we have to use 
-<code>pip</code> if the Python module is not packaged. Make sure to install Python 3.4!</p>
+<code>pip</code> if the Python module is not packaged. Make sure to install Python 3.4 or 
+3.5!</p>
 <p>First, add the ObsPy sources as written 
 <a href="https://github.com/obspy/obspy/wiki/Installation-on-Linux-via-Apt-Repository">here</a>.</p>
 <p>Then install as much as possible with <code>apt-get</code>:</p>
