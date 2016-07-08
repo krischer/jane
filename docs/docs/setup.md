@@ -7,12 +7,12 @@ This page details how to setup and install `Jane`.
 
 `Jane` depends on the following non-Python dependencies
 
-* `PostgreSQL 9.4`
-* `PostGIS 2.1`
+* `PostgreSQL >= 9.4`
+* `PostGIS >= 2.1`
 
 and furthermore on
 
-* `Python 3.4`
+* `Python 3.4 or 3.5`
 
 with the following Python modules
 
@@ -44,7 +44,7 @@ used to setup a new dedicated and separate environment to run `Jane`:
 
 ```bash
 $ conda config --add channels obspy
-$ conda create -n jane python=3.4
+$ conda create -n jane python=3.5
 $ source activate jane
 (jane)$ conda install obspy psycopg2 markdown flake8 gdal pyyaml pip
 # Install the latest 1.9.x release.
@@ -57,7 +57,7 @@ Alternatively, the following Anaconda environment description file ...
 ```
 name: jane
 dependencies:
-- python=3.4
+- python=3.5
 - obspy
 - psycopg2
 - markdown
@@ -97,7 +97,7 @@ content in a new file `/path/to/anaconda/envs/jane/conda-meta/pinned` (see
 [http://conda.pydata.org/docs/faq.html#pinning-packages](http://conda.pydata.org/docs/faq.html#pinning-packages)):
 
 ```bash
-python 3.4.*
+python 3.5.*
 obspy 1.0.*
 ```
 
@@ -224,7 +224,8 @@ psql --command="CREATE EXTENSION postgis;" jane
 ### Python and Dependencies
 
 We (as much as possible) rely on Debian packages. Sometimes we have to use 
-`pip` if the Python module is not packaged. Make sure to install Python 3.4!
+`pip` if the Python module is not packaged. Make sure to install Python 3.4 or 
+3.5!
 
 First, add the ObsPy sources as written 
 [here](https://github.com/obspy/obspy/wiki/Installation-on-Linux-via-Apt-Repository).
