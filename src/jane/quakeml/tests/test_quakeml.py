@@ -27,8 +27,14 @@ FILES = {
 
 
 class QuakeMLPluginTestCase(TestCase):
-    def setUp(self):
+    """
+    Tests for the QuakeML plugin.
 
+    This also tests a large part of jane.documents as it is so much easier
+    to test with an actually working plugin. The quakeml plugin is a core
+    plugin of Jane so this should be acceptable.
+    """
+    def setUp(self):
         # The test case class somehow messes with the plugins - thus we have
         # to initialize them all the time.
         initialize_plugins()
@@ -149,6 +155,54 @@ class QuakeMLPluginTestCase(TestCase):
         documents = \
             self.client.get("/rest/documents/quakeml").json()["results"]
         self.assertEqual(len(documents), 1)
+
+    def test_quakeml_uploading_modifying_deleting(self):
+        """
+        Test some more complex interactions.
+        """
+        path = "/rest/document_indices/quakeml"
+        self.user.user_permissions.add(self.can_modify_quakeml_permission)
+
+        # Upload a quakeml file with two events.
+        with open(FILES["usgs"], "rb") as fh:
+            r = self.client.put("/rest/documents/quakeml/quake1.xml",
+                                data=fh.read(), **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(len(self.client.get(path).json()["results"]), 2)
+
+        # Uploading the same file again will raise an error.
+        with open(FILES["usgs"], "rb") as fh:
+            r = self.client.put("/rest/documents/quakeml/quake2.xml",
+                                data=fh.read(), **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 409)
+        self.assertEqual(len(self.client.get(path).json()["results"]), 2)
+
+        # Retrieve the indices for the one file directly.
+        r = self.client.get("/rest/documents/quakeml/quake1.xml")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(r.json()["indices"]), 2)
+
+        # Modify the existing document.
+        with open(FILES["focmec"], "rb") as fh:
+            r = self.client.put("/rest/documents/quakeml/quake1.xml",
+                                data=fh.read(), **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 204)
+        # Only one remains.
+        r = self.client.get(path).json()["results"]
+        self.assertEqual(len(r), 1)
+        # The focmec one has no latitude - easy to check
+        self.assertIs(r[0]["indexed_data"]["latitude"], None)
+
+        # Delete it. Unauthorized deletion does not work.
+        r = self.client.delete("/rest/documents/quakeml/quake1.xml")
+        self.assertEqual(r.status_code, 401)
+        self.assertEqual(len(self.client.get(path).json()["results"]), 1)
+
+        # Authorize - it now should work.
+        r = self.client.delete("/rest/documents/quakeml/quake1.xml",
+                               **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 204)
+        self.assertEqual(len(self.client.get(path).json()["results"]), 0)
 
     def test_can_see_private_event_permission_plugin(self):
         """
