@@ -139,8 +139,8 @@ class DocumentIndexAttachmentsView(mixins.RetrieveModelMixin,
 
         return Response(
             {"status": "Successfully deleted the document",
-             "status_code": status.HTTP_200_OK},
-            status=status.HTTP_200_OK)
+             "status_code": status.HTTP_204_NO_CONTENT},
+            status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, document_type, idx):
         """

@@ -586,7 +586,7 @@ class DocumentIndexAttachmentManager(models.Manager):
         # The user in question must have the permission to modify documents
         # of that type.
         if not user.has_perm(
-                        "documents.can_modify_%s" % document_type_str):
+                "documents.can_modify_%s_attachments" % document_type_str):
             raise JaneNotAuthorizedException(
                 "No permission to %s attachments for documents of that type."
                 % method)

@@ -514,3 +514,114 @@ class QuakeMLPluginTestCase(TestCase):
         r = self.client.get(path).json()["results"][0]
 
         self.assertEqual(r["data_content_type"], "text/xml")
+
+    def test_adding_modifying_deleting_attachments(self):
+        """
+        Test attachment handling.
+        """
+        path = "/rest/document_indices/quakeml"
+
+        # Upload an event.
+        self.user.user_permissions.add(self.can_modify_quakeml_permission)
+        with open(FILES["focmec"], "rb") as fh:
+            r = self.client.put("/rest/documents/quakeml/quake.xml",
+                                data=fh.read(), **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 201)
+        r = self.client.get(path).json()["results"]
+        self.assertEqual(len(r), 1)
+        r = r[0]
+
+        # No attachments currently exist.
+        self.assertEqual(r["attachments_count"], 0)
+
+        # In the following we assume an index of one - make sure this is
+        # actually the case.
+        self.assertEqual(r["id"], 1)
+
+        a_path = path + "/1/attachments"
+        r = self.client.get(a_path).json()
+        self.assertEqual(
+            r, {"count": 0, "next": None, "previous": None, "results": []})
+
+        data_1 = b"Hello 1"
+        data_2 = b"Hello 2"
+
+        # Try to upload an attachment. First unauthorized.
+        r = self.client.post(a_path, data=data_1, content_type="text/plain",
+                             HTTP_CATEGORY="some_text")
+        self.assertEqual(r.status_code, 401)
+        self.assertEqual(self.client.get(a_path).json()["count"], 0)
+
+        # Authorized, but does not have the right permissions.
+        r = self.client.post(a_path, data=data_1, content_type="text/plain",
+                             HTTP_CATEGORY="some_text",
+                             **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 401)
+        self.assertEqual(self.client.get(a_path).json()["count"], 0)
+
+        # Add the correct permission.
+        p = Permission.objects.filter(
+            codename="can_modify_quakeml_attachments").first()
+        self.user.user_permissions.add(p)
+        r = self.client.post(a_path, data=data_1, content_type="text/plain",
+                             HTTP_CATEGORY="some_text",
+                             **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 201)
+
+        # Retrieve and test the permission.
+        r = self.client.get(a_path).json()
+        self.assertEqual(r["count"], 1)
+        r = r["results"][0]
+
+        self.assertEqual(r["category"], "some_text")
+        self.assertEqual(r["content_type"], "text/plain")
+        self.assertEqual(r["created_by"], "random")
+        self.assertEqual(r["modified_by"], "random")
+
+        # Get the actual attachment.
+        r = self.client.get(a_path + "/1/data")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, b"Hello 1")
+        # Make sure its served with the correct content type.
+        self.assertEqual(r["Content-Type"], "text/plain")
+
+        # Update it.
+        r = self.client.put(a_path + "/1",
+                            data=data_2, content_type="text/random",
+                            HTTP_CATEGORY="something_else",
+                            **self.valid_auth_headers)
+
+        r = self.client.get(a_path).json()
+        self.assertEqual(r["count"], 1)
+        r = r["results"][0]
+        self.assertEqual(r["category"], "something_else")
+        self.assertEqual(r["content_type"], "text/random")
+        r = self.client.get(a_path + "/1/data")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, b"Hello 2")
+        self.assertEqual(r["Content-Type"], "text/random")
+
+        # Add another attachment.
+        r = self.client.post(a_path, data=data_1, content_type="text/plain",
+                             HTTP_CATEGORY="some_text",
+                             **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(self.client.get(a_path).json()["count"], 2)
+
+        # Delete both. Must be authorized.
+        r = self.client.delete(a_path + "/1")
+        self.assertEqual(r.status_code, 401)
+
+        # Revoke the permissions temporarily.
+        self.user.user_permissions.remove(p)
+        r = self.client.delete(a_path + "/1", **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 401)
+
+        # Add it again.
+        self.user.user_permissions.add(p)
+        r = self.client.delete(a_path + "/1", **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 204)
+        self.assertEqual(self.client.get(a_path).json()["count"], 1)
+        r = self.client.delete(a_path + "/2", **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 204)
+        self.assertEqual(self.client.get(a_path).json()["count"], 0)
