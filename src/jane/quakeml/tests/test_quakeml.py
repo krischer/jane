@@ -500,3 +500,17 @@ class QuakeMLPluginTestCase(TestCase):
         path = "/rest/document_indices/quakeml"
         r = self.client.get(path).json()["results"][-1]
         self.assertIs(r["geometry"], None)
+
+    def test_content_type(self):
+        """
+        This is inferred from the plugin settings.
+        """
+        self.user.user_permissions.add(self.can_modify_quakeml_permission)
+        with open(FILES["usgs"], "rb") as fh:
+            r = self.client.put("/rest/documents/quakeml/quake.xml",
+                                data=fh.read(), **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 201)
+        path = "/rest/document_indices/quakeml"
+        r = self.client.get(path).json()["results"][0]
+
+        self.assertEqual(r["data_content_type"], "text/xml")
