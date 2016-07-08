@@ -411,6 +411,45 @@ class Station1LiveServerTestCase(LiveServerTestCase):
         with self.assertRaises(FDSNException):
             client.get_stations(endtime=start - 10, level="channel")
 
+        # startbefore
+        c = client.get_stations(startbefore=start + 10,
+                                level="channel").get_contents()
+        self.assertEqual(len(c["networks"]), 1)
+        self.assertEqual(len(c["stations"]), 1)
+        self.assertEqual(len(c["channels"]), 3)
+        with self.assertRaises(FDSNException):
+            client.get_stations(startbefore=start - 10, level="channel")
+
+        # startafter
+        c = client.get_stations(startafter=start - 10,
+                                level="channel").get_contents()
+        self.assertEqual(len(c["networks"]), 1)
+        self.assertEqual(len(c["stations"]), 1)
+        self.assertEqual(len(c["channels"]), 3)
+        with self.assertRaises(FDSNException):
+            client.get_stations(startafter=start + 10, level="channel")
+
+        # endbefore
+        c = client.get_stations(endbefore=end + 10,
+                                level="channel").get_contents()
+        self.assertEqual(len(c["networks"]), 1)
+        self.assertEqual(len(c["stations"]), 1)
+        self.assertEqual(len(c["channels"]), 1)
+        with self.assertRaises(FDSNException):
+            client.get_stations(endbefore=end - 10, level="channel")
+
+        # endafter
+        c = client.get_stations(endafter=end - 10,
+                                level="channel").get_contents()
+        self.assertEqual(len(c["networks"]), 1)
+        self.assertEqual(len(c["stations"]), 1)
+        self.assertEqual(len(c["channels"]), 3)
+        c = client.get_stations(endafter=end + 10,
+                                level="channel").get_contents()
+        self.assertEqual(len(c["networks"]), 1)
+        self.assertEqual(len(c["stations"]), 1)
+        self.assertEqual(len(c["channels"]), 2)
+
 #
 #     def test_query_data(self):
 #         # query using ObsPy
