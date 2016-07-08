@@ -42,11 +42,11 @@ install:
 script:
   - cd $TRAVIS_BUILD_DIR/src; coverage run ./manage.py test
   # Docs only need to be built once.
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then cd $TRAVIS_BUILD_DIR/docs; mkdocs build -d site; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' && $TRAVIS_BRANCH == 'master' ]]; then cd $TRAVIS_BUILD_DIR/docs; mkdocs build -d site; fi
 
 after_success:
   - mv .coverage ../.coverage.empty
   - cd ..
   - coverage combine
   - codecov
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' && $TRAVIS_BRANCH == 'master' ]]; then bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh ; fi
