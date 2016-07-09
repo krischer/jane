@@ -272,10 +272,10 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
                     _c = "0"
                 elif level == "station":
                     _c = str(len(networks[net_code]))
-                etree.SubElement(net_elem, "SelectedNumberStations").text = _c
 
                 etree.SubElement(net_elem, "TotalNumberStations").text = \
                     str(stats.stations_for_network(net_code))
+                etree.SubElement(net_elem, "SelectedNumberStations").text = _c
 
                 # Also add station information if required.
                 if level != "station":
@@ -309,10 +309,10 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
                     etree.SubElement(sta_elem, "CreationDate").text = \
                         stats.creation_date_for_station(net_code, sta_code)
 
-                    etree.SubElement(sta_elem, "SelectedNumberChannels").text \
-                        = "0"
                     etree.SubElement(sta_elem, "TotalNumberChannels").text = \
                         str(stats.channels_for_station(net_code, sta_code))
+                    etree.SubElement(sta_elem, "SelectedNumberChannels").text \
+                        = "0"
 
         else:
             raise NotImplementedError
@@ -494,9 +494,6 @@ def assemble_network_elements(results, level, stats):
         else:
             etree.SubElement(network, "SelectedNumberStations").text = "0"
 
-        etree.SubElement(network, "TotalNumberStations").text = \
-            str(stats.stations_for_network(code))
-
     if level == "network":
         return list(final_networks.values())
 
@@ -527,10 +524,8 @@ def assemble_network_elements(results, level, stats):
             etree.SubElement(station, "SelectedNumberChannels").text = \
                 str(len([_i for _i in chans if (_i[0], _i[1]) == code]))
         else:
-            etree.SubElement(station, "SelectedNumberChannels").text = "0"
+           etree.SubElement(station, "SelectedNumberChannels").text = "0"
 
-        etree.SubElement(station, "TotalNumberChannels").text = \
-            str(stats.channels_for_station(code[0], code[1]))
         # Assign to correct network.
         final_networks[code[0]].append(station)
 

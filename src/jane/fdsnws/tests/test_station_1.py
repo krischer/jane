@@ -2,6 +2,7 @@
 
 import base64
 import io
+import tempfile
 import os
 from unittest import mock
 
@@ -9,10 +10,11 @@ import django
 from django.contrib.auth.models import User, Permission
 from django.contrib.auth.hashers import make_password
 from django.test import TestCase, LiveServerTestCase
-import numpy
+
 import obspy
 from obspy.clients.fdsn import Client as FDSNClient
 from obspy.clients.fdsn.header import FDSNException
+from obspy.io.stationxml.core import validate_stationxml
 
 
 from jane.documents.models import Document
@@ -53,17 +55,14 @@ class Station1TestCase(TestCase):
             'HTTP_AUTHORIZATION': 'Basic ' + credentials.decode("ISO-8859-1")
         }
 
-    def add_test_data_to_db(self):
-        """
-        This is expensive and not needed for every test.
-        """
-        # Add a station.
-        with open(FILES["BW.ALTM.xml"], "rb") as fh:
-            Document.objects.add_or_modify_document(
-                document_type="stationxml",
-                name="station.xml",
-                data=fh.read(),
-                user=self.user)
+        # Test will then execute much faster.
+        with mock.patch("obspy.core.inventory.channel.Channel.plot"):
+            with open(FILES["BW.ALTM.xml"], "rb") as fh:
+                Document.objects.add_or_modify_document(
+                    document_type="stationxml",
+                    name="station.xml",
+                    data=fh.read(),
+                    user=self.user)
 
     def test_version(self):
         # 1 - HTTP OK
@@ -100,40 +99,33 @@ class Station1TestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'], 'text/html; charset=utf-8')
 
-    def test_temporal_queries(self):
-        # All channels start
+    def test_stationxml_is_valid(self):
+        """
+        Make sure the generated stationxml files are actually valid.
+        """
+        with io.BytesIO() as buf:
+            buf.write(self.client.get(
+                "/fdsnws/station/1/query?level=network").content)
+            buf.seek(0, 0)
+            self.assertTrue(validate_stationxml(buf)[0])
 
-        # 1 - start time must be specified
-        param = '?'
-        response = self.client.get('/fdsnws/station/1/query' + param)
-        self.assertEqual(response.status_code, 400)
-        self.assertTrue('Start time must be specifi' in response.reason_phrase)
-        # 2 - start time must be parseable
-        param = '?start=0'
-        response = self.client.get('/fdsnws/station/1/query' + param)
-        self.assertEqual(response.status_code, 400)
-        self.assertTrue('Error parsing starttime' in response.reason_phrase)
-        # 3 - end time must be specified
-        param = '?start=2012-01-01'
-        response = self.client.get('/fdsnws/station/1/query' + param)
-        self.assertEqual(response.status_code, 400)
-        self.assertTrue('End time must be specified' in response.reason_phrase)
-        # 4 - end time must be parseable
-        param = '?start=2012-01-01&end=0'
-        response = self.client.get('/fdsnws/station/1/query' + param)
-        self.assertEqual(response.status_code, 400)
-        self.assertTrue('Error parsing endtime' in response.reason_phrase)
-        # 5 - start time must before endtime
-        param = '?start=2012-01-01&end=2012-01-01'
-        response = self.client.get('/fdsnws/station/1/query' + param)
-        self.assertEqual(response.status_code, 400)
-        self.assertTrue('Start time must be before end time' in
-                        response.reason_phrase)
-        param = '?start=2012-01-02&end=2012-01-01'
-        response = self.client.get('/fdsnws/station/1/query' + param)
-        self.assertEqual(response.status_code, 400)
-        self.assertTrue('Start time must be before end time' in
-                        response.reason_phrase)
+        with io.BytesIO() as buf:
+            buf.write(self.client.get(
+                "/fdsnws/station/1/query?level=station").content)
+            buf.seek(0, 0)
+            self.assertTrue(validate_stationxml(buf)[0])
+
+        with io.BytesIO() as buf:
+            buf.write(self.client.get(
+                "/fdsnws/station/1/query?level=channel").content)
+            buf.seek(0, 0)
+            self.assertTrue(validate_stationxml(buf)[0])
+
+        with io.BytesIO() as buf:
+            buf.write(self.client.get(
+                "/fdsnws/station/1/query?level=response").content)
+            buf.seek(0, 0)
+            self.assertTrue(validate_stationxml(buf)[0])
 
 #     def test_query_nodata(self):
 #         # not existing - error 204
