@@ -476,43 +476,67 @@ class Station1LiveServerTestCase(LiveServerTestCase):
         self.assertEqual(inv[0][0].total_number_of_channels, 3)
         self.assertEqual(inv[0][0].selected_number_of_channels, 3)
 
-#
-#     def test_query_data(self):
-#         # query using ObsPy
-#         t1 = UTCDateTime("2005-10-06T07:21:59.850000")
-#         t2 = UTCDateTime("2005-10-06T07:24:59.845000")
-#         client = FDSNClient(self.live_server_url)
-#         got = client.get_waveforms("", "RJOB", "", "Z", t1, t2)[0]
-#         expected = read(FILES[0])[0]
-#         numpy.testing.assert_equal(got.data, expected.data)
-#         self.assertEqual(got, expected)
-#
-#     def test_query_data_wildcards(self):
-#         # query using wildcards
-#         t = UTCDateTime(2010, 3, 25, 0, 0)
-#         client = FDSNClient(self.live_server_url)
-#         # 1
-#         st = client.get_waveforms("TA", "A25A", "", "BHZ", t, t + 30)
-#         self.assertEqual(len(st), 1)
-#         self.assertEqual(len(st[0].data), 1201)
-#         self.assertEqual(st[0].id, 'TA.A25A..BHZ')
-#         # 2
-#         st = client.get_waveforms("TA", "A25A", "", "BHZ,BHN,BHE", t, t + 30)
-#         self.assertEqual(len(st), 3)
-#         # 3
-#         st = client.get_waveforms("TA", "A25A", "", "BH*", t, t + 30)
-#         self.assertEqual(len(st), 3)
-#         # 4
-#         st = client.get_waveforms("TA", "A25A", "", "BH?", t, t + 30)
-#         self.assertEqual(len(st), 3)
-#         # 5
-#         st = client.get_waveforms("TA", "A25A", "", "BH?,VCO", t, t + 30)
-#         self.assertEqual(len(st), 4)
-#         # 6
-#         st = client.get_waveforms("TA", "A25A", "", "BH?,-BHZ", t, t + 30)
-#         self.assertEqual(len(st), 2)
-#         # 7
-#         st = client.get_waveforms("TA", "A25A", "", "*", t, t + 30)
-#         self.assertEqual(len(st), 19)  # xxx: why 19 - should be 22!
-#         st = client.get_waveforms("TA", "A25A", "", "*,-BHZ", t, t + 30)
-#         self.assertEqual(len(st), 18)
+    def test_seed_code_queries(self):
+        client = FDSNClient(self.live_server_url)
+
+        # First test some very specific queries.
+        inv = client.get_stations(level="channel", network="BW",
+                                  station="ALTM", location="--", channel="EH?")
+        c = inv.get_contents()
+        self.assertEqual(c["channels"],
+                         ['BW.ALTM..EHE', 'BW.ALTM..EHN', 'BW.ALTM..EHZ'])
+
+        client = FDSNClient(self.live_server_url)
+        inv = client.get_stations(level="channel", network="BW",
+                                  station="ALTM", location="--", channel="EH*")
+        c = inv.get_contents()
+        self.assertEqual(c["channels"],
+                         ['BW.ALTM..EHE', 'BW.ALTM..EHN', 'BW.ALTM..EHZ'])
+
+        client = FDSNClient(self.live_server_url)
+        inv = client.get_stations(level="channel", network="BW",
+                                  station="ALTM", location="", channel="EH*")
+        c = inv.get_contents()
+        self.assertEqual(c["channels"],
+                         ['BW.ALTM..EHE', 'BW.ALTM..EHN', 'BW.ALTM..EHZ'])
+
+        client = FDSNClient(self.live_server_url)
+        inv = client.get_stations(level="channel", network="B*",
+                                  station="AL?M", location="*", channel="EH*")
+        c = inv.get_contents()
+        self.assertEqual(c["channels"],
+                         ['BW.ALTM..EHE', 'BW.ALTM..EHN', 'BW.ALTM..EHZ'])
+
+        # Test exclusions. - First exclude things that don't exist in the
+        # test database - should naturally still return everything.
+        inv = client.get_stations(level="channel", network="-XX",
+                                  station="-YY", location="-ZZ",
+                                  channel="-BHE")
+        c = inv.get_contents()
+        self.assertEqual(c["channels"],
+                         ['BW.ALTM..EHE', 'BW.ALTM..EHN', 'BW.ALTM..EHZ'])
+
+        inv = client.get_stations(level="channel", channel="-EHE")
+        c = inv.get_contents()
+        self.assertEqual(c["channels"], ['BW.ALTM..EHN', 'BW.ALTM..EHZ'])
+
+        inv = client.get_stations(level="channel", channel="-EHE,-EHN")
+        c = inv.get_contents()
+        self.assertEqual(c["channels"], ['BW.ALTM..EHZ'])
+
+        # A couple of no-datas
+        with self.assertRaises(FDSNException):
+            client.get_stations(network="TA", station="ALTM",
+                                location="--", channel="EH?")
+
+        with self.assertRaises(FDSNException):
+            client.get_stations(network="BW", station="FURT",
+                                location="--", channel="EH?")
+
+        with self.assertRaises(FDSNException):
+            client.get_stations(network="BW", station="ALTM",
+                                location="00", channel="EH?")
+
+        with self.assertRaises(FDSNException):
+            client.get_stations(network="BW", station="ALTM",
+                                location="--", channel="BHZ?")
