@@ -268,13 +268,14 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
 
                 etree.SubElement(net_elem, "Description").text = \
                     value["network_name"]
+
+                etree.SubElement(net_elem, "TotalNumberStations").text = \
+                    str(stats.stations_for_network(net_code))
+
                 if level == "network":
                     _c = "0"
                 elif level == "station":
                     _c = str(len(networks[net_code]))
-
-                etree.SubElement(net_elem, "TotalNumberStations").text = \
-                    str(stats.stations_for_network(net_code))
                 etree.SubElement(net_elem, "SelectedNumberStations").text = _c
 
                 # Also add station information if required.
@@ -469,8 +470,9 @@ def assemble_network_elements(results, level, stats):
     # children.
     for code, network in final_networks.items():
         children = [_i for _i in network.getchildren() if (
-            not _i.tag.endswith("}Station") and not _i.tag.endswith(
-                "SelectedNumberStations"))]
+            not _i.tag.endswith("}Station") and
+            not _i.tag.endswith("SelectedNumberStations") and
+            not _i.tag.endswith("TotalNumberStations"))]
         attrib = copy.deepcopy(network.attrib)
 
         # Derive start and end-dates from the channels.
@@ -487,6 +489,9 @@ def assemble_network_elements(results, level, stats):
         network.extend(children)
         network.attrib.update(attrib)
 
+        etree.SubElement(network, "TotalNumberStations").text = \
+            str(stats.stations_for_network(code))
+
         # No stations selected for level == 'network'
         if level != "network":
             etree.SubElement(network, "SelectedNumberStations").text = \
@@ -501,8 +506,9 @@ def assemble_network_elements(results, level, stats):
     final_stations = {_i: files["stations"][_i] for _i in needed_stations}
     for code, station in final_stations.items():
         children = [_i for _i in station.getchildren() if (
-            not _i.tag.endswith("}Channel") and not _i.tag.endswith(
-                "SelectedNumberChannels"))]
+            not _i.tag.endswith("}Channel") and
+            not _i.tag.endswith("SelectedNumberChannels") and
+            not _i.tag.endswith("TotalNumberChannels"))]
         attrib = copy.deepcopy(station.attrib)
 
         # Derive start and end-dates from the channels.
@@ -518,6 +524,9 @@ def assemble_network_elements(results, level, stats):
         station.clear()
         station.extend(children)
         station.attrib.update(attrib)
+
+        etree.SubElement(station, "TotalNumberChannels").text = \
+            str(stats.channels_for_station(code[0], code[1]))
 
         # No channels selected for levels 'network' and 'station'
         if level not in ("network", "station"):

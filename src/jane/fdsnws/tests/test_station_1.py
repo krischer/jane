@@ -442,6 +442,31 @@ class Station1LiveServerTestCase(LiveServerTestCase):
         self.assertEqual(len(c["stations"]), 1)
         self.assertEqual(len(c["channels"]), 2)
 
+    def test_total_and_selected_number_of_sta_and_cha(self):
+        client = FDSNClient(self.live_server_url)
+
+        inv = client.get_stations(level="network")
+        self.assertEqual(inv[0].total_number_of_stations, 1)
+        self.assertEqual(inv[0].selected_number_of_stations, 0)
+
+        inv = client.get_stations(level="station")
+        self.assertEqual(inv[0].total_number_of_stations, 1)
+        self.assertEqual(inv[0].selected_number_of_stations, 1)
+        self.assertEqual(inv[0][0].total_number_of_channels, 3)
+        self.assertEqual(inv[0][0].selected_number_of_channels, 0)
+
+        inv = client.get_stations(level="channel")
+        self.assertEqual(inv[0].total_number_of_stations, 1)
+        self.assertEqual(inv[0].selected_number_of_stations, 1)
+        self.assertEqual(inv[0][0].total_number_of_channels, 3)
+        self.assertEqual(inv[0][0].selected_number_of_channels, 3)
+
+        inv = client.get_stations(level="response")
+        self.assertEqual(inv[0].total_number_of_stations, 1)
+        self.assertEqual(inv[0].selected_number_of_stations, 1)
+        self.assertEqual(inv[0][0].total_number_of_channels, 3)
+        self.assertEqual(inv[0][0].selected_number_of_channels, 3)
+
 #
 #     def test_query_data(self):
 #         # query using ObsPy
