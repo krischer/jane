@@ -347,6 +347,15 @@ class Station1LiveServerTestCase(LiveServerTestCase):
         self.assertEqual(len(c["stations"]), 0)
         self.assertEqual(len(c["channels"]), 0)
 
+        inv = client.get_stations(level="response")
+        c = inv.get_contents()
+        self.assertEqual(len(c["networks"]), 1)
+        self.assertEqual(len(c["stations"]), 1)
+        self.assertEqual(len(c["channels"]), 3)
+
+        for channel in inv[0][0]:
+            self.assertIsNotNone(channel.response)
+
     def test_temporal_queries(self):
         """
         Test the various temporal parameters.
