@@ -656,3 +656,32 @@ class Station1LiveServerTestCase(LiveServerTestCase):
         with self.assertRaises(FDSNException):
             client.get_stations(network="BW", station="ALTM",
                                 location="--", channel="BHZ?")
+
+    def test_rectangular_geo_queries(self):
+        client = FDSNClient(self.live_server_url)
+        # lat = 48.995167
+        # lon = 11.519922
+
+        # This works.
+        self.assertEqual(
+            len(client.get_stations(
+                minlatitude=48, maxlatitude=49,
+                minlongitude=11, maxlongitude=12).get_contents()["stations"]),
+            1)
+
+        # Make sure one border does not include the point at a time.
+        with self.assertRaises(FDSNException):
+            client.get_stations(minlatitude=48.996, maxlatitude=49,
+                                minlongitude=11, maxlongitude=12)
+
+        with self.assertRaises(FDSNException):
+            client.get_stations(minlatitude=48, maxlatitude=48.5,
+                                minlongitude=11, maxlongitude=12)
+
+        with self.assertRaises(FDSNException):
+            client.get_stations(minlatitude=48, maxlatitude=49,
+                                minlongitude=11.6, maxlongitude=12)
+
+        with self.assertRaises(FDSNException):
+            client.get_stations(minlatitude=48, maxlatitude=49,
+                                minlongitude=11, maxlongitude=11.4)
