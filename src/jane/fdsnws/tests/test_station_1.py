@@ -254,31 +254,48 @@ class Station1TestCase(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertTrue('Not Found: No data' in response.reason_phrase)
 
-#     def test_query_data(self):
-#         expected = read(FILES[0])[0]
-#         params = {
-#             'station': expected.meta.station,
-#             'cha': expected.meta.channel,
-#             'start': expected.meta.starttime,
-#             'end': expected.meta.endtime
-#         }
-#         # 1 - query using HTTP GET
-#         response = self.client.get('/fdsnws/station/1/query', params)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTrue('OK' in response.reason_phrase)
-#         # compare streams
-#         got = read(io.BytesIO(response.getvalue()))[0]
-#         numpy.testing.assert_equal(got.data, expected.data)
-#         self.assertEqual(got, expected)
-#         # 2 - query using HTTP POST
-#         response = self.client.post('/fdsnws/station/1/query', params)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTrue('OK' in response.reason_phrase)
-#         # compare streams
-#         got = read(io.BytesIO(response.getvalue()))[0]
-#         numpy.testing.assert_equal(got.data, expected.data)
-#         self.assertEqual(got, expected)
-#
+    def test_text_format(self):
+        d = self.client.get(
+            '/fdsnws/station/1/query?format=text&level=network').content
+        self.assertEqual(
+            d.decode(),
+            "#Network|Description|StartTime|EndTime|TotalStations\n"
+            "BW|BayernNetz|2010-04-29T00:00:00.000000Z||1\n"
+        )
+        self.assertTrue(d.decode().startswith("#Network|Description"))
+
+        d = self.client.get(
+            '/fdsnws/station/1/query?format=text&level=station').content
+        self.assertEqual(
+            d.decode(),
+            '#Network|Station|Latitude|Longitude|Elevation|SiteName|'
+            'StartTime|EndTime\n'
+            'BW|ALTM|48.995167|11.519922|430.0'
+            '|Beilngries, Bavaria, BW-Net|2010-04-29T00:00:00.000000Z|\n'
+        )
+        self.assertTrue(d.decode().startswith("#Network|Station|Latitude"))
+
+        d = self.client.get(
+            '/fdsnws/station/1/query?format=text&level=channel').content
+        self.assertEqual(
+            d.decode(),
+            "#Network|Station|Location|Channel|Latitude|Longitude|Elevation"
+            "|Depth|Azimuth|Dip|SensorDescription|Scale|ScaleFreq|ScaleUnits"
+            "|SampleRate|StartTime|EndTime\n"
+            "BW|ALTM||EHZ|48.995167|11.519922"
+            "|430.0|0.0|0.0|-90.0|Lennartz LE-3D/1 "
+            "seismometer|251650000.0|2.0|M/S|200.0|2010-04-29T00:00:00"
+            ".000000Z|2011-01-01T00:00:00.000000Z\n"
+            "BW|ALTM||EHN|48.995167|11"
+            ".519922|430.0|0.0|0.0|0.0|Lennartz LE-3D/1 "
+            "seismometer|251650000.0|2.0|M/S|200.0|2010-04-29T00:00:00"
+            ".000000Z|\n"
+            "BW|ALTM||EHE|48.995167|11.519922|430.0|0.0|90.0|0.0"
+            "|Lennartz LE-3D/1 "
+            "seismometer|251650000.0|2.0|M/S|200.0|2010-04-29T00:00:00"
+            ".000000Z|\n"
+        )
+
 #     def test_queryauth_nodata(self):
 #         param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE&cha=EHE'
 #

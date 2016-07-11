@@ -328,7 +328,7 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
             quotechar = '"'
             doublequote = True
             skipinitialspace = True
-            lineterminator = "\r\n"
+            lineterminator = "\n"
 
         if level == "network":
             # Find unique networks - keep one element per network.
