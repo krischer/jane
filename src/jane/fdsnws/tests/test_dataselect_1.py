@@ -272,6 +272,39 @@ class DataSelect1TestCase(TestCase):
         self.assertEqual(len(st), 1)
         self.assertEqual(st[0].id, ".RJOB..Z")
 
+        # The correct user can still everything
+        params = {
+            'station': 'A25A',
+            'cha': 'BHE',
+            'start': '2010-03-25T00:00:00',
+            'end': '2010-03-26T00:00:00'
+        }
+
+        p = {}
+        p.update(params)
+        p.update(self.valid_auth_headers)
+        response = self.client.get('/fdsnws/dataselect/1/queryauth', **p)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        st = read(io.BytesIO(response.getvalue()))
+        self.assertEqual(len(st), 1)
+        self.assertEqual(st[0].id, "TA.A25A..BHE")
+
+        # Make another user that has not been added to this restriction - he
+        # should not be able to retrieve it.
+        self.client.logout()
+        User.objects.get_or_create(
+            username='some_dude', password=make_password('some_dude'))[0]
+        credentials = base64.b64encode(b'some_dude:some_dude')
+        auth_headers = {
+            'HTTP_AUTHORIZATION': 'Basic ' + credentials.decode("ISO-8859-1")
+        }
+        p = {}
+        p.update(params)
+        p.update(auth_headers)
+        response = self.client.get('/fdsnws/dataselect/1/queryauth', **p)
+        self.assertEqual(response.status_code, 204)
+
 
 class DataSelect1LiveServerTestCase(LiveServerTestCase):
     """

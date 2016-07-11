@@ -56,7 +56,10 @@ def query(request):
     Parses and returns data request
     """
     # handle both: HTTP POST and HTTP GET variables
-    params = getattr(request, request.method)
+    params = dict(request.META)
+    params.update(dict(getattr(request, request.method)))
+    params = {k: (v[0] if isinstance(v, list) else v)
+              for k, v in params.items()}
 
     # starttime/endtime
     starttime = params.get('starttime') or params.get('start')
