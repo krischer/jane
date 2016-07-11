@@ -685,3 +685,28 @@ class Station1LiveServerTestCase(LiveServerTestCase):
         with self.assertRaises(FDSNException):
             client.get_stations(minlatitude=48, maxlatitude=49,
                                 minlongitude=11, maxlongitude=11.4)
+
+    def test_radial_queries(self):
+        client = FDSNClient(self.live_server_url)
+        lat = 48.995167 + 1.0
+        lon = 11.519922
+
+        self.assertEqual(
+            len(client.get_stations(
+                latitude=lat, longitude=lon,
+                maxradius=2).get_contents()["stations"]),
+            1)
+
+        self.assertEqual(
+            len(client.get_stations(
+                latitude=lat, longitude=lon,
+                maxradius=1.1).get_contents()["stations"]),
+            1)
+
+        with self.assertRaises(FDSNException):
+            client.get_stations(latitude=lat, longitude=lon,
+                                minradius=1.1, maxradius=10)
+
+        with self.assertRaises(FDSNException):
+            client.get_stations(latitude=lat, longitude=lon,
+                                minradius=0.1, maxradius=0.5)
