@@ -15,7 +15,7 @@ import obspy  # noqa
 from jane.documents.plugins import (
     ValidatorPluginPoint, IndexerPluginPoint, DocumentPluginPoint,
     RetrievePermissionPluginPoint)  # noqa
-from jane.waveforms.models import Restriction
+from jane.waveforms.models import Restriction  # noqa
 
 
 class StationXMLPlugin(DocumentPluginPoint):

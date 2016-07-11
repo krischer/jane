@@ -529,7 +529,7 @@ def assemble_network_elements(results, level, stats):
             etree.SubElement(station, "SelectedNumberChannels").text = \
                 str(len([_i for _i in chans if (_i[0], _i[1]) == code]))
         else:
-           etree.SubElement(station, "SelectedNumberChannels").text = "0"
+            etree.SubElement(station, "SelectedNumberChannels").text = "0"
 
         # Assign to correct network.
         final_networks[code[0]].append(station)

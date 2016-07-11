@@ -2,7 +2,6 @@
 
 import base64
 import io
-import tempfile
 import os
 from unittest import mock
 
@@ -20,7 +19,6 @@ from obspy.io.stationxml.core import validate_stationxml
 from jane.documents.models import Document
 from jane.documents.plugins import initialize_plugins
 from jane.waveforms.models import Restriction
-from jane.waveforms.process_waveforms import process_file
 
 
 django.setup()
@@ -320,63 +318,6 @@ class Station1TestCase(TestCase):
                                    **self.valid_auth_headers)
         self.assertEqual(response.status_code, 404)
         self.assertTrue('Not Found: No data' in response.reason_phrase)
-
-#     def test_queryauth_data(self):
-#         expected = read(FILES[0])[0]
-#         params = {
-#             'station': expected.meta.station,
-#             'cha': expected.meta.channel,
-#             'start': expected.meta.starttime,
-#             'end': expected.meta.endtime,
-#         }
-#
-#         # 1 - no credentials GET - error 401
-#         response = self.client.get('/fdsnws/station/1/queryauth', params)
-#         self.assertEqual(response.status_code, 401)
-#
-#         # 2 - invalid credentials GET - error 401
-#         response = self.client.get('/fdsnws/station/1/queryauth', params,
-#                                    **self.invalid_auth_headers)
-#         self.assertEqual(response.status_code, 401)
-#
-#         # 3 - no credentials POST - error 401
-#         response = self.client.post('/fdsnws/station/1/queryauth', params)
-#         self.assertEqual(response.status_code, 401)
-#
-#         # 4 - invalid credentials POST - error 401
-#         response = self.client.post('/fdsnws/station/1/queryauth', params,
-#                                     **self.invalid_auth_headers)
-#         self.assertEqual(response.status_code, 401)
-#
-#         # 5 - query using HTTP GET
-#         response = self.client.get('/fdsnws/station/1/queryauth', params,
-#                                    **self.valid_auth_headers)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTrue('OK' in response.reason_phrase)
-#
-#         # compare streams
-#         got = read(io.BytesIO(response.getvalue()))[0]
-#         numpy.testing.assert_equal(got.data, expected.data)
-#         self.assertEqual(got, expected)
-#
-#         # 6 - query using HTTP POST
-#         response = self.client.post('/fdsnws/station/1/queryauth', params,
-#                                     **self.valid_auth_headers)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTrue('OK' in response.reason_phrase)
-#
-#         # compare streams
-#         got = read(io.BytesIO(response.getvalue()))[0]
-#         numpy.testing.assert_equal(got.data, expected.data)
-#         self.assertEqual(got, expected)
-#
-#     def test_query_data_wildcards(self):
-#         # query using wildcards
-#         param = '?endtime=2010-03-25T00:00:30&network=TA&channel=BH%2A' + \
-#             '&starttime=2010-03-25&station=A25A'
-#         response = self.client.get('/fdsnws/station/1/query' + param)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTrue('OK' in response.reason_phrase)
 
     def test_restrictions(self):
         """
