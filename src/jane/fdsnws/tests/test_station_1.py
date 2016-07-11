@@ -294,6 +294,54 @@ class Station1TestCase(TestCase):
             ".000000Z|\n"
         )
 
+    def test_query_auth_data(self):
+        """
+        Just a copy of the text test but using queryauth.
+        """
+        d = self.client.get(
+            '/fdsnws/station/1/queryauth?format=text&level=network',
+            **self.valid_auth_headers).content
+        self.assertEqual(
+            d.decode(),
+            "#Network|Description|StartTime|EndTime|TotalStations\n"
+            "BW|BayernNetz|2010-04-29T00:00:00.000000Z||1\n"
+        )
+        self.assertTrue(d.decode().startswith("#Network|Description"))
+
+        d = self.client.get(
+            '/fdsnws/station/1/queryauth?format=text&level=station',
+            **self.valid_auth_headers).content
+        self.assertEqual(
+            d.decode(),
+            '#Network|Station|Latitude|Longitude|Elevation|SiteName|'
+            'StartTime|EndTime\n'
+            'BW|ALTM|48.995167|11.519922|430.0'
+            '|Beilngries, Bavaria, BW-Net|2010-04-29T00:00:00.000000Z|\n'
+        )
+        self.assertTrue(d.decode().startswith("#Network|Station|Latitude"))
+
+        d = self.client.get(
+            '/fdsnws/station/1/queryauth?format=text&level=channel',
+            **self.valid_auth_headers).content
+        self.assertEqual(
+            d.decode(),
+            "#Network|Station|Location|Channel|Latitude|Longitude|Elevation"
+            "|Depth|Azimuth|Dip|SensorDescription|Scale|ScaleFreq|ScaleUnits"
+            "|SampleRate|StartTime|EndTime\n"
+            "BW|ALTM||EHZ|48.995167|11.519922"
+            "|430.0|0.0|0.0|-90.0|Lennartz LE-3D/1 "
+            "seismometer|251650000.0|2.0|M/S|200.0|2010-04-29T00:00:00"
+            ".000000Z|2011-01-01T00:00:00.000000Z\n"
+            "BW|ALTM||EHN|48.995167|11"
+            ".519922|430.0|0.0|0.0|0.0|Lennartz LE-3D/1 "
+            "seismometer|251650000.0|2.0|M/S|200.0|2010-04-29T00:00:00"
+            ".000000Z|\n"
+            "BW|ALTM||EHE|48.995167|11.519922|430.0|0.0|90.0|0.0"
+            "|Lennartz LE-3D/1 "
+            "seismometer|251650000.0|2.0|M/S|200.0|2010-04-29T00:00:00"
+            ".000000Z|\n"
+        )
+
     def test_queryauth_nodata(self):
         param = '?network=BB'
 
