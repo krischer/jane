@@ -67,6 +67,12 @@
      <changefreq>daily</changefreq>
     </url>
         
+    <url>
+     <loc>None/fdsnws_services/index.html</loc>
+     <lastmod>2016-07-11</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
     
 
 </urlset>

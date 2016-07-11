@@ -534,6 +534,31 @@
             "location": "/management_commands/index.html#details",
             "text": "Please also view the  --help  output of each command for the most up-to-date\ninformation.   $ python manage.py add_mappings  Use this command to add a large number of waveform mappings. Smaller amounts\nof mappings can also conveniently be added via the admin interface. See the  Waveforms page  for more details about how mappings work.  The command takes a single argument, the path to a file which specifies a \nmapping in each line. Each line has  ID   NEW_ID ,  STARTTIME , and  ENDTIME . Example file:  ZZ.e6008..E XY.A00..HHE 2008-08-18T14:00:00.000000Z 2008-09-30T12:00:00.000000Z\nZZ.e6008..N XY.A00..HHN 2008-08-18T14:00:00.000000Z 2008-09-30T12:00:00.000000Z   $ python manage.py index_waveforms  Used to index waveforms. Fairly powerful and flexible and documented in more\ndetail on the  Waveforms page .   $ python manage.py upload_documents  The command line can be used as an alternative to the REST interface to \nupload documents. See the  Document Database page  for more \ndetails.",
             "title": "Details"
+        },
+        {
+            "location": "/fdsnws_services/index.html",
+            "text": "FDSN Web Services\n\n\nJane\n implements version 1.1 of all \nfdsnws\n web services. \n\n\ndataselect\n Service\n\n\nThis draws its data from \njane.waveforms\n. It supports arbitrary length \ndownloads and also honors the restriced/protected stations defined in the \nadmin interface. See the \nwaveforms documentation\n for more \ninformation. Use the \n/queryauth\n route to access protected data.\n\n\nstation\n Service\n\n\nThis draws its data from the default StationXML plugin from\njane.documents\n.\nAll restrictions and permissions that apply to the documents also apply to \nthe \nstation\n service. This, by default, includes the restricted/protected \nstations defined in \njane.waveforms\n. Use the \n/queryauth\n route to access \nprotected data.\n\n\nevent\n Service\n\n\nThis draws its data from the default QuakeML plugin from\njane.documents\n.\nAll restrictions and permissions that apply to the documents also apply to \nthe \nevent\n service. This, by default, means that only users who have \npermissions to see private events can see them. Use the \n/queryauth\n route \nto access protected data.",
+            "title": "FDSN Web Services"
+        },
+        {
+            "location": "/fdsnws_services/index.html#fdsn-web-services",
+            "text": "Jane  implements version 1.1 of all  fdsnws  web services.",
+            "title": "FDSN Web Services"
+        },
+        {
+            "location": "/fdsnws_services/index.html#dataselect-service",
+            "text": "This draws its data from  jane.waveforms . It supports arbitrary length \ndownloads and also honors the restriced/protected stations defined in the \nadmin interface. See the  waveforms documentation  for more \ninformation. Use the  /queryauth  route to access protected data.",
+            "title": "dataselect Service"
+        },
+        {
+            "location": "/fdsnws_services/index.html#station-service",
+            "text": "This draws its data from the default StationXML plugin from jane.documents .\nAll restrictions and permissions that apply to the documents also apply to \nthe  station  service. This, by default, includes the restricted/protected \nstations defined in  jane.waveforms . Use the  /queryauth  route to access \nprotected data.",
+            "title": "station Service"
+        },
+        {
+            "location": "/fdsnws_services/index.html#event-service",
+            "text": "This draws its data from the default QuakeML plugin from jane.documents .\nAll restrictions and permissions that apply to the documents also apply to \nthe  event  service. This, by default, means that only users who have \npermissions to see private events can see them. Use the  /queryauth  route \nto access protected data.",
+            "title": "event Service"
         }
     ]
 }

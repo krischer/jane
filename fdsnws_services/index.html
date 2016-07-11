@@ -9,7 +9,7 @@
         
         <link rel="shortcut icon" href="../img/favicon.ico">
 
-	<title>Management Commands - Jane</title>
+	<title>FDSN Web Services - Jane</title>
 
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
@@ -110,14 +110,14 @@
 
                     
                         
-<li class="active">
-    <a href="index.html">Management Commands</a>
+<li >
+    <a href="../management_commands/index.html">Management Commands</a>
 </li>
 
                     
                         
-<li >
-    <a href="../fdsnws_services/index.html">FDSN Web Services</a>
+<li class="active">
+    <a href="index.html">FDSN Web Services</a>
 </li>
 
                     
@@ -135,12 +135,12 @@
                     </a>
                 </li>
                 <li >
-                    <a rel="next" href="../documents/index.html">
+                    <a rel="next" href="../management_commands/index.html">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
-                <li >
-                    <a rel="prev" href="../fdsnws_services/index.html">
+                <li class="disabled">
+                    <a rel="prev" >
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -163,52 +163,38 @@
             <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#management-command">Management Command</a></li>
+        <li class="main active"><a href="#fdsn-web-services">FDSN Web Services</a></li>
         
-            <li><a href="#available-management-commands">Available Management Commands</a></li>
+            <li><a href="#dataselect-service">dataselect Service</a></li>
         
-            <li><a href="#details">Details</a></li>
+            <li><a href="#station-service">station Service</a></li>
+        
+            <li><a href="#event-service">event Service</a></li>
         
     
     </ul>
 </div></div>
             <div class="col-md-9" role="main">
 
-<h1 id="management-command">Management Command</h1>
-<p><code>Jane</code> has a couple of custom management commands. This page documents these. 
-All of them have to be execute within the <code>jane/src</code> directory or use 
-absolute paths.</p>
-<h2 id="available-management-commands">Available Management Commands</h2>
-<p>List of all available management commands.</p>
-<ul>
-<li><code>add_mappings</code></li>
-<li><code>index_waveforms</code></li>
-<li><code>upload_documents</code></li>
-</ul>
-<h2 id="details">Details</h2>
-<p>Please also view the <code>--help</code> output of each command for the most up-to-date
-information.</p>
-<hr />
-<p><code>$ python manage.py add_mappings</code></p>
-<p>Use this command to add a large number of waveform mappings. Smaller amounts
-of mappings can also conveniently be added via the admin interface. See the 
-<a href="../waveforms/index.html">Waveforms page</a> for more details about how mappings work.</p>
-<p>The command takes a single argument, the path to a file which specifies a 
-mapping in each line. Each line has <code>ID</code> <code>NEW_ID</code>, <code>STARTTIME</code>, and 
-<code>ENDTIME</code>. Example file:</p>
-<pre><code>ZZ.e6008..E XY.A00..HHE 2008-08-18T14:00:00.000000Z 2008-09-30T12:00:00.000000Z
-ZZ.e6008..N XY.A00..HHN 2008-08-18T14:00:00.000000Z 2008-09-30T12:00:00.000000Z
-</code></pre>
-
-<hr />
-<p><code>$ python manage.py index_waveforms</code></p>
-<p>Used to index waveforms. Fairly powerful and flexible and documented in more
-detail on the <a href="../waveforms/index.html">Waveforms page</a>.</p>
-<hr />
-<p><code>$ python manage.py upload_documents</code></p>
-<p>The command line can be used as an alternative to the REST interface to 
-upload documents. See the <a href="../documents/index.html">Document Database page</a> for more 
-details.</p></div>
+<h1 id="fdsn-web-services">FDSN Web Services</h1>
+<p><code>Jane</code> implements version 1.1 of all <code>fdsnws</code> web services. </p>
+<h3 id="dataselect-service"><em>dataselect</em> Service</h3>
+<p>This draws its data from <code>jane.waveforms</code>. It supports arbitrary length 
+downloads and also honors the restriced/protected stations defined in the 
+admin interface. See the <a href="../waveforms/index.html">waveforms documentation</a> for more 
+information. Use the <code>/queryauth</code> route to access protected data.</p>
+<h3 id="station-service"><em>station</em> Service</h3>
+<p>This draws its data from the default StationXML plugin from<code>jane.documents</code>.
+All restrictions and permissions that apply to the documents also apply to 
+the <em>station</em> service. This, by default, includes the restricted/protected 
+stations defined in <code>jane.waveforms</code>. Use the <code>/queryauth</code> route to access 
+protected data.</p>
+<h3 id="event-service"><em>event</em> Service</h3>
+<p>This draws its data from the default QuakeML plugin from<code>jane.documents</code>.
+All restrictions and permissions that apply to the documents also apply to 
+the <em>event</em> service. This, by default, means that only users who have 
+permissions to see private events can see them. Use the <code>/queryauth</code> route 
+to access protected data.</p></div>
         </div>
 
         <footer class="col-md-12">
