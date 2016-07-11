@@ -127,6 +127,122 @@ class Station1TestCase(TestCase):
             buf.seek(0, 0)
             self.assertTrue(validate_stationxml(buf)[0])
 
+    @mock.patch("jane.fdsnws.views.station_1.query_stations")
+    def test_shorthand_and_longhand_parameters_versions(self, p):
+        """
+        Just use a mock and check the arguments passed to station query method.
+        """
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?starttime=1991-1-1')
+        self.assertEqual(p.call_args_list[0][1]["starttime"],
+                         662688000.0)
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?start=1991-1-1')
+        self.assertEqual(p.call_args_list[0][1]["starttime"],
+                         662688000.0)
+
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?endtime=1991-1-1')
+        self.assertEqual(p.call_args_list[0][1]["endtime"], 662688000.0)
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?end=1991-1-1')
+        self.assertEqual(p.call_args_list[0][1]["endtime"], 662688000.0)
+
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?network=BW')
+        self.assertEqual(p.call_args_list[0][1]["network"], ["BW"])
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?net=BW')
+        self.assertEqual(p.call_args_list[0][1]["network"], ["BW"])
+
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?station=ALTM')
+        self.assertEqual(p.call_args_list[0][1]["station"], ["ALTM"])
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?sta=ALTM')
+        self.assertEqual(p.call_args_list[0][1]["station"], ["ALTM"])
+
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?location=00')
+        self.assertEqual(p.call_args_list[0][1]["location"], ["00"])
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?loc=00')
+        self.assertEqual(p.call_args_list[0][1]["location"], ["00"])
+
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?channel=BHE')
+        self.assertEqual(p.call_args_list[0][1]["channel"], ["BHE"])
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?cha=BHE')
+        self.assertEqual(p.call_args_list[0][1]["channel"], ["BHE"])
+
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?minlatitude=10.0')
+        self.assertEqual(p.call_args_list[0][1]["minlatitude"], 10.0)
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?minlat=10.0')
+        self.assertEqual(p.call_args_list[0][1]["minlatitude"], 10.0)
+
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?maxlatitude=10.0')
+        self.assertEqual(p.call_args_list[0][1]["maxlatitude"], 10.0)
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?maxlat=10.0')
+        self.assertEqual(p.call_args_list[0][1]["maxlatitude"], 10.0)
+
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?minlongitude=10.0')
+        self.assertEqual(p.call_args_list[0][1]["minlongitude"], 10.0)
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?minlon=10.0')
+        self.assertEqual(p.call_args_list[0][1]["minlongitude"], 10.0)
+
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?maxlongitude=10.0')
+        self.assertEqual(p.call_args_list[0][1]["maxlongitude"], 10.0)
+        p.reset_mock()
+        with self.assertRaises(Exception):
+            self.client.get(
+                '/fdsnws/station/1/query?maxlon=10.0')
+        self.assertEqual(p.call_args_list[0][1]["maxlongitude"], 10.0)
+
 #     def test_query_nodata(self):
 #         # not existing - error 204
 #         param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE&cha=EHE'
