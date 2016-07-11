@@ -2,11 +2,11 @@
 import io
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse
 from django.shortcuts import render
 import obspy
 
+from jane.jane.decorators import logged_in_or_basicauth
 from jane.fdsnws.station_query import query_stations
 from jane.fdsnws.views.utils import fdnsws_error, parse_query_parameters
 
@@ -261,7 +261,7 @@ def query(request):
             return _error(request, msg, status)
 
 
-@login_required
+@logged_in_or_basicauth(settings.JANE_INSTANCE_NAME)
 def queryauth(request):
     """
     Parses and returns data request

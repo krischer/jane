@@ -296,31 +296,31 @@ class Station1TestCase(TestCase):
             ".000000Z|\n"
         )
 
-#     def test_queryauth_nodata(self):
-#         param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE&cha=EHE'
-#
-#         # 1 - no credentials - error 401
-#         response = self.client.get('/fdsnws/station/1/queryauth' + param)
-#         self.assertEqual(response.status_code, 401)
-#
-#         # 2 - invalid credentials - error 401
-#         response = self.client.get('/fdsnws/station/1/queryauth' + param,
-#                                    **self.invalid_auth_headers)
-#         self.assertEqual(response.status_code, 401)
-#
-#         # 3 - valid credentials - not existing - error 204
-#         response = self.client.get('/fdsnws/station/1/queryauth' + param,
-#                                    **self.valid_auth_headers)
-#         self.assertEqual(response.status_code, 204)
-#         self.assertTrue('Not Found: No data' in response.reason_phrase)
-#
-#         # 4 - valid credentials - not existing - error 404
-#         param += '&nodata=404'
-#         response = self.client.get('/fdsnws/station/1/queryauth' + param,
-#                                    **self.valid_auth_headers)
-#         self.assertEqual(response.status_code, 404)
-#         self.assertTrue('Not Found: No data' in response.reason_phrase)
-#
+    def test_queryauth_nodata(self):
+        param = '?network=BB'
+
+        # 1 - no credentials - error 401
+        response = self.client.get('/fdsnws/station/1/queryauth' + param)
+        self.assertEqual(response.status_code, 401)
+
+        # 2 - invalid credentials - error 401
+        response = self.client.get('/fdsnws/station/1/queryauth' + param,
+                                   **self.invalid_auth_headers)
+        self.assertEqual(response.status_code, 401)
+
+        # 3 - valid credentials - not existing - error 204
+        response = self.client.get('/fdsnws/station/1/queryauth' + param,
+                                   **self.valid_auth_headers)
+        self.assertEqual(response.status_code, 204)
+        self.assertTrue('Not Found: No data' in response.reason_phrase)
+
+        # 4 - valid credentials - not existing - error 404
+        param += '&nodata=404'
+        response = self.client.get('/fdsnws/station/1/queryauth' + param,
+                                   **self.valid_auth_headers)
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue('Not Found: No data' in response.reason_phrase)
+
 #     def test_queryauth_data(self):
 #         expected = read(FILES[0])[0]
 #         params = {
