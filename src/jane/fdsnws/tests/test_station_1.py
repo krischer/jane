@@ -243,18 +243,17 @@ class Station1TestCase(TestCase):
                 '/fdsnws/station/1/query?maxlon=10.0')
         self.assertEqual(p.call_args_list[0][1]["maxlongitude"], 10.0)
 
-#     def test_query_nodata(self):
-#         # not existing - error 204
-#         param = '?start=2012-01-01&end=2012-01-02&net=GE&sta=APE&cha=EHE'
-#         response = self.client.get('/fdsnws/station/1/query' + param)
-#         self.assertEqual(response.status_code, 204)
-#         self.assertTrue('Not Found: No data' in response.reason_phrase)
-#         # not existing - error 404
-#         param += '&nodata=404'
-#         response = self.client.get('/fdsnws/station/1/query' + param)
-#         self.assertEqual(response.status_code, 404)
-#         self.assertTrue('Not Found: No data' in response.reason_phrase)
-#
+    def test_query_nodata(self):
+        # not existing - error 204
+        response = self.client.get('/fdsnws/station/1/query?net=BB')
+        self.assertEqual(response.status_code, 204)
+        self.assertTrue('Not Found: No data' in response.reason_phrase)
+
+        # not existing - error 404
+        response = self.client.get('/fdsnws/station/1/query?net=BB&nodata=404')
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue('Not Found: No data' in response.reason_phrase)
+
 #     def test_query_data(self):
 #         expected = read(FILES[0])[0]
 #         params = {
