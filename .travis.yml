@@ -40,7 +40,7 @@ install:
   - git status
 
 script:
-  - cd $TRAVIS_BUILD_DIR/src; coverage run ./manage.py test
+  - cd $TRAVIS_BUILD_DIR/src; coverage run --rcfile=.coveragerc ./manage.py test
   # Docs only need to be built once.
   - if [[ $TRAVIS_PYTHON_VERSION == '3.5' && $TRAVIS_BRANCH == 'master' ]]; then cd $TRAVIS_BUILD_DIR/docs; mkdocs build -d site; fi
 
