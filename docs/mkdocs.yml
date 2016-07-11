@@ -15,3 +15,4 @@ pages:
     - 'Waveforms': 'waveforms.md'
     - 'Document Database': 'documents.md'
     - 'Management Commands': 'management_commands.md'
+    - 'FDSN Web Services': 'fdsnws_services.md'
