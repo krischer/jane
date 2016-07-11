@@ -90,28 +90,13 @@ class DocumentIndicesView(viewsets.ReadOnlyModelViewSet):
         params = {key: value[0] for key, value in params.items()}
 
         queryset = models.DocumentIndex.objects.get_filtered_queryset(
-            document_type=self.kwargs["document_type"], **params)
+            document_type=self.kwargs["document_type"],
+            user=self.request.user, **params)
 
         # annotate number of attachments
         queryset = queryset.\
             annotate(attachments_count=Count('attachments'))
 
-        # Apply potential additional restrictions based on the permissions.
-        doctype = models.DocumentType.objects.get(
-            name=self.kwargs["document_type"])
-        retrieve_permissions = doctype.retrieve_permissions.all()
-        if retrieve_permissions:
-            for perm in retrieve_permissions:
-                perm = perm.get_plugin()
-                app_label = models.DocumentType._meta.app_label
-                perm_name = "%s.%s" % (app_label,  perm.permission_codename)
-                if self.request.user.has_perm(perm_name):
-                    queryset = perm.filter_queryset_user_has_permission(
-                        queryset, model_type="index")
-                else:
-                    queryset = \
-                        perm.filter_queryset_user_does_not_have_permission(
-                            queryset=queryset, model_type="index")
         return queryset
 
 

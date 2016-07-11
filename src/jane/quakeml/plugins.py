@@ -76,8 +76,7 @@ class CanSeePrivateEventsRetrievePermissionPlugin(
             # Modify the queryset to only contain indices that are public.
             # Events that have null for public are considered to be private
             # and will not be shown here.
-            queryset = queryset.model.objects.get_filtered_queryset(
-                document_type="quakeml", queryset=queryset, public=True)
+            queryset = queryset.filter(json__public=True)
         else:
             raise NotImplementedError()
         return queryset

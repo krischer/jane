@@ -261,6 +261,26 @@ class DocumentIndexManager(models.GeoManager):
     def _get_json_query(self, key, operator, type, value):
         return self.JSON_QUERY_TEMPLATE_MAP[type] % (key, operator, str(value))
 
+    def apply_retrieve_permission(self, document_type, queryset, user):
+        """
+        Apply potential additional restrictions based on the permissions.
+        """
+        retrieve_permissions = document_type.retrieve_permissions.all()
+
+        if retrieve_permissions:
+            for perm in retrieve_permissions:
+                perm = perm.get_plugin()
+                app_label = DocumentType._meta.app_label
+                perm_name = "%s.%s" % (app_label,  perm.permission_codename)
+                if user and user.has_perm(perm_name):
+                    queryset = perm.filter_queryset_user_has_permission(
+                        queryset, model_type="index")
+                else:
+                    queryset = \
+                        perm.filter_queryset_user_does_not_have_permission(
+                            queryset=queryset, model_type="index")
+        return queryset
+
     def get_distinct_values(self, document_type, json_key):
         """
         Get distinct values for a certain field in the JSON document.
@@ -293,7 +313,7 @@ class DocumentIndexManager(models.GeoManager):
 
     def get_filtered_queryset_radial_distance(
             self, document_type, central_latitude, central_longitude,
-            min_radius=None, max_radius=None, queryset=None):
+            min_radius=None, max_radius=None, queryset=None, user=None):
         """
         Filter a dataset to get all indices within a certain distance to a
         point.
@@ -317,6 +337,10 @@ class DocumentIndexManager(models.GeoManager):
         res_type = get_object_or_404(DocumentType, name=document_type)
         queryset = queryset.filter(document__document_type=res_type)
 
+        queryset = self.apply_retrieve_permission(document_type=res_type,
+                                                  queryset=queryset,
+                                                  user=user)
+
         central_point = 'POINT({lng} {lat})'.format(lng=central_longitude,
                                                     lat=central_latitude)
         if min_radius is not None:
@@ -329,7 +353,7 @@ class DocumentIndexManager(models.GeoManager):
                                        Distance(km=deg2km(max_radius))))
         return queryset
 
-    def get_filtered_queryset(self, document_type, queryset=None,
+    def get_filtered_queryset(self, document_type, queryset=None, user=None,
                               **kwargs):
         """
         Returns a queryset filtered on the items in the JSON document.
@@ -382,6 +406,10 @@ class DocumentIndexManager(models.GeoManager):
         # filter by document type
         res_type = get_object_or_404(DocumentType, name=document_type)
         queryset = queryset.filter(document__document_type=res_type)
+
+        queryset = self.apply_retrieve_permission(document_type=res_type,
+                                                  queryset=queryset,
+                                                  user=user)
 
         # Nothing to do.
         if not kwargs:
