@@ -95,15 +95,7 @@ class StationStats(object):
         return None
 
 
-def query_station_stats():
-    """
-    Query statistics about all stations. This needed to for example
-    determine the start- and end dates and the total number of stations and
-    channels.
-    """
-
-
-def query_stations(fh, url, nodata, level, format, starttime=None,
+def query_stations(fh, url, nodata, level, format, user, starttime=None,
                    endtime=None, startbefore=None, startafter=None,
                    endbefore=None, endafter=None, network=None, station=None,
                    location=None, channel=None, minlatitude=None,
@@ -193,12 +185,16 @@ def query_stations(fh, url, nodata, level, format, starttime=None,
     if where:
         query = query.extra(where=where)
 
-    # Radial queries.
+    # Radial queries - also apply the per-user filtering right here!
     if latitude is not None:
         query = DocumentIndex.objects.get_filtered_queryset_radial_distance(
             document_type="stationxml", queryset=query,
             central_latitude=latitude, central_longitude=longitude,
-            min_radius=minradius, max_radius=maxradius)
+            min_radius=minradius, max_radius=maxradius, user=user)
+    else:
+        doctype = get_object_or_404(DocumentType, name="stationxml")
+        query = DocumentIndex.objects.apply_retrieve_permission(
+            document_type=doctype, queryset=query, user=user)
 
     results = query.all()
     if not results:

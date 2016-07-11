@@ -377,49 +377,63 @@ class Station1TestCase(TestCase):
 #         response = self.client.get('/fdsnws/station/1/query' + param)
 #         self.assertEqual(response.status_code, 200)
 #         self.assertTrue('OK' in response.reason_phrase)
-#
-#     def test_restrictions(self):
-#         """
-#         Tests if the waveform restrictions actually work as expected.
-#         """
-#         params = {
-#             'station': 'A25A',
-#             'cha': 'BHE',
-#             'start': '2010-03-25T00:00:00',
-#             'end': '2010-03-26T00:00:00'
-#         }
-#
-#         # No restrictions currently apply - we should get something.
-#         response = self.client.get('/fdsnws/station/1/query', params)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTrue('OK' in response.reason_phrase)
-#         st = read(io.BytesIO(response.getvalue()))
-#         self.assertEqual(len(st), 1)
-#         self.assertEqual(st[0].id, "TA.A25A..BHE")
-#
-#         # Now add restrictions to this one station.
-#         # create anonymous user
-#         r = Restriction.objects.get_or_create(network="TA", station="A25A")[0]
-#         r.users.add(User.objects.filter(username='random')[0])
-#         r.save()
-#
-#         # Now the same query should no longer return something as the
-#         # station has been restricted.
-#         response = self.client.get('/fdsnws/station/1/query', params)
-#         self.assertEqual(response.status_code, 204)
-#
-#         # RJOB data can still be retrieved.
-#         params["station"] = "RJOB"
-#         params["cha"] = "Z"
-#         params["start"] = "2005-01-01T00:00:00"
-#         response = self.client.get('/fdsnws/station/1/query', params)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTrue('OK' in response.reason_phrase)
-#         st = read(io.BytesIO(response.getvalue()))
-#         self.assertEqual(len(st), 1)
-#         self.assertEqual(st[0].id, ".RJOB..Z")
-#
-#
+
+    def test_restrictions(self):
+        """
+        Tests if the waveform restrictions actually work as expected.
+        """
+        # No restrictions currently apply - we should get something.
+        response = self.client.get('/fdsnws/station/1/query')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        inv = obspy.read_inventory(io.BytesIO(response.getvalue()))
+        self.assertEqual(inv.get_contents()["stations"],
+                         ["BW.ALTM (Beilngries, Bavaria, BW-Net)"])
+
+        # First add a restriction that does nothing.
+        r = Restriction.objects.get_or_create(network="AA", station="BBBB")[0]
+        r.users.add(User.objects.filter(username='random')[0])
+        r.save()
+        # Everything should still work.
+        response = self.client.get('/fdsnws/station/1/query')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        inv = obspy.read_inventory(io.BytesIO(response.getvalue()))
+        self.assertEqual(inv.get_contents()["stations"],
+                         ["BW.ALTM (Beilngries, Bavaria, BW-Net)"])
+
+        # Now add restrictions that does something.
+        r = Restriction.objects.get_or_create(network="BW", station="ALTM")[0]
+        r.users.add(User.objects.filter(username='random')[0])
+        r.save()
+
+        # Now the same query should no longer return something as the
+        # station has been restricted.
+        response = self.client.get('/fdsnws/station/1/query')
+        self.assertEqual(response.status_code, 204)
+
+        # The correct user can still get the stations.
+        response = self.client.get('/fdsnws/station/1/queryauth',
+                                   **self.valid_auth_headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        inv = obspy.read_inventory(io.BytesIO(response.getvalue()))
+        self.assertEqual(inv.get_contents()["stations"],
+                         ["BW.ALTM (Beilngries, Bavaria, BW-Net)"])
+
+        # Make another user that has not been added to this restriction - he
+        # should not be able to retrieve it.
+        self.client.logout()
+        User.objects.get_or_create(
+            username='some_dude', password=make_password('some_dude'))[0]
+        credentials = base64.b64encode(b'some_dude:some_dude')
+        auth_headers = {
+            'HTTP_AUTHORIZATION': 'Basic ' + credentials.decode("ISO-8859-1")
+        }
+        response = self.client.get('/fdsnws/station/1/queryauth',
+                                   **auth_headers)
+        self.assertEqual(response.status_code, 204)
+
 
 class Station1LiveServerTestCase(LiveServerTestCase):
     """

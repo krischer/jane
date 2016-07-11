@@ -249,8 +249,14 @@ def query(request):
     # Get the url to put it into the StationXML file.
     url = request.build_absolute_uri(request.get_full_path())
 
+    # user
+    if request.user.is_authenticated():
+        user = request.user
+    else:
+        user = None
+
     with io.BytesIO() as fh:
-        status = query_stations(fh, url=url, **params)
+        status = query_stations(fh, url=url, user=user, **params)
         fh.seek(0, 0)
 
         if status == 200:

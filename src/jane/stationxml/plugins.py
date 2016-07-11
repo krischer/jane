@@ -37,6 +37,8 @@ class StationValidatorPlugin(ValidatorPluginPoint):
 
 class CanSeeAllStations(RetrievePermissionPluginPoint):
     """
+    If a user does not have this permission, the waveform restrictions will
+    also apply to the documents.
     """
     name = 'stationxml'
     title = 'Can See All Stations'
