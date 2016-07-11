@@ -29,21 +29,6 @@ class DocumentsView(mixins.RetrieveModelMixin, mixins.ListModelMixin,
         doctype = get_object_or_404(models.DocumentType,
                                     name=self.kwargs['document_type'])
         queryset = models.Document.objects.filter(document_type=doctype)
-
-        doctype = models.DocumentType.objects.get(
-            name=self.kwargs["document_type"])
-        retrieve_permissions = doctype.retrieve_permissions.all()
-        if retrieve_permissions:
-            for perm in retrieve_permissions:
-                perm = perm.get_plugin()
-                if self.request.user.has_perm(
-                        "documents." + perm.permission_codename):
-                    queryset = perm.filter_queryset_user_has_permission(
-                        queryset, model_type="document")
-                else:
-                    queryset = \
-                        perm.filter_queryset_user_does_not_have_permission(
-                            queryset, model_type="document")
         return queryset
 
     def update(self, request, document_type, name):

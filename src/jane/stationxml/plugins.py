@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import io
 
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.gis.geos.point import Point
 
 import matplotlib
@@ -11,8 +12,10 @@ import matplotlib.pylab as plt  # noqa
 from obspy.io.stationxml.core import validate_stationxml  # noqa
 import obspy  # noqa
 
-from jane.documents.plugins import (ValidatorPluginPoint, IndexerPluginPoint,
-                                    DocumentPluginPoint)  # noqa
+from jane.documents.plugins import (
+    ValidatorPluginPoint, IndexerPluginPoint, DocumentPluginPoint,
+    RetrievePermissionPluginPoint)  # noqa
+from jane.waveforms.models import Restriction
 
 
 class StationXMLPlugin(DocumentPluginPoint):
@@ -30,6 +33,41 @@ class StationValidatorPlugin(ValidatorPluginPoint):
         if not is_stationxml:
             raise ValueError(error)
         return True
+
+
+class CanSeeAllStations(RetrievePermissionPluginPoint):
+    """
+    """
+    name = 'stationxml'
+    title = 'Can See All Stations'
+
+    # Permission codename and name according to Django's nomenclature.
+    permission_codename = 'can_see_all_stations'
+    permission_name = 'Can See All Stations'
+
+    def filter_queryset_user_has_permission(self, queryset, model_type, user):
+        # If the user has the permission, everything is fine and the
+        # original queryset can be returned.
+        return queryset
+
+    def filter_queryset_user_does_not_have_permission(self, queryset,
+                                                      model_type, user):
+        if not user or isinstance(user, AnonymousUser):
+            restrictions = Restriction.objects.all()
+        else:
+            restrictions = Restriction.objects.exclude(users=user)
+
+        # model_type can be document or document index.
+        if model_type == "document":
+            # XXX: Find a good way to do this.
+            pass
+        elif model_type == "index":
+            for restriction in restrictions:
+                queryset = queryset.exclude(json__network=restriction.network,
+                                            json__station=restriction.station)
+        else:
+            raise NotImplementedError()
+        return queryset
 
 
 class StationIndexerPlugin(IndexerPluginPoint):

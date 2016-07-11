@@ -18,6 +18,7 @@ New document types can be defined by adding new plug-ins.
 import hashlib
 
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.gis.db import models
 from django.contrib.gis.measure import Distance
 from django.contrib.postgres.fields import jsonb
@@ -267,18 +268,21 @@ class DocumentIndexManager(models.GeoManager):
         """
         retrieve_permissions = document_type.retrieve_permissions.all()
 
+        if user is None:
+            user = AnonymousUser()
+
         if retrieve_permissions:
             for perm in retrieve_permissions:
                 perm = perm.get_plugin()
                 app_label = DocumentType._meta.app_label
-                perm_name = "%s.%s" % (app_label,  perm.permission_codename)
-                if user and user.has_perm(perm_name):
+                perm_name = "%s.%s" % (app_label, perm.permission_codename)
+                if user.has_perm(perm_name):
                     queryset = perm.filter_queryset_user_has_permission(
-                        queryset, model_type="index")
+                        queryset, model_type="index", user=user)
                 else:
                     queryset = \
                         perm.filter_queryset_user_does_not_have_permission(
-                            queryset=queryset, model_type="index")
+                            queryset=queryset, model_type="index", user=user)
         return queryset
 
     def get_distinct_values(self, document_type, json_key):
