@@ -534,11 +534,11 @@ class QuakeMLPluginTestCase(TestCase):
         # No attachments currently exist.
         self.assertEqual(r["attachments_count"], 0)
 
-        # In the following we assume an index of one - make sure this is
-        # actually the case.
-        self.assertEqual(r["id"], 1)
+        # Test the index.
+        idx = r["id"]
+        self.assertTrue(idx >= 1)
 
-        a_path = path + "/1/attachments"
+        a_path = path + "/%i/attachments" % idx
         r = self.client.get(a_path).json()
         self.assertEqual(
             r, {"count": 0, "next": None, "previous": None, "results": []})
@@ -579,14 +579,15 @@ class QuakeMLPluginTestCase(TestCase):
         self.assertEqual(r["modified_by"], "random")
 
         # Get the actual attachment.
-        r = self.client.get(a_path + "/1/data")
+        a_id = self.client.get(a_path).json()["results"][0]["id"]
+        r = self.client.get(a_path + "/%i/data" % a_id)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.content, b"Hello 1")
         # Make sure its served with the correct content type.
         self.assertEqual(r["Content-Type"], "text/plain")
 
         # Update it.
-        r = self.client.put(a_path + "/1",
+        r = self.client.put(a_path + "/%i" % a_id,
                             data=data_2, content_type="text/random",
                             HTTP_CATEGORY="something_else",
                             **self.valid_auth_headers)
@@ -596,7 +597,7 @@ class QuakeMLPluginTestCase(TestCase):
         r = r["results"][0]
         self.assertEqual(r["category"], "something_else")
         self.assertEqual(r["content_type"], "text/random")
-        r = self.client.get(a_path + "/1/data")
+        r = self.client.get(a_path + "/%i/data" % a_id)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.content, b"Hello 2")
         self.assertEqual(r["Content-Type"], "text/random")
@@ -607,22 +608,26 @@ class QuakeMLPluginTestCase(TestCase):
                              **self.valid_auth_headers)
         self.assertEqual(r.status_code, 201)
         self.assertEqual(self.client.get(a_path).json()["count"], 2)
+        a_id_2 = self.client.get(a_path).json()["results"][-1]["id"]
 
         # Delete both. Must be authorized.
-        r = self.client.delete(a_path + "/1")
+        r = self.client.delete(a_path + "/%i" % a_id)
         self.assertEqual(r.status_code, 401)
 
         # Revoke the permissions temporarily.
         self.user.user_permissions.remove(p)
-        r = self.client.delete(a_path + "/1", **self.valid_auth_headers)
+        r = self.client.delete(a_path + "/%i" % a_id,
+                               **self.valid_auth_headers)
         self.assertEqual(r.status_code, 401)
 
         # Delete them
         self.user.user_permissions.add(p)
-        r = self.client.delete(a_path + "/1", **self.valid_auth_headers)
+        r = self.client.delete(a_path + "/%i" % a_id,
+                               **self.valid_auth_headers)
         self.assertEqual(r.status_code, 204)
         self.assertEqual(self.client.get(a_path).json()["count"], 1)
-        r = self.client.delete(a_path + "/2", **self.valid_auth_headers)
+        r = self.client.delete(a_path + "/%i" % a_id_2,
+                               **self.valid_auth_headers)
         self.assertEqual(r.status_code, 204)
         self.assertEqual(self.client.get(a_path).json()["count"], 0)
 
