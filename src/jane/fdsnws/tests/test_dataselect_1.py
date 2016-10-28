@@ -356,3 +356,40 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
         self.assertEqual(len(st), 19)  # xxx: why 19 - should be 22!
         st = client.get_waveforms("TA", "A25A", "", "*,-BHZ", t, t + 30)
         self.assertEqual(len(st), 18)
+
+    def test_no_wildcards(self):
+        t1 = UTCDateTime(2010, 3, 25, 0, 0)
+        t2 = t1 + 30
+        client = FDSNClient(self.live_server_url)
+
+        def msg(st, key, value):
+            return ("\nGot the following stream that contains unexpected SEED "
+                    "ID when querying '{}=\"{}\"':\n{}".format(
+                        key, value, st.__str__(extended=True)))
+
+        # execute some queries that match more than expected data if matched in
+        # a regex behavior (similar to SQL LIKE)
+        station_ids = ("A25A", "A2", "25", "5A")
+        for id_ in station_ids:
+            st = client.get_waveforms("*", id_, "*", "*", t1, t2)
+            self.assertEqual(
+                set(tr.stats.station for tr in st),
+                set([id_]), msg=msg(st, value=id_, key="station"))
+        network_ids = ("TA", "T", "A", "X", "")
+        for id_ in network_ids:
+            st = client.get_waveforms(id_, "*", "*", "*", t1, t2)
+            self.assertEqual(
+                set(tr.stats.network for tr in st),
+                set([id_]), msg=msg(st, value=id_, key="network"))
+        location_ids = ("", "00", "  ")
+        for id_ in location_ids:
+            st = client.get_waveforms("*", "*", id_, "*", t1, t2)
+            self.assertEqual(
+                set(tr.stats.location for tr in st),
+                set([id_]), msg=msg(st, value=id_, key="location"))
+        channel_ids = ("", "BHZ", "B", "Z", "H")
+        for id_ in channel_ids:
+            st = client.get_waveforms("*", "*", "*", id_, t1, t2)
+            self.assertEqual(
+                set(tr.stats.channel for tr in st),
+                set([id_]), msg=msg(st, value=id_, key="channel"))
