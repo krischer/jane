@@ -13,7 +13,7 @@ from jane.waveforms.models import ContinuousTrace, Restriction
 
 def query_dataselect(networks, stations, locations, channels,
                      starttime, endtime, format, nodata, minimumlength,
-                     longestonly, user=None):
+                     longestonly, user=None):  # @UnusedVariable
     """
     Process query and generate a combined waveform file. Parameters are
     interpreted as in the FDSNWS definition. Results are written to fh. A
@@ -27,7 +27,8 @@ def query_dataselect(networks, stations, locations, channels,
     query = query.filter(timerange__overlap=daterange)
     # include networks
     if '*' not in networks:
-        iterator = (Q(network__regex=v.replace('*', '.*'))
+        iterator = (Q(network__regex=r'^%s$' %
+                      (v.replace('*', '.*').replace('?', '.?')))
                     for v in networks if not v.startswith('-'))
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
@@ -37,7 +38,8 @@ def query_dataselect(networks, stations, locations, channels,
             query = query.exclude(network=network[1:])
     # include stations
     if '*' not in stations:
-        iterator = (Q(station__regex=v.replace('*', '.*'))
+        iterator = (Q(station__regex=r'^%s$' %
+                      (v.replace('*', '.*').replace('?', '.?')))
                     for v in stations if not v.startswith('-'))
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
@@ -47,7 +49,8 @@ def query_dataselect(networks, stations, locations, channels,
             query = query.exclude(station=station[1:])
     # include locations
     if '*' not in locations:
-        iterator = (Q(location__regex=v.replace('*', '.*'))
+        iterator = (Q(location__regex=r'^%s$' %
+                      (v.replace('*', '.*').replace('?', '.?')))
                     for v in locations if not v.startswith('-'))
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
@@ -58,7 +61,8 @@ def query_dataselect(networks, stations, locations, channels,
     # include channels
     if '*' not in channels:
         # include
-        iterator = (Q(channel__regex=v.replace('*', '.*'))
+        iterator = (Q(channel__regex=r'^%s$' %
+                      (v.replace('*', '.*').replace('?', '.?')))
                     for v in channels if not v.startswith('-'))
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
