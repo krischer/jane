@@ -28,7 +28,7 @@ def query_dataselect(networks, stations, locations, channels,
     # include networks
     if '*' not in networks:
         iterator = (Q(network__regex=r'^%s$' %
-                      (v.replace('*', '.*').replace('?', '.?')))
+                      (v.replace('*', '.*').replace('?', '.')))
                     for v in networks if not v.startswith('-'))
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
@@ -39,7 +39,7 @@ def query_dataselect(networks, stations, locations, channels,
     # include stations
     if '*' not in stations:
         iterator = (Q(station__regex=r'^%s$' %
-                      (v.replace('*', '.*').replace('?', '.?')))
+                      (v.replace('*', '.*').replace('?', '.')))
                     for v in stations if not v.startswith('-'))
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
@@ -50,7 +50,7 @@ def query_dataselect(networks, stations, locations, channels,
     # include locations
     if '*' not in locations:
         iterator = (Q(location__regex=r'^%s$' %
-                      (v.replace('*', '.*').replace('?', '.?')))
+                      (v.replace('*', '.*').replace('?', '.')))
                     for v in locations if not v.startswith('-'))
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
@@ -62,7 +62,7 @@ def query_dataselect(networks, stations, locations, channels,
     if '*' not in channels:
         # include
         iterator = (Q(channel__regex=r'^%s$' %
-                      (v.replace('*', '.*').replace('?', '.?')))
+                      (v.replace('*', '.*').replace('?', '.')))
                     for v in channels if not v.startswith('-'))
         filter = reduce(operator.or_, iterator)
         query = query.filter(filter)
