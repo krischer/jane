@@ -12,8 +12,9 @@ import numpy
 from obspy import read, UTCDateTime
 from obspy.clients.fdsn import Client as FDSNClient
 from obspy.clients.fdsn.header import FDSNException
+from psycopg2._range import DateTimeTZRange
 
-from jane.waveforms.models import Restriction
+from jane.waveforms.models import Restriction, Mapping, ContinuousTrace
 from jane.waveforms.process_waveforms import process_file
 
 
@@ -405,3 +406,43 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
         for id_ in ["B", "Z", "H"]:
             self.assertRaises(FDSNException,
                               client.get_waveforms, "*", "*", "*", id_, t1, t2)
+
+
+class DataSelectMappingTestCase(LiveServerTestCase):
+    """
+    Launches a live Django server in the background on setup, and shuts it down
+    on teardown. This allows the use of automated test clients other than the
+    Django dummy client such as obspy.clients.fdsn.Client.
+    """
+
+    def setUp(self):
+        # create mapping
+        Mapping(
+            timerange=DateTimeTZRange(
+                UTCDateTime(2002, 1, 1).datetime,
+                UTCDateTime(2016, 1, 2).datetime),
+            network="TA", station="A25A", location="", channel="BHE",
+            new_network="XX", new_station="YY", new_location="00",
+            new_channel="ZZZ").save()
+        ContinuousTrace.update_all_mappings()
+        # index waveform files
+        [process_file(f) for f in FILES]
+
+    def tearDown(self):
+        # remove mappings
+        Mapping.objects.all().delete()
+        ContinuousTrace.update_all_mappings()
+
+    def test_query_mapping(self):
+        t1 = UTCDateTime(2010, 3, 25, 0, 0)
+        t2 = t1 + 30
+        client = FDSNClient(self.live_server_url)
+        # 1 - direct query fails
+        self.assertRaises(FDSNException,
+                          client.get_waveforms, "TA", "*", "*", "BHE", t1, t2)
+        # 2 - query use mapping works
+        st = client.get_waveforms("XX", "YY", "00", "ZZZ", t1, t2)
+        self.assertEqual(len(st), 1)
+        # 3 - TA.A25A..BHZ and TA.A25A..BHN shouldn't be affected at all
+        st = client.get_waveforms("TA", "A25A", "", "BH?", t1, t2)
+        self.assertEqual(len(st), 2)

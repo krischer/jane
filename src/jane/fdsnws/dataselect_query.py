@@ -110,6 +110,12 @@ def data_streamer(results, starttime, endtime, format):
                             endtime=endtime)
             tr = st[result.pos]
             tr.trim(starttime, endtime)
+            # apply mappings if any
+            tr.stats.network = result.network
+            tr.stats.station = result.station
+            tr.stats.location = result.location
+            tr.stats.channel = result.channel
+            # write trace
             with io.BytesIO() as fh:
                 tr.write(fh, format=format.upper())
                 fh.seek(0, 0)
