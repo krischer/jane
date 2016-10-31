@@ -106,8 +106,7 @@ def data_streamer(results, starttime, endtime, format):
             # and the time to actually seek to the start of the file so the
             # is potentially more significant than the time to read a couple
             # of extra bytes.
-            st = obspy.read(result.file.absolute_path, starttime=starttime,
-                            endtime=endtime)
+            st = obspy.read(result.file.absolute_path)
             tr = st[result.pos]
             tr.trim(starttime, endtime)
             # apply mappings if any
