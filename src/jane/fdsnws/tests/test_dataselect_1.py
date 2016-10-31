@@ -389,8 +389,10 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
         # location
         st = client.get_waveforms("*", "*", "", "*", t1, t2)
         self.assertEqual(len(st), 19)
-        # XXX: currently there is no distinction between blank field and
-        # one or two spaces - is this the intended behaviour?
+        # Jane does not distinguish between location ids with an empty
+        # string or one or more spaces.
+        # This is according to
+        # http://www.fdsn.org/message-center/thread/108/
         st = client.get_waveforms("*", "*", "  ", "*", t1, t2)
         self.assertEqual(len(st), 19)
         st = client.get_waveforms("*", "*", " ", "*", t1, t2)
