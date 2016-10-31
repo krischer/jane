@@ -3,13 +3,14 @@
 import base64
 import io
 import os
+import tempfile
 
 import django
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.test import TestCase, LiveServerTestCase
-import numpy
-from obspy import read, UTCDateTime
+import numpy as np
+from obspy import read, UTCDateTime, Trace, Stream
 from obspy.clients.fdsn import Client as FDSNClient
 from obspy.clients.fdsn.header import FDSNException
 from psycopg2._range import DateTimeTZRange
@@ -140,7 +141,7 @@ class DataSelect1TestCase(TestCase):
         self.assertTrue('OK' in response.reason_phrase)
         # compare streams
         got = read(io.BytesIO(response.getvalue()))[0]
-        numpy.testing.assert_equal(got.data, expected.data)
+        np.testing.assert_equal(got.data, expected.data)
         self.assertEqual(got, expected)
         # 2 - query using HTTP POST
         response = self.client.post('/fdsnws/dataselect/1/query', params)
@@ -148,7 +149,7 @@ class DataSelect1TestCase(TestCase):
         self.assertTrue('OK' in response.reason_phrase)
         # compare streams
         got = read(io.BytesIO(response.getvalue()))[0]
-        numpy.testing.assert_equal(got.data, expected.data)
+        np.testing.assert_equal(got.data, expected.data)
         self.assertEqual(got, expected)
 
     def test_queryauth_nodata(self):
@@ -211,7 +212,7 @@ class DataSelect1TestCase(TestCase):
 
         # compare streams
         got = read(io.BytesIO(response.getvalue()))[0]
-        numpy.testing.assert_equal(got.data, expected.data)
+        np.testing.assert_equal(got.data, expected.data)
         self.assertEqual(got, expected)
 
         # 6 - query using HTTP POST
@@ -222,7 +223,7 @@ class DataSelect1TestCase(TestCase):
 
         # compare streams
         got = read(io.BytesIO(response.getvalue()))[0]
-        numpy.testing.assert_equal(got.data, expected.data)
+        np.testing.assert_equal(got.data, expected.data)
         self.assertEqual(got, expected)
 
     def test_query_data_wildcards(self):
@@ -366,6 +367,88 @@ class DataSelect1TestCase(TestCase):
         self.assertEqual(response.reason_phrase,
                          "Network must not be an empty string.")
 
+    def test_dataselect_query_for_slightly_messed_up_files(self):
+        # Create a file with interleaved traces and some noise traces
+        # in-between
+        traces = [
+            Trace(data=np.ones(10), header={"starttime": UTCDateTime(0)}),
+            Trace(data=np.ones(10), header={"starttime": UTCDateTime(5)}),
+            Trace(data=np.ones(10), header={"starttime": UTCDateTime(10)}),
+            Trace(data=np.ones(10), header={"starttime": UTCDateTime(15)}),
+            Trace(data=np.ones(10), header={"starttime": UTCDateTime(-5)}),
+            Trace(data=np.ones(8), header={"starttime": UTCDateTime(2)}),
+            Trace(data=np.ones(12), header={"starttime": UTCDateTime(0)}),
+            Trace(data=np.ones(10), header={"starttime": UTCDateTime(1)})
+        ]
+        for tr in traces:
+            tr.stats.network = "XX"
+            tr.stats.station = "YY"
+            tr.stats.channel = "EHZ"
+
+        # Add a couple more random traces in between. These should just be
+        # ignored for the query.
+        traces.insert(0, Trace(
+            data=np.ones(5),
+            header={"starttime": UTCDateTime(2), "network": "DD",
+                    "station": "BLA", "channel": "BHZ", "location": "10"}))
+        traces.insert(4, Trace(
+            data=np.ones(17),
+            header={"starttime": UTCDateTime(-2), "network": "DD",
+                    "station": "BLA", "channel": "BHZ", "location": "10"}))
+        traces.append(Trace(
+            data=np.ones(2),
+            header={"starttime": UTCDateTime(5), "network": "AB",
+                    "station": "CD", "channel": "XYZ", "location": ""}))
+
+        # Write to a temporary file.
+        filename = tempfile.mkstemp()[1]
+        try:
+            Stream(traces=traces).write(filename, format="mseed")
+            process_file(filename)
+
+            params = {
+                "network": "XX",
+                "station": "YY",
+                "location": "",
+                "channel": "EHZ"}
+
+            params["start"] = str(UTCDateTime(1))
+            params["end"] = str(UTCDateTime(10))
+            response = self.client.get('/fdsnws/dataselect/1/query', params)
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue('OK' in response.reason_phrase)
+            st = read(io.BytesIO(response.getvalue()))
+            self.assertEqual(len(st), 6)
+
+            params["start"] = str(UTCDateTime(-10))
+            params["end"] = str(UTCDateTime(0))
+            response = self.client.get('/fdsnws/dataselect/1/query', params)
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue('OK' in response.reason_phrase)
+            st = read(io.BytesIO(response.getvalue()))
+            self.assertEqual(len(st), 1)
+
+            params["start"] = str(UTCDateTime(10))
+            params["end"] = str(UTCDateTime(15))
+            response = self.client.get('/fdsnws/dataselect/1/query', params)
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue('OK' in response.reason_phrase)
+            st = read(io.BytesIO(response.getvalue()))
+            self.assertEqual(len(st), 3)
+
+            params["start"] = str(UTCDateTime(4))
+            params["end"] = str(UTCDateTime(5))
+            response = self.client.get('/fdsnws/dataselect/1/query', params)
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue('OK' in response.reason_phrase)
+            st = read(io.BytesIO(response.getvalue()))
+            self.assertEqual(len(st), 4)
+            for tr in st:
+                assert tr.stats.npts == 2
+
+        finally:
+            os.remove(filename)
+
 
 class DataSelect1LiveServerTestCase(LiveServerTestCase):
     """
@@ -385,7 +468,7 @@ class DataSelect1LiveServerTestCase(LiveServerTestCase):
         client = FDSNClient(self.live_server_url)
         got = client.get_waveforms("", "RJOB", "", "Z", t1, t2)[0]
         expected = read(FILES[0])[0]
-        numpy.testing.assert_equal(got.data, expected.data)
+        np.testing.assert_equal(got.data, expected.data)
         self.assertEqual(got, expected)
 
     def test_query_data_wildcards(self):
