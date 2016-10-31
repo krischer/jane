@@ -4,13 +4,14 @@
 Tests all Python files of the project with flake8. This ensure PEP8 conformance
 and some other sanity checks as well.
 """
-
 import inspect
 import os
 import unittest
 
-import flake8.engine
-import flake8.main
+from distutils.version import LooseVersion
+import flake8
+
+flake8_version = LooseVersion(flake8.__version__)
 
 
 class TestCodeFormatting(unittest.TestCase):
@@ -49,16 +50,20 @@ class TestCodeFormatting(unittest.TestCase):
                     continue
                 files.append(full_path)
 
-        # Get the style checker with the default style.
-        flake8_style = flake8.engine.get_style_guide(
-            parse_argv=False, config_file=flake8.main.DEFAULT_CONFIG)
+        if flake8_version >= LooseVersion('3.0.0'):
+            from flake8.api.legacy import get_style_guide
+        else:
+            from flake8.engine import get_style_guide
 
+        flake8_kwargs = {'parse_argv': False}
+        if flake8_version < LooseVersion('2.5.5'):
+            import flake8.main
+            flake8_kwargs['config_file'] = flake8.main.DEFAULT_CONFIG
+
+        flake8_style = get_style_guide(**flake8_kwargs)
         report = flake8_style.check_files(files)
 
-        # Make sure at least 4 files are tested.
-        self.assertTrue(report.counters["files"] >= 4)
-        # And no errors occured.
-        self.assertEqual(report.get_count(), 0)
+        self.assertEqual(len(report.get_statistics("")), 0)
 
 
 if __name__ == "__main__":
