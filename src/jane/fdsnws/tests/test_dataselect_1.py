@@ -374,7 +374,6 @@ class DataSelect1TestCase(TestCase):
             Trace(data=np.ones(10), header={"starttime": UTCDateTime(0)}),
             Trace(data=np.ones(10), header={"starttime": UTCDateTime(5)}),
             Trace(data=np.ones(10), header={"starttime": UTCDateTime(10)}),
-            Trace(data=np.ones(10), header={"starttime": UTCDateTime(15)}),
             Trace(data=np.ones(10), header={"starttime": UTCDateTime(-5)}),
             Trace(data=np.ones(8), header={"starttime": UTCDateTime(2)}),
             Trace(data=np.ones(12), header={"starttime": UTCDateTime(0)}),
@@ -412,39 +411,40 @@ class DataSelect1TestCase(TestCase):
                 "location": "",
                 "channel": "EHZ"}
 
-            params["start"] = str(UTCDateTime(1))
-            params["end"] = str(UTCDateTime(10))
-            response = self.client.get('/fdsnws/dataselect/1/query', params)
-            self.assertEqual(response.status_code, 200)
-            self.assertTrue('OK' in response.reason_phrase)
-            st = read(io.BytesIO(response.getvalue()))
-            self.assertEqual(len(st), 6)
+            def _test_number_of_returned_traces(start, end, expected):
+                params["start"] = str(UTCDateTime(start))
+                params["end"] = str(UTCDateTime(end))
+                response = self.client.get('/fdsnws/dataselect/1/query',
+                                           params)
+                if expected == 0:
+                    self.assertEqual(response.status_code, 204)
+                    return
 
-            params["start"] = str(UTCDateTime(-10))
-            params["end"] = str(UTCDateTime(0))
-            response = self.client.get('/fdsnws/dataselect/1/query', params)
-            self.assertEqual(response.status_code, 200)
-            self.assertTrue('OK' in response.reason_phrase)
-            st = read(io.BytesIO(response.getvalue()))
-            self.assertEqual(len(st), 1)
+                self.assertEqual(response.status_code, 200)
+                self.assertTrue('OK' in response.reason_phrase)
+                st = read(io.BytesIO(response.getvalue()))
+                self.assertEqual(len(st), expected)
 
-            params["start"] = str(UTCDateTime(10))
-            params["end"] = str(UTCDateTime(15))
-            response = self.client.get('/fdsnws/dataselect/1/query', params)
-            self.assertEqual(response.status_code, 200)
-            self.assertTrue('OK' in response.reason_phrase)
-            st = read(io.BytesIO(response.getvalue()))
-            self.assertEqual(len(st), 3)
-
-            params["start"] = str(UTCDateTime(4))
-            params["end"] = str(UTCDateTime(5))
-            response = self.client.get('/fdsnws/dataselect/1/query', params)
-            self.assertEqual(response.status_code, 200)
-            self.assertTrue('OK' in response.reason_phrase)
-            st = read(io.BytesIO(response.getvalue()))
-            self.assertEqual(len(st), 4)
-            for tr in st:
-                assert tr.stats.npts == 2
+            _test_number_of_returned_traces(1, 10, 7)
+            _test_number_of_returned_traces(1, 9, 6)
+            _test_number_of_returned_traces(-10, 0, 3)
+            _test_number_of_returned_traces(-10, -1, 1)
+            _test_number_of_returned_traces(-10, -4, 1)
+            _test_number_of_returned_traces(-10, -5, 1)
+            _test_number_of_returned_traces(-10, -5.5, 0)
+            _test_number_of_returned_traces(10, 15, 4)
+            _test_number_of_returned_traces(4, 5, 6)
+            _test_number_of_returned_traces(-6, -5, 1)
+            _test_number_of_returned_traces(-6, -1, 1)
+            _test_number_of_returned_traces(-6, 0, 3)
+            _test_number_of_returned_traces(10, 15, 4)
+            _test_number_of_returned_traces(11, 15, 3)
+            _test_number_of_returned_traces(12, 15, 2)
+            _test_number_of_returned_traces(14, 17, 2)
+            _test_number_of_returned_traces(15, 17, 1)
+            _test_number_of_returned_traces(18, 20, 1)
+            _test_number_of_returned_traces(19, 20, 1)
+            _test_number_of_returned_traces(19.5, 20, 0)
 
         finally:
             os.remove(filename)
