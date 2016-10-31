@@ -307,6 +307,65 @@ class DataSelect1TestCase(TestCase):
         response = self.client.get('/fdsnws/dataselect/1/queryauth', **p)
         self.assertEqual(response.status_code, 204)
 
+    def test_empty_string_identifiers(self):
+        """
+        A query with only empty strings as NSC identifer is invalid.
+
+        Empty strings are only allowed for stations - otherwise it should
+        raise an error - this follows what IRIS does.
+        """
+        params = {
+            'start': '2010-03-25T00:00:00',
+            'end': '2010-03-26T00:00:00'
+        }
+
+        # Not giving NSLC identifiers will result in returning everything.
+        response = self.client.get('/fdsnws/dataselect/1/query', params)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        st = read(io.BytesIO(response.getvalue()))
+        self.assertEqual(len(st), 19)
+
+        # Explicitly passing either network/station/channel as an empty
+        # string should result in an error.
+        params = {
+            'start': '2010-03-25T00:00:00',
+            'end': '2010-03-26T00:00:00',
+            'net': ''}
+        response = self.client.get('/fdsnws/dataselect/1/query', params)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.reason_phrase,
+                         "Network must not be an empty string.")
+
+        params = {
+            'start': '2010-03-25T00:00:00',
+            'end': '2010-03-26T00:00:00',
+            'station': '  '}
+        response = self.client.get('/fdsnws/dataselect/1/query', params)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.reason_phrase,
+                         "Station must not be an empty string.")
+
+        params = {
+            'start': '2010-03-25T00:00:00',
+            'end': '2010-03-26T00:00:00',
+            'cha': ' '}
+        response = self.client.get('/fdsnws/dataselect/1/query', params)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.reason_phrase,
+                         "Channel must not be an empty string.")
+
+        params = {
+            'start': '2010-03-25T00:00:00',
+            'end': '2010-03-26T00:00:00',
+            'net': '',
+            'sta': ' ',
+            'cha': '  '}
+        response = self.client.get('/fdsnws/dataselect/1/query', params)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.reason_phrase,
+                         "Network must not be an empty string.")
+
 
 class DataSelect1LiveServerTestCase(LiveServerTestCase):
     """

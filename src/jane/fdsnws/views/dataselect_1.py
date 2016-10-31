@@ -80,21 +80,53 @@ def query(request):
         return _error(request, msg)
     if endtime <= starttime:
         return _error(request, 'Start time must be before end time')
-    # net/sta/loc/cha
-    networks = params.get('network') or params.get('net') or '*'
+
+    # Three step procedure to be able to raise for empty strings laters on.
+    networks = params.get('network')
+    if networks is None:
+        networks = params.get('net')
+    if networks is None:
+        networks = "*"
     networks = networks.replace(' ', '').split(',')
     networks = [i.strip().upper() for i in networks]
-    stations = params.get('station') or params.get('sta') or '*'
+    # Empty strings are invalid.
+    if "" in networks:
+        return _error(request=request,
+                      message="Network must not be an empty string.",
+                      status_code=400)
+
+    stations = params.get('station')
+    if stations is None:
+        stations = params.get('sta')
+    if stations is None:
+        stations = "*"
     stations = stations.replace(' ', '').split(',')
     stations = [i.strip().upper() for i in stations]
+    # Empty strings are invalid.
+    if "" in stations:
+        return _error(request=request,
+                      message="Station must not be an empty string.",
+                      status_code=400)
+
     locations = params.get('location') or params.get('loc') or '*'
     locations = locations.replace(' ', '').split(',')
     locations = [i.strip().upper() for i in locations]
     # replace empty locations
     locations = [l.replace('--', '') for l in locations]
-    channels = params.get('channel') or params.get('cha') or '*'
+
+    channels = params.get('channel')
+    if channels is None:
+        channels = params.get('cha')
+    if channels is None:
+        channels = "*"
     channels = channels.replace(' ', '').split(',')
     channels = [i.strip().upper() for i in channels]
+    # Empty strings are invalid.
+    if "" in channels:
+        return _error(request=request,
+                      message="Channel must not be an empty string.",
+                      status_code=400)
+
     # output format
     format = params.get('format') or 'mseed'
     if format not in ['mseed', 'gse2', 'sac']:
