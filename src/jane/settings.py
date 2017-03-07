@@ -251,6 +251,7 @@ def show_toolbar(request):
     else:
         return False
 
+
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': 'jane.settings.show_toolbar',
 }
