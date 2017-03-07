@@ -3,16 +3,16 @@
 
     
     <url>
-     <loc>None/index.html</loc>
-     <lastmod>2016-10-31</lastmod>
+     <loc>/index.html</loc>
+     <lastmod>2017-03-07</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
 
     
     <url>
-     <loc>None/introduction/index.html</loc>
-     <lastmod>2016-10-31</lastmod>
+     <loc>/introduction/index.html</loc>
+     <lastmod>2017-03-07</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -20,56 +20,56 @@
     
         
     <url>
-     <loc>None/setup/index.html</loc>
-     <lastmod>2016-10-31</lastmod>
+     <loc>/setup/index.html</loc>
+     <lastmod>2017-03-07</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
-     <loc>None/testing/index.html</loc>
-     <lastmod>2016-10-31</lastmod>
+     <loc>/testing/index.html</loc>
+     <lastmod>2017-03-07</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
-     <loc>None/settings/index.html</loc>
-     <lastmod>2016-10-31</lastmod>
+     <loc>/settings/index.html</loc>
+     <lastmod>2017-03-07</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
-     <loc>None/internals/index.html</loc>
-     <lastmod>2016-10-31</lastmod>
+     <loc>/internals/index.html</loc>
+     <lastmod>2017-03-07</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
-     <loc>None/rest/index.html</loc>
-     <lastmod>2016-10-31</lastmod>
+     <loc>/rest/index.html</loc>
+     <lastmod>2017-03-07</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
-     <loc>None/waveforms/index.html</loc>
-     <lastmod>2016-10-31</lastmod>
+     <loc>/waveforms/index.html</loc>
+     <lastmod>2017-03-07</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
-     <loc>None/documents/index.html</loc>
-     <lastmod>2016-10-31</lastmod>
+     <loc>/documents/index.html</loc>
+     <lastmod>2017-03-07</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
-     <loc>None/management_commands/index.html</loc>
-     <lastmod>2016-10-31</lastmod>
+     <loc>/management_commands/index.html</loc>
+     <lastmod>2017-03-07</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
-     <loc>None/fdsnws_services/index.html</loc>
-     <lastmod>2016-10-31</lastmod>
+     <loc>/fdsnws_services/index.html</loc>
+     <lastmod>2017-03-07</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
