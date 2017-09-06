@@ -78,6 +78,45 @@ class DocumentManager(models.Manager):
         queryset = queryset.defer('data')
         return queryset
 
+    def get_filtered_queryset(self, document_type, queryset=None, negate=False,
+                              **kwargs):
+        """
+        Returns a queryset filtered on the items in the JSON index field.
+
+        For all args/kwargs see
+        :meth:`DocumentIndexManager.+get_filtered_queryset`.
+        """
+        # Only create if necessary.
+        if queryset is None:
+            queryset = Document.objects
+
+        # filter by document type
+        res_type = get_object_or_404(DocumentType, name=document_type)
+        queryset = queryset.filter(document_type=res_type)
+
+        # Nothing to do.
+        if not kwargs:
+            return queryset
+
+        # now do the respective filtering on the document indices and get
+        # a list of document ids that match
+        # XXX not sure if this is safe, need to check what happens if database
+        # XXX gets changed while evaluating the request (e.g. table row gets
+        # XXX deleted during request == ids of rows change??)
+        indices_queryset = DocumentIndex.objects.get_filtered_queryset(
+            document_type=document_type, queryset=None, negate=negate,
+            **kwargs)
+
+        # XXX TODO this does not cover the case of multiple indices for one
+        # XXX TODO single document yet!
+        document_indices = [doc_ind.document.id
+                            for doc_ind in indices_queryset]
+
+        # now restrict document query to respective document ids
+        queryset = queryset.filter(id__in=document_indices)
+
+        return queryset
+
     def delete_document(self, document_type, name, user):
         """
         For convenience reasons, offer that method here, including
