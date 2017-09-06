@@ -70,8 +70,9 @@ class CanSeePrivateEventsRetrievePermissionPlugin(
                                                       model_type, user):
         # model_type can be document or document index.
         if model_type == "document":
-            # XXX: Find a good way to do this.
-            pass
+            queryset = queryset.model.objects.get_filtered_queryset(
+                document_type="quakeml",
+                queryset=queryset, public=True)
         elif model_type == "index":
             # Modify the queryset to only contain indices that are public.
             # Events that have null for public are considered to be private
