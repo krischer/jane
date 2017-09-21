@@ -206,7 +206,7 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
 
             };
 
-            var get_style_function = function(colors) {
+            var get_style_function = function(event_settings) {
                 var styleCache = {};
                 var styleFunction = function(feature, resolution) {
 
@@ -215,6 +215,7 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                     var magnitude;
                     var radius;
                     var tag;
+                    var geometries = feature.getGeometry().getGeometries();
 
                     // Events without a magnitude have a big red stroke
                     // around them so they are very visible.
@@ -234,7 +235,7 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
 
                     var style = styleCache[tag];
                     if (!style) {
-                        c = colors[feature.get('agency')];
+                        c = event_settings.agency_colors[feature.get('agency')];
                         style = [new ol.style.Style({
                             image: new ol.style.Circle({
                                 radius: radius,
@@ -248,6 +249,28 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                             })
                         })];
                         styleCache[radius] = style;
+                        // add lines for uncertainties
+                        // black hairline on white background line (for good
+                        // contrast on all colors and nice look on crossings
+                        // with dark colors)
+                        if (event_settings.show_uncertainties) {
+                            var linestyle1 = new ol.style.Style({
+                                geometry: geometries[1],
+                                stroke: new ol.style.Stroke({
+                                    color: '#FFFFFF',
+                                    width: 3,
+                                })
+                            });
+                            var linestyle2 = new ol.style.Style({
+                                geometry: geometries[1],
+                                stroke: new ol.style.Stroke({
+                                    color: '#000000',
+                                    width: 1,
+                                })
+                            });
+                            style.push(linestyle1);
+                            style.push(linestyle2);
+                        }
                     }
                     return style;
                 };
@@ -371,7 +394,7 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                 else {
                     $scope.event_layer = new ol.layer.Vector({
                         source: event_source,
-                        style: get_style_function(event_settings.agency_colors)
+                        style: get_style_function(event_settings)
                     });
                 }
 

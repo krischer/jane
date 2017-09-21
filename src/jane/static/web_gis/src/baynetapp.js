@@ -72,16 +72,20 @@ module.factory('events', function($http, $log, jane_server) {
                         j.attachments = i.attachments;
                         j.containing_document_data_url = i.containing_document_data_url;
                         // Now create GeoJSON
-                        return {
+                        var geojson = {
                             "type": "Feature",
                             "properties": j,
                             "geometry": {
-                                "type": "Point",
-                                "coordinates": [
-                                    j.longitude, j.latitude
-                                ]
-                            }
+                                "type": "GeometryCollection",
+                                "geometries": [{
+                                    "type": "Point",
+                                    "coordinates": [j.longitude, j.latitude]},
+                                    {
+                                    "type": "MultiLineString",
+                                    "coordinates": i.geometry.coordinates[1]}
+                                ]}
                         };
+                        return geojson;
                     }).value();
                 // Update the event set.
                 self.events.features.length = 0;
@@ -245,7 +249,8 @@ module.controller("BayNetController", function($scope, $log, stations, station_c
         "available_authors": [],
         "selected_authors": [],
         "show_public_and_private": true,
-        "show_automatic_and_manual": true
+        "show_automatic_and_manual": true,
+        "show_uncertainties": true,
     };
 
     $scope.station_settings = {
