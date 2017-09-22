@@ -32,18 +32,12 @@ DATETIME_FORMAT = "c"
 DATE_FORMAT = "Y-m-d"
 
 
-if DEPLOYED:
-    MEDIA_ROOT = '/home/django/www/media'
-    MEDIA_URL = '/media/'
-    STATIC_ROOT = '/home/django/www/static'
-    STATIC_URL = '/static/'
-else:
-    MEDIA_ROOT = os.path.abspath(os.path.join(PROJECT_DIR, '..', '..',
-                                              'media'))
-    MEDIA_URL = '/media/'
-    STATIC_ROOT = os.path.abspath(os.path.join(PROJECT_DIR, '..', '..',
-                                               'static'))
-    STATIC_URL = '/static/'
+MEDIA_ROOT = os.path.abspath(os.path.join(PROJECT_DIR, '..', '..',
+                                          'media'))
+MEDIA_URL = '/media/'
+STATIC_ROOT = os.path.abspath(os.path.join(PROJECT_DIR, '..', '..',
+                                           'static'))
+STATIC_URL = '/static/'
 
 
 # List of finder classes that know how to find static files in
