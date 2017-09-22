@@ -93,6 +93,52 @@ JANE_ACCENT_COLOR = "#D9230F"
 JANE_FDSN_STATIONXML_SENDER = "Jane"
 JANE_FDSN_STATIONXML_SOURCE = "Jane"
 
+###############################################################################
+# Additional Apps / Middleware
+###############################################################################
+ADDITIONAL_INSTALLED_APPS = []
+# ADDITIONAL_MIDDLEWARE_CLASSES is a dictionary with the name of the class as
+# key and potentially values 'before' and 'after' that can be lists of other
+# classes.
+ADDITIONAL_MIDDLEWARE_CLASSES = {}
+##################
+# django-request for user statistics
+##################
+# Uncomment the following to use django-request to log all requests including
+# originating user into jane's database. Ideally this should be uncommented
+# before the initial jane setup (specifically django's migration step).
+# Install `django-request` Python module beforehand.
+# XXX ADDITIONAL_INSTALLED_APPS += ['request']
+# From django-request docs:
+# (https://django-request.readthedocs.io/en/latest/index.html#first-steps)
+# If you use django.contrib.auth.middleware.AuthenticationMiddleware,
+# place RequestMiddleware after it.
+# If you use django.contrib.flatpages.middleware.FlatpageFallbackMiddleware
+# place request.middleware.RequestMiddleware before it else flatpages will
+# be marked as error pages in the admin panel.
+# XXX ADDITIONAL_MIDDLEWARE_CLASSES['request.middleware.RequestMiddleware'] = {
+# XXX     'after': ['django.contrib.auth.middleware.AuthenticationMiddleware'],
+# XXX     'before': [
+# XXX         'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware']}
+# XXX REQUEST_TRAFFIC_MODULES = (
+# XXX     'request.traffic.User',
+# XXX     'request.traffic.UniqueVisitor',
+# XXX     'request.traffic.UniqueVisit',
+# XXX     'request.traffic.Hit',
+# XXX     'request.traffic.Error404',
+# XXX     'request.traffic.Error',
+# XXX     )
+# XXX REQUEST_PLUGINS = (
+# XXX     'request.plugins.TrafficInformation',
+# XXX     'request.plugins.LatestRequests',
+# XXX     'request.plugins.TopPaths',
+# XXX     'request.plugins.TopErrorPaths',
+# XXX     'request.plugins.TopReferrers',
+# XXX     'request.plugins.TopSearchPhrases',
+# XXX     'request.plugins.TopBrowsers',
+# XXX     'request.plugins.LatestRequests',
+# XXX     )
+##################
 
 # Change the settings for the test database here!
 if 'test' in sys.argv:
