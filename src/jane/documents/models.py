@@ -138,8 +138,9 @@ class DocumentManager(models.Manager):
         # Calculate the hash upfront to not upload any duplicates.
         sha1 = hashlib.sha1(data).hexdigest()
         if Document.objects.filter(sha1=sha1).exists():
-            raise JaneDocumentAlreadyExists("Data already exists in the "
-                                            "database.")
+            raise JaneDocumentAlreadyExists(
+                "Data already exists in the database and document is "
+                "identical according to its hash.")
 
         try:
             document = Document.objects.get(
