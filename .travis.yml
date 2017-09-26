@@ -1,20 +1,25 @@
 language: python
 
+dist: trusty
+
+sudo: false
+
 python:
-  - "3.4"
   - "3.5"
+  - "3.6"
 
 env:
   global:
     secure: uH0xfi+u/FkddzkNdffIFMEv4edgHIE35no4E1nTZPCu8P3yraN9LOnfq+METCiHbFlC2O/6x32Azpg7x+jeOzfxdwCh7t5IpMg83cFV0wLZWqt940WV02LZTESjmGn5qFcJIp31pRZGxsr0S//TkfUrVNviwQ9j5kgztp7aCPfAiYYGrFEPaHuW8BiwZLVO6orAx3l/TPN3QeuF0nG0PVQiHmxbYhNTXVbjlYXRFW0swAfPBwit7yjPInqIpFbDD4slC5mhNS/EBffRE7kccPxLQAeyM69QVTkS0lHkgpEcir7NTLfKphA1uHoLtx+WutK8KwIQfzdhWOYzm0W8uVDUhAkL/p+bXT1SWMYGAtQTf6swatVjZgb0Hqb6xMXmhzMSb7vl/zhFTxkG+9TLF6edanj33j5I6wtxBUmB359Xaq9reNK1Yk6SuCAD56Yg90wHeEhgrxRURMWvjy1rV4vFPWRUx84wNdgHaTf89hiT9Vdp74eD8xqWEMgyOmgUfczJTqFcoNzfE1NKw9sycJkbuV4Sb/asjYGGadN+XTJBOAimjKj1xy3bbM2Aso6TuEMN15DE1Z9i3Ct9H9Lg9ThZvlE5EXJ3v+gP9XX81MpPyZ9pf84X1tNIiYwTzkg6JBwYiUVrf3P6M9pIKwvHSrSMos3Tn8tlIZHy4RTir/E=
 
-services:
-    - postgresql
-
 addons:
-    postgresql: "9.4"
+    postgresql: "9.6"
+    apt:
+        packages:
+            - postgresql-9.6-postgis-2.3
 
 before_script:
+    - psql -U postgres -c "create extension postgis"
     - createuser --superuser test_jane
 
 before_install:
@@ -26,10 +31,12 @@ before_install:
   - conda create --yes -n condaenv python=$TRAVIS_PYTHON_VERSION
   - conda install --yes -n condaenv pip
   - source activate condaenv
-  - conda install --yes -c obspy obspy psycopg2 markdown flake8 gdal pyyaml pip
+  - conda install --yes -c conda-forge obspy psycopg2 markdown flake8 gdal pyyaml pip
   - pip install codecov "django>=1.9,<1.10" djangorestframework djangorestframework-gis djangorestframework-jsonp djangorestframework-xml djangorestframework-yaml django-cors-headers django-debug-toolbar django-plugins defusedxml geojson markdown mkdocs mkdocs-bootswatch
   # Copy local_settings template.
   - cp $TRAVIS_BUILD_DIR/src/jane/local_settings.py.example $TRAVIS_BUILD_DIR/src/jane/local_settings.py
+  # Make sure django picks the correct geos library.
+  - echo -e "\n\nGDAL_LIBRARY_PATH = '/home/travis/miniconda/envs/condaenv/lib/libgdal.so'" >> $TRAVIS_BUILD_DIR/src/jane/local_settings.py
 
 install:
   - git version
