@@ -219,6 +219,7 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                         end2 = distance.destination(
                             point=start, bearing=azimuth + 180)
                         line = LineString((end1.longitude, end1.latitude),
+                                          (org.longitude, org.latitude),
                                           (end2.longitude, end2.latitude))
                         lines.append(line)
                     geometry.append(MultiLineString(lines))
