@@ -208,7 +208,7 @@ using the Anaconda Python is likely quite hard to do.
 Install with
 
 ```bash
-sudo apt-get install postgresql postgresql-contrib
+sudo apt-get install postgresql postgresql-contrib postgis
 ```
 
 make sure to get at least version 9.4. Then perform the basic setup (you 
