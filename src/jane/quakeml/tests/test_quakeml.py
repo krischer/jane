@@ -393,9 +393,11 @@ class QuakeMLPluginTestCase(TestCase):
             **self.valid_auth_headers).json()["results"]), 0)
         # All authors are None - so as soon as one searches for an author,
         # only results with an author will return something.
+        # Changed: authors that are None will be returned if doing a search
+        # only excluding a specific author
         self.assertEqual(len(self.client.get(
             path + "?!author=random",
-            **self.valid_auth_headers).json()["results"]), 0)
+            **self.valid_auth_headers).json()["results"]), 2)
 
         # Test the ordering.
         ev = self.client.get(path + "?ordering=depth_in_m").json()["results"]

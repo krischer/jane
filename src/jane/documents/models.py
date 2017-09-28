@@ -429,10 +429,6 @@ class DocumentIndexManager(models.GeoManager):
             "bool": bool,
             "UTCDateTime": UTCDateTime
         }
-
-        # Filter based on the attributes in the meta field.
-        where = []
-
         for key, value_type in meta.items():
             # Handle strings.
             if value_type == "str":
@@ -443,22 +439,27 @@ class DocumentIndexManager(models.GeoManager):
                     if name not in kwargs:
                         continue
                     value = kwargs[name]
+                    method = 'exact'
                     # Possible wildcards.
                     if "*" in value or "?" in value:
-                        value = value.replace("?", "_").replace("*", r"%%")
-                        # PostgreSQL specific case insensitive LIKE statement.
-                        if operator == "=":
-                            where.append("json->>'%s' ILIKE '%s'" % (key,
-                                                                     value))
-                        elif operator == "!=":
-                            where.append("json->>'%s' NOT ILIKE '%s'" % (
-                                key, value))
-                        else:
-                            raise NotImplementedError()  # pragma: no cover
+                        value = value.replace("*", ".*")
+                        method = 'iregex'
+                        # the regex field lookup on JSON fields suffers from a
+                        # bug on Django 1.9, see django/django#6929.
+                        # The patch is super simple but it's only in Django
+                        # 1.11 and upwards, so we might want to consider to
+                        # just apply it somehow or monkey patch the django
+                        # module??
+                        raise NotImplementedError()
+                    # PostgreSQL specific case insensitive LIKE statement.
+                    if operator == "=":
+                        queryset = queryset.filter(**{
+                            'json__{}__{}'.format(key, method): value})
+                    elif operator == "!=":
+                        queryset = queryset.exclude(**{
+                            'json__{}__{}'.format(key, method): value})
                     else:
-                        where.append(
-                            self._get_json_query(key, operator, value_type,
-                                                 value))
+                        raise NotImplementedError()  # pragma: no cover
             # Handle integers, floats, and UTCDateTimes.
             elif value_type in ("int", "float", "UTCDateTime"):
                 choices = (("min_%s", ">="), ("max_%s", "<="), ("%s", "="),
@@ -467,9 +468,23 @@ class DocumentIndexManager(models.GeoManager):
                     name = name % key
                     if name not in kwargs:
                         continue
-                    where.append(self._get_json_query(
-                        key, operator, value_type,
-                        type_map[value_type](kwargs[name])))
+                    value = type_map[value_type](kwargs[name])
+                    if value_type == "UTCDateTime":
+                        value = value.datetime.isoformat()
+                    if operator == "=":
+                        queryset = queryset.filter(**{
+                            'json__{}__exact'.format(key): value})
+                    elif operator == "!=":
+                        queryset = queryset.exclude(**{
+                            'json__{}__exact'.format(key): value})
+                    elif operator == ">=":
+                        queryset = queryset.filter(**{
+                            'json__{}__gte'.format(key): value})
+                    elif operator == "<=":
+                        queryset = queryset.filter(**{
+                            'json__{}__lte'.format(key): value})
+                    else:
+                        raise NotImplementedError()  # pragma: no cover
             # Handle bools.
             elif value_type == "bool":
                 # Booleans can be searched for (in)equality.
@@ -480,17 +495,15 @@ class DocumentIndexManager(models.GeoManager):
                         continue
                     value = str(kwargs[name]).lower()
                     if value in ["t", "true", "yes", "y"]:
-                        value = "true"
+                        value = True
                     elif value in ["f", "false", "no", "n"]:
-                        value = "false"
+                        value = False
                     else:
                         raise NotImplementedError()  # pragma: no cover
-                    where.append(self._get_json_query(
-                        key, operator, value_type, value))
+                    queryset = queryset.filter(**{
+                        'json__{}__exact'.format(key): value})
             else:
                 raise NotImplementedError()  # pragma: no cover
-
-        queryset = queryset.extra(where=where)
 
         if "ordering" in kwargs and kwargs["ordering"] in meta:
             ord = kwargs["ordering"]
