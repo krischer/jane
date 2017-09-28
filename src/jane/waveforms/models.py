@@ -235,9 +235,17 @@ class Restriction(models.Model):
 
     Waveforms are generally seen as public if not listed here.
     """
-    network = models.CharField(max_length=2, db_index=True)
-    station = models.CharField(max_length=5, db_index=True)
-    users = models.ManyToManyField(User, db_index=True)
+    help_text = ('Use a single asterisk/star (*) to affect all station '
+                 'codes. Use a single asterisk/star in both fields, to '
+                 'restrict all network/station code combinations.')
+    network = models.CharField(max_length=2, db_index=True,
+                               help_text=help_text)
+    station = models.CharField(max_length=5, db_index=True,
+                               help_text=help_text)
+    users = models.ManyToManyField(
+        User, db_index=True,
+        help_text='The restriction defined by network/station code above will '
+                  'apply to all users that are not added here.')
     comment = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     created_by = models.ForeignKey(User, null=True, editable=False,

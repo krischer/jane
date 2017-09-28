@@ -65,8 +65,23 @@ class CanSeeAllStations(RetrievePermissionPluginPoint):
             pass
         elif model_type == "index":
             for restriction in restrictions:
-                queryset = queryset.exclude(json__network=restriction.network,
-                                            json__station=restriction.station)
+                kwargs = {}
+                # XXX in principle this could be handled simply by using a
+                # regex field lookup on the json field below, but in Django <
+                # 1.11 there's a bug so the regex lookup doesn't work, see
+                # django/django#6929
+                if restriction.network == '*' and restriction.station == '*':
+                    # if both network and station are '*' then all stations are
+                    # restricted
+                    return queryset.none()
+                elif restriction.network == '*':
+                    kwargs['json__station'] = restriction.station
+                elif restriction.station == '*':
+                    kwargs['json__network'] = restriction.network
+                else:
+                    kwargs['json__network'] = restriction.network
+                    kwargs['json__station'] = restriction.station
+                queryset = queryset.exclude(**kwargs)
         else:
             raise NotImplementedError()
         return queryset
