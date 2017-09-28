@@ -58,7 +58,6 @@ module.factory('events', function($http, $log, jane_server) {
                             return false;
                         }
                         if (i.indexed_data.magnitude === null) {
-                            i.indexed_data.magnitude = 1.0;
                             // Add flag that this magnitude is fake.
                             i.indexed_data.has_no_magnitude = true;
                         }
