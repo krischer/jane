@@ -6,7 +6,7 @@ import os
 import django
 from django.contrib.auth.models import User, Permission
 from django.contrib.auth.hashers import make_password
-from django.contrib.gis.geos.point import Point
+from django.contrib.gis.geos import Point, LineString, MultiLineString
 from django.test import TestCase
 
 from jane.quakeml.plugins import QuakeMLIndexerPlugin
@@ -62,9 +62,21 @@ class QuakeMLPluginTestCase(TestCase):
              'depth_in_m': 10.0,
              'evaluation_mode': None,
              'event_type': 'quarry blast',
-             'geometry': [Point(-117.6623333, 35.0476667)],
+             'geometry': [
+                 Point(-117.6623333, 35.0476667),
+                 MultiLineString([
+                     LineString((-117.6623332999999860, 35.0521735816367155),
+                                (-117.6623333, 35.0476667),
+                                (-117.6623332999999860, 35.0431598150083872)),
+                     LineString((-117.6568529607076101, 35.0476665762236408),
+                                (-117.6623333, 35.0476667),
+                                (-117.6678136392923619, 35.0476665762236408))])
+                 ],
              'has_focal_mechanism': False,
              'has_moment_tensor': False,
+             'horizontal_uncertainty_max': 500.0,
+             'horizontal_uncertainty_max_azimuth': 0,
+             'horizontal_uncertainty_min': 500.0,
              'latitude': 35.0476667,
              'longitude': -117.6623333,
              'magnitude': 1.54,
@@ -78,9 +90,21 @@ class QuakeMLPluginTestCase(TestCase):
              'depth_in_m': 0.0,
              'evaluation_mode': None,
              'event_type': 'quarry blast',
-             'geometry': [Point(-120.2807, 42.138)],
+             'geometry': [
+                 Point(-120.2807, 42.138),
+                 MultiLineString([
+                     LineString((-120.2807, 42.2073215168237184),
+                                (-120.2807, 42.1379999999999981),
+                                (-120.2807, 42.0686776424464739)),
+                     LineString((-120.18756038590098, 42.1379621973716567),
+                                (-120.2807, 42.1379999999999981),
+                                (-120.3738396140990119, 42.1379621973716567))])
+                 ],
              'has_focal_mechanism': False,
              'has_moment_tensor': False,
+             'horizontal_uncertainty_max': 7700.0,
+             'horizontal_uncertainty_max_azimuth': 0,
+             'horizontal_uncertainty_min': 7700.0,
              'latitude': 42.138,
              'longitude': -120.2807,
              'magnitude': 1.6,
@@ -98,6 +122,9 @@ class QuakeMLPluginTestCase(TestCase):
              'geometry': None,
              'has_focal_mechanism': True,
              'has_moment_tensor': True,
+             'horizontal_uncertainty_max': None,
+             'horizontal_uncertainty_min': None,
+             'horizontal_uncertainty_max_azimuth': None,
              'latitude': None,
              'longitude': None,
              'magnitude': None,
@@ -485,12 +512,22 @@ class QuakeMLPluginTestCase(TestCase):
         r = self.client.get(path).json()["results"][0]
 
         geo = r["geometry"]
-        self.assertEqual(len(geo["coordinates"]), 1)
+        self.assertEqual(len(geo["coordinates"]), 2)
         self.assertEqual(len(geo["coordinates"][0]), 2)
         self.assertEqual(geo["type"], "GeometryCollection")
+        # first geometry in collection is the point for the origin
         self.assertAlmostEqual(geo["coordinates"][0][0], -117.6623333)
         self.assertAlmostEqual(geo["coordinates"][0][1], 35.0476667)
-
+        # second geometry in collection is the multilinestring with two lines
+        # for horizontal uncertainties
+        self.assertAlmostEqual(geo["coordinates"][1][0],
+                               [[-117.66233329999999, 35.052173581636715],
+                                [-117.6623333, 35.0476667],
+                                [-117.66233329999999, 35.04315981500839]])
+        self.assertAlmostEqual(geo["coordinates"][1][1],
+                               [[-117.65685296070761, 35.04766657622364],
+                                [-117.6623333, 35.0476667],
+                                [-117.66781363929236, 35.04766657622364]])
         # The focmec one has no geometry.
         self.user.user_permissions.add(self.can_modify_quakeml_permission)
         with open(FILES["focmec"], "rb") as fh:
