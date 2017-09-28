@@ -15,20 +15,8 @@ import jane
 from jane.documents.models import DocumentIndex, DocumentType
 
 
-def _get_json_query(key, operator, type, value):
-    return JSON_QUERY_TEMPLATE_MAP[type] % (key, operator, str(value))
-
-
 def _format_time(value):
     return value.strftime("%Y-%m-%dT%H:%M:%S+00:00")
-
-
-JSON_QUERY_TEMPLATE_MAP = {
-    int: "CAST(json->>'%s' AS INTEGER) %s %s",
-    float: "CAST(json->>'%s' AS REAL) %s %s",
-    str: "json->>'%s' %s '%s'",
-    UTCDateTime: "CAST(json->>'%s' AS TIMESTAMP) %s TIMESTAMP '%s'"
-}
 
 
 # Define some constants for writing StationXML files.
@@ -124,66 +112,62 @@ def query_stations(fh, url, nodata, level, format, user, starttime=None,
     query = DocumentIndex.objects.filter(
         document__document_type="stationxml")
 
-    where = []
     if starttime:
         # If end_date is null it is assumed to be bigger.
-        where.append(
-            "((json->>'end_date') is null) OR (" +
-            _get_json_query("end_date", ">=", UTCDateTime, starttime) + ")")
+        query.filter(json__end_date__gte=starttime.isoformat())
     if endtime:
-        where.append(
-            _get_json_query("start_date", "<=", UTCDateTime, endtime))
+        query.filter(json__start_date__lte=endtime.isoformat())
     if startbefore:
-        where.append(
-                _get_json_query("start_date", "<", UTCDateTime, startbefore))
+        query.filter(json__start_date__lte=startbefore.isoformat())
     if startafter:
-        where.append(
-                _get_json_query("start_date", ">", UTCDateTime, startafter))
+        query.filter(json__start_date__gt=startafter.isoformat())
     if endbefore:
         # If end_date is null it is assumed to be bigger. We don't want that
         # here.
-        where.append(
-            "((json->>'end_date') is not null) AND (" +
-            _get_json_query("end_date", "<", UTCDateTime, endbefore) + ")")
+        query.filter(json__end_date__lt=endbefore.isoformat())
     if endafter:
         # If end_date is null it is assumed to be bigger.
-        where.append(
-            "((json->>'end_date') is null) OR (" +
-            _get_json_query("end_date", ">", UTCDateTime, endafter) + ")")
+        query.filter(json__end_date__gt=endafter.isoformat())
     if minlatitude is not None:
-        where.append(
-            _get_json_query("latitude", ">=", float, minlatitude))
+        query.filter(json__latitude__gte=minlatitude)
     if maxlatitude is not None:
-        where.append(
-            _get_json_query("latitude", "<=", float, maxlatitude))
+        query.filter(json__latitude__lte=maxlatitude)
     if minlongitude is not None:
-        where.append(
-            _get_json_query("longitude", ">=", float, minlongitude))
+        query.filter(json__longitude__gte=minlongitude)
     if maxlongitude is not None:
-        where.append(
-            _get_json_query("longitude", "<=", float, maxlongitude))
+        query.filter(json__longitude__lte=maxlongitude)
 
     for key in ["network", "station", "location", "channel"]:
         argument = locals()[key]
-        if argument is not None and '*' not in argument:
-            # Two percentage signs are needed (for escaping?)
-            argument = [_i.replace("?", "_").replace("*", r"%%")
-                        for _i in argument]
-            # A minus sign negates the query.
-            n = []
-            y = []
-            for _i in argument:
-                if _i.startswith("-"):
-                    n.append("json->>'%s' NOT LIKE '%s'" % (key, _i[1:]))
+        if argument is not None:
+            # XXX copy/pasted from jane/documents/models.py should be
+            # refactored, probably..
+            # Strings can be searched on wildcarded (in)equalities
+            choices = (("%s", "="), ("!%s", "!="))
+            for name, operator in choices:
+                name = name % key
+                value = argument
+                method = 'exact'
+                # Possible wildcards.
+                if "*" in value or "?" in value:
+                    value = value.replace("*", ".*")
+                    method = 'iregex'
+                    # the regex field lookup on JSON fields suffers from a
+                    # bug on Django 1.9, see django/django#6929.
+                    # The patch is super simple but it's only in Django
+                    # 1.11 and upwards, so we might want to consider to
+                    # just apply it somehow or monkey patch the django
+                    # module??
+                    raise NotImplementedError()
+                # PostgreSQL specific case insensitive LIKE statement.
+                if operator == "=":
+                    query = query.filter(**{
+                        'json__{}__{}'.format(key, method): value})
+                elif operator == "!=":
+                    query = query.exclude(**{
+                        'json__{}__{}'.format(key, method): value})
                 else:
-                    y.append("json->>'%s' LIKE '%s'" % (key, _i))
-            if y:
-                where.append(" OR ".join(y))
-            if n:
-                where.append(" AND ".join(n))
-
-    if where:
-        query = query.extra(where=where)
+                    raise NotImplementedError()  # pragma: no cover
 
     # Radial queries - also apply the per-user filtering right here!
     if latitude is not None:

@@ -232,14 +232,6 @@ class DocumentIndexManager(models.GeoManager):
     """
     Custom queryset manager for the document indices.
     """
-    JSON_QUERY_TEMPLATE_MAP = {
-        "int": "CAST(json->>'%s' AS INTEGER) %s %s",
-        "float": "CAST(json->>'%s' AS REAL) %s %s",
-        "str": "LOWER(json->>'%s') %s LOWER('%s')",
-        "bool": "CAST(json->>'%s' AS BOOL) %s %s",
-        "UTCDateTime": "CAST(json->>'%s' AS TIMESTAMP) %s TIMESTAMP '%s'"
-    }
-
     JSON_ORDERING_TEMPLATE = {
         "int": "CAST(json->>'%s' AS INTEGER)",
         "float": "CAST(json->>'%s' AS REAL)",
@@ -259,9 +251,6 @@ class DocumentIndexManager(models.GeoManager):
         queryset = queryset.\
             annotate(attachments_count=Count('attachments'))
         return queryset
-
-    def _get_json_query(self, key, operator, type, value):
-        return self.JSON_QUERY_TEMPLATE_MAP[type] % (key, operator, str(value))
 
     def apply_retrieve_permission(self, document_type, queryset, user):
         """
