@@ -22,7 +22,7 @@
                           <dt>Magnitude</dt>
                           <dd>{{ magnitude_type }} {{ magnitude | number:1 }}</dd>
                           <dt>Origin Time</dt>
-                          <dd>{{ origin_time | date:medium}}</dd>
+                          <dd>{{ origin_time | date:"yyyy-MM-dd HH:mm:ss Z" }}</dd>
                           <dt>Event Type</dt>
                           <dd>{{ event_type }}</dd>
                           <dt>Evaluation Mode</dt>
