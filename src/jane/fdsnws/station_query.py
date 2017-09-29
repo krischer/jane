@@ -154,11 +154,8 @@ def query_stations(fh, url, nodata, level, format, user, starttime=None,
                     method = 'iregex'
                     # the regex field lookup on JSON fields suffers from a
                     # bug on Django 1.9, see django/django#6929.
-                    # The patch is super simple but it's only in Django
-                    # 1.11 and upwards, so we might want to consider to
-                    # just apply it somehow or monkey patch the django
-                    # module??
-                    raise NotImplementedError()
+                    # We patch django's json field on django <1.11 in
+                    # jane/__init__.py
                 # PostgreSQL specific case insensitive LIKE statement.
                 if operator == "=":
                     query = query.filter(**{
