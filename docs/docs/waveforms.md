@@ -145,6 +145,11 @@ per-station granularity. To do that, add a new restriction in the admin
 interface. As soon as a restriction has been added it will be considered 
 protected and only users that are part of the restriction will still be able
 to access them.
+Restrictions can also be defined with a single asterisk (`*`) in the station
+(or network) code field, to make the restriction apply to all stations across a
+specific network (to apply to all networks across a specific station code). Use
+a single asterisk in *both* network and station code fields to add a
+restriction on *all* stations.
 
 ![Add waveform restriction](./images/add_waveform_restriction.png)
 
