@@ -140,31 +140,25 @@ def query_stations(fh, url, nodata, level, format, user, starttime=None,
     for key in ["network", "station", "location", "channel"]:
         argument = locals()[key]
         if argument is not None:
-            # XXX copy/pasted from jane/documents/models.py should be
-            # refactored, probably..
-            # Strings can be searched on wildcarded (in)equalities
-            choices = (("%s", "="), ("!%s", "!="))
-            for name, operator in choices:
-                name = name % key
-                value = argument
+            queries = []
+            for argument_ in argument:
+                value = argument_
                 method = 'exact'
                 # Possible wildcards.
                 if "*" in value or "?" in value:
                     value = value.replace("*", ".*")
                     method = 'iregex'
-                    # the regex field lookup on JSON fields suffers from a
-                    # bug on Django 1.9, see django/django#6929.
-                    # We patch django's json field on django <1.11 in
-                    # jane/__init__.py
-                # PostgreSQL specific case insensitive LIKE statement.
-                if operator == "=":
-                    query = query.filter(**{
-                        'json__{}__{}'.format(key, method): value})
-                elif operator == "!=":
-                    query = query.exclude(**{
-                        'json__{}__{}'.format(key, method): value})
-                else:
-                    raise NotImplementedError()  # pragma: no cover
+                # the regex field lookup on JSON fields suffers from a
+                # bug on Django 1.9, see django/django#6929.
+                # We patch django's json field on django <1.11 in
+                # jane/__init__.py
+                queries.append(query.filter(**{
+                    'json__{}__{}'.format(key, method): value}))
+            # combine querysets
+            query = queries.pop()
+            for query_ in queries:
+                query = query | query_
+            query = query.distinct()
 
     # Radial queries - also apply the per-user filtering right here!
     if latitude is not None:
