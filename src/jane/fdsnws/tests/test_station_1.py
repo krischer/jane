@@ -423,6 +423,138 @@ class Station1TestCase(TestCase):
                                    **auth_headers)
         self.assertEqual(response.status_code, 204)
 
+    def test_restrictions_asterisk_network_and_station(self):
+        """
+        Tests if the waveform restrictions actually work as expected.
+        """
+        # No restrictions currently apply - we should get something.
+        response = self.client.get('/fdsnws/station/1/query')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        inv = obspy.read_inventory(io.BytesIO(response.getvalue()))
+        self.assertEqual(inv.get_contents()["stations"],
+                         ["BW.ALTM (Beilngries, Bavaria, BW-Net)"])
+
+        # add restriction on all stations
+        r = Restriction.objects.get_or_create(network="*", station="*")[0]
+        r.users.add(User.objects.filter(username='random')[0])
+        r.save()
+
+        # Now the same query should no longer return something as the
+        # station has been restricted.
+        response = self.client.get('/fdsnws/station/1/query')
+        self.assertEqual(response.status_code, 204)
+
+        # The correct user can still get the stations.
+        response = self.client.get('/fdsnws/station/1/queryauth',
+                                   **self.valid_auth_headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        inv = obspy.read_inventory(io.BytesIO(response.getvalue()))
+        self.assertEqual(inv.get_contents()["stations"],
+                         ["BW.ALTM (Beilngries, Bavaria, BW-Net)"])
+
+        # Make another user that has not been added to this restriction - he
+        # should not be able to retrieve it.
+        self.client.logout()
+        User.objects.get_or_create(
+            username='some_dude', password=make_password('some_dude'))[0]
+        credentials = base64.b64encode(b'some_dude:some_dude')
+        auth_headers = {
+            'HTTP_AUTHORIZATION': 'Basic ' + credentials.decode("ISO-8859-1")
+        }
+        response = self.client.get('/fdsnws/station/1/queryauth',
+                                   **auth_headers)
+        self.assertEqual(response.status_code, 204)
+
+    def test_restrictions_asterisk_network(self):
+        """
+        Tests if the waveform restrictions actually work as expected.
+        """
+        # No restrictions currently apply - we should get something.
+        response = self.client.get('/fdsnws/station/1/query')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        inv = obspy.read_inventory(io.BytesIO(response.getvalue()))
+        self.assertEqual(inv.get_contents()["stations"],
+                         ["BW.ALTM (Beilngries, Bavaria, BW-Net)"])
+
+        # add restriction on ALTM stations
+        r = Restriction.objects.get_or_create(network="*", station="ALTM")[0]
+        r.users.add(User.objects.filter(username='random')[0])
+        r.save()
+
+        # Now the same query should no longer return something as the
+        # station has been restricted.
+        response = self.client.get('/fdsnws/station/1/query')
+        self.assertEqual(response.status_code, 204)
+
+        # The correct user can still get the stations.
+        response = self.client.get('/fdsnws/station/1/queryauth',
+                                   **self.valid_auth_headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        inv = obspy.read_inventory(io.BytesIO(response.getvalue()))
+        self.assertEqual(inv.get_contents()["stations"],
+                         ["BW.ALTM (Beilngries, Bavaria, BW-Net)"])
+
+        # Make another user that has not been added to this restriction - he
+        # should not be able to retrieve it.
+        self.client.logout()
+        User.objects.get_or_create(
+            username='some_dude', password=make_password('some_dude'))[0]
+        credentials = base64.b64encode(b'some_dude:some_dude')
+        auth_headers = {
+            'HTTP_AUTHORIZATION': 'Basic ' + credentials.decode("ISO-8859-1")
+        }
+        response = self.client.get('/fdsnws/station/1/queryauth',
+                                   **auth_headers)
+        self.assertEqual(response.status_code, 204)
+
+    def test_restrictions_asterisk_station(self):
+        """
+        Tests if the waveform restrictions actually work as expected.
+        """
+        # No restrictions currently apply - we should get something.
+        response = self.client.get('/fdsnws/station/1/query')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        inv = obspy.read_inventory(io.BytesIO(response.getvalue()))
+        self.assertEqual(inv.get_contents()["stations"],
+                         ["BW.ALTM (Beilngries, Bavaria, BW-Net)"])
+
+        # add restriction on all BW-network stations
+        r = Restriction.objects.get_or_create(network="BW", station="*")[0]
+        r.users.add(User.objects.filter(username='random')[0])
+        r.save()
+
+        # Now the same query should no longer return something as the
+        # station has been restricted.
+        response = self.client.get('/fdsnws/station/1/query')
+        self.assertEqual(response.status_code, 204)
+
+        # The correct user can still get the stations.
+        response = self.client.get('/fdsnws/station/1/queryauth',
+                                   **self.valid_auth_headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('OK' in response.reason_phrase)
+        inv = obspy.read_inventory(io.BytesIO(response.getvalue()))
+        self.assertEqual(inv.get_contents()["stations"],
+                         ["BW.ALTM (Beilngries, Bavaria, BW-Net)"])
+
+        # Make another user that has not been added to this restriction - he
+        # should not be able to retrieve it.
+        self.client.logout()
+        User.objects.get_or_create(
+            username='some_dude', password=make_password('some_dude'))[0]
+        credentials = base64.b64encode(b'some_dude:some_dude')
+        auth_headers = {
+            'HTTP_AUTHORIZATION': 'Basic ' + credentials.decode("ISO-8859-1")
+        }
+        response = self.client.get('/fdsnws/station/1/queryauth',
+                                   **auth_headers)
+        self.assertEqual(response.status_code, 204)
+
 
 class Station1LiveServerTestCase(LiveServerTestCase):
     """
