@@ -217,6 +217,7 @@
 <li><code>flake8</code></li>
 <li><code>gdal</code>  (<a href="http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal">see here for Windows</a>)</li>
 <li><code>geojson</code></li>
+<li><code>geopy</code></li>
 <li><code>markdown</code></li>
 <li><code>mkdocs</code></li>
 <li><code>mkdocs-bootswatch</code></li>
@@ -228,7 +229,7 @@ used to setup a new dedicated and separate environment to run <code>Jane</code>:
 <pre><code class="bash">$ conda config --add channels obspy
 $ conda create -n jane python=3.5
 $ source activate jane
-(jane)$ conda install obspy psycopg2 markdown flake8 gdal pyyaml pip
+(jane)$ conda install obspy psycopg2 markdown flake8 gdal pyyaml pip geopy
 # Install the latest 1.9.x release.
 (jane)$ pip install &quot;django&gt;=1.9,&lt;1.10&quot;
 (jane)$ pip install djangorestframework djangorestframework-gis djangorestframework-jsonp djangorestframework-xml djangorestframework-yaml django-cors-headers django-debug-toolbar django-plugins defusedxml geojson markdown mkdocs mkdocs-bootswatch
@@ -243,6 +244,7 @@ dependencies:
 - markdown
 - flake8
 - gdal
+- geopy
 - pyyaml
 - pip
 - pip:
@@ -373,6 +375,7 @@ apt-get install python3-psycopg2 \
     python3-yaml \
     python3-defusedxml \
     python3-gdal \
+    python3-geopy \
     python3-flake8 \
     python3-pip \
     python3-obspy \
