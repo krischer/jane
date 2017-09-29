@@ -116,6 +116,9 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
         "event_type": "str",
         "has_focal_mechanism": "bool",
         "has_moment_tensor": "bool",
+        "horizontal_uncertainty_max": "float",
+        "horizontal_uncertainty_min": "float",
+        "horizontal_uncertainty_max_azimuth": "float",
     }
 
     def index(self, document):
@@ -124,7 +127,8 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
 
         :param document: The document as a memory file.
         """
-        from django.contrib.gis.geos.point import Point  # NOQA
+        from django.contrib.gis.geos import (
+            Point, LineString, MultiLineString)
         from obspy import read_events
 
         # Collect all indices in a list. Each index has to be a dictionary.
@@ -168,6 +172,59 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 evaluation_mode = extra["evaluationMode"]["value"]
             else:
                 evaluation_mode = None
+            # parse horizontal uncertainties
+            if org and org.origin_uncertainty:
+                org_unc = org.origin_uncertainty
+                if org_unc.preferred_description == 'horizontal uncertainty':
+                    horizontal_uncertainty_max = org_unc.horizontal_uncertainty
+                    horizontal_uncertainty_min = org_unc.horizontal_uncertainty
+                    horizontal_uncertainty_max_azimuth = 0
+                elif org_unc.preferred_description == 'uncertainty ellipse':
+                    horizontal_uncertainty_max = \
+                        org_unc.max_horizontal_uncertainty
+                    horizontal_uncertainty_min = \
+                        org_unc.min_horizontal_uncertainty
+                    horizontal_uncertainty_max_azimuth = \
+                        org_unc.azimuth_max_horizontal_uncertainty
+                else:
+                    horizontal_uncertainty_max = None
+                    horizontal_uncertainty_min = None
+                    horizontal_uncertainty_max_azimuth = None
+            else:
+                horizontal_uncertainty_max = None
+                horizontal_uncertainty_min = None
+                horizontal_uncertainty_max_azimuth = None
+
+            geometry = None
+            if org:
+                geometry = [Point(org.longitude, org.latitude)]
+                if all(value is not None for value in (
+                        horizontal_uncertainty_max, horizontal_uncertainty_min,
+                        horizontal_uncertainty_max_azimuth)):
+                    import geopy
+                    import geopy.distance
+                    start = geopy.Point(latitude=org.latitude,
+                                        longitude=org.longitude)
+                    lines = []
+                    for distance, azimuth in (
+                            (horizontal_uncertainty_max,
+                             horizontal_uncertainty_max_azimuth),
+                            (horizontal_uncertainty_min,
+                             horizontal_uncertainty_max_azimuth + 90)):
+                        azimuth = azimuth % 180
+                        distance = geopy.distance.VincentyDistance(
+                            kilometers=distance / 1e3)
+                        end1 = distance.destination(
+                            point=start, bearing=azimuth)
+                        end2 = distance.destination(
+                            point=start, bearing=azimuth + 180)
+                        line = LineString((end1.longitude, end1.latitude),
+                                          (org.longitude, org.latitude),
+                                          (end2.longitude, end2.latitude))
+                        lines.append(line)
+                    geometry.append(MultiLineString(lines))
+                else:
+                    geometry.append(MultiLineString([]))
 
             indices.append({
                 "quakeml_id": str(event.resource_id),
@@ -189,8 +246,11 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 # The special key geometry can be used to store geographic
                 # information about the indexes geometry. Useful for very
                 # fast queries using PostGIS.
-                "geometry":
-                    [Point(org.longitude, org.latitude)] if org else None,
+                "geometry": geometry,
+                "horizontal_uncertainty_max": horizontal_uncertainty_max,
+                "horizontal_uncertainty_min": horizontal_uncertainty_min,
+                "horizontal_uncertainty_max_azimuth":
+                    horizontal_uncertainty_max_azimuth,
             })
 
         return indices

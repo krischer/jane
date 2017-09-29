@@ -194,7 +194,7 @@
         </div>
 
         <div class="row">
-            <div class="col-md-2">
+            <div class="col-md-4">
                 <label>
                     <small>
                         Status
@@ -219,6 +219,23 @@
                 <toggle-switch model="event_settings.show_automatic_and_manual"
                                class="switch-mini switch-default"
                                on-label="all" off-label="manual"
+                               style="width:100%">
+                </toggle-switch>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <label>
+                    <small>
+                        Show uncertainties?
+                    </small>
+                </label>
+            </div>
+            <div class="col-md-4">
+                <toggle-switch model="event_settings.show_uncertainties"
+                               class="switch-mini switch-default"
+                               on-label="on" off-label="off"
                                style="width:100%">
                 </toggle-switch>
             </div>
