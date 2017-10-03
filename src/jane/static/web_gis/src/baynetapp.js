@@ -68,7 +68,8 @@ module.factory('events', function($http, $log, jane_server) {
                         j.id = i.id;
                         j.url = i.url;
                         j.origin_time = new Date(j.origin_time);
-                        j.attachments = i.attachments;
+                        j.attachments_count = i.attachments_count;
+                        j.attachments_url = i.attachments_url;
                         j.containing_document_data_url = i.containing_document_data_url;
                         // Now create GeoJSON
                         var geojson = {
