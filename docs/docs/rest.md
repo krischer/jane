@@ -59,8 +59,8 @@ the Python [requests](http://python-requests.org) library, for
 
 ##### Example using the Python [requests](http://python-requests.org) library:
 ```python
-import request
-r = request.get(url="JANE_ROOT/rest/...", auth=("user", "pw"))
+import requests
+r = requests.get(url="JANE_ROOT/rest/...", auth=("user", "pw"))
 ```
 
 ##### Example using the [HTTPie](http://httpie.org) CLI client:
@@ -81,14 +81,14 @@ on how to do this.
 
 ##### Example using the Python [requests](http://python-requests.org) library:
 ```python
-import request
+import requests
 
 headers = {"category": "something"}
 
-r = request.get("JANE_ROOT/rest/...", headers=headers)
-r = request.put("JANE_ROOT/rest/...", headers=headers)
-r = request.post("JANE_ROOT/rest/...", headers=headers)
-r = request.delete("JANE_ROOT/rest/...", headers=headers)
+r = requests.get("JANE_ROOT/rest/...", headers=headers)
+r = requests.put("JANE_ROOT/rest/...", headers=headers)
+r = requests.post("JANE_ROOT/rest/...", headers=headers)
+r = requests.delete("JANE_ROOT/rest/...", headers=headers)
 ```
 
 ##### Example using the [HTTPie](http://httpie.org) CLI client:
@@ -217,7 +217,7 @@ Let's say you want to upload the file `BW.FURT.xml`.
 
 ##### Example using the Python [requests](http://python-requests.org) library:
 ```python
-import request
+import requests
 
 with open("BW.FURT.xml", "rb") as fh:
     r = requests.put(
@@ -252,7 +252,7 @@ DELETE JANE_ROOT/rest/documents/stationxml/BW.FURT.xml
 
 ##### Example using the Python [requests](http://python-requests.org) library:
 ```python
-import request
+import requests
 
 r = requests.delete(
     url="JANE_ROOT/rest/documents/stationxml/BW.FURT.xml",
@@ -449,7 +449,7 @@ Let's say you want to upload the picture `test.png`.
 
 ##### Example using the Python [requests](http://python-requests.org) library:
 ```python
-import request
+import requests
 
 headers = {"content-type": "image/png",
            "category": "random_image"}
@@ -489,7 +489,7 @@ PUT JANE_ROOT/rest/document_indices/stationxml/1/attachments/11
 
 ##### Example using the Python [requests](http://python-requests.org) library:
 ```python
-import request
+import requests
 
 headers = {"content-type": "image/png",
            "category": "random_image"}
@@ -528,7 +528,7 @@ DELETE JANE_ROOT/rest/document_indices/stationxml/1/attachments/11
 
 ##### Example using the Python [requests](http://python-requests.org) library:
 ```python
-import request
+import requests
 
 r = requests.delete(
     url="JANE_ROOT/rest/document_indices/stationxml/1/attachments/11"
