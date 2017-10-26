@@ -290,7 +290,9 @@ except ImportError:
 
 
 # speed up tests
-if 'test' in sys.argv:
+# for pytest-django, this did not work for me:
+# https://stackoverflow.com/a/25188424
+if 'test' in sys.argv or "pytest" in sys.modules:
     print("Using test settings ...")
     PASSWORD_HASHERS = (
         'django.contrib.auth.hashers.MD5PasswordHasher',

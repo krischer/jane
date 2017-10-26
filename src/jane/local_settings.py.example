@@ -95,7 +95,9 @@ JANE_FDSN_STATIONXML_SOURCE = "Jane"
 
 
 # Change the settings for the test database here!
-if 'test' in sys.argv:
+# for pytest-django, this did not work for me:
+# https://stackoverflow.com/a/25188424
+if 'test' in sys.argv or "pytest" in sys.modules:
     DATABASES = {
         'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
