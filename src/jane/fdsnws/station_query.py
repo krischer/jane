@@ -151,7 +151,7 @@ def query_stations(fh, url, nodata, level, format, user, starttime=None,
                 method = 'exact'
                 # Possible wildcards.
                 if "*" in value or "?" in value:
-                    value = value.replace("*", ".*")
+                    value = value.replace("*", ".*").replace("?", ".")
                     method = 'iregex'
                 # the regex field lookup on JSON fields suffers from a
                 # bug on Django 1.9, see django/django#6929.
