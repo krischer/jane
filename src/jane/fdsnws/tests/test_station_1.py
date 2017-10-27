@@ -611,6 +611,55 @@ class Station1LiveServerTestCase(LiveServerTestCase):
         self.assertEqual(inv[0][0].total_number_of_channels, 3)
         self.assertEqual(inv[0][0].selected_number_of_channels, 3)
 
+    def test_comma_separated_list_queries(self):
+        """
+        Test comma separated queries in NSCL parameters
+        """
+        client = FDSNClient(self.live_server_url)
+
+        inv = client.get_stations(level="channel", network="BW",
+                                  station="ALTM", location="",
+                                  channel="EHZ,EHN")
+        c = inv.get_contents()
+        self.assertEqual(c["channels"],
+                         ['BW.ALTM..EHN', 'BW.ALTM..EHZ'])
+
+        inv = client.get_stations(level="channel", network="BW",
+                                  station="ALTM", location="",
+                                  channel="EHZ,EH?")
+        c = inv.get_contents()
+        self.assertEqual(c["channels"],
+                         ['BW.ALTM..EHE', 'BW.ALTM..EHN', 'BW.ALTM..EHZ'])
+
+        # the following queries should be improved, we should have multiple
+        # different network/station codes in the test db
+        client = FDSNClient(self.live_server_url)
+        inv = client.get_stations(level="channel", network="AA,BW",
+                                  station="ALTM", location="--", channel="EH*")
+        c = inv.get_contents()
+        self.assertEqual(c["channels"],
+                         ['BW.ALTM..EHE', 'BW.ALTM..EHN', 'BW.ALTM..EHZ'])
+
+        # the following queries should be improved, we should have multiple
+        # different network/station codes in the test db
+        client = FDSNClient(self.live_server_url)
+        inv = client.get_stations(level="channel", network="BW",
+                                  station="ALTM", location="00,,10",
+                                  channel="EH*")
+        c = inv.get_contents()
+        self.assertEqual(c["channels"],
+                         ['BW.ALTM..EHE', 'BW.ALTM..EHN', 'BW.ALTM..EHZ'])
+
+        # the following queries should be improved, we should have multiple
+        # different network/station codes in the test db
+        client = FDSNClient(self.live_server_url)
+        inv = client.get_stations(level="channel", network="BW",
+                                  station="XXX,YYY,ALTM", location="--",
+                                  channel="EHZ")
+        c = inv.get_contents()
+        self.assertEqual(c["channels"],
+                         ['BW.ALTM..EHZ'])
+
     def test_seed_code_queries(self):
         client = FDSNClient(self.live_server_url)
 
