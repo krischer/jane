@@ -143,6 +143,11 @@ def query_stations(fh, url, nodata, level, format, user, starttime=None,
             queries = []
             for argument_ in argument:
                 value = argument_
+                if value.startswith('-'):
+                    value = value[1:]
+                    query_method = query.exclude
+                else:
+                    query_method = query.filter
                 method = 'exact'
                 # Possible wildcards.
                 if "*" in value or "?" in value:
