@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404
 
 import jane
 from jane.documents.models import DocumentIndex, DocumentType
+from jane.jane.utils import _queryset_filter_jsonfield_isnull
 
 
 def _format_time(value):
@@ -114,33 +115,38 @@ def query_stations(fh, url, nodata, level, format, user, starttime=None,
 
     if starttime:
         # If end_date is null it is assumed to be bigger.
-        query.filter(json__end_date__gte=starttime.isoformat())
+        query = (query.filter(json__end_date__gte=starttime.isoformat()) |
+                 _queryset_filter_jsonfield_isnull(query, path=['end_date'],
+                                                   isnull=True)).distinct()
     if endtime:
-        query.filter(json__start_date__lte=endtime.isoformat())
+        query = query.filter(json__start_date__lte=endtime.isoformat())
     if startbefore:
-        query.filter(json__start_date__lte=startbefore.isoformat())
+        query = query.filter(json__start_date__lte=startbefore.isoformat())
     if startafter:
-        query.filter(json__start_date__gt=startafter.isoformat())
+        query = query.filter(json__start_date__gt=startafter.isoformat())
     if endbefore:
         # If end_date is null it is assumed to be bigger. We don't want that
         # here.
-        query.filter(json__end_date__lt=endbefore.isoformat())
+        query = (query.filter(json__end_date__lt=endbefore.isoformat()) &
+                 _queryset_filter_jsonfield_isnull(query, path=['end_date'],
+                                                   isnull=False)).distinct()
     if endafter:
         # If end_date is null it is assumed to be bigger.
-        query.filter(json__end_date__gt=endafter.isoformat())
+        query = (query.filter(json__end_date__gt=endafter.isoformat()) |
+                 _queryset_filter_jsonfield_isnull(query, path=['end_date'],
+                                                   isnull=True)).distinct()
     if minlatitude is not None:
-        query.filter(json__latitude__gte=minlatitude)
+        query = query.filter(json__latitude__gte=minlatitude)
     if maxlatitude is not None:
-        query.filter(json__latitude__lte=maxlatitude)
+        query = query.filter(json__latitude__lte=maxlatitude)
     if minlongitude is not None:
-        query.filter(json__longitude__gte=minlongitude)
+        query = query.filter(json__longitude__gte=minlongitude)
     if maxlongitude is not None:
-        query.filter(json__longitude__lte=maxlongitude)
+        query = query.filter(json__longitude__lte=maxlongitude)
 
     for key in ["network", "station", "location", "channel"]:
         argument = locals()[key]
         if argument is not None:
-            queries = []
             for argument_ in argument:
                 value = argument_
                 if value.startswith('-'):
@@ -157,12 +163,8 @@ def query_stations(fh, url, nodata, level, format, user, starttime=None,
                 # bug on Django 1.9, see django/django#6929.
                 # We patch django's json field on django <1.11 in
                 # jane/__init__.py
-                queries.append(query.filter(**{
-                    'json__{}__{}'.format(key, method): value}))
-            # combine querysets
-            query = queries.pop()
-            for query_ in queries:
-                query = query | query_
+                query = query & query_method(**{
+                    'json__{}__{}'.format(key, method): value})
             query = query.distinct()
 
     # Radial queries - also apply the per-user filtering right here!
