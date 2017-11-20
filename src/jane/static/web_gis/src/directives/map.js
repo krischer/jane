@@ -570,7 +570,8 @@ app.directive('openlayers3', function($q, $log, bing_key, $modal) {
                             show: true});
 
                         // Set scope of modal.
-                        modal.$scope.attachments = feature.get("attachments");
+                        modal.$scope.attachments_count = feature.get("attachments_count");
+                        modal.$scope.attachments_url = feature.get("attachments_url");
                         modal.$scope.containing_document_data_url = feature.get("containing_document_data_url");
                         modal.$scope.url = feature.get("url");
                         modal.$scope.agency = feature.get("agency");
