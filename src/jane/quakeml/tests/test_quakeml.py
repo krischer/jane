@@ -623,6 +623,11 @@ class QuakeMLPluginTestCase(TestCase):
         # Make sure its served with the correct content type.
         self.assertEqual(r["Content-Type"], "text/plain")
 
+        # Make sure it cannot be retrieved by using the wrong category.
+        # See #66.
+        r = self.client.get(a_path.replace("quakeml", "stationxml"))
+        self.assertEqual(r.status_code, 404)
+
         # Update it.
         r = self.client.put(a_path + "/%i" % a_id,
                             data=data_2, content_type="text/random",

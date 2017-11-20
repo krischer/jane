@@ -92,8 +92,10 @@ class DocumentIndexAttachmentsView(mixins.RetrieveModelMixin,
     serializer_class = serializer.DocumentIndexAttachmentSerializer
 
     def get_queryset(self):
-        index = get_object_or_404(models.DocumentIndex,
-                                  pk=self.kwargs['idx'])
+        index = get_object_or_404(
+            models.DocumentIndex,
+            pk=self.kwargs['idx'],
+            document__document_type__name=self.kwargs['document_type'])
         return models.DocumentIndexAttachment.objects.filter(index=index)
 
     def destroy(self, request, document_type, idx, pk):
