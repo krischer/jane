@@ -11,6 +11,9 @@ baynetApp.controller('stationInfoController', function ($scope, $log, stations) 
         $scope.station_object = j;
         $scope.network_name = j.properties.network_name;
         $scope.station_name = j.properties.station_name;
+        $scope.latitude = j.properties.latitude;
+        $scope.longitude = j.properties.longitude;
+        $scope.elevation = j.properties.elevation;
         $scope.channels = j.properties.channels;
         for (var i = 0; i < $scope.channels.length; i++) {
             var chan = $scope.channels[i];

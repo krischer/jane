@@ -133,6 +133,7 @@ module.factory('stations', function($http, $log, jane_server) {
                                 "station_name": j.station_name,
                                 "latitude": j.latitude,
                                 "longitude": j.longitude,
+                                "elevation": j.elevation_in_m,
                                 "channels": [],
                                 "min_startdate": n_sd,
                                 "max_enddate": n_ed
