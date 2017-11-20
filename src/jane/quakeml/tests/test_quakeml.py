@@ -628,6 +628,19 @@ class QuakeMLPluginTestCase(TestCase):
         r = self.client.get(a_path.replace("quakeml", "stationxml"))
         self.assertEqual(r.status_code, 404)
 
+        # Make sure an attachment cannot be uploaded with the wrong document
+        # type.
+        # This requires permissions to also write stationxml files.
+        p_station = Permission.objects.filter(
+            codename="can_modify_stationxml_attachments").first()
+        self.user.user_permissions.add(p_station)
+        r = self.client.post(a_path.replace("quakeml", "stationxml"),
+                             data=data_1, content_type="text/plain",
+                             HTTP_CATEGORY="some_text_2",
+                             **self.valid_auth_headers)
+        self.assertEqual(r.status_code, 404)
+        self.user.user_permissions.remove(p_station)
+
         # Update it.
         r = self.client.put(a_path + "/%i" % a_id,
                             data=data_2, content_type="text/random",

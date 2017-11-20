@@ -624,7 +624,9 @@ class DocumentIndexAttachmentManager(models.Manager):
                 "No permission to %s attachments for documents of that type."
                 % method)
 
-        index = get_object_or_404(DocumentIndex, pk=index_id)
+        index = get_object_or_404(
+            DocumentIndex, pk=index_id,
+            document__document_type__name=document_type)
 
         if method == "update":
             attachment = get_object_or_404(DocumentIndexAttachment, pk=pk,
