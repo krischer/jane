@@ -19,7 +19,7 @@ with the following Python modules
 * `obspy`
 * `django==1.9.x`
 * `psycopg2`
-* `djangorestframework`
+* `djangorestframework<3.7`
 * `djangorestframework-gis`
 * `djangorestframework-jsonp`
 * `djangorestframework-xml`
@@ -50,7 +50,7 @@ $ source activate jane
 (jane)$ conda install obspy psycopg2 markdown flake8 gdal pyyaml pip geopy
 # Install the latest 1.9.x release.
 (jane)$ pip install "django>=1.9,<1.10"
-(jane)$ pip install djangorestframework djangorestframework-gis djangorestframework-jsonp djangorestframework-xml djangorestframework-yaml django-cors-headers django-debug-toolbar django-plugins defusedxml geojson markdown mkdocs mkdocs-bootswatch
+(jane)$ pip install 'djangorestframework<3.7' djangorestframework-gis djangorestframework-jsonp djangorestframework-xml djangorestframework-yaml django-cors-headers django-debug-toolbar django-plugins defusedxml geojson markdown mkdocs mkdocs-bootswatch
 ```
 
 Alternatively, the following Anaconda environment description file ...
@@ -69,7 +69,7 @@ dependencies:
 - pip
 - pip:
   - django>=1.9,<1.10
-  - djangorestframework
+  - djangorestframework<3.7
   - djangorestframework-gis
   - djangorestframework-jsonp
   - djangorestframework-xml
@@ -257,7 +257,7 @@ to use `pip3` instead of `pip`):
 # AS USER!
 pip3 install --user \
     "django>=1.9,<1.10" \
-    djangorestframework \
+    "djangorestframework<3.7" \
     djangorestframework-gis \
     djangorestframework-jsonp \
     djangorestframework-xml \
