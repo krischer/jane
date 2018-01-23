@@ -44,7 +44,7 @@ Anaconda Python distribution. Once Anaconda is installed, the following can be
 used to setup a new dedicated and separate environment to run `Jane`:
 
 ```bash
-$ conda config --add channels obspy
+$ conda config --add channels conda-forge
 $ conda create -n jane python=3.5
 $ source activate jane
 (jane)$ conda install obspy psycopg2 markdown flake8 gdal pyyaml pip geopy
@@ -89,7 +89,7 @@ dependencies:
 
 
 ```bash
-$ conda config --add channels obspy
+$ conda config --add channels conda-forge
 $ conda env create -n jane -f jane_anaconda_env.txt
 ```
 
