@@ -89,7 +89,7 @@ dependencies:
 
 
 ```bash
-$ conda config --add channels obspy
+$ conda config --add channels conda-forge
 $ conda env create -n jane -f jane_anaconda_env.txt
 ```
 
