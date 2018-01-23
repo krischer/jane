@@ -37,6 +37,12 @@ before_install:
   - cp $TRAVIS_BUILD_DIR/src/jane/local_settings.py.example $TRAVIS_BUILD_DIR/src/jane/local_settings.py
   # Make sure django picks the correct geos library.
   - echo -e "\n\nGDAL_LIBRARY_PATH = '/home/travis/miniconda/envs/condaenv/lib/libgdal.so'" >> $TRAVIS_BUILD_DIR/src/jane/local_settings.py
+  # fix django resolving the geos version for conda-installed geos packages
+  # django 1.9 is parsing e.g. '3.4.0dev-CAPI-1.8.0 r0'
+  # but we're encounering e.g. '3.6.2-CAPI-1.10.2 0'
+  # not sure if that's due to version number being changed in conda packaging..
+  # if not maybe restricting the geos version to something lower might help
+  - sed --in-place '/?P<capi_version>/s#( r\\d+)#( r?\\d+)#' `python -c 'import os; from django import contrib; print(os.path.dirname(contrib.__file__) + "/gis/geos/libgeos.py")'`
 
 install:
   - git version
