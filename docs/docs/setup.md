@@ -46,11 +46,9 @@ used to setup a new dedicated and separate environment to run `Jane`:
 ```bash
 $ conda config --add channels conda-forge
 $ conda create -n jane python=3.6
-$ source activate jane
-(jane)$ conda install obspy psycopg2 markdown flake8 gdal pyyaml pip geopy
-# Install the latest 1.9.x release.
-(jane)$ pip install "django>=1.9,<1.10"
-(jane)$ pip install 'djangorestframework<3.7' djangorestframework-gis djangorestframework-jsonp djangorestframework-xml djangorestframework-yaml django-cors-headers django-debug-toolbar django-plugins defusedxml geojson markdown mkdocs mkdocs-bootswatch
+$ conda activate jane
+(jane)$ conda install django=1.9 obspy psycopg2 markdown flake8 gdal pyyaml pip geopy 'djangorestframework<3.7' djangorestframework-gis djangorestframework-xml djangorestframework-yaml django-debug-toolbar defusedxml geojson markdown mkdocs mkdocs-bootswatch
+(jane)$ pip install djangorestframework-jsonp django-cors-headers django-plugins
 ```
 
 Alternatively, the following Anaconda environment description file ...
