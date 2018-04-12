@@ -44,7 +44,7 @@ class QuakeMLValidatorPlugin(ValidatorPluginPoint):
         from obspy.io.quakeml.core import _validate as validate_quakeml  # NOQA
         try:
             is_valid = validate_quakeml(document)
-        except:
+        except Exception:
             is_valid = False
         return is_valid
 

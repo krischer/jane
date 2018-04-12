@@ -72,7 +72,7 @@ class WaveformFileCrawler(object):
     def _process_log_queue(self):
         try:
             msg = self.log_queue.pop(0)
-        except:
+        except Exception:
             pass
         else:
             if msg.startswith('['):
@@ -255,7 +255,7 @@ class WaveformFileCrawler(object):
             if time.time() - mtime > 60 * 60 * self.options["recent"]:
                 try:
                     db_file_mtime = self._db_files.pop(file)
-                except:
+                except Exception:
                     pass
                 return
 
@@ -273,7 +273,7 @@ class WaveformFileCrawler(object):
         # -> remove from file list so it won't be deleted on database cleanup
         try:
             db_file_mtime = self._db_files.pop(file)
-        except:
+        except Exception:
             return
         # -> compare modification times of current file with database entry
         if datetime.datetime.fromtimestamp(mtime) == db_file_mtime:
@@ -289,7 +289,7 @@ def worker(_i, input_queue, work_queue, log_queue):
             # fetch a unprocessed item
             try:
                 filepath = input_queue.popitem()[0]
-            except:
+            except Exception:
                 continue
             # skip item if already in work queue
             if filepath in work_queue:
@@ -305,7 +305,7 @@ def worker(_i, input_queue, work_queue, log_queue):
             # ALways attempt to remove it from the worker queue.
             try:
                 work_queue.remove(filepath)
-            except:
+            except Exception:
                 pass
     except KeyboardInterrupt:
         return

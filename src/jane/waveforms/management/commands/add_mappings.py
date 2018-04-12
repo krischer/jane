@@ -37,23 +37,23 @@ class Command(BaseCommand):
 
                 try:
                     from_net, from_sta, from_loc, from_cha = from_id.split(".")
-                except:
+                except Exception:
                     msg = "From id '%s' is not acceptable SEED id." % from_id
                     raise Exception(msg)
                 try:
                     to_net, to_sta, to_loc, to_cha = to_id.split(".")
-                except:
+                except Exception:
                     msg = "From id '%s' is not acceptable SEED id." % to_id
                     raise Exception(msg)
 
                 try:
                     start = obspy.UTCDateTime(start)
-                except:
+                except Exception:
                     msg = "Start time '%s' cannot be parsed." % start
                     raise Exception(msg)
                 try:
                     end = obspy.UTCDateTime(end)
-                except:
+                except Exception:
                     msg = "End time '%s' cannot be parsed." % end
                     raise Exception(msg)
 

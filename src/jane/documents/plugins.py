@@ -114,7 +114,7 @@ def initialize_plugins():
         # case.
         try:
             [_i for _i in obj.get_plugins()]
-        except:
+        except Exception:
             pass
 
         for plugin in obj.plugins:

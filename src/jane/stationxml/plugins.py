@@ -162,7 +162,7 @@ class StationIndexerPlugin(IndexerPluginPoint):
 
                     try:
                         plt.close()
-                    except:
+                    except Exception:
                         pass
 
                     # Sometimes fails. Wrap in try/except.
@@ -179,7 +179,7 @@ class StationIndexerPlugin(IndexerPluginPoint):
                     finally:
                         try:
                             plt.close()
-                        except:
+                        except Exception:
                             pass
 
                     indices.append(index)

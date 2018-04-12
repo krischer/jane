@@ -15,7 +15,7 @@ class AutoLogoutMiddleware(object):
         try:
             if not settings.AUTO_LOGOUT_MINUTES:
                 return
-        except:
+        except AttributeError:
             return
 
         try:

@@ -67,13 +67,13 @@ def index_document(sender, instance, created, **kwargs):  # @UnusedVariable
             attachments = index.get('attachments')
             try:
                 del index['attachments']
-            except:
+            except Exception:
                 pass
             # geometry
             geometry = index.get('geometry')
             try:
                 del index['geometry']
-            except:
+            except Exception:
                 pass
             # add index
             obj = models.DocumentIndex(document=instance, json=index)

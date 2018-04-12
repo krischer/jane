@@ -51,7 +51,7 @@ def process_file(filename):
     #         eventually existing file.
     try:
         stream = read(filename)
-    except:
+    except Exception:
         # Delete if invalid file.
         if file is not None:
             file.delete()
@@ -142,7 +142,7 @@ def process_file(filename):
                 # does not work.
                 try:
                     preview_trace = create_preview(trace, 60)
-                except:
+                except Exception:
                     preview_trace = None
                 else:
                     preview_trace = list(map(float, preview_trace.data))
