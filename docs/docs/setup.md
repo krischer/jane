@@ -330,3 +330,29 @@ will of course differ per installation):
 ```
 
 Make sure to choose sensible `processes` and `threads` options.
+
+### Troubleshooting
+
+When running `python3 manage.py runserver` the following error traceback shows up:
+
+```
+  [...]
+  File ".../lib/python3.6/site-packages/django/contrib/gis/geos/libgeos.py", line 171, in geos_version_info
+    raise GEOSException('Could not parse version info string "%s"' % ver)
+django.contrib.gis.geos.error.GEOSException: Could not parse version info string "3.6.2-CAPI-1.10.2 0"
+```
+
+See [#78](https://github.com/krischer/jane/pull/78) and monkey patch the above file `libgeos.py` by adding a `?` after the `r` in the regex pattern like shown [here](https://github.com/krischer/jane/blob/45862359dc385a3518b4d080ac7336ad78ec85c5/.travis.yml#L45).
+
+---
+
+When running `python3 manage.py runserver` the following error traceback shows up:
+
+```
+  [...]
+  File ".../lib/python3.6/site-packages/rest_framework/compat.py", line 21, in <module>
+    from django.urls import (  # noqa
+ModuleNotFoundError: No module named 'django.urls'
+```
+
+Check version of `django-restframework`. `django-restframework`>= 3.7 does not work together with Django 1.9, so downgrade `django-restframework` if it is a higher version. See [#78](https://github.com/krischer/jane/pull/78).
