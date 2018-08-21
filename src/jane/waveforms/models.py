@@ -102,8 +102,8 @@ class ContinuousTrace(models.Model):
 
     class Meta:
         ordering = ['-timerange', 'network', 'station', 'location', 'channel']
-        unique_together = ['file', 'network', 'station', 'location', 'channel',
-                           'timerange']
+        unique_together = ['file', 'pos', 'network', 'station', 'location',
+                           'channel', 'timerange']
 
     def timed_preview_trace(self):
         num_samples = (len(self.preview_trace) - 1)
