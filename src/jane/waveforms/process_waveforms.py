@@ -50,7 +50,7 @@ def process_file(filename):
     # Step 2: Read the file and perform a couple of sanity checks. Delete an
     #         eventually existing file.
     try:
-        stream = read(filename)
+        stream = read(filename, verify_chksum=False)
     except:
         # Delete if invalid file.
         if file is not None:
