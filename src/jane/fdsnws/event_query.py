@@ -128,6 +128,7 @@ def query_event(fh, nodata, orderby, format, starttime=None, endtime=None,
         with io.StringIO(newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter='|',
                                 quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            csvfile.write("#")
             writer.writerow(header)
             for result in results:
                 row = [result.json[_i] if _i is not None else ""
