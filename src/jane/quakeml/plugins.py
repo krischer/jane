@@ -244,6 +244,10 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                         'usedPhaseCountP', {}).get('value', None)
                     used_s = extra.get(
                         'usedPhaseCountS', {}).get('value', None)
+                    if used_p is not None:
+                        used_p = int(used_p)
+                    if used_s is not None:
+                        used_s = int(used_s)
 
             # set first/last pick times
             first_pick_time = None
