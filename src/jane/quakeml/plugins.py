@@ -157,8 +157,8 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                     has_moment_tensor = True
 
             # Parse attributes in the baynet namespace.
-            # The public attribute defaults to True, it can only be set to
-            # False by utilizing the baynet namespace as of now.
+            # The public attribute defaults to None, it can only be set to
+            # True by utilizing the baynet namespace as of now.
             extra = event.get("extra", {})
             if "public" in extra:
                 public = extra["public"]["value"]
@@ -169,7 +169,7 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 else:
                     public = None
             else:
-                public = True
+                public = None
             if "evaluationMode" in extra:
                 evaluation_mode = extra["evaluationMode"]["value"]
             else:
