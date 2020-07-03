@@ -109,6 +109,9 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
         "origin_time": "UTCDateTime",
         "first_pick_time": "UTCDateTime",
         "last_pick_time": "UTCDateTime",
+        "used_p": "int",
+        "used_s": "int",
+        "used_phase_count": "int",
         "magnitude": "float",
         "magnitude_type": "str",
         "agency": "str",
@@ -228,6 +231,19 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 else:
                     geometry.append(MultiLineString([]))
 
+            # phase counts
+            used_phase_count = None
+            used_p = None
+            used_s = None
+            if org:
+                if org.quality:
+                    used_phase_count = org.quality.used_phase_count
+                if org.quality and org.quality.get('extra'):
+                    used_p = org.quality.get(
+                        'extra', {}).get('usedPhaseCountP', None)
+                    used_s = org.quality.get(
+                        'extra', {}).get('usedPhaseCountS', None)
+
             # set first/last pick times
             first_pick_time = None
             last_pick_time = None
@@ -246,6 +262,9 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 "origin_time": str(org.time) if org else None,
                 "first_pick_time": first_pick_time,
                 "last_pick_time": last_pick_time,
+                "used_phase_count": used_phase_count,
+                "used_p": used_p,
+                "used_s": used_s,
                 "magnitude": mag.mag if mag else None,
                 "magnitude_type": mag.magnitude_type if mag else None,
                 "agency":
