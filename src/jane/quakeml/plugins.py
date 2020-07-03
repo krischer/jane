@@ -235,8 +235,8 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 pick_times = [
                     pick.time for pick in event.picks if pick.time is not None]
                 if pick_times:
-                    first_pick_time = min(pick_times)
-                    last_pick_time = max(pick_times)
+                    first_pick_time = str(min(pick_times))
+                    last_pick_time = str(max(pick_times))
 
             indices.append({
                 "quakeml_id": str(event.resource_id),
