@@ -107,6 +107,8 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
         "longitude": "float",
         "depth_in_m": "float",
         "origin_time": "UTCDateTime",
+        "first_pick_time": "UTCDateTime",
+        "last_pick_time": "UTCDateTime",
         "magnitude": "float",
         "magnitude_type": "str",
         "agency": "str",
@@ -226,12 +228,24 @@ class QuakeMLIndexerPlugin(IndexerPluginPoint):
                 else:
                     geometry.append(MultiLineString([]))
 
+            # set first/last pick times
+            first_pick_time = None
+            last_pick_time = None
+            if event.picks:
+                pick_times = [
+                    pick.time for pick in event.picks if pick.time is not None]
+                if pick_times:
+                    first_pick_time = min(pick_times)
+                    last_pick_time = max(pick_times)
+
             indices.append({
                 "quakeml_id": str(event.resource_id),
                 "latitude": org.latitude if org else None,
                 "longitude": org.longitude if org else None,
                 "depth_in_m": org.depth if org else None,
                 "origin_time": str(org.time) if org else None,
+                "first_pick_time": first_pick_time,
+                "last_pick_time": last_pick_time,
                 "magnitude": mag.mag if mag else None,
                 "magnitude_type": mag.magnitude_type if mag else None,
                 "agency":
